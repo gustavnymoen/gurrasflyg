@@ -13,12 +13,12 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 
 // Kollar inloggningen, kör ändringen, laddar om sidans data och gör om fel
 // till ett svar sidan kan visa
-async function run(change: () => void): Promise<ActionResult> {
+async function run(change: () => Promise<void>): Promise<ActionResult> {
   if (!(await isAdmin())) {
     return { ok: false, error: "Du är inte inloggad längre. Ladda om sidan och logga in." };
   }
   try {
-    change();
+    await change();
   } catch (e) {
     if (e instanceof admin.AdminError) return { ok: false, error: e.message };
     console.error(e);
