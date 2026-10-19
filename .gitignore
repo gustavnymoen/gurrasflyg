@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sqlite-databasen (skapas från db/schema.sql och db/seed.sql)
+/db/*.db*
+/db/backups/
