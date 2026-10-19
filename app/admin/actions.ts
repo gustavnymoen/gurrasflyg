@@ -1,17 +1,22 @@
 "use server";
 
 // Server actions: funktioner som körs på servern men anropas direkt från
-// knapparna på adminsidan. OBS: det finns ingen inloggning än, så vem som
-// helst som når sidan kan anropa dessa.
+// knapparna på adminsidan. De går att anropa utan att gå via sidan, så
+// varje anrop kontrollerar att man är inloggad.
 
 import { refresh } from "next/cache";
 import * as admin from "@/lib/admin";
+import { isAdmin } from "@/lib/auth";
 import type { AddonInput, AircraftInput } from "@/lib/admin";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
-// Kör ändringen, laddar om sidans data och gör om fel till ett svar sidan kan visa
-function run(change: () => void): ActionResult {
+// Kollar inloggningen, kör ändringen, laddar om sidans data och gör om fel
+// till ett svar sidan kan visa
+async function run(change: () => void): Promise<ActionResult> {
+  if (!(await isAdmin())) {
+    return { ok: false, error: "Du är inte inloggad längre. Ladda om sidan och logga in." };
+  }
   try {
     change();
   } catch (e) {
