@@ -1,0 +1,52 @@
+# TECH-001: kontroller vid varje push och pull request.
+# Lint, typkontroll, bygge och alla tester mot ett lokalt produktionsbygge
+# med egen testdatabas. Använder varken Turso eller några riktiga lösenord.
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+# En ny push på samma gren avbryter den förra körningen
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # postinstall hoppar över webbläsaren när CI är satt, så den installeras här
+      - run: npx playwright install --with-deps chromium
+
+      # Påhittat lösenord och nyckel för testservern, bara för den här körningen
+      - name: Engångslösenord för testerna
+        run: |
+          echo "ADMIN_PASSWORD=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "ADMIN_SESSION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - run: npm run test:local
+
+      - name: Spara testrapporten
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

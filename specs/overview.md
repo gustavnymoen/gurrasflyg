@@ -81,7 +81,7 @@ The site is also a course project: it is built to practise real product developm
 
 Features built before this way of working was introduced were specified afterwards, so `specs/done/` describes the site as it is.
 
-| ID | Feature | Area | Status |
+| ID | Feature or task | Area | Status |
 |---|---|---|---|
 | TRIP-001 | Flight search form on the start page | Flight booking | Done |
 | TRIP-002 | Admin sign-in and sign-out | Administration | Done |
@@ -89,6 +89,7 @@ Features built before this way of working was introduced were specified afterwar
 | TRIP-004 | Admin: aircraft with classes, seats and add-ons per class | Flight booking | Done |
 | TRIP-005 | Routes and departures, and assigning aircraft to routes | Flight booking | Done |
 | TRIP-006 | Reviews: carousel on the start page and managing them in admin | Shared | Done |
+| TECH-001 | Automatic pipeline (CI) on GitHub | Shared | Ongoing |
 
 ## Backlog
 
@@ -105,7 +106,6 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | | A chatbot that answers questions from the user manual | Feature | Shared |
 | | Enter in the airport field before new suggestions have loaded chooses from the previous list (found in TRIP-001) | Fix | Flight booking |
 | | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
-| TECH-001 | Automatic pipeline (CI): run lint, type check, build and `npm run test:local` on GitHub for every push, and `npm test` against the live site after each deploy, so nothing reaches production untested | Tech | Shared |
 | TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
 | TECH-004 | Remove `scripts/copy-to-prod.mjs` and `npm run copy-to-prod` once production and local data are kept separate | Tech | Administration |

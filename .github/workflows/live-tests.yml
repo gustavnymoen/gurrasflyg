@@ -1,0 +1,45 @@
+# TECH-001: alla tester mot den riktiga sajten efter varje publicering.
+# Vercel meddelar GitHub när en deploy är klar (deployment_status). Bara
+# lyckade produktionsdeployer testas; förhandsversionerna kräver inloggning
+# hos Vercel. Kan också startas för hand under Actions → Live tests.
+name: Live tests
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+jobs:
+  live:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Produktionens lösenord. Saknas det hoppas admin-testerna över.
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+    steps:
+      # Testerna från samma commit som publicerades
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+
+      - name: Spara testrapporten
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-live
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

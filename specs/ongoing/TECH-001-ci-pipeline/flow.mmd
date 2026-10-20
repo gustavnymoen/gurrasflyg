@@ -1,0 +1,14 @@
+%% TECH-001 Automatic pipeline (CI)
+flowchart TD
+    Code[Change on a branch] --> Push[git push]
+    Push --> CI["CI on GitHub<br/>npm ci, lint, type check,<br/>build, test:local<br/>R1, R2, R5"]
+    Push --> Preview[Vercel preview deploy]
+    CI --> Green{All green?}
+    Green -- no --> Report[Red check +<br/>Playwright report<br/>R4]
+    Report --> Code
+    Green -- yes --> PR[Pull request merged to main<br/>R6]
+    PR --> Deploy[Vercel production deploy]
+    Deploy --> Live["Live tests on GitHub<br/>npm test against the live site<br/>R3"]
+    Live --> LiveOk{All green?}
+    LiveOk -- no --> LiveReport[Red check +<br/>Playwright report<br/>R4]
+    LiveOk -- yes --> Done[Done]

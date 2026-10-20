@@ -19,6 +19,7 @@ Every change to the site's behaviour belongs to a feature with an ID (`TRIP-001`
 5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npx tsc --noEmit`, `npm run build` and `npm run test:local`, and after deploy `npm test` against the live site.
 6. **Document.** Update `wiki/system/` (how it works, in English) and `wiki/manual/` (how to use it, in Swedish), the `index.md` pages, `wiki/system/architecture.md` if the structure changed, and add a line to `wiki/log.md`.
 7. **Done.** Check every point in the Definition of Done below. Move the folder to `specs/done/` and update the feature's status in `specs/overview.md`. Commit with the feature ID in the message, for example `TRIP-007: Sök charterresor`.
+8. **Merge.** Push the branch (when the user asks) and open a pull request to `main`. GitHub's "CI" check runs lint, type check, build and `npm run test:local`. Merge only when it is green; the merge publishes the site, and "Live tests" then runs `npm test` against it.
 
 Small fixes that don't change behaviour (typos, styling details) don't need a new feature, but still keep the specs and wiki true.
 
@@ -59,4 +60,4 @@ This is a hobby project and a learning project. The code doesn't have to be perf
 - **Database changes go through migrations** in `db/migrations/NNN_<name>.sql`, run by `scripts/db-setup.mjs` before `dev` and `build`. Never edit an applied migration; add a new one. Prices are stored as integers in öre (SEK). Course prices in EUR are converted at 1 EUR = 10 SEK.
 - **The local database is the user's own data.** It lives at `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside OneDrive, with backups in `db/backups/` (synced by OneDrive). Never reset it, delete from it or write test data to it. Experiments run on a copy (`TURSO_DATABASE_URL=file:<copy>`). Tests that write data must clean up after themselves or run against a separate database.
 - **Production** is Vercel with Turso. `npm run db:reset` never runs against Turso. Secrets (`.env.local`, `.env.turso`) are never committed or printed.
-- **Git:** work on a branch per feature, commit only when the user asks, and push only when the user asks. Check staged files before every commit.
+- **Git:** work on a branch per feature, commit only when the user asks, and push only when the user asks. Check staged files before every commit. Don't push directly to `main`; changes reach `main` through a pull request with a green "CI" check.
