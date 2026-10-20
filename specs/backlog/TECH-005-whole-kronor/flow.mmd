@@ -1,0 +1,11 @@
+%% TECH-005 All prices in whole kronor
+flowchart TD
+    Db[(Prices in öre)] --> Mig["004_whole_kronor.sql<br/>öre / 100, rounded<br/>R2"]
+    Mig --> Kr[(Prices in whole kronor)]
+    Kr --> Show["formatPrice / formatAmount<br/>show kronor as they are<br/>R1, R3"]
+    Admin[Administrator enters an add-on price] --> Whole{Whole kronor, 0 or more?}
+    Whole -- "öre" --> Err1["Ange priset i hela kronor.<br/>R4"]
+    Whole -- negative --> Err2["Priset måste vara 0 kr eller mer."]
+    Err1 --> Admin
+    Err2 --> Admin
+    Whole -- yes --> Save[Saved as it is] --> Kr

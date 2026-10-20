@@ -2,8 +2,8 @@
 flowchart TD
     Files["Course files (read-only)<br/>data/airports.json, destinations.json,<br/>flights.json, knowledge/*.md"] --> Script["scripts/generate-charter-data.mjs<br/>R8"]
     Script --> Convert["Prices: EUR × 10 = whole kronor<br/>R6"]
-    Convert --> Sql["db/migrations/005_charter_data.sql"]
-    Tables["db/migrations/004_charter.sql<br/>tables and rules, R7"] --> Setup
+    Convert --> Sql["db/migrations/006_charter_data.sql"]
+    Tables["db/migrations/005_charter.sql<br/>tables and rules, R7"] --> Setup
     Sql --> Setup["scripts/db-setup.mjs<br/>local and Turso"]
     Setup --> Ok{Data follows the rules?}
     Ok -- no --> Fail[Migration fails,<br/>nothing is stored]

@@ -98,8 +98,9 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | ID | Item | Type | Area |
 |---|---|---|---|
 | TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
-| TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices (`addons`, `flight_prices`, `booking_flights`, `booking_flight_addons`), and `lib/format.ts`, the add-on price in admin (`lib/admin.ts`, `app/admin/AddonTable.tsx`) and the rules in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec follow. Add-on prices can no longer have öre (TRIP-003 allows them today) | Tech | Shared |
+| TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices, the code stops converting, add-on prices must be whole kronor (an error otherwise), and the rule is updated in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
+| | Update the visual design | Feature | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
 | | Add return trip datepicker | Feature | Flight booking |
 | | Search results for a flight search. Prices are shown as 0 kr until flights have prices per class | Feature | Flight booking |
@@ -110,7 +111,6 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | | Enter in the airport field before new suggestions have loaded chooses from the previous list (found in TRIP-001) | Fix | Flight booking |
 | | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
 | TECH-004 | Remove `scripts/copy-to-prod.mjs` and `npm run copy-to-prod` once production and local data are kept separate | Tech | Administration |
-| | Update the visual design | Feature | Shared |
 | | A chatbot that answers questions from the user manual | Feature | Shared |
 
 ## Decisions for charter
