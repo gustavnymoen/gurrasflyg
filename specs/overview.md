@@ -104,6 +104,7 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | | Destination pages, and browsing and searching destinations | Feature | Charter |
 | | Searching for trips to a destination, and booking them | Feature | Charter |
 | | A chatbot that answers questions from the user manual | Feature | Shared |
+| | Update the visual design | Feature | Shared |
 | | Enter in the airport field before new suggestions have loaded chooses from the previous list (found in TRIP-001) | Fix | Flight booking |
 | | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
 | TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
