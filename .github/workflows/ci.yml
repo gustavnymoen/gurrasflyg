@@ -37,7 +37,7 @@ jobs:
           echo "ADMIN_SESSION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
 
       - run: npm run lint
-      - run: npx tsc --noEmit
+      - run: npm run typecheck
       - run: npm run build
       - run: npm run test:local
 

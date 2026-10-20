@@ -102,6 +102,7 @@ branch ──push──▶ CI (GitHub): npm ci → lint → type check → build
 | `npm run dev` | Updates the local database and starts the dev server. |
 | `npm run build` | Builds the site locally, to catch build errors before pushing. |
 | `npm run lint` | Checks the code with ESLint. |
+| `npm run typecheck` | Generates Next.js route types and checks the TypeScript types. |
 | `npm test` | Runs all tests against the live site. `BASE_URL=<address> npm test` runs them against another address. |
 | `npm run test:local` | Runs all tests against a local production build with a fresh test database. |
 | `npm run db:backup` | Saves a backup of the local database in `db/backups/`. |

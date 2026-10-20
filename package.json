@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "db:reset": "node scripts/db-setup.mjs --reset",
     "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs",
     "copy-to-prod": "node --env-file=.env.turso scripts/copy-to-prod.mjs",

@@ -10,6 +10,7 @@ timestamp: 2026-10-20
 ## 2026-10-20
 
 - TECH-001: GitHub Actions pipeline. CI checks every push and pull request; Live tests run against the live site after every production deploy.
+- Added `npm run typecheck` (`next typegen && tsc --noEmit`). `tsc` alone fails in a fresh checkout, because Next.js generates types such as `LayoutProps` into `.next/`.
 - Added a Definition of Done and technical tasks (`TECH-`) to the way of working (`CLAUDE.md`), and four technical tasks to the backlog. Small related cleanups are done directly in the change they belong to.
 - Introduced specification-driven development: `specs/` with overview, template and status folders, this wiki, Playwright tests and `CLAUDE.md`.
 - Added the course sample data (`data/`, `knowledge/`, `public/images/`) and `GET /api/destinations`.
