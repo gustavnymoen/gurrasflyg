@@ -93,23 +93,24 @@ Features built before this way of working was introduced were specified afterwar
 
 ## Backlog
 
-One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID and a spec in `specs/backlog/` when they are specified; **Tech** items (improvements to the code that don't change what the site does) get a `TECH-` ID. The spec's `area` says which part of the site it belongs to. Not yet in priority order.
+One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID and a spec in `specs/backlog/` when they are specified; **Tech** items (improvements to the code that don't change what the site does) get a `TECH-` ID. The spec's `area` says which part of the site it belongs to. In priority order: the top item is next.
 
 | ID | Item | Type | Area |
 |---|---|---|---|
+| TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
 | | Import the course data into the database, in tables of its own | Feature | Charter |
+| TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
+| | Add return trip datepicker | Feature | Flight booking |
+| | Search results for a flight search. Prices are shown as 0 kr until flights have prices per class | Feature | Flight booking |
 | | Turn routes and departures into bookable flights with prices per class | Feature | Flight booking |
-| | Search results for a flight search | Feature | Flight booking |
 | | Booking a flight: passengers, contact, class and add-ons. The database rules (no overbooking, only allowed add-ons) already exist in `lib/bookings.ts` | Feature | Flight booking |
 | | Destination pages, and browsing and searching destinations | Feature | Charter |
 | | Searching for trips to a destination, and booking them | Feature | Charter |
-| | A chatbot that answers questions from the user manual | Feature | Shared |
-| | Update the visual design | Feature | Shared |
 | | Enter in the airport field before new suggestions have loaded chooses from the previous list (found in TRIP-001) | Fix | Flight booking |
 | | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
-| TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
-| TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
 | TECH-004 | Remove `scripts/copy-to-prod.mjs` and `npm run copy-to-prod` once production and local data are kept separate | Tech | Administration |
+| | Update the visual design | Feature | Shared |
+| | A chatbot that answers questions from the user manual | Feature | Shared |
 
 ## Decisions for charter
 
