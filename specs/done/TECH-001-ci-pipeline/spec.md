@@ -2,7 +2,7 @@
 id: TECH-001
 title: Automatic pipeline (CI)
 area: Shared
-status: ongoing
+status: done
 created: 2026-10-20
 updated: 2026-10-20
 depends_on: []
