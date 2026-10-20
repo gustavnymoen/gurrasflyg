@@ -1,19 +1,21 @@
 # TECH-001: alla tester mot den riktiga sajten efter varje publicering.
-# Vercel meddelar GitHub när en deploy är klar (deployment_status). Bara
-# lyckade produktionsdeployer testas; förhandsversionerna kräver inloggning
-# hos Vercel. Kan också startas för hand under Actions → Live tests.
+# Vercel meddelar GitHub med en status ("Vercel") på commiten när en deploy
+# är klar. Bara lyckade deployer av main testas, för det är produktionen;
+# förhandsversionerna kräver inloggning hos Vercel. Övriga statusar ger en
+# överhoppad körning. Kan också startas för hand under Actions → Live tests.
 name: Live tests
 
 on:
-  deployment_status:
+  status:
   workflow_dispatch:
 
 jobs:
   live:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' &&
-       github.event.deployment_status.environment == 'Production')
+      (github.event.context == 'Vercel' &&
+       github.event.state == 'success' &&
+       contains(github.event.branches.*.name, 'main'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -23,7 +25,7 @@ jobs:
       # Testerna från samma commit som publicerades
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.deployment.sha || github.sha }}
+          ref: ${{ github.event.sha || github.sha }}
 
       - uses: actions/setup-node@v4
         with:

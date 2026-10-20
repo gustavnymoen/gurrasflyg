@@ -89,7 +89,7 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 | Workflow | When | What |
 |---|---|---|
 | CI (`.github/workflows/ci.yml`) | Every push and every pull request to `main` | `npm ci`, lint, type check, build and `npm run test:local`, with a throw-away admin password and the test database. Never touches production. |
-| Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's `deployment_status` event), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
+| Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's commit status `Vercel` on a commit in `main`), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
 
 Failing runs save Playwright's HTML report, screenshots and traces as an artifact. Changes reach `main` through pull requests that are merged when CI is green.
 
