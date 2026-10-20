@@ -1,0 +1,9 @@
+%% TECH-002 Small cleanups
+flowchart TD
+    Start[Branch TECH-002-small-cleanups] --> Images[Delete the template images<br/>R2]
+    Images --> Code[Delete getAirports and textareaClass<br/>R3]
+    Code --> Limit[Move the review text limit<br/>to lib/review-rules.ts<br/>R4]
+    Limit --> Checks{"lint, typecheck, build,<br/>test:local green?<br/>R1"}
+    Checks -- no --> Fix[Fix what the change broke]
+    Fix --> Checks
+    Checks -- yes --> Live[Merge, deploy, npm test live<br/>R1]

@@ -1,0 +1,13 @@
+%% TRIP-008 Visual design
+flowchart TD
+    Tokens["Tokens in app/globals.css<br/>colours, font, radii, shadows, motion<br/>R1, R3, R4"] --> Theme["Tailwind @theme"]
+    Theme --> Comps["Shared components<br/>Button, RoundButton, fields, Checkbox,<br/>Card, Message, Wordmark, Stars<br/>R2, R5, R9, R10, R12"]
+    Comps --> Start["Start page<br/>header + wordmark R6, heading R7,<br/>photo + credit R8, search form, carousel R11"]
+    Comps --> Login["/admin/login"]
+    Comps --> Admin["/admin, compact sizes"]
+    Start --> Check{"Same behaviour?<br/>existing tests pass R16"}
+    Login --> Check
+    Admin --> Check
+    Check -- no --> Fix[Fix the component, not the page]
+    Fix --> Comps
+    Check -- yes --> Doc["DESIGN.md<br/>R17"]
