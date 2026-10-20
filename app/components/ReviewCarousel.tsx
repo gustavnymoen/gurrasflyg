@@ -19,6 +19,8 @@ const LOOK = [
 export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
   const [active, setActive] = useState(0);
   const swipeStart = useRef<number | null>(null);
+  // Ett svep som slutar på ett sidokort ska inte också räknas som klick på det
+  const swiped = useRef(false);
   const count = reviews.length;
 
   if (count === 0) return null;
@@ -44,12 +46,18 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
         if (e.key === "ArrowLeft") go(-1);
       }}
       // Svep på mobil
-      onPointerDown={(e) => (swipeStart.current = e.clientX)}
+      onPointerDown={(e) => {
+        swipeStart.current = e.clientX;
+        swiped.current = false;
+      }}
       onPointerUp={(e) => {
         if (swipeStart.current === null) return;
         const dx = e.clientX - swipeStart.current;
         swipeStart.current = null;
-        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) > 40) {
+          swiped.current = true;
+          go(dx < 0 ? 1 : -1);
+        }
       }}
       className="relative mx-auto h-60 w-full touch-pan-y overflow-x-clip outline-none"
     >
@@ -64,7 +72,7 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
           <article
             key={review.id}
             aria-hidden={!focused}
-            onClick={() => !focused && go(offset)}
+            onClick={() => !focused && !swiped.current && go(offset)}
             style={{
               transform: `translateX(calc(-50% + ${Math.sign(offset) * look.shift}%)) scale(${look.scale})`,
               opacity: hidden ? 0 : look.opacity,

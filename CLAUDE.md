@@ -16,11 +16,37 @@ Every change to the site's behaviour belongs to a feature with an ID (`TRIP-001`
    - Data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself.
    - Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
    - Never weaken a test to make it pass. A failing test is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the spec).
-5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npx tsc --noEmit`, `npm run build` and `npm run test:local`, and after deploy `npm test` against the live site.
+5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npm run typecheck`, `npm run build` and `npm run test:local`, and after deploy `npm test` against the live site.
 6. **Document.** Update `wiki/system/` (how it works, in English) and `wiki/manual/` (how to use it, in Swedish), the `index.md` pages, `wiki/system/architecture.md` if the structure changed, and add a line to `wiki/log.md`.
-7. **Done.** Move the folder to `specs/done/` and update the feature's status in `specs/overview.md`. Commit with the feature ID in the message, for example `TRIP-007: Sök charterresor`.
+7. **Done.** Check every point in the Definition of Done below. Move the folder to `specs/done/` and update the feature's status in `specs/overview.md`. Commit with the feature ID in the message, for example `TRIP-007: Sök charterresor`.
+8. **Merge.** Push the branch (when the user asks) and open a pull request to `main`. GitHub's "CI" check runs lint, type check, build and `npm run test:local`. Merge only when it is green; the merge publishes the site, and "Live tests" then runs `npm test` against it.
 
-Small fixes that don't change behaviour (typos, styling details, refactoring) don't need a new feature, but still keep the specs and wiki true.
+Small fixes that don't change behaviour (typos, styling details) don't need a new feature, but still keep the specs and wiki true.
+
+## Definition of Done
+
+A feature or technical task is done when all of these hold. Record them in its `verification.md`.
+
+1. **Tests:** every requirement has a test named after it (or a recorded manual check or code review), and `npm run test:local` and, after deploy, `npm test` pass.
+2. **Spec:** `spec.md` describes what was actually built. Anything that changed during the work is updated, and no open questions remain.
+3. **Manual:** `wiki/manual/` (Swedish) describes how to use the feature, `wiki/system/` how it works, and `wiki/log.md` has a line.
+4. **No leftovers:** code, files, exports, styles, scripts and documentation that the change made unused are deleted. No commented-out code, debug output or temporary files. Claude is responsible for the code being clean.
+5. **Clean code:** reads like the surrounding code, reuses existing components and helpers instead of copying them, and `npm run lint`, `npm run typecheck` and `npm run build` pass without errors or warnings.
+6. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the backlog as technical tasks (see below).
+
+## Technical tasks
+
+Improvements to the code that don't change what the site does: removing leftovers, removing duplicated code, making shared components (for example one button component instead of the same classes in many places), and making things faster.
+
+- **Small and related: fix it now.** A small improvement in or right next to the code being changed is done as part of that change, without a backlog item. Mention it in the commit and in `verification.md`.
+- **Large or unrelated: add a technical task.** Only what is too big for the current change, or concerns other parts of the code, goes to the backlog. Group small unrelated findings into one task instead of one task each. The backlog should not fill up with technical tasks.
+- They are in the same backlog as features, in `specs/overview.md`, with the type **Tech** and IDs `TECH-001`, `TECH-002`, …, and a short description of the problem and where it is.
+- When one is started it gets a folder like a feature, `specs/ongoing/TECH-001-<name>/`, from the same template. Its requirements are usually "the site behaves as before" (shown by the existing tests passing) plus the concrete change.
+- The Definition of Done applies to them too.
+
+## Code quality
+
+This is a hobby project and a learning project. The code doesn't have to be perfect, but it should be tidy, consistent and easy to follow: clear names, small functions, shared components instead of copies, comments that explain why. Prefer the simple solution over the clever one. When a choice is worth learning from (a pattern, a trade-off, why something was refactored), explain it briefly to the user.
 
 ## Languages
 
@@ -34,4 +60,4 @@ Small fixes that don't change behaviour (typos, styling details, refactoring) do
 - **Database changes go through migrations** in `db/migrations/NNN_<name>.sql`, run by `scripts/db-setup.mjs` before `dev` and `build`. Never edit an applied migration; add a new one. Prices are stored as integers in öre (SEK). Course prices in EUR are converted at 1 EUR = 10 SEK.
 - **The local database is the user's own data.** It lives at `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside OneDrive, with backups in `db/backups/` (synced by OneDrive). Never reset it, delete from it or write test data to it. Experiments run on a copy (`TURSO_DATABASE_URL=file:<copy>`). Tests that write data must clean up after themselves or run against a separate database.
 - **Production** is Vercel with Turso. `npm run db:reset` never runs against Turso. Secrets (`.env.local`, `.env.turso`) are never committed or printed.
-- **Git:** work on a branch per feature, commit only when the user asks, and push only when the user asks. Check staged files before every commit.
+- **Git:** work on a branch per feature, commit only when the user asks, and push only when the user asks. Check staged files before every commit. Don't push directly to `main`; changes reach `main` through a pull request with a green "CI" check.

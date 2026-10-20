@@ -17,6 +17,21 @@ async function writeReview(page: Page, review: { author: string; rating: number;
   await form.getByRole("button", { name: "Spara omdöme" }).click();
 }
 
+// The cards glide for half a second; wait until they stand still before
+// clicking or swiping on them, like a person would
+const cardsAtRest = (page: Page) =>
+  page.waitForFunction(() => document.getAnimations().length === 0);
+
+// A drag with the pointer from right to left across the card in focus
+async function swipeLeft(page: Page) {
+  const box = (await carousel(page).boundingBox())!;
+  const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+  await page.mouse.move(x + 60, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 60, y, { steps: 5 });
+  await page.mouse.up();
+}
+
 // The first (newest) review in the admin list
 const firstReviewRow = (page: Page) =>
   page.getByRole("row").filter({ has: page.getByRole("button", { name: /^Ta bort omdöme från/ }) }).first();
@@ -58,18 +73,17 @@ test.describe("start page", () => {
     await expect(focusedTitle).toHaveText(first!);
 
     // The card to the right of the focused one
+    await cardsAtRest(page);
     await cards.nth(1).click({ force: true });
     await expect(focusedTitle).toHaveText(second!);
 
-    // Swipe right to left (a drag with the pointer) moves to the next card
-    const box = (await carousel(page).boundingBox())!;
-    const y = box.y + box.height / 2;
-    await page.mouse.move(box.x + box.width / 2 + 60, y);
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 - 60, y);
-    await page.mouse.up();
+    // Swipe right to left (a drag with the pointer) moves exactly one card; it
+    // must not also count as a click on the card it ends on
+    await cardsAtRest(page);
+    await swipeLeft(page);
     await expect(focusedTitle).toHaveText((await title(2))!);
   });
+
 });
 
 test.describe("admin", () => {

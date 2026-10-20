@@ -84,6 +84,15 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 - **Production:** a push to `main` on GitHub builds and publishes <https://gurrasflyg.vercel.app>.
 - **Preview:** other branches get their own address on Vercel.
 
+### Pipeline
+
+| Workflow | When | What |
+|---|---|---|
+| CI (`.github/workflows/ci.yml`) | Every push and every pull request to `main` | `npm ci`, lint, type check, build and `npm run test:local`, with a throw-away admin password and the test database. Never touches production. |
+| Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's `deployment_status` event), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
+
+Failing runs save Playwright's HTML report, screenshots and traces as an artifact. Changes reach `main` through pull requests that are merged when CI is green.
+
 `npm run copy-to-prod` copies cabin classes, add-ons, aircraft and reviews from the local database to production. It only adds what is missing and never deletes.
 
 ## Tests

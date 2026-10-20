@@ -14,6 +14,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 - **Next.js 16** (App Router, TypeScript, Tailwind CSS) on **Node.js**. Pages and backend API routes are in the same project. This Next.js version differs from older ones; see `AGENTS.md`.
 - **Database:** SQLite through `@libsql/client`. Locally a file, `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, kept outside OneDrive because OneDrive breaks SQLite files while they are in use. Backups are saved in the project's `db/backups/`, which OneDrive does sync (see [Local database and backups](#local-database-and-backups)). In production **Turso**, a hosted SQLite.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
+- **Pipeline:** GitHub Actions checks every push and tests the live site after every deploy. See [Pipeline](#pipeline).
 - **Tests:** Playwright, one file per feature. `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
 - **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews, and assign aircraft to routes.
 
@@ -36,6 +37,8 @@ The site is built one feature at a time, and the specifications decide what is b
 - **Tests:** one file per feature, `tests/<feature ID>-<name>.spec.ts`, with each test named after the requirement it checks.
 - **Product overview:** `specs/overview.md` describes the product's purpose, shared terms, scope, the list of features and rules that apply across features.
 - **Wiki:** `wiki/system/` documents how the site works (English) and `wiki/manual/` how to use it (Swedish). Every page starts with frontmatter (`type`, `title`, `description`, `resource`, `tags`, `timestamp`), so the wiki can later feed a chatbot. The `index.md` pages, `wiki/system/architecture.md` and `wiki/log.md` grow as features are finished.
+- **Definition of Done:** tests, updated spec, updated manual and wiki, no leftovers, clean code, and technical tasks recorded for improvements found along the way. See `CLAUDE.md`.
+- **Technical tasks** (`TECH-001`, …) are improvements to the code that don't change what the site does. They are in the same backlog as features.
 - **Git:** one branch per feature, named after its spec folder. Commit messages start with the feature ID.
 
 ## Folders
@@ -62,6 +65,19 @@ Ready-made sample data from the course. It is read-only: features read or import
 
 `GET /api/destinations` returns all destinations (see `wiki/system/api-destinations.md`). The smoke test uses it.
 
+## Pipeline
+
+```
+branch ──push──▶ CI (GitHub): npm ci → lint → type check → build → test:local
+   │                         green?
+   └──pull request──▶ merge to main ──▶ Vercel publishes ──▶ Live tests (GitHub): npm test
+```
+
+- **CI** (`.github/workflows/ci.yml`) runs on every push and pull request. It uses a throw-away admin password and its own test database, never production. A newer push to the same branch cancels the older run.
+- **Live tests** (`.github/workflows/live-tests.yml`) run after every successful production deploy on Vercel, against <https://gurrasflyg.vercel.app>. They can also be started by hand under Actions → Live tests → Run workflow. The admin tests need the repository secret `ADMIN_PASSWORD` (GitHub → Settings → Secrets and variables → Actions); without it they are skipped.
+- When tests fail, the run saves Playwright's report with screenshots as an artifact, downloadable from the run's page.
+- Merge to `main` only when CI is green. The repository is private on a free plan, so GitHub doesn't enforce this; it is part of the way of working.
+
 ## Local database and backups
 
 - The database is `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside OneDrive.
@@ -86,6 +102,7 @@ Ready-made sample data from the course. It is read-only: features read or import
 | `npm run dev` | Updates the local database and starts the dev server. |
 | `npm run build` | Builds the site locally, to catch build errors before pushing. |
 | `npm run lint` | Checks the code with ESLint. |
+| `npm run typecheck` | Generates Next.js route types and checks the TypeScript types. |
 | `npm test` | Runs all tests against the live site. `BASE_URL=<address> npm test` runs them against another address. |
 | `npm run test:local` | Runs all tests against a local production build with a fresh test database. |
 | `npm run db:backup` | Saves a backup of the local database in `db/backups/`. |
