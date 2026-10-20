@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:reset": "node scripts/db-setup.mjs --reset",
-    "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs"
+    "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs",
+    "copy-to-prod": "node --env-file=.env.turso scripts/copy-to-prod.mjs"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
