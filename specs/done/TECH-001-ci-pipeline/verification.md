@@ -14,7 +14,7 @@ title: Automatic pipeline (CI)
 | TECH-001-R2 | Code review of `ci.yml`: no Turso address, no `secrets.` in the CI job; the simulation ran with a random password and secret | local | Pass | 2026-10-20 |
 | TECH-001-R3 | After the merge to `main`, "Live tests" didn't start: Vercel reports a deploy as a commit status (`Vercel`), not as a GitHub deployment, so `deployment_status` never came. The trigger was changed to the status event on commits in `main` | GitHub | Fail | 2026-10-20 |
 | TECH-001-R3 | "Live tests" started by hand on `main`: 43 passed, 6 skipped (local only), admin tests ran with the secret; no E2E data left on the start page | GitHub | Pass | 2026-10-20 |
-| TECH-001-R3 | "Live tests" starting by itself after the next production deploy | GitHub | Not yet checked | |
+| TECH-001-R3 | After merging pull request #2, Vercel's "deploying" status gave a skipped run and its "completed" status started "Live tests" on `768e480` by itself: 43 passed, 6 skipped (local only) | GitHub | Pass | 2026-10-20 |
 | TECH-001-R4 | Locally with `CI=1` the HTML report is written to `playwright-report/`; the upload runs only on failure | local | Pass | 2026-10-20 |
 | TECH-001-R5 | Code review: `concurrency` with `cancel-in-progress` in `ci.yml` | code | Pass | 2026-10-20 |
 | TECH-001-R6 | `CLAUDE.md`, `README.md` and `wiki/system/architecture.md` describe the pipeline and the pull request flow | docs | Pass | 2026-10-20 |
@@ -22,7 +22,7 @@ title: Automatic pipeline (CI)
 ## Definition of Done
 
 - [x] Tests: the existing suite is the test; it passes in the CI simulation
-- [ ] Runs green on GitHub: CI yes; Live tests by hand yes, automatically not yet checked
+- [x] Runs green on GitHub (CI, and Live tests both by hand and automatically)
 - [x] Spec matches what was built
 - [x] Manual not affected (no change for visitors); system docs and `wiki/log.md` updated
 - [x] No leftovers

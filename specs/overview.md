@@ -89,7 +89,7 @@ Features built before this way of working was introduced were specified afterwar
 | TRIP-004 | Admin: aircraft with classes, seats and add-ons per class | Flight booking | Done |
 | TRIP-005 | Routes and departures, and assigning aircraft to routes | Flight booking | Done |
 | TRIP-006 | Reviews: carousel on the start page and managing them in admin | Shared | Done |
-| TECH-001 | Automatic pipeline (CI) on GitHub | Shared | Ongoing |
+| TECH-001 | Automatic pipeline (CI) on GitHub | Shared | Done |
 
 ## Backlog
 
