@@ -11,6 +11,7 @@ Specified after the feature was built. Checked with the tests in `tests/TRIP-006
 |---|---|---|---|---|
 | TRIP-006-R1 | Test `TRIP-006-R1 the card in focus shows stars, title, text and name` | local, live | Pass | 2026-10-20 |
 | TRIP-006-R2 | Test `TRIP-006-R2 arrows, keys and clicks move the cards round`, including a swipe with the pointer | local, live | Pass | 2026-10-20 |
+| TRIP-006-R2 | Found by CI on GitHub: a swipe also counted as a click on the card it ended on, so the carousel stood still. Reproduced locally with the old carousel (test failed), fixed; the test now waits for the cards to stand still before clicking and swiping, and passed 5 times in a row | local | Pass | 2026-10-20 |
 | TRIP-006-R3 | Test `TRIP-006-R3 form has name, stars, title and text with a counter` | local, live | Pass | 2026-10-20 |
 | TRIP-006-R4 | Test `TRIP-006-R4 every field is required` | local, live | Pass | 2026-10-20 |
 | TRIP-006-R5 | Test `TRIP-006-R5 and R6 a saved review is listed and shown first, and can be deleted` | local, live | Pass | 2026-10-20 |

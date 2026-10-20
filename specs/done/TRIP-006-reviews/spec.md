@@ -54,6 +54,7 @@ Acceptance criteria:
 - **When** the carousel has focus and the traveller presses Arrow right, **then** the next review is in focus.
 - **When** the traveller clicks the card to the right, **then** it comes into focus.
 - **Given** a phone, **then** a swipe moves the cards. (Checked manually.)
+- **When** the traveller swipes, **then** the cards move exactly one step; the swipe doesn't also count as a click on the card it ends on.
 
 ### TRIP-006-R3 Review form
 
