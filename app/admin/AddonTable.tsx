@@ -3,15 +3,15 @@
 import { useState } from "react";
 import type { Addon, AddonInput } from "@/lib/admin";
 import { formatAmount } from "@/lib/format";
-import { Alert, fieldClass, noSpinnerClass, primaryButtonClass, textareaClass } from "../components/ui";
+import { Alert, fieldClass, noSpinnerClass, compactPrimaryButtonClass, compactTextareaClass } from "../components/ui";
 import { createAddonAction, deleteAddonAction, updateAddonAction } from "./actions";
 import type { ActionResult } from "./actions";
 import {
-  CollapsibleCard,
   DeleteButton,
   EditButton,
   rowClass,
   SaveCancel,
+  subheadingClass,
   thClass,
   useAction,
 } from "./admin-ui";
@@ -20,8 +20,11 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
   const [adding, setAdding] = useState(false);
 
   return (
-    <CollapsibleCard title="Addons" count={addons.length}>
-      <table className="w-full">
+    <section>
+      <h3 className={subheadingClass}>
+        Addons <span className="text-xs font-normal text-neutral-500">({addons.length})</span>
+      </h3>
+      <table className="w-full text-sm">
         <thead>
           <tr>
             <th className={thClass}>Namn</th>
@@ -45,14 +48,14 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
         </tbody>
       </table>
       {addons.length === 0 && !adding && (
-        <p className="py-2 text-sm text-neutral-500">Inga addons än.</p>
+        <p className="py-1.5 text-sm text-neutral-500">Inga addons än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${primaryButtonClass} mt-4`}>
+        <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} mt-3`}>
           Lägg till
         </button>
       )}
-    </CollapsibleCard>
+    </section>
   );
 }
 
@@ -71,12 +74,12 @@ function AddonRow({ addon }: { addon: Addon }) {
 
   return (
     <tr className={`${rowClass} align-top`}>
-      <td className="py-2">
+      <td className="py-1.5">
         <div>{addon.name}</div>
         <div className="text-sm text-neutral-500">{addon.description}</div>
       </td>
       <td className="whitespace-nowrap py-2 text-right text-neutral-300">{formatAmount(addon.price)}</td>
-      <td className="py-2">
+      <td className="py-1.5">
         <div className="flex justify-end gap-1">
           <EditButton label={`Ändra ${addon.name}`} onClick={() => setEditing(true)} />
           <DeleteButton
@@ -122,7 +125,7 @@ function AddonForm({
             e.preventDefault();
             save();
           }}
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-2"
         >
           <div className="flex gap-3">
             <input
@@ -130,7 +133,7 @@ function AddonForm({
               placeholder="Namn, t.ex. Extra bagage"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={fieldClass("small", "min-w-0 flex-1")}
+              className={fieldClass("compact", "min-w-0 flex-1")}
               autoFocus
             />
             <input
@@ -141,7 +144,7 @@ function AddonForm({
               placeholder="Pris"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className={`${fieldClass("small", "w-24 text-right")} ${noSpinnerClass}`}
+              className={`${fieldClass("compact", "w-24 text-right")} ${noSpinnerClass}`}
             />
           </div>
           <textarea
@@ -149,10 +152,10 @@ function AddonForm({
             placeholder="Beskrivning"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={textareaClass}
+            className={compactTextareaClass}
           />
           <SaveCancel pending={pending} onCancel={onDone} />
-          {error && <Alert kind="error">{error}</Alert>}
+          {error && <Alert kind="error" compact>{error}</Alert>}
         </form>
       </td>
     </tr>

@@ -3,11 +3,15 @@
 // Cookien innehåller när inloggningen går ut plus en signatur (HMAC) gjord
 // med ADMIN_SESSION_SECRET. Utan nyckeln går det inte att förfalska en
 // giltig cookie. Används både av proxy.ts och av servern.
+//
+// Inloggningen gäller tills webbläsaren stängs, dock max SESSION_HOURS timmar.
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "gurrasflyg_admin";
-export const SESSION_DAYS = 7;
+export const SESSION_HOURS = 8;
+// Byts versionen blir alla gamla inloggningar ogiltiga
+const VERSION = "v2";
 
 function secret() {
   const value = process.env.ADMIN_SESSION_SECRET;
@@ -16,13 +20,13 @@ function secret() {
 }
 
 function sign(expires: string) {
-  return createHmac("sha256", secret()).update(expires).digest("hex");
+  return createHmac("sha256", secret()).update(`${VERSION}.${expires}`).digest("hex");
 }
 
 // "1761500000000.a1b2c3..."  (utgångstid i millisekunder . signatur)
 export function createSessionToken() {
-  const expires = String(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
-  return { token: `${expires}.${sign(expires)}`, expires: new Date(Number(expires)) };
+  const expires = String(Date.now() + SESSION_HOURS * 60 * 60 * 1000);
+  return `${expires}.${sign(expires)}`;
 }
 
 export function isValidSessionToken(token: string | undefined) {

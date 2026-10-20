@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import type { Addon, Aircraft, CabinClass } from "@/lib/admin";
 import { formatPrice } from "@/lib/format";
 import { ChevronIcon } from "../components/icons";
-import { primaryButtonClass } from "../components/ui";
+import { compactPrimaryButtonClass } from "../components/ui";
 import { createAircraftAction, deleteAircraftAction, updateAircraftAction } from "./actions";
 import AircraftForm from "./AircraftForm";
 import { CollapsibleCard, DeleteButton, EditButton, rowClass, thClass } from "./admin-ui";
@@ -22,7 +22,7 @@ export default function AircraftTable({
 
   return (
     <CollapsibleCard title="Plan" count={aircraft.length}>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {adding ? (
           <AircraftForm
             title="Nytt plan"
@@ -32,12 +32,12 @@ export default function AircraftTable({
             onDone={() => setAdding(false)}
           />
         ) : (
-          <button type="button" onClick={() => setAdding(true)} className={`${primaryButtonClass} self-start`}>
+          <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} self-start`}>
             Lägg till plan
           </button>
         )}
 
-        <table className="w-full">
+        <table className="w-full text-sm">
           <thead>
             <tr>
               <th className="w-8" />
@@ -95,14 +95,14 @@ function AircraftRow({
   return (
     <>
       <tr className={rowClass}>
-        <td className="py-2">
+        <td className="py-1.5">
           <ExpandButton open={open} label={aircraft.name} onClick={() => setOpen(!open)} />
         </td>
-        <td className="py-2 font-medium">{aircraft.name}</td>
-        <td className="py-2 text-right text-neutral-300">{aircraft.classes.length}</td>
-        <td className="py-2 text-right text-neutral-300">{seats}</td>
-        <td className="py-2 text-right text-neutral-300">{aircraft.routeCount}</td>
-        <td className="py-2">
+        <td className="py-1.5 font-medium">{aircraft.name}</td>
+        <td className="py-1.5 text-right text-neutral-300">{aircraft.classes.length}</td>
+        <td className="py-1.5 text-right text-neutral-300">{seats}</td>
+        <td className="py-1.5 text-right text-neutral-300">{aircraft.routeCount}</td>
+        <td className="py-1.5">
           <div className="flex justify-end gap-1">
             <EditButton label={`Ändra ${aircraft.name}`} onClick={() => setEditing(true)} />
             <DeleteButton
@@ -125,7 +125,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
   const [open, setOpen] = useState(false);
   return (
     <Fragment>
-      <tr className="bg-neutral-900/50 text-sm">
+      <tr className="bg-neutral-900/50 text-xs">
         <td />
         <td className="py-1.5">
           <div className="flex items-center gap-2 pl-2">
@@ -140,7 +140,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
         <td colSpan={2} />
       </tr>
       {open && (
-        <tr className="bg-neutral-900/50 text-sm">
+        <tr className="bg-neutral-900/50 text-xs">
           <td />
           <td colSpan={5} className="pb-3 pl-12">
             {cabinClass.addons.length === 0 ? (
@@ -168,7 +168,7 @@ function ExpandButton({ open, label, onClick }: { open: boolean; label: string; 
       onClick={onClick}
       aria-expanded={open}
       aria-label={open ? `Fäll ihop ${label}` : `Visa ${label}`}
-      className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 hover:bg-wine/25 hover:text-wine-light"
+      className="flex h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-wine/25 hover:text-wine-light"
     >
       <ChevronIcon open={open} />
     </button>

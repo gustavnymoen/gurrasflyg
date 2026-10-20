@@ -21,10 +21,14 @@ const dbFile = path.join(dbDir, "gurrasflyg.db");
 const migrationsDir = path.join(dbDir, "migrations");
 const reset = process.argv.includes("--reset");
 
-const remoteUrl = process.env.TURSO_DATABASE_URL;
-const where = remoteUrl ? `Turso (${remoteUrl})` : path.relative(process.cwd(), dbFile);
+// En "file:"-adress räknas som lokal (används t.ex. för att testa mot en kopia)
+const envUrl = process.env.TURSO_DATABASE_URL;
+const remoteUrl = envUrl && !envUrl.startsWith("file:") ? envUrl : undefined;
+// Den lokala fil som används (vanligtvis db/gurrasflyg.db)
+const localFile = envUrl?.startsWith("file:") ? envUrl.slice("file:".length) : dbFile;
+const where = remoteUrl ? `Turso (${remoteUrl})` : path.relative(process.cwd(), localFile);
 const open = () =>
-  createClient({ url: remoteUrl ?? `file:${dbFile}`, authToken: process.env.TURSO_AUTH_TOKEN });
+  createClient({ url: remoteUrl ?? `file:${localFile}`, authToken: process.env.TURSO_AUTH_TOKEN });
 
 // Säkerhetskopia av den lokala filen, t.ex. db/backups/gurrasflyg-2026-10-19T18-40-00.db.
 // Vill du återställa: stoppa servern och kopiera filen till db/gurrasflyg.db.
@@ -44,13 +48,13 @@ if (reset) {
     console.error("--reset är avstängt mot Turso, så att riktig data inte raderas av misstag.");
     process.exit(1);
   }
-  if (existsSync(dbFile)) {
+  if (existsSync(localFile)) {
     const old = open();
     await backup(old);
     old.close();
     // Ta även bort WAL-filerna som SQLite skapar bredvid databasen
     for (const suffix of ["", "-wal", "-shm"]) {
-      rmSync(dbFile + suffix, { force: true });
+      rmSync(localFile + suffix, { force: true });
     }
   }
 }

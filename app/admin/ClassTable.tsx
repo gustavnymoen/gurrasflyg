@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import type { CabinClass } from "@/lib/admin";
-import { Alert, primaryButtonClass, smallInputClass } from "../components/ui";
+import { Alert, compactPrimaryButtonClass, compactInputClass } from "../components/ui";
 import { createClassAction, deleteClassAction, updateClassAction } from "./actions";
 import type { ActionResult } from "./actions";
 import {
-  CollapsibleCard,
   DeleteButton,
   EditButton,
   rowClass,
   SaveCancel,
+  subheadingClass,
   thClass,
   useAction,
 } from "./admin-ui";
@@ -19,8 +19,11 @@ export default function ClassTable({ classes }: { classes: CabinClass[] }) {
   const [adding, setAdding] = useState(false);
 
   return (
-    <CollapsibleCard title="Klasser" count={classes.length}>
-      <table className="w-full">
+    <section>
+      <h3 className={subheadingClass}>
+        Klasser <span className="text-xs font-normal text-neutral-500">({classes.length})</span>
+      </h3>
+      <table className="w-full text-sm">
         <thead>
           <tr>
             <th className={thClass}>Namn</th>
@@ -43,14 +46,14 @@ export default function ClassTable({ classes }: { classes: CabinClass[] }) {
         </tbody>
       </table>
       {classes.length === 0 && !adding && (
-        <p className="py-2 text-sm text-neutral-500">Inga klasser än.</p>
+        <p className="py-1.5 text-sm text-neutral-500">Inga klasser än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${primaryButtonClass} mt-4`}>
+        <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} mt-3`}>
           Lägg till
         </button>
       )}
-    </CollapsibleCard>
+    </section>
   );
 }
 
@@ -69,8 +72,8 @@ function ClassRow({ cabinClass }: { cabinClass: CabinClass }) {
 
   return (
     <tr className={rowClass}>
-      <td className="py-2">{cabinClass.name}</td>
-      <td className="py-2">
+      <td className="py-1.5">{cabinClass.name}</td>
+      <td className="py-1.5">
         <div className="flex justify-end gap-1">
           <EditButton label={`Ändra ${cabinClass.name}`} onClick={() => setEditing(true)} />
           <DeleteButton
@@ -106,18 +109,18 @@ function ClassForm({
             e.preventDefault();
             run(() => onSave(name), onDone);
           }}
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-2"
         >
           <input
             aria-label="Namn på klassen"
             placeholder="Namn, t.ex. Premium"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={smallInputClass}
+            className={compactInputClass}
             autoFocus
           />
           <SaveCancel pending={pending} onCancel={onDone} />
-          {error && <Alert kind="error">{error}</Alert>}
+          {error && <Alert kind="error" compact>{error}</Alert>}
         </form>
       </td>
     </tr>

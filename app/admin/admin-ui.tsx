@@ -6,7 +6,14 @@
 import { useState, useTransition } from "react";
 import type { ActionResult } from "./actions";
 import { ChevronIcon, PencilIcon, TrashIcon } from "../components/icons";
-import { cardClass, primaryButtonClass, secondaryButtonClass } from "../components/ui";
+import {
+  cardClass,
+  compactCardClass,
+  compactPrimaryButtonClass,
+  compactSecondaryButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from "../components/ui";
 
 // ---- Kort som går att fälla ihop
 
@@ -21,20 +28,20 @@ export function CollapsibleCard({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <section className={cardClass}>
+    <section className={compactCardClass}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 text-left text-xl font-semibold text-wine-light"
+        className="flex w-full items-center gap-1.5 text-left text-base font-semibold text-wine-light"
       >
-        <ChevronIcon open={open} className="h-5 w-5" />
+        <ChevronIcon open={open} />
         {title}
         {count !== undefined && (
-          <span className="text-sm font-normal text-neutral-500">({count})</span>
+          <span className="text-xs font-normal text-neutral-500">({count})</span>
         )}
       </button>
-      {open && <div className="mt-4">{children}</div>}
+      {open && <div className="mt-3">{children}</div>}
     </section>
   );
 }
@@ -95,7 +102,7 @@ export function IconButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-wine/25 hover:text-wine-light disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-wine/25 hover:text-wine-light disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -187,10 +194,10 @@ export function DeleteButton({
 export function SaveCancel({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
   return (
     <div className="flex gap-2">
-      <button type="submit" disabled={pending} className={primaryButtonClass}>
+      <button type="submit" disabled={pending} className={compactPrimaryButtonClass}>
         {pending ? "Sparar…" : "Spara"}
       </button>
-      <button type="button" onClick={onCancel} className={secondaryButtonClass}>
+      <button type="button" onClick={onCancel} className={compactSecondaryButtonClass}>
         Avbryt
       </button>
     </div>
@@ -216,5 +223,8 @@ export function useAction() {
 }
 
 // Tabellstilar
-export const thClass = "pb-2 text-left text-xs font-medium uppercase tracking-wider text-neutral-500";
+export const thClass =
+  "pb-1.5 text-left text-[11px] font-medium uppercase tracking-wider text-neutral-500";
 export const rowClass = "border-t border-wine/15";
+// Rubrik inne i en container, t.ex. "Klasser" och "Addons"
+export const subheadingClass = "mb-2 text-sm font-semibold text-neutral-200";

@@ -7,6 +7,7 @@
 import { refresh } from "next/cache";
 import * as admin from "@/lib/admin";
 import { isAdmin } from "@/lib/auth";
+import { createReview, deleteReview, type ReviewInput } from "@/lib/reviews";
 import type { AddonInput, AircraftInput } from "@/lib/admin";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -60,4 +61,11 @@ export async function deleteAircraftAction(id: number) {
 
 export async function assignAircraftAction() {
   return run(() => admin.assignAircraftToRoutes());
+}
+
+export async function createReviewAction(input: ReviewInput) {
+  return run(() => createReview(input));
+}
+export async function deleteReviewAction(id: number) {
+  return run(() => deleteReview(id));
 }

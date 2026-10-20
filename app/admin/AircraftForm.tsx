@@ -6,7 +6,7 @@
 import { useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
 import { CheckIcon, XIcon } from "../components/icons";
-import { Alert, fieldClass, noSpinnerClass, RoundButton, smallInputClass } from "../components/ui";
+import { Alert, fieldClass, noSpinnerClass, RoundButton, compactInputClass } from "../components/ui";
 import type { ActionResult } from "./actions";
 import { EditButton, IconButton, RemoveButton, SaveCancel, useAction } from "./admin-ui";
 
@@ -84,22 +84,22 @@ export default function AircraftForm({
           onDone,
         );
       }}
-      className="flex flex-col gap-5 rounded-xl border border-wine/40 bg-neutral-900/60 p-5"
+      className="flex flex-col gap-4 rounded-lg border border-wine/40 bg-neutral-900/60 p-4 text-sm"
     >
-      <h3 className="font-semibold text-wine-light">{title}</h3>
+      <h3 className="text-sm font-semibold text-wine-light">{title}</h3>
       <input
         aria-label="Planets namn"
         placeholder="Namn, t.ex. Airbus A320neo"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className={smallInputClass}
+        className={compactInputClass}
         autoFocus
       />
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         {/* ---- Klasser */}
-        <section className="flex flex-col gap-3">
-          <h4 className="text-sm font-medium text-neutral-300">Klasser</h4>
+        <section className="flex flex-col gap-2">
+          <h4 className="text-xs font-medium uppercase tracking-wider text-neutral-500">Klasser</h4>
           {addingClass ? (
             <ClassAdder
               options={classes.filter((c) => !classRows.some((r) => r.classId === c.id))}
@@ -118,7 +118,7 @@ export default function AircraftForm({
           )}
           <ul>
             {classRows.length === 0 && (
-              <li className="py-2 text-sm text-neutral-500">Inga klasser tillagda.</li>
+              <li className="py-1.5 text-sm text-neutral-500">Inga klasser tillagda.</li>
             )}
             {sortedClassRows.map((row) => (
               <ClassListRow
@@ -137,8 +137,8 @@ export default function AircraftForm({
         </section>
 
         {/* ---- Addons */}
-        <section className="flex flex-col gap-3">
-          <h4 className="text-sm font-medium text-neutral-300">Addons</h4>
+        <section className="flex flex-col gap-2">
+          <h4 className="text-xs font-medium uppercase tracking-wider text-neutral-500">Addons</h4>
           {addingAddon ? (
             <AddonPicker
               mode="add"
@@ -160,7 +160,7 @@ export default function AircraftForm({
           )}
           <ul>
             {addonRows.length === 0 && (
-              <li className="py-2 text-sm text-neutral-500">Inga addons tillagda.</li>
+              <li className="py-1.5 text-sm text-neutral-500">Inga addons tillagda.</li>
             )}
             {sortedAddonRows.map((row) => (
               <AddonListRow
@@ -183,7 +183,7 @@ export default function AircraftForm({
         </section>
       </div>
 
-      {error && <Alert kind="error">{error}</Alert>}
+      {error && <Alert kind="error" compact>{error}</Alert>}
       <SaveCancel pending={pending} onCancel={onDone} />
     </form>
   );
@@ -233,7 +233,7 @@ function ClassAdder({
         aria-label="Klass att lägga till"
         value={classId}
         onChange={(e) => setClassId(e.target.value)}
-        className={fieldClass("small", "min-w-0 flex-1")}
+        className={fieldClass("compact", "min-w-0 flex-1")}
         autoFocus
       >
         <option value="" disabled>
@@ -252,9 +252,9 @@ function ClassAdder({
         value={capacity}
         onChange={(e) => setCapacity(e.target.value)}
         onKeyDown={onEnter(add)}
-        className={`${fieldClass("small", "w-24 text-right")} ${noSpinnerClass}`}
+        className={`${fieldClass("compact", "w-24 text-right")} ${noSpinnerClass}`}
       />
-      <RoundButton label="Lägg till klass" disabled={classId === "" || parsed === null} onClick={add}>
+      <RoundButton compact label="Lägg till klass" disabled={classId === "" || parsed === null} onClick={add}>
         +
       </RoundButton>
       <IconButton label="Avbryt" onClick={onCancel}>
@@ -286,7 +286,7 @@ function ClassListRow({
   }
 
   return (
-    <li className="flex h-12 items-center gap-2 border-t border-wine/15">
+    <li className="flex h-9 items-center gap-2 border-t border-wine/15">
       <span className="flex-1">{name}</span>
       {editing ? (
         <>
@@ -296,7 +296,7 @@ function ClassListRow({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={onEnter(confirm)}
-            className={`${fieldClass("tiny", "w-20 text-right")} ${noSpinnerClass}`}
+            className={`${fieldClass("compact", "w-20 text-right")} ${noSpinnerClass}`}
             autoFocus
           />
           <ConfirmCancel valid={parsed !== null} onConfirm={confirm} onCancel={() => setEditing(false)} />
@@ -355,15 +355,14 @@ function AddonPicker({
     onConfirm(Number(addonId), Number(classId));
   }
 
-  const size = editing ? "tiny" : "small";
-  return (
+    return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <select
           aria-label="Addon"
           value={addonId}
           onChange={(e) => setAddonId(e.target.value)}
-          className={fieldClass(size, "min-w-0 flex-1")}
+          className={fieldClass("compact", "min-w-0 flex-1")}
           autoFocus
         >
           <option value="" disabled>
@@ -379,7 +378,7 @@ function AddonPicker({
           aria-label="Klass"
           value={classId}
           onChange={(e) => setClassId(e.target.value)}
-          className={fieldClass(size, "min-w-0 flex-1")}
+          className={fieldClass("compact", "min-w-0 flex-1")}
         >
           <option value="" disabled>
             {classes.length === 0 ? "Lägg till klass först" : "Välj klass"}
@@ -395,7 +394,7 @@ function AddonPicker({
           <ConfirmCancel valid={valid} onConfirm={confirm} onCancel={onCancel} />
         ) : (
           <>
-            <RoundButton label="Lägg till addon" disabled={!valid} onClick={confirm}>
+            <RoundButton compact label="Lägg till addon" disabled={!valid} onClick={confirm}>
               +
             </RoundButton>
             <IconButton label="Avbryt" onClick={onCancel}>
@@ -450,7 +449,7 @@ function AddonListRow({
   }
 
   return (
-    <li className="flex h-12 items-center gap-2 border-t border-wine/15">
+    <li className="flex h-9 items-center gap-2 border-t border-wine/15">
       <span className="flex-1">{addonName}</span>
       <span className="text-sm text-neutral-400">{className}</span>
       <EditButton label={`Ändra ${addonName}`} onClick={() => setEditing(true)} />
@@ -476,9 +475,9 @@ function AddButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center gap-2 self-start text-sm font-medium text-wine-light hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
+      className="flex items-center gap-1.5 self-start text-xs font-medium text-wine-light hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
     >
-      <span className="text-lg leading-none">+</span> {label}
+      <span className="text-base leading-none">+</span> {label}
     </button>
   );
 }

@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { listReviews } from "@/lib/reviews";
+import ReviewCarousel from "./components/ReviewCarousel";
 import SearchForm from "./components/SearchForm";
 
 export default function Home() {
@@ -17,8 +20,22 @@ export default function Home() {
         </p>
       </header>
       <SearchForm />
+
+      <section className="mt-20 w-full max-w-5xl">
+        <h2 className="mb-6 text-center text-xs uppercase tracking-[0.35em] text-neutral-500">
+          Vad våra resenärer säger
+        </h2>
+        {/* Omdömena läses från databasen när sidan efterfrågas */}
+        <Suspense fallback={<div className="h-56" />}>
+          <Reviews />
+        </Suspense>
+      </section>
     </main>
   );
+}
+
+async function Reviews() {
+  return <ReviewCarousel reviews={await listReviews()} />;
 }
 
 function PlaneIcon() {

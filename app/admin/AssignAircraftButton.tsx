@@ -1,6 +1,6 @@
 "use client";
 
-import { primaryButtonClass } from "../components/ui";
+import { compactPrimaryButtonClass } from "../components/ui";
 import { assignAircraftAction } from "./actions";
 import { useAction } from "./admin-ui";
 
@@ -20,7 +20,7 @@ export default function AssignAircraftButton({
         type="button"
         onClick={() => run(assignAircraftAction, () => {})}
         disabled={pending || total === 0}
-        className={primaryButtonClass}
+        className={compactPrimaryButtonClass}
       >
         {pending ? "Tilldelar…" : "Tilldela plan"}
       </button>

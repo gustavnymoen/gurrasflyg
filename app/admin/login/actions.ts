@@ -16,13 +16,13 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     return { error: "Fel lösenord." };
   }
 
-  const { token, expires } = createSessionToken();
-  (await cookies()).set(SESSION_COOKIE, token, {
+  // Ingen utgångstid på cookien = webbläsaren raderar den när den stängs.
+  // Själva inloggningen slutar dessutom gälla efter några timmar (se lib/session.ts).
+  (await cookies()).set(SESSION_COOKIE, createSessionToken(), {
     httpOnly: true, // går inte att läsa från JavaScript i webbläsaren
     secure: process.env.NODE_ENV === "production", // bara över https på riktiga sidan
     sameSite: "lax",
     path: "/",
-    expires,
   });
   redirect("/admin");
 }
