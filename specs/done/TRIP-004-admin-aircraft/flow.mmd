@@ -1,0 +1,22 @@
+%% TRIP-004 Admin: aircraft
+flowchart TD
+    Table[Card Plan: table of aircraft<br/>R1, R2] --> New[Lägg till plan<br/>R3]
+    Table --> Edit[Pencil<br/>R8]
+    Table --> Trash[Trash can<br/>R9]
+    New --> Form[Form: name, classes, add-ons]
+    Edit --> Form
+    Form --> Cls[Add, change or remove classes<br/>R4, R5]
+    Form --> Add[Add, change or remove add-ons per class<br/>R6]
+    Cls --> Form
+    Add --> Form
+    Form -- Avbryt --> Table
+    Form -- Spara --> Rules{Name, at least one class,<br/>unique name?<br/>R7}
+    Rules -- no --> Err[Error message in the form]
+    Err --> Form
+    Rules -- yes --> Save[Whole aircraft saved in one transaction<br/>R10] --> Table
+    Trash --> Flights{Has flights?}
+    Flights -- yes --> Blocked[Du kan ej ta bort]
+    Blocked --> Table
+    Flights -- no --> Sure{Är du säker?}
+    Sure -- Nej --> Table
+    Sure -- Ja --> Del[Deleted, its routes get no aircraft] --> Table

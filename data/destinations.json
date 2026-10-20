@@ -1,0 +1,3818 @@
+[
+  {
+    "id": "al-jazirat-al-hamra",
+    "title": "Al Jazirat Al Hamra",
+    "aliases": [],
+    "description": "An abandoned pearl-fishing village of coral-stone houses in Ras Al Khaimah, now partly restored.",
+    "continent": "Asia",
+    "country": "AE",
+    "country_name": "United Arab Emirates",
+    "region": "Ras Al Khaimah",
+    "locality": "Al Jazirat Al Hamra",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "RKT",
+      "name": "Ras Al Khaimah International Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": {
+      "iata": "DXB",
+      "name": "Dubai International Airport"
+    },
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "ghost-village",
+      "uae",
+      "pearling",
+      "heritage"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/al-jazirat-al-hamra.jpg",
+      "author": "Slywire",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Jazirat_al_Hamra_building.jpg"
+    },
+    "path": "knowledge/asia/united-arab-emirates/al-jazirat-al-hamra.md"
+  },
+  {
+    "id": "alcatraz",
+    "title": "Alcatraz",
+    "aliases": [],
+    "description": "The former federal prison on an island in San Francisco Bay, reached by ferry.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "California",
+    "locality": "San Francisco",
+    "category": "Prison",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SFO",
+      "name": "San Francisco International Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "walk",
+      "ferry"
+    ],
+    "tags": [
+      "prison",
+      "island",
+      "san-francisco",
+      "national-park"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/alcatraz.jpg",
+      "author": "Chris6d",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Alcatraz_2021.jpg"
+    },
+    "path": "knowledge/north-america/united-states/alcatraz.md"
+  },
+  {
+    "id": "ashio-copper-mine",
+    "title": "Ashio Copper Mine",
+    "aliases": [],
+    "description": "A historic copper mine in the mountains of Nikkō, the site of Japan's first major pollution disaster.",
+    "continent": "Asia",
+    "country": "JP",
+    "country_name": "Japan",
+    "region": "Tochigi",
+    "locality": "Nikkō",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "HND",
+      "name": "Tokyo Haneda Airport",
+      "distance_km": 170
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train"
+    ],
+    "tags": [
+      "mining",
+      "japan",
+      "pollution",
+      "mine-tour"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/ashio-copper-mine.jpg",
+      "author": "Unknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Ashio_Copper_Mine_circa_1895.JPG"
+    },
+    "path": "knowledge/asia/japan/ashio-copper-mine.md"
+  },
+  {
+    "id": "bannack",
+    "title": "Bannack",
+    "aliases": [],
+    "description": "Montana's first territorial capital, now a ghost town preserved as a state park.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Montana",
+    "locality": "Dillon",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BTM",
+      "name": "Bert Mooney Airport",
+      "distance_km": 120
+    },
+    "gateway_airport": {
+      "iata": "BZN",
+      "name": "Bozeman Yellowstone International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "gold-rush",
+      "montana",
+      "state-park"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/bannack.jpg",
+      "author": "Mark Holloway from Anaconda, Montana",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bannack,_Montana_(25064171061).jpg"
+    },
+    "path": "knowledge/north-america/united-states/bannack.md"
+  },
+  {
+    "id": "bannerman-castle",
+    "title": "Bannerman Castle",
+    "aliases": [
+      "Pollepel Island"
+    ],
+    "description": "The ruins of a mock-Scottish castle built as an arsenal on a tiny island in the Hudson River.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "New York",
+    "locality": "Beacon",
+    "category": "Castle or mansion",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "SWF",
+      "name": "New York Stewart International Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": {
+      "iata": "JFK",
+      "name": "John F. Kennedy International Airport"
+    },
+    "transport": [
+      "train",
+      "boat tour"
+    ],
+    "tags": [
+      "castle",
+      "ruins",
+      "hudson-river",
+      "island"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/bannerman-castle.jpg",
+      "author": "Ahodges7",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bannerman_Castle_on_Pollepel_Island_viewed_from_atop_Breakneck_Ridge.JPG"
+    },
+    "path": "knowledge/north-america/united-states/bannerman-castle.md"
+  },
+  {
+    "id": "beelitz-heilstatten",
+    "title": "Beelitz-Heilstätten",
+    "aliases": [],
+    "description": "A vast former sanatorium complex near Berlin, partly restored and seen from a treetop walkway.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Brandenburg",
+    "locality": "Beelitz",
+    "category": "Hospital or sanatorium",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "walk",
+      "car"
+    ],
+    "tags": [
+      "sanatorium",
+      "berlin-area",
+      "architecture",
+      "treetop-walk"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/beelitz-heilstatten.jpg",
+      "author": "OTFW, Berlin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Schild_Beelitz-Heilst%C3%A4tten_(Beelitz)_Beelitz-Heilst%C3%A4tten_Alpenhaus_Ruine.jpg"
+    },
+    "path": "knowledge/europe/germany/beelitz-heilstatten.md"
+  },
+  {
+    "id": "belchite",
+    "title": "Belchite",
+    "aliases": [],
+    "description": "A Spanish town destroyed in the Civil War and kept in ruins as a memorial.",
+    "continent": "Europe",
+    "country": "ES",
+    "country_name": "Spain",
+    "region": "Aragon",
+    "locality": "Belchite",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "ZAZ",
+      "name": "Zaragoza Airport",
+      "distance_km": 55
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "civil-war",
+      "spain",
+      "memorial",
+      "ruins"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/belchite.jpg",
+      "author": "Angel Fandos",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Belchite,_pueblo_viejo_-_panoramio.jpg"
+    },
+    "path": "knowledge/europe/spain/belchite.md"
+  },
+  {
+    "id": "bhangarh-fort",
+    "title": "Bhangarh Fort",
+    "aliases": [],
+    "description": "A ruined 16th-century fort town in Rajasthan, often called India's most haunted place.",
+    "continent": "Asia",
+    "country": "IN",
+    "country_name": "India",
+    "region": "Rajasthan",
+    "locality": "Alwar district",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "JAI",
+      "name": "Jaipur International Airport",
+      "distance_km": 90
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ruins",
+      "india",
+      "fort",
+      "rajasthan"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/bhangarh-fort.jpg",
+      "author": "Chainwit.",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bhangarh_Fort_-_Royal_Palace_Bhangarh_(July_2022)_-_img_16.jpg"
+    },
+    "path": "knowledge/asia/india/bhangarh-fort.md"
+  },
+  {
+    "id": "bodie",
+    "title": "Bodie",
+    "aliases": [],
+    "description": "A Gold Rush ghost town in the hills of eastern California, preserved in a state of 'arrested decay'.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "California",
+    "locality": "Bridgeport",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "RNO",
+      "name": "Reno-Tahoe International Airport",
+      "distance_km": 190
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "gold-rush",
+      "california",
+      "state-park"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/bodie.jpg",
+      "author": "King of Hearts",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bodie_September_2016_019.jpg"
+    },
+    "path": "knowledge/north-america/united-states/bodie.md"
+  },
+  {
+    "id": "bokor-hill-station",
+    "title": "Bokor Hill Station",
+    "aliases": [],
+    "description": "A 1920s French colonial hill station on a Cambodian mountain, with a ruined church and a restored hotel.",
+    "continent": "Asia",
+    "country": "KH",
+    "country_name": "Cambodia",
+    "region": "Kampot",
+    "locality": "Bokor Mountain",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "KOS",
+      "name": "Sihanouk International Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "colonial",
+      "cambodia",
+      "mountain",
+      "national-park"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/bokor-hill-station.jpg",
+      "author": "Matnkat",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Bokor_palace_hotel_Cambodia.jpg"
+    },
+    "path": "knowledge/asia/cambodia/bokor-hill-station.md"
+  },
+  {
+    "id": "borne-sulinowo",
+    "title": "Borne Sulinowo",
+    "aliases": [],
+    "description": "A Polish town that was a secret Soviet garrison until 1992 and was left off the maps.",
+    "continent": "Europe",
+    "country": "PL",
+    "country_name": "Poland",
+    "region": "West Pomerania",
+    "locality": "Borne Sulinowo",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SZZ",
+      "name": "Szczecin-Goleniów Airport",
+      "distance_km": 140
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "soviet",
+      "garrison-town",
+      "cold-war",
+      "lakes"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/borne-sulinowo.jpg",
+      "author": "Kapitel",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Borne_Sulinowo_ratusz.jpg"
+    },
+    "path": "knowledge/europe/poland/borne-sulinowo.md"
+  },
+  {
+    "id": "bunkart",
+    "title": "Bunk'Art",
+    "aliases": [
+      "Bunk'Art 1"
+    ],
+    "description": "A huge Cold War bunker built for Albania's communist leadership, now a museum and art space.",
+    "continent": "Europe",
+    "country": "AL",
+    "country_name": "Albania",
+    "region": "Tirana County",
+    "locality": "Tirana",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "TIA",
+      "name": "Tirana International Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "taxi"
+    ],
+    "tags": [
+      "bunker",
+      "cold-war",
+      "albania",
+      "museum"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/bunkart.jpg",
+      "author": "kobykarin @ Mapillary.com",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bunk%27art_Tunnel_-_Mapillary_(cb9o_yznl64Kd3tv7JVUNA).jpg"
+    },
+    "path": "knowledge/europe/albania/bunkart.md"
+  },
+  {
+    "id": "bussana-vecchia",
+    "title": "Bussana Vecchia",
+    "aliases": [],
+    "description": "A Ligurian hill village ruined by an earthquake in 1887 and resettled by artists.",
+    "continent": "Europe",
+    "country": "IT",
+    "country_name": "Italy",
+    "region": "Liguria",
+    "locality": "Sanremo",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "NCE",
+      "name": "Nice Côte d'Azur Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "bus",
+      "taxi"
+    ],
+    "tags": [
+      "ghost-village",
+      "artists",
+      "riviera",
+      "earthquake"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/bussana-vecchia.jpg",
+      "author": "Samuele (English Wikipedia)",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Bussana_Vecchia_-_Panorama.png"
+    },
+    "path": "knowledge/europe/italy/bussana-vecchia.md"
+  },
+  {
+    "id": "buzludzha",
+    "title": "Buzludzha Monument",
+    "aliases": [],
+    "description": "A saucer-shaped communist monument on a Bulgarian mountain peak, now sealed and seen from outside.",
+    "continent": "Europe",
+    "country": "BG",
+    "country_name": "Bulgaria",
+    "region": "Stara Zagora Province",
+    "locality": "Kazanlak",
+    "category": "Monument or memorial",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "PDV",
+      "name": "Plovdiv Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": {
+      "iata": "SOF",
+      "name": "Sofia Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "communist-monument",
+      "bulgaria",
+      "mosaics",
+      "mountain"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/buzludzha.jpg",
+      "author": "Annboeva",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sunset_and_Buzludza.jpg"
+    },
+    "path": "knowledge/europe/bulgaria/buzludzha.md"
+  },
+  {
+    "id": "chernobyl-pripyat",
+    "title": "Chernobyl Exclusion Zone and Pripyat",
+    "aliases": [
+      "Chornobyl",
+      "Prypiat",
+      "Pripyat"
+    ],
+    "description": "The zone around the 1986 nuclear disaster and the abandoned city of Pripyat; currently closed to visitors.",
+    "continent": "Europe",
+    "country": "UA",
+    "country_name": "Ukraine",
+    "region": "Kyiv Oblast",
+    "locality": "Pripyat",
+    "category": "Ghost town or village",
+    "access": "Closed",
+    "nearest_airport": {
+      "iata": "KBP",
+      "name": "Kyiv Boryspil International Airport",
+      "distance_km": 170
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "nuclear",
+      "soviet",
+      "disaster",
+      "closed"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/chernobyl-pripyat.jpg",
+      "author": "Omar David Sandoval Sida",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Pripyats_Ferris_Wheel.jpg"
+    },
+    "path": "knowledge/europe/ukraine/chernobyl-pripyat.md"
+  },
+  {
+    "id": "city-hall-station",
+    "title": "City Hall Station",
+    "aliases": [],
+    "description": "New York's original showpiece subway station from 1904, closed in 1945 and preserved under City Hall.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "New York",
+    "locality": "New York",
+    "category": "Disused railway",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LGA",
+      "name": "LaGuardia Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": {
+      "iata": "JFK",
+      "name": "John F. Kennedy International Airport"
+    },
+    "transport": [
+      "metro"
+    ],
+    "tags": [
+      "subway",
+      "new-york",
+      "architecture",
+      "transit"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/city-hall-station.jpg",
+      "author": "Rhododendrites",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:City_Hall_Station_(32200).jpg"
+    },
+    "path": "knowledge/north-america/united-states/city-hall-station.md"
+  },
+  {
+    "id": "cockatoo-island",
+    "title": "Cockatoo Island",
+    "aliases": [],
+    "description": "A former convict prison and naval shipyard on an island in Sydney Harbour, now open to visitors.",
+    "continent": "Oceania",
+    "country": "AU",
+    "country_name": "Australia",
+    "region": "New South Wales",
+    "locality": "Sydney",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SYD",
+      "name": "Sydney Kingsford Smith Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "ferry"
+    ],
+    "tags": [
+      "island",
+      "australia",
+      "convict-history",
+      "shipyard",
+      "unesco"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/cockatoo-island.jpg",
+      "author": "spud murphy from Sydney, Australia",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:CockatooIslandPanorama.jpg"
+    },
+    "path": "knowledge/oceania/australia/cockatoo-island.md"
+  },
+  {
+    "id": "consonno",
+    "title": "Consonno",
+    "aliases": [],
+    "description": "A Lombardy hamlet rebuilt in the 1960s as a fantasy resort, the 'Las Vegas of Brianza', then abandoned.",
+    "continent": "Europe",
+    "country": "IT",
+    "country_name": "Italy",
+    "region": "Lombardy",
+    "locality": "Olginate",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BGY",
+      "name": "Milan Bergamo Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "walk",
+      "car"
+    ],
+    "tags": [
+      "abandoned-resort",
+      "italy",
+      "graffiti",
+      "walking"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/consonno.jpg",
+      "author": "Marco Sbroggiò",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Minareto_Consonno_City_of_Toys_Lombardy_demisted_HDR.jpg"
+    },
+    "path": "knowledge/europe/italy/consonno.md"
+  },
+  {
+    "id": "corregidor",
+    "title": "Corregidor",
+    "aliases": [],
+    "description": "A fortified island at the mouth of Manila Bay, with ruined barracks and gun batteries from the Second World War.",
+    "continent": "Asia",
+    "country": "PH",
+    "country_name": "Philippines",
+    "region": "Cavite",
+    "locality": "Manila Bay",
+    "category": "Military or Cold War site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "MNL",
+      "name": "Ninoy Aquino International Airport",
+      "distance_km": 50
+    },
+    "gateway_airport": null,
+    "transport": [
+      "ferry"
+    ],
+    "tags": [
+      "wwii",
+      "fortress",
+      "philippines",
+      "island"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/corregidor.jpg",
+      "author": "Carmelo Bayarcal",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Inside_the_Ruins_of_the_Mile_Long_Barracks,_Corregidor_Island,_Philippines.jpg"
+    },
+    "path": "knowledge/asia/philippines/corregidor.md"
+  },
+  {
+    "id": "craco",
+    "title": "Craco",
+    "aliases": [],
+    "description": "A medieval hilltop town in southern Italy abandoned after landslides, visited on guided tours.",
+    "continent": "Europe",
+    "country": "IT",
+    "country_name": "Italy",
+    "region": "Basilicata",
+    "locality": "Craco",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "BRI",
+      "name": "Bari Karol Wojtyła Airport",
+      "distance_km": 120
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "italy",
+      "film-location",
+      "hilltop"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/craco.jpg",
+      "author": "Maurizio Moro5153",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Craco_il_paese_fantasma.jpg"
+    },
+    "path": "knowledge/europe/italy/craco.md"
+  },
+  {
+    "id": "denniston",
+    "title": "Denniston",
+    "aliases": [],
+    "description": "A windswept coal-mining plateau in New Zealand, famous for its steep gravity-powered incline railway.",
+    "continent": "Oceania",
+    "country": "NZ",
+    "country_name": "New Zealand",
+    "region": "West Coast",
+    "locality": "Westport",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "WSZ",
+      "name": "Westport Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": {
+      "iata": "CHC",
+      "name": "Christchurch International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "mining",
+      "new-zealand",
+      "incline-railway",
+      "heritage-trail"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/denniston.jpg",
+      "author": "Mike Dickison",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Denniston_MRD_04.jpg"
+    },
+    "path": "knowledge/oceania/new-zealand/denniston.md"
+  },
+  {
+    "id": "dhanushkodi",
+    "title": "Dhanushkodi",
+    "aliases": [],
+    "description": "A town at India's south-eastern tip, destroyed by a cyclone in 1964 and left in ruins among the dunes.",
+    "continent": "Asia",
+    "country": "IN",
+    "country_name": "India",
+    "region": "Tamil Nadu",
+    "locality": "Rameswaram",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "IXM",
+      "name": "Madurai Airport",
+      "distance_km": 190
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "bus",
+      "4x4 tour"
+    ],
+    "tags": [
+      "ghost-town",
+      "india",
+      "cyclone",
+      "beach"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/dhanushkodi.jpg",
+      "author": "Thachan.makan",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dhanushkodi_church_ruin.jpg"
+    },
+    "path": "knowledge/asia/india/dhanushkodi.md"
+  },
+  {
+    "id": "djupavik",
+    "title": "Djúpavík herring factory",
+    "aliases": [
+      "Djupavik"
+    ],
+    "description": "A huge herring factory in a remote Icelandic fjord, closed in 1954 and reopened for tours and art.",
+    "continent": "Europe",
+    "country": "IS",
+    "country_name": "Iceland",
+    "region": "Westfjords",
+    "locality": "Djúpavík",
+    "category": "Industrial site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "GJR",
+      "name": "Gjögur Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": {
+      "iata": "KEF",
+      "name": "Keflavík International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "industrial",
+      "iceland",
+      "westfjords",
+      "herring"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/djupavik.jpg",
+      "author": "Johnnyxmas",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dj%C3%BApav%C3%ADk_2024.jpg"
+    },
+    "path": "knowledge/europe/iceland/djupavik.md"
+  },
+  {
+    "id": "doel",
+    "title": "Doel",
+    "aliases": [],
+    "description": "A Flemish village condemned for port expansion, covered in street art and slowly coming back to life.",
+    "continent": "Europe",
+    "country": "BE",
+    "country_name": "Belgium",
+    "region": "East Flanders",
+    "locality": "Beveren",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "ANR",
+      "name": "Antwerp International Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": {
+      "iata": "BRU",
+      "name": "Brussels Airport"
+    },
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "ghost-village",
+      "street-art",
+      "antwerp",
+      "polder"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/doel.jpg",
+      "author": "Trougnouf",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:De_Molen_(windmill)_and_the_nuclear_power_plant_cooling_tower_in_Doel,_Belgium_(DSCF3859).jpg"
+    },
+    "path": "knowledge/europe/belgium/doel.md"
+  },
+  {
+    "id": "eastern-state-penitentiary",
+    "title": "Eastern State Penitentiary",
+    "aliases": [],
+    "description": "A vast 19th-century prison in Philadelphia, preserved as a ruin and open as a museum.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Pennsylvania",
+    "locality": "Philadelphia",
+    "category": "Prison",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "PHL",
+      "name": "Philadelphia International Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "bus",
+      "walk"
+    ],
+    "tags": [
+      "prison",
+      "philadelphia",
+      "museum",
+      "architecture"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/eastern-state-penitentiary.jpg",
+      "author": "Carol M. Highsmith",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Eastern_State_Penitentiary,_Philadelphia,_Pennsylvania_LCCN2011632222.tif"
+    },
+    "path": "knowledge/north-america/united-states/eastern-state-penitentiary.md"
+  },
+  {
+    "id": "elizabeth-bay",
+    "title": "Elizabeth Bay",
+    "aliases": [],
+    "description": "A remote, wind-blasted diamond-mining ghost town on the Namibian coast, reached only on permit tours from Lüderitz.",
+    "continent": "Africa",
+    "country": "NA",
+    "country_name": "Namibia",
+    "region": "ǁKaras Region",
+    "locality": "Lüderitz",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LUD",
+      "name": "Lüderitz Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": {
+      "iata": "WDH",
+      "name": "Hosea Kutako International Airport"
+    },
+    "transport": [
+      "4x4 tour"
+    ],
+    "tags": [
+      "ghost-town",
+      "namibia",
+      "diamond-mining",
+      "restricted-area"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/elizabeth-bay.jpg",
+      "author": "Druschba 4",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Elisabethbucht_Namibia_Geisterstadt.jpg"
+    },
+    "path": "knowledge/africa/namibia/elizabeth-bay.md"
+  },
+  {
+    "id": "ellis-island-hospital",
+    "title": "Ellis Island Hospital",
+    "aliases": [],
+    "description": "The abandoned immigrant hospital on Ellis Island in New York Harbor, visited on hard-hat tours.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "New York",
+    "locality": "New York",
+    "category": "Hospital or sanatorium",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "EWR",
+      "name": "Newark Liberty International Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "ferry"
+    ],
+    "tags": [
+      "hospital",
+      "immigration",
+      "new-york",
+      "hard-hat-tour"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/ellis-island-hospital.jpg",
+      "author": "InSapphoWeTrust from Los Angeles, California, USA",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ellis_Island_from_Staten_Island_Ferry_(7208224926)_hospital.jpg"
+    },
+    "path": "knowledge/north-america/united-states/ellis-island-hospital.md"
+  },
+  {
+    "id": "ferropolis",
+    "title": "Ferropolis",
+    "aliases": [],
+    "description": "An open-air museum of giant mining excavators on a peninsula in a flooded open-cast mine.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Saxony-Anhalt",
+    "locality": "Gräfenhainichen",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "LEJ",
+      "name": "Leipzig/Halle Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "taxi",
+      "car"
+    ],
+    "tags": [
+      "mining",
+      "excavators",
+      "festivals",
+      "lake"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/ferropolis.jpg",
+      "author": "Rainerhaufe",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Bagger_E617_2240_Museum_Ferropolis_04_26.jpg"
+    },
+    "path": "knowledge/europe/germany/ferropolis.md"
+  },
+  {
+    "id": "fordlandia",
+    "title": "Fordlândia",
+    "aliases": [
+      "Fordlandia"
+    ],
+    "description": "Henry Ford's failed 1920s rubber-plantation town in the Brazilian Amazon, with American-style houses and a rusting factory.",
+    "continent": "South America",
+    "country": "BR",
+    "country_name": "Brazil",
+    "region": "Pará",
+    "locality": "Aveiro",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "STM",
+      "name": "Santarém Airport",
+      "distance_km": 300
+    },
+    "gateway_airport": null,
+    "transport": [
+      "plane",
+      "boat tour"
+    ],
+    "tags": [
+      "company-town",
+      "brazil",
+      "amazon",
+      "rubber"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/fordlandia.jpg",
+      "author": "Amit Evron",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Fordlandia.JPG"
+    },
+    "path": "knowledge/south-america/brazil/fordlandia.md"
+  },
+  {
+    "id": "garnet",
+    "title": "Garnet",
+    "aliases": [],
+    "description": "A remote gold-mining ghost town in the mountains of western Montana.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Montana",
+    "locality": "Granite County",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "MSO",
+      "name": "Missoula Montana Airport",
+      "distance_km": 65
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "montana",
+      "mining",
+      "winter"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/garnet.jpg",
+      "author": "Rhododendrites",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Garnet_ghost_town_(58159).jpg"
+    },
+    "path": "knowledge/north-america/united-states/garnet.md"
+  },
+  {
+    "id": "granadilla",
+    "title": "Granadilla",
+    "aliases": [],
+    "description": "A walled medieval village in Extremadura emptied for a reservoir, now being restored.",
+    "continent": "Europe",
+    "country": "ES",
+    "country_name": "Spain",
+    "region": "Extremadura",
+    "locality": "Zarza de Granadilla",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SLM",
+      "name": "Salamanca Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": {
+      "iata": "MAD",
+      "name": "Adolfo Suárez Madrid-Barajas Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-village",
+      "spain",
+      "reservoir",
+      "castle"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/granadilla.jpg",
+      "author": "FLAVIVSAETIVS",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:20190503_142548_Granadilla.jpg"
+    },
+    "path": "knowledge/europe/spain/granadilla.md"
+  },
+  {
+    "id": "grytviken",
+    "title": "Grytviken",
+    "aliases": [],
+    "description": "An abandoned whaling station on remote South Georgia, reached only by expedition cruise.",
+    "continent": "Antarctica",
+    "country": "GS",
+    "country_name": "South Georgia (UK)",
+    "region": "South Georgia",
+    "locality": "King Edward Cove",
+    "category": "Industrial site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "USH",
+      "name": "Ushuaia International Airport",
+      "distance_km": null
+    },
+    "gateway_airport": {
+      "iata": "MPN",
+      "name": "Mount Pleasant Airport"
+    },
+    "transport": [
+      "plane",
+      "cruise"
+    ],
+    "tags": [
+      "whaling",
+      "sub-antarctic",
+      "cruise",
+      "wildlife"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/grytviken.jpg",
+      "author": "nomis-simon",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Grytviken20090110-IMG_0743_(16094671225).jpg"
+    },
+    "path": "knowledge/antarctica/south-georgia/grytviken.md"
+  },
+  {
+    "id": "haludovo-palace-hotel",
+    "title": "Haludovo Palace Hotel",
+    "aliases": [],
+    "description": "A 1970s luxury resort on the Croatian island of Krk, abandoned after the Yugoslav wars.",
+    "continent": "Europe",
+    "country": "HR",
+    "country_name": "Croatia",
+    "region": "Primorje-Gorski Kotar",
+    "locality": "Malinska, Krk",
+    "category": "Abandoned resort or hotel",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "RJK",
+      "name": "Rijeka Airport",
+      "distance_km": 10
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "abandoned-hotel",
+      "croatia",
+      "adriatic",
+      "modernism"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/haludovo-palace-hotel.jpg",
+      "author": "Arne Müseler",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Haludovo_Palace_Hotel_krk.jpg"
+    },
+    "path": "knowledge/europe/croatia/haludovo-palace-hotel.md"
+  },
+  {
+    "id": "hanstholm-bunkers",
+    "title": "Hanstholm bunkers",
+    "aliases": [],
+    "description": "Huge German coastal fortifications from the Second World War on the north-west coast of Denmark.",
+    "continent": "Europe",
+    "country": "DK",
+    "country_name": "Denmark",
+    "region": "North Jutland",
+    "locality": "Hanstholm",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "AAL",
+      "name": "Aalborg Airport",
+      "distance_km": 95
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "wwii",
+      "bunkers",
+      "atlantic-wall",
+      "coast"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/hanstholm-bunkers.jpg",
+      "author": "der_uzi",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:HanstholmBarrel38cm.JPG"
+    },
+    "path": "knowledge/europe/denmark/hanstholm-bunkers.md"
+  },
+  {
+    "id": "hashima",
+    "title": "Hashima",
+    "aliases": [
+      "Gunkanjima",
+      "Battleship Island"
+    ],
+    "description": "An abandoned coal-mining island off Nagasaki, nicknamed 'Battleship Island' for its silhouette.",
+    "continent": "Asia",
+    "country": "JP",
+    "country_name": "Japan",
+    "region": "Nagasaki",
+    "locality": "Nagasaki",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "NGS",
+      "name": "Nagasaki Airport",
+      "distance_km": 40
+    },
+    "gateway_airport": {
+      "iata": "FUK",
+      "name": "Fukuoka Airport"
+    },
+    "transport": [
+      "bus",
+      "boat tour"
+    ],
+    "tags": [
+      "island",
+      "coal-mining",
+      "japan",
+      "unesco"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/hashima.jpg",
+      "author": "kntrty (Flickr)",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Battle-Ship_Island_Nagasaki_Japan.jpg"
+    },
+    "path": "knowledge/asia/japan/hashima.md"
+  },
+  {
+    "id": "hotel-del-salto",
+    "title": "Hotel del Salto",
+    "aliases": [
+      "Casa Museo del Salto del Tequendama"
+    ],
+    "description": "A 1920s mansion and former hotel perched above the Tequendama Falls near Bogotá, now a museum.",
+    "continent": "South America",
+    "country": "CO",
+    "country_name": "Colombia",
+    "region": "Cundinamarca",
+    "locality": "Soacha",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BOG",
+      "name": "El Dorado International Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "hotel",
+      "colombia",
+      "waterfall",
+      "museum"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/hotel-del-salto.jpg",
+      "author": "Felipe Restrepo Acosta",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hotel_y_Salto_del_Tequendama.JPG"
+    },
+    "path": "knowledge/south-america/colombia/hotel-del-salto.md"
+  },
+  {
+    "id": "houtouwan",
+    "title": "Houtouwan",
+    "aliases": [],
+    "description": "An abandoned fishing village on a Chinese island, almost entirely covered by green climbing plants.",
+    "continent": "Asia",
+    "country": "CN",
+    "country_name": "China",
+    "region": "Zhejiang",
+    "locality": "Shengsi",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "PVG",
+      "name": "Shanghai Pudong International Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "ferry"
+    ],
+    "tags": [
+      "ghost-village",
+      "china",
+      "island",
+      "ivy"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/houtouwan.jpg",
+      "author": "Milkomède",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Houtouwan_01.jpg"
+    },
+    "path": "knowledge/asia/china/houtouwan.md"
+  },
+  {
+    "id": "humberstone-santa-laura",
+    "title": "Humberstone and Santa Laura",
+    "aliases": [],
+    "description": "Two abandoned saltpetre works in Chile's Atacama Desert, preserved as a UNESCO World Heritage Site.",
+    "continent": "South America",
+    "country": "CL",
+    "country_name": "Chile",
+    "region": "Tarapacá",
+    "locality": "Pozo Almonte",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "IQQ",
+      "name": "Diego Aracena International Airport",
+      "distance_km": 50
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "industrial",
+      "chile",
+      "desert",
+      "unesco"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/humberstone-santa-laura.jpg",
+      "author": "rewbs.soal",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Humberstone.jpg"
+    },
+    "path": "knowledge/south-america/chile/humberstone-santa-laura.md"
+  },
+  {
+    "id": "imber",
+    "title": "Imber",
+    "aliases": [],
+    "description": "A Wiltshire village evacuated in 1943 for military training and opened to the public only on a few days a year.",
+    "continent": "Europe",
+    "country": "GB",
+    "country_name": "United Kingdom",
+    "region": "Wiltshire",
+    "locality": "Salisbury Plain",
+    "category": "Ghost town or village",
+    "access": "Open on set days",
+    "nearest_airport": {
+      "iata": "BRS",
+      "name": "Bristol Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": {
+      "iata": "LHR",
+      "name": "London Heathrow Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-village",
+      "military",
+      "wwii",
+      "church"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/imber.jpg",
+      "author": "Scott Wylie",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Imber_Village.JPG"
+    },
+    "path": "knowledge/europe/united-kingdom/imber.md"
+  },
+  {
+    "id": "karosta-prison",
+    "title": "Karosta Prison",
+    "aliases": [],
+    "description": "A former naval prison in Liepāja, Latvia, where visitors can tour the cells and even spend the night.",
+    "continent": "Europe",
+    "country": "LV",
+    "country_name": "Latvia",
+    "region": "Kurzeme",
+    "locality": "Liepāja",
+    "category": "Prison",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LPX",
+      "name": "Liepāja International Airport",
+      "distance_km": 10
+    },
+    "gateway_airport": {
+      "iata": "RIX",
+      "name": "Riga International Airport"
+    },
+    "transport": [
+      "bus",
+      "taxi"
+    ],
+    "tags": [
+      "prison",
+      "soviet",
+      "naval-base",
+      "latvia"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/karosta-prison.jpg",
+      "author": "Wellstar69",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Liep%C4%81jas_karostas_cietums.JPG"
+    },
+    "path": "knowledge/europe/latvia/karosta-prison.md"
+  },
+  {
+    "id": "kayakoy",
+    "title": "Kayaköy",
+    "aliases": [
+      "Levissi"
+    ],
+    "description": "A hillside ghost village of stone houses in south-west Türkiye, abandoned after the 1923 population exchange.",
+    "continent": "Asia",
+    "country": "TR",
+    "country_name": "Türkiye",
+    "region": "Muğla",
+    "locality": "Fethiye",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "DLM",
+      "name": "Dalaman Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "ghost-village",
+      "turkiye",
+      "population-exchange",
+      "open-air-museum"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kayakoy.jpg",
+      "author": "Wikitestaccountlogin",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kayak%C3%B6y_Turkey.jpg"
+    },
+    "path": "knowledge/asia/turkiye/kayakoy.md"
+  },
+  {
+    "id": "kellies-castle",
+    "title": "Kellie's Castle",
+    "aliases": [],
+    "description": "An unfinished Scottish-style mansion in a Malaysian plantation, left empty since the 1920s.",
+    "continent": "Asia",
+    "country": "MY",
+    "country_name": "Malaysia",
+    "region": "Perak",
+    "locality": "Batu Gajah",
+    "category": "Castle or mansion",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "IPH",
+      "name": "Sultan Azlan Shah Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": {
+      "iata": "KUL",
+      "name": "Kuala Lumpur International Airport"
+    },
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "mansion",
+      "malaysia",
+      "colonial",
+      "unfinished"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kellies-castle.jpg",
+      "author": "Nsaadah",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kellie%27s_castle_(main_entrance).jpg"
+    },
+    "path": "knowledge/asia/malaysia/kellies-castle.md"
+  },
+  {
+    "id": "kennecott",
+    "title": "Kennecott",
+    "aliases": [
+      "Kennicott"
+    ],
+    "description": "A red copper-mill town at the end of a remote road in Alaska's Wrangell-St. Elias National Park.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Alaska",
+    "locality": "McCarthy",
+    "category": "Industrial site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "ANC",
+      "name": "Ted Stevens Anchorage International Airport",
+      "distance_km": 500
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "walk"
+    ],
+    "tags": [
+      "copper-mining",
+      "alaska",
+      "national-park",
+      "glacier"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kennecott.jpg",
+      "author": "Sewtex",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Kennicott8.jpg"
+    },
+    "path": "knowledge/north-america/united-states/kennecott.md"
+  },
+  {
+    "id": "kitazawa-flotation-plant",
+    "title": "Kitazawa Flotation Plant",
+    "aliases": [
+      "Sado gold mine"
+    ],
+    "description": "Overgrown concrete ruins of a gold-ore processing plant on Sado Island, part of a UNESCO World Heritage Site.",
+    "continent": "Asia",
+    "country": "JP",
+    "country_name": "Japan",
+    "region": "Niigata",
+    "locality": "Aikawa, Sado Island",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "KIJ",
+      "name": "Niigata Airport",
+      "distance_km": 70
+    },
+    "gateway_airport": null,
+    "transport": [
+      "ferry",
+      "bus"
+    ],
+    "tags": [
+      "industrial",
+      "gold-mining",
+      "japan",
+      "unesco"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kitazawa-flotation-plant.jpg",
+      "author": "Asturio Cantabrio",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kitazawa_Flotation_Plant_ac_(1).jpg"
+    },
+    "path": "knowledge/asia/japan/kitazawa-flotation-plant.md"
+  },
+  {
+    "id": "kolmanskop",
+    "title": "Kolmanskop",
+    "aliases": [],
+    "description": "A German diamond-mining town in the Namib Desert near Lüderitz, slowly being filled by sand dunes.",
+    "continent": "Africa",
+    "country": "NA",
+    "country_name": "Namibia",
+    "region": "ǁKaras Region",
+    "locality": "Lüderitz",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LUD",
+      "name": "Lüderitz Airport",
+      "distance_km": 10
+    },
+    "gateway_airport": {
+      "iata": "WDH",
+      "name": "Hosea Kutako International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "namibia",
+      "diamond-mining",
+      "desert"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kolmanskop.jpg",
+      "author": "SkyPixels",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kolmanskop_Ghost_Town.jpg"
+    },
+    "path": "knowledge/africa/namibia/kolmanskop.md"
+  },
+  {
+    "id": "kuldhara",
+    "title": "Kuldhara",
+    "aliases": [],
+    "description": "A deserted village in the Thar Desert near Jaisalmer, abandoned in the 19th century and surrounded by legends.",
+    "continent": "Asia",
+    "country": "IN",
+    "country_name": "India",
+    "region": "Rajasthan",
+    "locality": "Jaisalmer",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "JSA",
+      "name": "Jaisalmer Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": {
+      "iata": "JDH",
+      "name": "Jodhpur Airport"
+    },
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "ghost-village",
+      "india",
+      "desert",
+      "rajasthan"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/kuldhara.jpg",
+      "author": "Dinesh Valke from Thane, India",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kuldhara,_an_abandoned_village_(30738705327).jpg"
+    },
+    "path": "knowledge/asia/india/kuldhara.md"
+  },
+  {
+    "id": "landschaftspark-duisburg-nord",
+    "title": "Landschaftspark Duisburg-Nord",
+    "aliases": [],
+    "description": "A former ironworks in Duisburg turned into a public park, with a blast furnace you can climb.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "North Rhine-Westphalia",
+    "locality": "Duisburg",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "DUS",
+      "name": "Düsseldorf Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "tram"
+    ],
+    "tags": [
+      "ironworks",
+      "ruhr",
+      "park",
+      "light-show"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/landschaftspark-duisburg-nord.jpg",
+      "author": "Sch0p3nh4u3r",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Hochofen_5_at_Landschaftspark_Duisburg-Nord.jpg"
+    },
+    "path": "knowledge/europe/germany/landschaftspark-duisburg-nord.md"
+  },
+  {
+    "id": "linnahall",
+    "title": "Linnahall",
+    "aliases": [],
+    "description": "A monumental Soviet-era concert hall on Tallinn's waterfront, closed but with a walkable roof.",
+    "continent": "Europe",
+    "country": "EE",
+    "country_name": "Estonia",
+    "region": "Harju County",
+    "locality": "Tallinn",
+    "category": "Abandoned public building",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "TLL",
+      "name": "Tallinn Airport",
+      "distance_km": 5
+    },
+    "gateway_airport": null,
+    "transport": [
+      "tram",
+      "walk",
+      "taxi"
+    ],
+    "tags": [
+      "soviet",
+      "architecture",
+      "tallinn",
+      "olympics"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/linnahall.jpg",
+      "author": "Pudelek (Marcin Szala)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Linnahall_(by_Pudelek).JPG"
+    },
+    "path": "knowledge/europe/estonia/linnahall.md"
+  },
+  {
+    "id": "maunsell-sea-forts",
+    "title": "Maunsell Sea Forts",
+    "aliases": [
+      "Red Sands Fort",
+      "Shivering Sands"
+    ],
+    "description": "Second World War anti-aircraft forts on stilts in the Thames Estuary, seen on boat trips.",
+    "continent": "Europe",
+    "country": "GB",
+    "country_name": "United Kingdom",
+    "region": "Thames Estuary",
+    "locality": "Off the Kent coast",
+    "category": "Military or Cold War site",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "SEN",
+      "name": "London Southend Airport",
+      "distance_km": 30
+    },
+    "gateway_airport": {
+      "iata": "LHR",
+      "name": "London Heathrow Airport"
+    },
+    "transport": [
+      "train",
+      "boat tour"
+    ],
+    "tags": [
+      "wwii",
+      "sea-forts",
+      "pirate-radio",
+      "boat-trip"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/maunsell-sea-forts.jpg",
+      "author": "Rob Farrow",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Red_Sands_Maunsell_Fort_-_Connecting_bridge_-_geograph.org.uk_-_6245169.jpg"
+    },
+    "path": "knowledge/europe/united-kingdom/maunsell-sea-forts.md"
+  },
+  {
+    "id": "mos-espa-film-set",
+    "title": "Mos Espa film set",
+    "aliases": [
+      "Star Wars set"
+    ],
+    "description": "The abandoned desert film set of a Star Wars town near Tozeur in southern Tunisia.",
+    "continent": "Africa",
+    "country": "TN",
+    "country_name": "Tunisia",
+    "region": "Tozeur",
+    "locality": "Ong Jemel",
+    "category": "Wreck or film set",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "TOE",
+      "name": "Tozeur-Nefta International Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": {
+      "iata": "TUN",
+      "name": "Tunis-Carthage International Airport"
+    },
+    "transport": [
+      "4x4 tour"
+    ],
+    "tags": [
+      "film-set",
+      "tunisia",
+      "desert",
+      "star-wars"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/mos-espa-film-set.jpg",
+      "author": "Habib M'henni",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ong_Jmel,_Mos_Espa,_Star_Wars_set,_Nefta,_Tunisie_DSC_1997.jpg"
+    },
+    "path": "knowledge/africa/tunisia/mos-espa-film-set.md"
+  },
+  {
+    "id": "ohio-state-reformatory",
+    "title": "Ohio State Reformatory",
+    "aliases": [],
+    "description": "A castle-like prison in Mansfield, Ohio, famous as the main filming location of The Shawshank Redemption.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Ohio",
+    "locality": "Mansfield",
+    "category": "Prison",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "CLE",
+      "name": "Cleveland Hopkins International Airport",
+      "distance_km": 115
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "prison",
+      "ohio",
+      "film-location",
+      "architecture"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/ohio-state-reformatory.jpg",
+      "author": "Niagara66",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ohio_State_Reformatory_Mansfield_08.jpg"
+    },
+    "path": "knowledge/north-america/united-states/ohio-state-reformatory.md"
+  },
+  {
+    "id": "okunoshima",
+    "title": "Okunoshima",
+    "aliases": [
+      "Rabbit Island"
+    ],
+    "description": "A small Japanese island with ruins of a secret wartime poison gas factory, and hundreds of wild rabbits.",
+    "continent": "Asia",
+    "country": "JP",
+    "country_name": "Japan",
+    "region": "Hiroshima",
+    "locality": "Takehara",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "HIJ",
+      "name": "Hiroshima Airport",
+      "distance_km": 45
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "ferry"
+    ],
+    "tags": [
+      "island",
+      "wwii",
+      "japan",
+      "rabbits"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/okunoshima.jpg",
+      "author": "Vickerman625",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Okunoshima_2.JPG"
+    },
+    "path": "knowledge/asia/japan/okunoshima.md"
+  },
+  {
+    "id": "old-cahawba",
+    "title": "Old Cahawba",
+    "aliases": [
+      "Cahaba"
+    ],
+    "description": "The site of Alabama's first state capital, now a ghost town of ruins, columns and old cemeteries.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Alabama",
+    "locality": "Orrville",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "MGM",
+      "name": "Montgomery Regional Airport",
+      "distance_km": 80
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "alabama",
+      "archaeological-park",
+      "civil-war"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/old-cahawba.jpg",
+      "author": "Altairisfar (Jeffrey Reed)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:St._Luke%27s_Church_at_Cahaba_02.JPG"
+    },
+    "path": "knowledge/north-america/united-states/old-cahawba.md"
+  },
+  {
+    "id": "olympic-village-elstal",
+    "title": "Olympic Village 1936",
+    "aliases": [
+      "Olympisches Dorf"
+    ],
+    "description": "The athletes' village of the 1936 Berlin Olympics, later a Soviet barracks, now partly restored.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Brandenburg",
+    "locality": "Elstal",
+    "category": "Amusement park or Olympic site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport",
+      "distance_km": 50
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "olympics",
+      "soviet",
+      "berlin-area",
+      "architecture"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/olympic-village-elstal.jpg",
+      "author": "A.Savin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:OlympDorf_Berlin_08-2013_img04.jpg"
+    },
+    "path": "knowledge/europe/germany/olympic-village-elstal.md"
+  },
+  {
+    "id": "oradour-sur-glane",
+    "title": "Oradour-sur-Glane",
+    "aliases": [
+      "Oradour"
+    ],
+    "description": "A French village kept in ruins as a memorial to the massacre of its inhabitants in June 1944.",
+    "continent": "Europe",
+    "country": "FR",
+    "country_name": "France",
+    "region": "Nouvelle-Aquitaine",
+    "locality": "Oradour-sur-Glane",
+    "category": "Monument or memorial",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "LIG",
+      "name": "Limoges-Bellegarde Airport",
+      "distance_km": 20
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi",
+      "bus"
+    ],
+    "tags": [
+      "wwii",
+      "memorial",
+      "france"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/oradour-sur-glane.jpg",
+      "author": "TwoWings, slight edit by Calibas",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Car_in_Oradour-sur-Glane4.jpg"
+    },
+    "path": "knowledge/europe/france/oradour-sur-glane.md"
+  },
+  {
+    "id": "orford-ness",
+    "title": "Orford Ness",
+    "aliases": [],
+    "description": "A remote shingle spit in Suffolk with the ruins of secret military test sites, run by the National Trust.",
+    "continent": "Europe",
+    "country": "GB",
+    "country_name": "United Kingdom",
+    "region": "Suffolk",
+    "locality": "Orford",
+    "category": "Military or Cold War site",
+    "access": "Open on set days",
+    "nearest_airport": {
+      "iata": "NWI",
+      "name": "Norwich Airport",
+      "distance_km": 80
+    },
+    "gateway_airport": {
+      "iata": "STN",
+      "name": "London Stansted Airport"
+    },
+    "transport": [
+      "train",
+      "taxi",
+      "ferry"
+    ],
+    "tags": [
+      "military",
+      "nature-reserve",
+      "atomic-weapons",
+      "coast"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/orford-ness.jpg",
+      "author": "Adrian S Pye",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:The_pagodas_on_Orford_Ness_-_geograph.org.uk_-_4361614.jpg"
+    },
+    "path": "knowledge/europe/united-kingdom/orford-ness.md"
+  },
+  {
+    "id": "ouvrage-hackenberg",
+    "title": "Ouvrage Hackenberg (Maginot Line)",
+    "aliases": [
+      "Maginot Line"
+    ],
+    "description": "The largest fort of the Maginot Line, a 1930s underground fortress with its own electric railway.",
+    "continent": "Europe",
+    "country": "FR",
+    "country_name": "France",
+    "region": "Grand Est",
+    "locality": "Veckring",
+    "category": "Military or Cold War site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LUX",
+      "name": "Luxembourg Airport",
+      "distance_km": 45
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "maginot-line",
+      "fortress",
+      "underground",
+      "wwii"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/ouvrage-hackenberg.jpg",
+      "author": "Nicolas Bouillon",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:Ouvrage_du_Hackenberg_Obusier_vue_int%C3%A9rieure.JPG"
+    },
+    "path": "knowledge/europe/france/ouvrage-hackenberg.md"
+  },
+  {
+    "id": "paranapiacaba",
+    "title": "Paranapiacaba",
+    "aliases": [],
+    "description": "A British-built railway village in the misty Serra do Mar mountains above São Paulo, with a clock tower like Big Ben.",
+    "continent": "South America",
+    "country": "BR",
+    "country_name": "Brazil",
+    "region": "São Paulo",
+    "locality": "Santo André",
+    "category": "Disused railway",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "CGH",
+      "name": "São Paulo-Congonhas Airport",
+      "distance_km": 50
+    },
+    "gateway_airport": {
+      "iata": "GRU",
+      "name": "São Paulo-Guarulhos International Airport"
+    },
+    "transport": [
+      "train",
+      "bus"
+    ],
+    "tags": [
+      "railway",
+      "brazil",
+      "heritage-village",
+      "british"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/paranapiacaba.jpg",
+      "author": "Vertematti",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Vis%C3%A3o_Panor%C3%A2mica_da_Cidade.jpg"
+    },
+    "path": "knowledge/south-america/brazil/paranapiacaba.md"
+  },
+  {
+    "id": "paris-catacombs",
+    "title": "Paris Catacombs",
+    "aliases": [
+      "Catacombes de Paris"
+    ],
+    "description": "An underground ossuary in old quarries beneath Paris, holding the remains of millions of Parisians.",
+    "continent": "Europe",
+    "country": "FR",
+    "country_name": "France",
+    "region": "Île-de-France",
+    "locality": "Paris",
+    "category": "Underground",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "ORY",
+      "name": "Paris Orly Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": {
+      "iata": "CDG",
+      "name": "Paris Charles de Gaulle Airport"
+    },
+    "transport": [
+      "metro",
+      "walk"
+    ],
+    "tags": [
+      "underground",
+      "ossuary",
+      "paris",
+      "museum"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/paris-catacombs.jpg",
+      "author": "Diego Delso",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Catacumbas,_Par%C3%ADs,_Francia,_2022-11-01,_DD_105-107_HDR.jpg"
+    },
+    "path": "knowledge/europe/france/paris-catacombs.md"
+  },
+  {
+    "id": "pennhurst",
+    "title": "Pennhurst State School and Hospital",
+    "aliases": [
+      "Pennhurst Asylum"
+    ],
+    "description": "A former state institution in Pennsylvania whose history of abuse led to landmark disability-rights rulings.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Pennsylvania",
+    "locality": "Spring City",
+    "category": "Hospital or sanatorium",
+    "access": "Open on set days",
+    "nearest_airport": {
+      "iata": "PHL",
+      "name": "Philadelphia International Airport",
+      "distance_km": 60
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "institution",
+      "pennsylvania",
+      "disability-rights",
+      "history"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/pennhurst.jpg",
+      "author": "Smccphotog",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Admin-current-pennhurst.jpg"
+    },
+    "path": "knowledge/north-america/united-states/pennhurst.md"
+  },
+  {
+    "id": "pentedattilo",
+    "title": "Pentedattilo",
+    "aliases": [],
+    "description": "A ghost village in Calabria built beneath a rock shaped like a giant hand.",
+    "continent": "Europe",
+    "country": "IT",
+    "country_name": "Italy",
+    "region": "Calabria",
+    "locality": "Melito di Porto Salvo",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "REG",
+      "name": "Reggio Calabria Airport",
+      "distance_km": 30
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-village",
+      "italy",
+      "calabria",
+      "crafts"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/pentedattilo.jpg",
+      "author": "Benjamin Smith",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Melito_di_Porto_Salvo_-_Pentedattilo_Vecchio_-_2.jpg"
+    },
+    "path": "knowledge/europe/italy/pentedattilo.md"
+  },
+  {
+    "id": "petite-ceinture",
+    "title": "Petite Ceinture",
+    "aliases": [],
+    "description": "An abandoned railway ring around Paris, parts of which have been opened as green walkways.",
+    "continent": "Europe",
+    "country": "FR",
+    "country_name": "France",
+    "region": "Île-de-France",
+    "locality": "Paris",
+    "category": "Disused railway",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "ORY",
+      "name": "Paris Orly Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": {
+      "iata": "CDG",
+      "name": "Paris Charles de Gaulle Airport"
+    },
+    "transport": [
+      "metro",
+      "walk"
+    ],
+    "tags": [
+      "railway",
+      "paris",
+      "walking",
+      "nature"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/petite-ceinture.jpg",
+      "author": "Unknown author",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:Pc_charonne_jms.jpg"
+    },
+    "path": "knowledge/europe/france/petite-ceinture.md"
+  },
+  {
+    "id": "petrova-gora-memorial",
+    "title": "Petrova Gora Memorial",
+    "aliases": [],
+    "description": "A derelict, once steel-clad memorial to Partisans and civilians on a forested hilltop in Croatia.",
+    "continent": "Europe",
+    "country": "HR",
+    "country_name": "Croatia",
+    "region": "Karlovac County",
+    "locality": "Vrginmost",
+    "category": "Monument or memorial",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "ZAG",
+      "name": "Zagreb Airport",
+      "distance_km": 75
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "spomenik",
+      "wwii",
+      "memorial",
+      "forest"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/petrova-gora-memorial.jpg",
+      "author": "tomislav medak",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Petrova_Gora_Memorial_2012.jpg"
+    },
+    "path": "knowledge/europe/croatia/petrova-gora-memorial.md"
+  },
+  {
+    "id": "plokstine-missile-base",
+    "title": "Plokštinė missile base",
+    "aliases": [
+      "Cold War Museum"
+    ],
+    "description": "A Soviet nuclear missile base hidden in a Lithuanian forest, now a Cold War museum.",
+    "continent": "Europe",
+    "country": "LT",
+    "country_name": "Lithuania",
+    "region": "Samogitia",
+    "locality": "Plateliai",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "PLQ",
+      "name": "Palanga International Airport",
+      "distance_km": 50
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "cold-war",
+      "missile-silo",
+      "museum",
+      "national-park"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/plokstine-missile-base.jpg",
+      "author": "foundin_a_attic",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Plok%C5%A1tin%C4%97_missile_base,_the_dome_covering_missile_silo,_2019.jpg"
+    },
+    "path": "knowledge/europe/lithuania/plokstine-missile-base.md"
+  },
+  {
+    "id": "plymouth-montserrat",
+    "title": "Plymouth",
+    "aliases": [],
+    "description": "Montserrat's former capital, buried by volcanic ash in the 1990s and now inside an exclusion zone.",
+    "continent": "North America",
+    "country": "MS",
+    "country_name": "Montserrat (UK)",
+    "region": "Montserrat",
+    "locality": "Plymouth",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "MNI",
+      "name": "John A. Osborne Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": {
+      "iata": "ANU",
+      "name": "V. C. Bird International Airport"
+    },
+    "transport": [
+      "plane",
+      "ferry",
+      "car"
+    ],
+    "tags": [
+      "volcano",
+      "buried-city",
+      "caribbean",
+      "exclusion-zone"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/plymouth-montserrat.jpg",
+      "author": "Xb-70 at English Wikipedia",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:Plymouth_Montserrat_Heli.jpg"
+    },
+    "path": "knowledge/north-america/montserrat/plymouth-montserrat.md"
+  },
+  {
+    "id": "project-riese-osowka",
+    "title": "Project Riese – Osówka",
+    "aliases": [
+      "Riese",
+      "Osówka"
+    ],
+    "description": "Part of a vast unfinished tunnel complex dug under the Owl Mountains in the Second World War.",
+    "continent": "Europe",
+    "country": "PL",
+    "country_name": "Poland",
+    "region": "Lower Silesia",
+    "locality": "Głuszyca",
+    "category": "Underground",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "WRO",
+      "name": "Wrocław Airport",
+      "distance_km": 90
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "train",
+      "bus"
+    ],
+    "tags": [
+      "underground",
+      "wwii",
+      "forced-labour",
+      "tunnels"
+    ],
+    "status_checked": null,
+    "image": null,
+    "path": "knowledge/europe/poland/project-riese-osowka.md"
+  },
+  {
+    "id": "prora",
+    "title": "Prora",
+    "aliases": [
+      "Colossus of Prora"
+    ],
+    "description": "A 4.5-kilometre seaside resort on Rügen, built in the 1930s and never used for holidays.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Mecklenburg-Vorpommern",
+    "locality": "Binz, Rügen",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "RLG",
+      "name": "Rostock-Laage Airport",
+      "distance_km": 160
+    },
+    "gateway_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport"
+    },
+    "transport": [
+      "train",
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "architecture",
+      "nazi-era",
+      "baltic-sea",
+      "beach"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/prora.jpg",
+      "author": "Ralf Roletschek",
+      "license": "CC BY-SA 1.0 fi",
+      "license_url": "https://creativecommons.org/licenses/by-sa/1.0/fi/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:20-07-06-Prora-RalfR-DJI_0120.jpg"
+    },
+    "path": "knowledge/europe/germany/prora.md"
+  },
+  {
+    "id": "pyramiden",
+    "title": "Pyramiden",
+    "aliases": [
+      "Piramida"
+    ],
+    "description": "A Soviet coal-mining town in the high Arctic, abandoned in 1998 and preserved by the cold.",
+    "continent": "Europe",
+    "country": "SJ",
+    "country_name": "Svalbard (Norway)",
+    "region": "Svalbard",
+    "locality": "Billefjorden",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "LYR",
+      "name": "Svalbard Airport, Longyear",
+      "distance_km": 50
+    },
+    "gateway_airport": {
+      "iata": "OSL",
+      "name": "Oslo Airport"
+    },
+    "transport": [
+      "plane",
+      "boat tour",
+      "snowmobile"
+    ],
+    "tags": [
+      "soviet",
+      "arctic",
+      "mining",
+      "svalbard"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/pyramiden.jpg",
+      "author": "Bjoertvedt",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Piramida_Svalbard_IMG_7344.JPG"
+    },
+    "path": "knowledge/europe/svalbard/pyramiden.md"
+  },
+  {
+    "id": "real-de-catorce",
+    "title": "Real de Catorce",
+    "aliases": [],
+    "description": "A semi-abandoned silver-mining town in the Mexican highlands, entered through a 2.3 km tunnel.",
+    "continent": "North America",
+    "country": "MX",
+    "country_name": "Mexico",
+    "region": "San Luis Potosí",
+    "locality": "Real de Catorce",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SLP",
+      "name": "San Luis Potosí International Airport",
+      "distance_km": 250
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "mexico",
+      "silver-mining",
+      "pilgrimage"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/real-de-catorce.jpg",
+      "author": "Jflo23",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:RealStreet.jpg"
+    },
+    "path": "knowledge/north-america/mexico/real-de-catorce.md"
+  },
+  {
+    "id": "rhyolite",
+    "title": "Rhyolite",
+    "aliases": [],
+    "description": "A ruined Nevada gold-rush town near Death Valley, with a bottle house and an open-air sculpture museum.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Nevada",
+    "locality": "Beatty",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "LAS",
+      "name": "Harry Reid International Airport",
+      "distance_km": 190
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "desert",
+      "nevada",
+      "death-valley"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/rhyolite.jpg",
+      "author": "Tahoenathan",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Rhyolite2.jpg"
+    },
+    "path": "knowledge/north-america/united-states/rhyolite.md"
+  },
+  {
+    "id": "ross-island-andaman",
+    "title": "Ross Island",
+    "aliases": [
+      "Netaji Subhas Chandra Bose Dweep"
+    ],
+    "description": "The former British headquarters of the Andaman Islands, now ruins wrapped in tree roots.",
+    "continent": "Asia",
+    "country": "IN",
+    "country_name": "India",
+    "region": "Andaman and Nicobar Islands",
+    "locality": "Port Blair",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "IXZ",
+      "name": "Veer Savarkar International Airport",
+      "distance_km": 5
+    },
+    "gateway_airport": null,
+    "transport": [
+      "taxi",
+      "ferry"
+    ],
+    "tags": [
+      "colonial",
+      "ruins",
+      "india",
+      "island"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/ross-island-andaman.jpg",
+      "author": "Shad Siddiqui",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ross_Island,_Port_Blair_in_Andaman_Island.jpg"
+    },
+    "path": "knowledge/asia/india/ross-island-andaman.md"
+  },
+  {
+    "id": "saint-pierre-ruins",
+    "title": "Saint-Pierre ruins",
+    "aliases": [],
+    "description": "The ruins of Martinique's former capital, destroyed by the eruption of Mount Pelée in 1902.",
+    "continent": "North America",
+    "country": "MQ",
+    "country_name": "Martinique (France)",
+    "region": "Martinique",
+    "locality": "Saint-Pierre",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "FDF",
+      "name": "Martinique Aimé Césaire International Airport",
+      "distance_km": 40
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "volcano",
+      "ruins",
+      "martinique",
+      "caribbean"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/saint-pierre-ruins.jpg",
+      "author": "Zinneke",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Saint-Pierre_(Martinique)_avec_Montage_Pel%C3%A9e.JPG"
+    },
+    "path": "knowledge/north-america/martinique/saint-pierre-ruins.md"
+  },
+  {
+    "id": "salton-sea-bombay-beach",
+    "title": "Salton Sea and Bombay Beach",
+    "aliases": [],
+    "description": "A shrinking desert lake in California lined with abandoned resorts, and an art scene in Bombay Beach.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "California",
+    "locality": "Bombay Beach",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "PSP",
+      "name": "Palm Springs International Airport",
+      "distance_km": 90
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "abandoned-resort",
+      "california",
+      "desert",
+      "art"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/salton-sea-bombay-beach.jpg",
+      "author": "Epolk (English Wikipedia)",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Bombay_beach_sign.jpg"
+    },
+    "path": "knowledge/north-america/united-states/salton-sea-bombay-beach.md"
+  },
+  {
+    "id": "sanatorio-duran",
+    "title": "Sanatorio Durán",
+    "aliases": [],
+    "description": "An abandoned tuberculosis sanatorium on the slopes of the Irazú volcano in Costa Rica.",
+    "continent": "North America",
+    "country": "CR",
+    "country_name": "Costa Rica",
+    "region": "Cartago",
+    "locality": "Potrero Cerrado",
+    "category": "Hospital or sanatorium",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SJO",
+      "name": "Juan Santamaría International Airport",
+      "distance_km": 45
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "sanatorium",
+      "costa-rica",
+      "volcano",
+      "haunted"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/sanatorio-duran.jpg",
+      "author": "Rodtico21",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sanatorio_Duran_(3).JPG"
+    },
+    "path": "knowledge/north-america/costa-rica/sanatorio-duran.md"
+  },
+  {
+    "id": "sarajevo-bobsleigh-track",
+    "title": "Sarajevo bobsleigh track",
+    "aliases": [],
+    "description": "The graffiti-covered bobsleigh run of the 1984 Winter Olympics in the forest above Sarajevo.",
+    "continent": "Europe",
+    "country": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "region": "Sarajevo Canton",
+    "locality": "Mount Trebević",
+    "category": "Amusement park or Olympic site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SJJ",
+      "name": "Sarajevo International Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "cable car",
+      "walk",
+      "taxi"
+    ],
+    "tags": [
+      "olympics",
+      "street-art",
+      "sarajevo",
+      "forest"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/sarajevo-bobsleigh-track.jpg",
+      "author": "ThePerfidiousAlbion",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Sarajevo_Olympic_Bobsleigh_on_35mm_film.jpg"
+    },
+    "path": "knowledge/europe/bosnia-and-herzegovina/sarajevo-bobsleigh-track.md"
+  },
+  {
+    "id": "shuinandong-smelter",
+    "title": "Shuinandong Smelter",
+    "aliases": [
+      "Thirteen Levels",
+      "13 Levels"
+    ],
+    "description": "Ruins of a copper smelter terraced into a mountainside above the sea in north-east Taiwan.",
+    "continent": "Asia",
+    "country": "TW",
+    "country_name": "Taiwan",
+    "region": "New Taipei",
+    "locality": "Ruifang",
+    "category": "Industrial site",
+    "access": "Exterior only",
+    "nearest_airport": {
+      "iata": "TSA",
+      "name": "Taipei Songshan Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": {
+      "iata": "TPE",
+      "name": "Taiwan Taoyuan International Airport"
+    },
+    "transport": [
+      "train",
+      "bus"
+    ],
+    "tags": [
+      "industrial",
+      "taiwan",
+      "copper",
+      "coast"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/shuinandong-smelter.jpg",
+      "author": "JohnZhang0519",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Remains_of_the_13_Levels_by_JohnZhang.jpg"
+    },
+    "path": "knowledge/asia/taiwan/shuinandong-smelter.md"
+  },
+  {
+    "id": "slievemore-deserted-village",
+    "title": "Slievemore Deserted Village",
+    "aliases": [],
+    "description": "A ruined village of stone cottages on the slopes of a mountain on Achill Island, Ireland.",
+    "continent": "Europe",
+    "country": "IE",
+    "country_name": "Ireland",
+    "region": "County Mayo",
+    "locality": "Achill Island",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "NOC",
+      "name": "Ireland West Airport Knock",
+      "distance_km": 110
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "deserted-village",
+      "ireland",
+      "famine",
+      "atlantic-coast"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/slievemore-deserted-village.jpg",
+      "author": "MickReynolds",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Slievemore,_Achill_Island.jpg"
+    },
+    "path": "knowledge/europe/ireland/slievemore-deserted-village.md"
+  },
+  {
+    "id": "sloss-furnaces",
+    "title": "Sloss Furnaces",
+    "aliases": [],
+    "description": "A preserved iron-making plant in Birmingham, Alabama, now a museum and metal-arts centre.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Alabama",
+    "locality": "Birmingham",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BHM",
+      "name": "Birmingham-Shuttlesworth International Airport",
+      "distance_km": 5
+    },
+    "gateway_airport": null,
+    "transport": [
+      "taxi",
+      "car"
+    ],
+    "tags": [
+      "industrial",
+      "alabama",
+      "blast-furnace",
+      "museum"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/sloss-furnaces.jpg",
+      "author": "DXR",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Sloss_Furnaces,_Birmingham_AL,_North_view_20160714_1.jpg"
+    },
+    "path": "knowledge/north-america/united-states/sloss-furnaces.md"
+  },
+  {
+    "id": "solheimasandur-plane-wreck",
+    "title": "Sólheimasandur plane wreck",
+    "aliases": [
+      "DC-3 plane wreck"
+    ],
+    "description": "The wreck of a US Navy DC-3 lying alone on a black sand plain in South Iceland.",
+    "continent": "Europe",
+    "country": "IS",
+    "country_name": "Iceland",
+    "region": "South Iceland",
+    "locality": "Sólheimasandur",
+    "category": "Wreck or film set",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "KEF",
+      "name": "Keflavík International Airport",
+      "distance_km": 170
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "walk"
+    ],
+    "tags": [
+      "plane-wreck",
+      "iceland",
+      "black-sand",
+      "photography"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/solheimasandur-plane-wreck.jpg",
+      "author": "sikeri from Silver Spring, MD, USA",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:S%C3%B3lheimasandur_Plane_Wreck,_South_Iceland_(37872346766).jpg"
+    },
+    "path": "knowledge/europe/iceland/solheimasandur-plane-wreck.md"
+  },
+  {
+    "id": "spinalonga",
+    "title": "Spinalonga",
+    "aliases": [],
+    "description": "A fortified island off Crete that served as one of Europe's last leper colonies until 1957.",
+    "continent": "Europe",
+    "country": "GR",
+    "country_name": "Greece",
+    "region": "Crete",
+    "locality": "Elounda",
+    "category": "Hospital or sanatorium",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "HER",
+      "name": "Heraklion International Airport",
+      "distance_km": 65
+    },
+    "gateway_airport": null,
+    "transport": [
+      "bus",
+      "car",
+      "ferry"
+    ],
+    "tags": [
+      "island",
+      "leper-colony",
+      "crete",
+      "fortress"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/spinalonga.jpg",
+      "author": "Ggia",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:20090620_Spinalogka_Elounta_panoramic_view_from_the_mountain.jpg"
+    },
+    "path": "knowledge/europe/greece/spinalonga.md"
+  },
+  {
+    "id": "spreepark",
+    "title": "Spreepark",
+    "aliases": [
+      "Kulturpark Plänterwald"
+    ],
+    "description": "East Berlin's former amusement park, left to decay for two decades and now being restored.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Berlin",
+    "locality": "Plänterwald",
+    "category": "Amusement park or Olympic site",
+    "access": "Closed",
+    "nearest_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "walk"
+    ],
+    "tags": [
+      "amusement-park",
+      "berlin",
+      "gdr",
+      "ferris-wheel"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/spreepark.jpg",
+      "author": "Colin Smith on geo.hlipp.de",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Riesenrad_ueber_Ehem._Spreepark_(Big_Wheel_Above_the_Former_Spreepark)_-_geo.hlipp.de_-_28375.jpg"
+    },
+    "path": "knowledge/europe/germany/spreepark.md"
+  },
+  {
+    "id": "st-elmo",
+    "title": "St. Elmo",
+    "aliases": [],
+    "description": "One of Colorado's best-preserved mining ghost towns, high in the Rocky Mountains.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Colorado",
+    "locality": "Chaffee County",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "GUC",
+      "name": "Gunnison-Crested Butte Regional Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": {
+      "iata": "DEN",
+      "name": "Denver International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-town",
+      "rocky-mountains",
+      "colorado",
+      "mining"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/st-elmo.jpg",
+      "author": "Rolf Blauert Dk4hb",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Co_goosttown_st_elmo1.jpg"
+    },
+    "path": "knowledge/north-america/united-states/st-elmo.md"
+  },
+  {
+    "id": "st-kilda",
+    "title": "St Kilda",
+    "aliases": [
+      "Hirta"
+    ],
+    "description": "A remote Scottish archipelago whose last islanders left in 1930, reached by boat in summer.",
+    "continent": "Europe",
+    "country": "GB",
+    "country_name": "United Kingdom",
+    "region": "Outer Hebrides",
+    "locality": "Hirta",
+    "category": "Ghost town or village",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "SYY",
+      "name": "Stornoway Airport",
+      "distance_km": 80
+    },
+    "gateway_airport": {
+      "iata": "GLA",
+      "name": "Glasgow Airport"
+    },
+    "transport": [
+      "car",
+      "boat tour"
+    ],
+    "tags": [
+      "island",
+      "evacuated",
+      "unesco",
+      "seabirds"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/st-kilda.jpg",
+      "author": "Otter",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Saint_Kilda_20090611_Hirta_-_Village_Bay_overview.jpg"
+    },
+    "path": "knowledge/europe/united-kingdom/st-kilda.md"
+  },
+  {
+    "id": "teufelsberg",
+    "title": "Teufelsberg listening station",
+    "aliases": [
+      "Field Station Berlin"
+    ],
+    "description": "A Cold War listening station on a hill of wartime rubble in Berlin, now covered in street art.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Berlin",
+    "locality": "Grunewald",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "walk",
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "cold-war",
+      "berlin",
+      "street-art",
+      "viewpoint"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/teufelsberg.jpg",
+      "author": "A.Savin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Funkturm_Berlin_View_13.jpg"
+    },
+    "path": "knowledge/europe/germany/teufelsberg.md"
+  },
+  {
+    "id": "tjentiste-war-memorial",
+    "title": "Tjentište War Memorial",
+    "aliases": [
+      "Sutjeska memorial"
+    ],
+    "description": "A monumental Yugoslav memorial in Sutjeska National Park, commemorating a major Second World War battle.",
+    "continent": "Europe",
+    "country": "BA",
+    "country_name": "Bosnia and Herzegovina",
+    "region": "Republika Srpska",
+    "locality": "Tjentište",
+    "category": "Monument or memorial",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SJJ",
+      "name": "Sarajevo International Airport",
+      "distance_km": 110
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "spomenik",
+      "wwii",
+      "memorial",
+      "national-park"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/tjentiste-war-memorial.jpg",
+      "author": "JankoSam",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BF%D0%BE%D0%BC%D0%B5%D0%BD%D0%B8%D0%BA_%D0%BD%D0%B0_%D0%A2%D1%98%D0%B5%D0%BD%D1%82%D0%B8%D1%88%D1%82%D1%83.jpg"
+    },
+    "path": "knowledge/europe/bosnia-and-herzegovina/tjentiste-war-memorial.md"
+  },
+  {
+    "id": "trans-allegheny-lunatic-asylum",
+    "title": "Trans-Allegheny Lunatic Asylum",
+    "aliases": [
+      "Weston State Hospital"
+    ],
+    "description": "A huge 19th-century sandstone asylum in West Virginia, open for history and ghost tours.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "West Virginia",
+    "locality": "Weston",
+    "category": "Hospital or sanatorium",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "CKB",
+      "name": "North Central West Virginia Airport",
+      "distance_km": 45
+    },
+    "gateway_airport": {
+      "iata": "PIT",
+      "name": "Pittsburgh International Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "asylum",
+      "west-virginia",
+      "architecture",
+      "ghost-tours"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/trans-allegheny-lunatic-asylum.jpg",
+      "author": "Tim Kiser",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Weston_State_Hospital.jpg"
+    },
+    "path": "knowledge/north-america/united-states/trans-allegheny-lunatic-asylum.md"
+  },
+  {
+    "id": "tskaltubo-sanatoriums",
+    "title": "Tskaltubo sanatoriums",
+    "aliases": [
+      "Tskhaltubo"
+    ],
+    "description": "A Georgian spa town full of grand, decaying Soviet-era sanatoriums and bathhouses.",
+    "continent": "Europe",
+    "country": "GE",
+    "country_name": "Georgia",
+    "region": "Imereti",
+    "locality": "Tskaltubo",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "KUT",
+      "name": "Kutaisi International Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "taxi",
+      "bus"
+    ],
+    "tags": [
+      "soviet",
+      "spa",
+      "georgia",
+      "architecture"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/tskaltubo-sanatoriums.jpg",
+      "author": "Robot8A",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tskaltubo_banner_Abandoned_resort.jpeg"
+    },
+    "path": "knowledge/europe/georgia/tskaltubo-sanatoriums.md"
+  },
+  {
+    "id": "tyneham",
+    "title": "Tyneham",
+    "aliases": [],
+    "description": "A Dorset village taken over by the army in 1943 and left empty ever since, open on most weekends.",
+    "continent": "Europe",
+    "country": "GB",
+    "country_name": "United Kingdom",
+    "region": "Dorset",
+    "locality": "Isle of Purbeck",
+    "category": "Ghost town or village",
+    "access": "Open on set days",
+    "nearest_airport": {
+      "iata": "BOH",
+      "name": "Bournemouth Airport",
+      "distance_km": 45
+    },
+    "gateway_airport": {
+      "iata": "LHR",
+      "name": "London Heathrow Airport"
+    },
+    "transport": [
+      "car"
+    ],
+    "tags": [
+      "ghost-village",
+      "wwii",
+      "jurassic-coast",
+      "walking"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/tyneham.jpg",
+      "author": "Tuuraan78",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tyneham_church.JPG"
+    },
+    "path": "knowledge/europe/united-kingdom/tyneham.md"
+  },
+  {
+    "id": "varosha",
+    "title": "Varosha",
+    "aliases": [
+      "Maraş",
+      "Maras"
+    ],
+    "description": "A fenced-off resort district of Famagusta, empty since 1974 and partly reopened to visitors in 2020.",
+    "continent": "Europe",
+    "country": "CY",
+    "country_name": "Cyprus",
+    "region": "Famagusta District",
+    "locality": "Famagusta",
+    "category": "Abandoned resort or hotel",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "LCA",
+      "name": "Larnaca International Airport",
+      "distance_km": 55
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "abandoned-resort",
+      "cyprus",
+      "beach",
+      "divided-island"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/varosha.jpg",
+      "author": "TomasNY at English Wikipedia",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "source": "https://commons.wikimedia.org/wiki/File:Famagusta-Varosha_2007.JPG"
+    },
+    "path": "knowledge/europe/cyprus/varosha.md"
+  },
+  {
+    "id": "villa-epecuen",
+    "title": "Villa Epecuén",
+    "aliases": [],
+    "description": "An Argentine spa town drowned by a salt lake in 1985, its white, salt-crusted ruins now back above water.",
+    "continent": "South America",
+    "country": "AR",
+    "country_name": "Argentina",
+    "region": "Buenos Aires Province",
+    "locality": "Carhué",
+    "category": "Ghost town or village",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "BHI",
+      "name": "Comandante Espora Airport",
+      "distance_km": 250
+    },
+    "gateway_airport": {
+      "iata": "EZE",
+      "name": "Ministro Pistarini International Airport (Ezeiza)"
+    },
+    "transport": [
+      "car",
+      "bus"
+    ],
+    "tags": [
+      "ghost-town",
+      "argentina",
+      "flood",
+      "spa"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/villa-epecuen.jpg",
+      "author": "Horacio_Fernandez",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Ex_Villa_Turistica_de_Epecu%C3%A9n._-_panoramio_(1).jpg"
+    },
+    "path": "knowledge/south-america/argentina/villa-epecuen.md"
+  },
+  {
+    "id": "volklingen-ironworks",
+    "title": "Völklingen Ironworks",
+    "aliases": [
+      "Völklinger Hütte"
+    ],
+    "description": "A complete early-20th-century ironworks in Saarland, preserved as a UNESCO World Heritage Site.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Saarland",
+    "locality": "Völklingen",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SCN",
+      "name": "Saarbrücken Airport",
+      "distance_km": 25
+    },
+    "gateway_airport": {
+      "iata": "FRA",
+      "name": "Frankfurt Airport"
+    },
+    "transport": [
+      "train",
+      "walk"
+    ],
+    "tags": [
+      "ironworks",
+      "unesco",
+      "saarland",
+      "exhibitions"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/volklingen-ironworks.jpg",
+      "author": "Lokilech",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "source": "https://commons.wikimedia.org/wiki/File:VH_pano5_1.jpg"
+    },
+    "path": "knowledge/europe/germany/volklingen-ironworks.md"
+  },
+  {
+    "id": "waverly-hills-sanatorium",
+    "title": "Waverly Hills Sanatorium",
+    "aliases": [],
+    "description": "A former tuberculosis hospital in Louisville, Kentucky, known for its 'body chute' and ghost tours.",
+    "continent": "North America",
+    "country": "US",
+    "country_name": "United States",
+    "region": "Kentucky",
+    "locality": "Louisville",
+    "category": "Hospital or sanatorium",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "SDF",
+      "name": "Louisville Muhammad Ali International Airport",
+      "distance_km": 15
+    },
+    "gateway_airport": null,
+    "transport": [
+      "car",
+      "taxi"
+    ],
+    "tags": [
+      "sanatorium",
+      "kentucky",
+      "tuberculosis",
+      "ghost-tours"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/waverly-hills-sanatorium.jpg",
+      "author": "Kris Arnold",
+      "license": "Public domain",
+      "license_url": null,
+      "source": "https://commons.wikimedia.org/wiki/File:Waverlyhillssanatorium.jpg"
+    },
+    "path": "knowledge/north-america/united-states/waverly-hills-sanatorium.md"
+  },
+  {
+    "id": "whalers-bay",
+    "title": "Whalers Bay",
+    "aliases": [
+      "Deception Island"
+    ],
+    "description": "Rusting ruins of a whaling station and research base inside the flooded volcano of Deception Island, Antarctica.",
+    "continent": "Antarctica",
+    "country": "AQ",
+    "country_name": "Antarctica",
+    "region": "South Shetland Islands",
+    "locality": "Deception Island",
+    "category": "Industrial site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "USH",
+      "name": "Ushuaia International Airport",
+      "distance_km": null
+    },
+    "gateway_airport": null,
+    "transport": [
+      "plane",
+      "cruise"
+    ],
+    "tags": [
+      "antarctica",
+      "whaling",
+      "volcano",
+      "expedition-cruise"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/whalers-bay.jpg",
+      "author": "Ryan Holliday",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:7682-whalers-bay-whaling-boat.jpg"
+    },
+    "path": "knowledge/antarctica/antarctica/whalers-bay.md"
+  },
+  {
+    "id": "wolfs-lair",
+    "title": "Wolf's Lair",
+    "aliases": [
+      "Wilczy Szaniec",
+      "Wolfsschanze"
+    ],
+    "description": "The ruined bunkers of Hitler's Eastern Front headquarters, hidden in a forest in north-eastern Poland.",
+    "continent": "Europe",
+    "country": "PL",
+    "country_name": "Poland",
+    "region": "Warmia-Masuria",
+    "locality": "Gierłoż",
+    "category": "Military or Cold War site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "SZY",
+      "name": "Olsztyn-Mazury Airport",
+      "distance_km": 100
+    },
+    "gateway_airport": {
+      "iata": "GDN",
+      "name": "Gdańsk Lech Wałęsa Airport"
+    },
+    "transport": [
+      "train",
+      "bus",
+      "car"
+    ],
+    "tags": [
+      "wwii",
+      "bunkers",
+      "forest",
+      "masuria"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/wolfs-lair.jpg",
+      "author": "Avi1111 (Avishai Teicher); derivative work by Georgfotoart",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Adolf_Hitler%27s_Bunker_in_Wolfsschanze_b.jpg"
+    },
+    "path": "knowledge/europe/poland/wolfs-lair.md"
+  },
+  {
+    "id": "wunsdorf",
+    "title": "Wünsdorf (the 'Forbidden City')",
+    "aliases": [
+      "Verbotene Stadt"
+    ],
+    "description": "The former headquarters of the Soviet forces in East Germany, once a closed military town.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "Brandenburg",
+    "locality": "Wünsdorf",
+    "category": "Military or Cold War site",
+    "access": "Guided tour",
+    "nearest_airport": {
+      "iata": "BER",
+      "name": "Berlin Brandenburg Airport",
+      "distance_km": 30
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "car"
+    ],
+    "tags": [
+      "soviet",
+      "cold-war",
+      "bunkers",
+      "berlin-area"
+    ],
+    "status_checked": "2026-10-13",
+    "image": {
+      "src": "/images/wunsdorf.jpg",
+      "author": "ReRo",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Haus_der_Offiziere_(HDO).jpg"
+    },
+    "path": "knowledge/europe/germany/wunsdorf.md"
+  },
+  {
+    "id": "zollverein",
+    "title": "Zollverein Coal Mine",
+    "aliases": [],
+    "description": "A vast former coal mine and coking plant in Essen, now a UNESCO World Heritage Site.",
+    "continent": "Europe",
+    "country": "DE",
+    "country_name": "Germany",
+    "region": "North Rhine-Westphalia",
+    "locality": "Essen",
+    "category": "Industrial site",
+    "access": "Open",
+    "nearest_airport": {
+      "iata": "DUS",
+      "name": "Düsseldorf Airport",
+      "distance_km": 35
+    },
+    "gateway_airport": null,
+    "transport": [
+      "train",
+      "tram"
+    ],
+    "tags": [
+      "coal-mining",
+      "ruhr",
+      "unesco",
+      "bauhaus"
+    ],
+    "status_checked": null,
+    "image": {
+      "src": "/images/zollverein.jpg",
+      "author": "Thomas Wolf, www.foto-tw.de",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "source": "https://commons.wikimedia.org/wiki/File:Zeche_Zollverein_abends.jpg"
+    },
+    "path": "knowledge/europe/germany/zollverein.md"
+  }
+]

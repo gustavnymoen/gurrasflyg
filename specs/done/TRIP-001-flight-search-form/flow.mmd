@@ -1,0 +1,21 @@
+%% TRIP-001 Flight search form
+flowchart TD
+    Start[Traveller opens the start page] --> Type[Types in Från or Till]
+    Type --> Fetch["GET /api/airports?q=text<br/>R2, R10"]
+    Fetch --> Any{Any matches?}
+    Any -- no --> None[Inga flygplatser matchar<br/>R3]
+    None --> Type
+    Any -- yes --> List[Up to 5 suggestions]
+    List --> Choose[Chooses with mouse or keys<br/>R4]
+    Choose --> Same{Same airport in both fields?}
+    Same -- yes --> SameErr[Ajja bajja, du måste flyga någonstans!<br/>under the last chosen field, R5]
+    SameErr --> Type
+    Same -- no --> Date[Chooses a date<br/>R6]
+    Date --> DateOk{Today to 6 months ahead?}
+    DateOk -- before today --> Past[Datumet har redan passerat.<br/>R7]
+    DateOk -- too far --> Far[Du kan boka max 6 månader framåt.<br/>R7]
+    Past --> Date
+    Far --> Date
+    DateOk -- yes --> Pax[Sets travellers 1–10<br/>R8]
+    Pax --> Return[Checks Boka returresa or not<br/>R9]
+    Return --> Later[Search and results: later feature]

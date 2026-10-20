@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Testservern (scripts/test-server.mjs) bygger i en egen mapp
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
     agentFeedback: true,
   },

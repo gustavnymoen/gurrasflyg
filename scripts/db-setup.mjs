@@ -1,9 +1,12 @@
 // Skapar och uppdaterar databasen.
 //
-//   node scripts/db-setup.mjs          skapar databasen om den saknas och kör nya migreringar
-//   node scripts/db-setup.mjs --reset  (bara lokalt) sparar en kopia i db/backups/, raderar och bygger om
+//   node scripts/db-setup.mjs           skapar databasen om den saknas och kör nya migreringar
+//   node scripts/db-setup.mjs --backup  dessutom en säkerhetskopia (körs av npm run dev)
+//   node scripts/db-setup.mjs --reset   (bara lokalt) sparar en kopia, raderar och bygger om
 //
-// Utan miljövariabler används den lokala filen db/gurrasflyg.db. Är
+// Utan miljövariabler används den lokala filen ~/Ai Projekt/gurrasflyg-data/gurrasflyg.db
+// (utanför OneDrive). Säkerhetskopiorna hamnar i db/backups/, som OneDrive
+// synkar. Se lib/local-db.mjs. Är
 // TURSO_DATABASE_URL och TURSO_AUTH_TOKEN satta används Turso i stället
 // (det sker på Vercel vid varje bygge, och med npm run db:turso).
 //
@@ -13,13 +16,16 @@
 // data ligger kvar när nya tabeller eller rader läggs till.
 
 import { createClient } from "@libsql/client";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import path from "node:path";
+import { backupDir, localDbFile } from "../lib/local-db.mjs";
 
 const dbDir = path.join(import.meta.dirname, "..", "db");
-const dbFile = path.join(dbDir, "gurrasflyg.db");
 const migrationsDir = path.join(dbDir, "migrations");
 const reset = process.argv.includes("--reset");
+const backupNow = process.argv.includes("--backup");
+// Så många säkerhetskopior sparas, de äldsta tas bort
+const KEEP_BACKUPS = 20;
 
 // En "file:"-adress räknas som lokal (används t.ex. för att testa mot en kopia)
 const envUrl = process.env.TURSO_DATABASE_URL;
@@ -35,23 +41,41 @@ if (process.env.VERCEL && !remoteUrl) {
   );
   process.exit(1);
 }
-// Den lokala fil som används (vanligtvis db/gurrasflyg.db)
-const localFile = envUrl?.startsWith("file:") ? envUrl.slice("file:".length) : dbFile;
-const where = remoteUrl ? `Turso (${remoteUrl})` : path.relative(process.cwd(), localFile);
+// Den lokala fil som används (vanligtvis ~/Ai Projekt/gurrasflyg-data/gurrasflyg.db)
+const localFile = envUrl?.startsWith("file:") ? envUrl.slice("file:".length) : localDbFile;
+const where = remoteUrl ? `Turso (${remoteUrl})` : localFile;
+
 const open = () =>
   createClient({ url: remoteUrl ?? `file:${localFile}`, authToken: process.env.TURSO_AUTH_TOKEN });
 
 // Säkerhetskopia av den lokala filen, t.ex. db/backups/gurrasflyg-2026-10-19T18-40-00.db.
-// Vill du återställa: stoppa servern och kopiera filen till db/gurrasflyg.db.
+// Vill du återställa: stoppa servern och kopiera filen till ~/Ai Projekt/gurrasflyg-data/gurrasflyg.db.
 // (Turso har egen historik och kan återställas i deras webbgränssnitt.)
 async function backup(db) {
-  if (remoteUrl) return;
-  const backupDir = path.join(dbDir, "backups");
+  // Bara den vanliga lokala databasen, inte Turso eller testdatabasen
+  if (remoteUrl || localFile !== localDbFile) return;
   mkdirSync(backupDir, { recursive: true });
   const stamp = new Date().toLocaleString("sv-SE").replace(" ", "T").replace(/:/g, "-");
   const backupFile = path.join(backupDir, `gurrasflyg-${stamp}.db`);
-  await db.execute({ sql: "VACUUM INTO ?", args: [backupFile] });
+  // Skriv först till en tillfällig fil och byt namn när den är klar, så att
+  // OneDrive aldrig synkar en halvfärdig kopia under det riktiga namnet
+  rmSync(`${backupFile}.tmp`, { force: true });
+  await db.execute({ sql: "VACUUM INTO ?", args: [`${backupFile}.tmp`] });
+  renameSync(`${backupFile}.tmp`, backupFile);
   console.log(`Säkerhetskopia: ${path.relative(process.cwd(), backupFile)}`);
+
+  const old = readdirSync(backupDir)
+    .filter((f) => /^gurrasflyg-.*\.db$/.test(f))
+    .sort()
+    .slice(0, -KEEP_BACKUPS);
+  for (const f of old) rmSync(path.join(backupDir, f));
+}
+
+// Säkerhetskopia när dev-servern startar (finns databasen inte än finns inget att kopiera)
+if (backupNow && !reset && existsSync(localFile)) {
+  const db = open();
+  await backup(db);
+  db.close();
 }
 
 if (reset) {
@@ -70,6 +94,8 @@ if (reset) {
   }
 }
 
+// Mappen för en ny lokal databas
+if (!remoteUrl) mkdirSync(path.dirname(localFile), { recursive: true });
 const db = open();
 if (!remoteUrl) await db.execute("PRAGMA foreign_keys = ON");
 

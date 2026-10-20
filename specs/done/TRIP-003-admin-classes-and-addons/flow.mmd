@@ -1,0 +1,18 @@
+%% TRIP-003 Admin: cabin classes and add-ons (the same flow for both)
+flowchart TD
+    Card[Card Klasser och addons<br/>R1] --> Add[Lägg till<br/>R2, R6]
+    Card --> Edit[Pencil<br/>R4, R8]
+    Card --> Trash[Trash can<br/>R5, R9]
+    Add --> Form[Fields with Spara and Avbryt]
+    Edit --> Form
+    Form -- Avbryt --> Card
+    Form -- Spara --> Valid{Valid and unique name?<br/>R3, R7}
+    Valid -- no --> Error[Error message in the row]
+    Error --> Form
+    Valid -- yes --> Saved[Saved, table updated] --> Card
+    Trash --> InUse{In use?}
+    InUse -- yes --> Blocked[Du kan ej ta bort + reason, OK]
+    Blocked --> Card
+    InUse -- no --> Sure{Är du säker?}
+    Sure -- Nej --> Card
+    Sure -- Ja --> Deleted[Deleted] --> Card

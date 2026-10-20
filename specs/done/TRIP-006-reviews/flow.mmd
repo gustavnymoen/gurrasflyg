@@ -1,0 +1,17 @@
+%% TRIP-006 Reviews
+flowchart TD
+    subgraph Admin
+        Form[Form Nytt omdöme<br/>R3] --> Save[Spara omdöme]
+        Save --> Valid{All fields filled in?<br/>R4}
+        Valid -- no --> Err[Message for the missing field]
+        Err --> Form
+        Valid -- yes --> Saved[Omdömet sparades.<br/>R5]
+        List[List: person, stars, trash can<br/>R6] --> Sure{Är du säker?}
+        Sure -- Ja --> Deleted[Review deleted]
+        Sure -- Nej --> List
+    end
+    Saved --> DB[(reviews)]
+    Deleted --> DB
+    DB --> Carousel[Start page carousel,<br/>newest in focus<br/>R1]
+    Carousel --> Browse[Arrows, arrow keys, click or swipe<br/>R2]
+    Browse --> Carousel

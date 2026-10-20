@@ -16,7 +16,7 @@
 // Turso-uppgifterna läses från .env.turso.
 
 import { createClient } from "@libsql/client";
-import path from "node:path";
+import { localDbFile } from "../lib/local-db.mjs";
 
 const go = process.argv.includes("--go");
 const url = process.env.TURSO_DATABASE_URL;
@@ -25,7 +25,7 @@ if (!url || url.startsWith("file:")) {
   process.exit(1);
 }
 
-const local = createClient({ url: `file:${path.join(import.meta.dirname, "..", "db", "gurrasflyg.db")}` });
+const local = createClient({ url: `file:${localDbFile}` });
 const prod = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
 
 const rows = async (db, sql) => (await db.execute(sql)).rows;

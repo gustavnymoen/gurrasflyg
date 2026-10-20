@@ -1,0 +1,12 @@
+%% TRIP-005 Routes, departures and aircraft assignment
+flowchart TD
+    Gen["scripts/generate-routes.mjs<br/>fixed seed, R5"] --> Mig["db/migrations/002_routes_data.sql"]
+    Mig --> Setup["db-setup runs the migration<br/>before dev and build"]
+    Setup --> DB[(51 airports, 200 routes,<br/>2–3 departures a day<br/>R1–R4)]
+    Admin[Admin page shows<br/>n av 200 rutter har plan<br/>R6] --> Press[Presses Tilldela plan]
+    Press --> Any{Any aircraft?}
+    Any -- no --> Err[Det finns inga plan att tilldela.<br/>R8]
+    Any -- yes --> Assign[Every route gets a random aircraft<br/>R7]
+    Assign --> DB
+    Delete[Aircraft deleted] --> Null[Its routes get no aircraft<br/>R9]
+    Null --> DB

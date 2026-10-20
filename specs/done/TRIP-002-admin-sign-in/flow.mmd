@@ -1,0 +1,15 @@
+%% TRIP-002 Admin sign-in
+flowchart TD
+    Open["Visitor opens /admin"] --> Proxy{proxy.ts:<br/>valid cookie?<br/>R4, R5}
+    Proxy -- no --> Login["/admin/login<br/>R1"]
+    Proxy -- yes --> Admin[Admin page]
+    Login --> Enter[Enters password]
+    Enter --> Check{Right password?}
+    Check -- no --> Wrong[Fel lösenord.<br/>R2]
+    Wrong --> Enter
+    Check -- yes --> Cookie[Signed session cookie,<br/>valid 8 hours<br/>R3, R4]
+    Cookie --> Admin
+    Admin --> Change[Changes data] --> Action{Server action:<br/>still signed in?<br/>R7}
+    Action -- no --> NotSigned[Du är inte inloggad längre.]
+    Action -- yes --> Saved[Change saved]
+    Admin --> Logout[Logga ut<br/>R6] --> Login
