@@ -100,9 +100,9 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
 | TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices, the code stops converting, add-on prices must be whole kronor (an error otherwise), and the rule is updated in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
-| | Update the visual design | Feature | Shared |
+| TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
-| | Add return trip datepicker | Feature | Flight booking |
+| | Add return trip datepicker: a designed calendar for choosing the outbound and return date, replacing the browser's date picker. Rethink the solution with the product owner; the calendar on the TRIP-008 design board (two months, outbound and return as a range) is a starting point | Feature | Flight booking |
 | | Search results for a flight search. Prices are shown as 0 kr until flights have prices per class | Feature | Flight booking |
 | | Turn routes and departures into bookable flights with prices per class | Feature | Flight booking |
 | | Booking a flight: passengers, contact, class and add-ons. The database rules (no overbooking, only allowed add-ons) already exist in `lib/bookings.ts` | Feature | Flight booking |
@@ -112,6 +112,7 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
 | TECH-004 | Remove `scripts/copy-to-prod.mjs` and `npm run copy-to-prod` once production and local data are kept separate | Tech | Administration |
 | | A chatbot that answers questions from the user manual | Feature | Shared |
+| | Switching between flight booking and charter on the site (to be designed with the product owner) | Feature | Shared |
 
 ## Decisions for charter
 
