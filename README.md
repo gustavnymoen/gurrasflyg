@@ -36,6 +36,8 @@ The site is built one feature at a time, and the specifications decide what is b
 - **Tests:** one file per feature, `tests/<feature ID>-<name>.spec.ts`, with each test named after the requirement it checks.
 - **Product overview:** `specs/overview.md` describes the product's purpose, shared terms, scope, the list of features and rules that apply across features.
 - **Wiki:** `wiki/system/` documents how the site works (English) and `wiki/manual/` how to use it (Swedish). Every page starts with frontmatter (`type`, `title`, `description`, `resource`, `tags`, `timestamp`), so the wiki can later feed a chatbot. The `index.md` pages, `wiki/system/architecture.md` and `wiki/log.md` grow as features are finished.
+- **Definition of Done:** tests, updated spec, updated manual and wiki, no leftovers, clean code, and technical tasks recorded for improvements found along the way. See `CLAUDE.md`.
+- **Technical tasks** (`TECH-001`, …) are improvements to the code that don't change what the site does. They are in the same backlog as features.
 - **Git:** one branch per feature, named after its spec folder. Commit messages start with the feature ID.
 
 ## Folders
