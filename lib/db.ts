@@ -5,6 +5,10 @@ import { connection } from "next/server";
 
 // Lokalt: SQLite-filen db/gurrasflyg.db. I produktion (Vercel): Turso, som
 // pekas ut av TURSO_DATABASE_URL och TURSO_AUTH_TOKEN. Samma SQL fungerar i båda.
+// På Vercel måste Turso användas, en fil där kan inte spara något
+if (process.env.VERCEL && !process.env.TURSO_DATABASE_URL) {
+  throw new Error("TURSO_DATABASE_URL saknas på Vercel (Settings -> Environment Variables)");
+}
 const url = process.env.TURSO_DATABASE_URL ?? `file:${path.join(process.cwd(), "db", "gurrasflyg.db")}`;
 export const db = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
 

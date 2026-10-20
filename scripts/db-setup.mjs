@@ -24,6 +24,17 @@ const reset = process.argv.includes("--reset");
 // En "file:"-adress räknas som lokal (används t.ex. för att testa mot en kopia)
 const envUrl = process.env.TURSO_DATABASE_URL;
 const remoteUrl = envUrl && !envUrl.startsWith("file:") ? envUrl : undefined;
+
+// På Vercel (VERCEL=1) måste Turso användas. Utan det skulle sajten tyst köra
+// mot en fil som skapas vid bygget och inte kan spara något. Ett stoppat
+// bygge ersätter inte den publicerade versionen, så sajten ligger kvar.
+if (process.env.VERCEL && !remoteUrl) {
+  console.error(
+    "TURSO_DATABASE_URL saknas i bygget på Vercel. Kontrollera Settings -> Environment " +
+      "Variables (namn och miljön Production) och bygg om.",
+  );
+  process.exit(1);
+}
 // Den lokala fil som används (vanligtvis db/gurrasflyg.db)
 const localFile = envUrl?.startsWith("file:") ? envUrl.slice("file:".length) : dbFile;
 const where = remoteUrl ? `Turso (${remoteUrl})` : path.relative(process.cwd(), localFile);
@@ -102,12 +113,10 @@ for (const file of pending) {
   console.log(`Migrering körd: ${file}`);
 }
 
-if (isNew || pending.length > 0) {
-  const count = async (table) =>
-    (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0];
-  console.log(
-    `Databas ${isNew ? "skapad" : "uppdaterad"}: ${where} ` +
-      `(${await count("airports")} flygplatser, ${await count("routes")} rutter)`,
-  );
-}
+const count = async (table) => (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0];
+console.log(
+  `Databas ${isNew ? "skapad" : pending.length > 0 ? "uppdaterad" : "oförändrad"}: ` +
+    `${where.replace(/^(Turso \(libsql:\/\/[^.]+).*$/, "$1…)")} ` +
+    `(${await count("airports")} flygplatser, ${await count("routes")} rutter)`,
+);
 db.close();
