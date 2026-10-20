@@ -1,0 +1,7 @@
+%% TECH-003 Shared date rules
+flowchart TD
+    Dates["lib/dates.ts<br/>toDateString, addMonths, MAX_MONTHS_AHEAD,<br/>bookableRange, dateError<br/>R2"] --> Form["SearchForm.tsx<br/>date field, TRIP-001-R6/R7<br/>R1"]
+    Dates -. later .-> Return["Return trip date picker"]
+    Dates -. later .-> Results["Search results (server)"]
+    Dates -. later .-> Charter["Charter booking"]
+    Dates --> Tests["tests/TECH-003-shared-date-rules.spec.ts<br/>edge cases, no browser<br/>R3"]
