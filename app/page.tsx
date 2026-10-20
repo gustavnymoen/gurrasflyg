@@ -21,12 +21,12 @@ export default function Home() {
       </header>
       <SearchForm />
 
-      <section className="mt-20 w-full max-w-5xl">
+      <section className="mt-16 w-full max-w-5xl">
         <h2 className="mb-6 text-center text-xs uppercase tracking-[0.35em] text-neutral-500">
           Vad våra resenärer säger
         </h2>
         {/* Omdömena läses från databasen när sidan efterfrågas */}
-        <Suspense fallback={<div className="h-56" />}>
+        <Suspense fallback={<div className="h-60" />}>
           <Reviews />
         </Suspense>
       </section>

@@ -51,7 +51,7 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
         swipeStart.current = null;
         if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
       }}
-      className="relative mx-auto h-[21rem] w-full touch-pan-y overflow-x-clip outline-none"
+      className="relative mx-auto h-60 w-full touch-pan-y overflow-x-clip outline-none"
     >
       {reviews.map((review, index) => {
         const offset = offsetOf(index);
@@ -70,16 +70,17 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
               opacity: hidden ? 0 : look.opacity,
               zIndex: 10 - distance,
             }}
-            className={`absolute left-1/2 top-2 flex h-[19rem] w-80 flex-col gap-2 rounded-2xl border bg-[#1f1f23] p-5 transition-[transform,opacity,box-shadow] duration-500 ease-out motion-reduce:transition-none ${
+            className={`absolute left-1/2 top-2 flex h-56 w-64 flex-col gap-1.5 rounded-xl border bg-[#1f1f23] p-4 transition-[transform,opacity,box-shadow] duration-500 ease-out motion-reduce:transition-none ${
               focused
                 ? "border-wine shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_45px_-10px_rgba(176,40,79,0.6)]"
                 : "cursor-pointer border-wine/30 blur-[1px] shadow-lg"
             } ${hidden ? "pointer-events-none" : ""}`}
           >
-            <Stars rating={review.rating} className="text-lg" />
-            <h3 className="line-clamp-2 font-semibold leading-snug">{review.title}</h3>
-            <p className="flex-1 text-sm leading-relaxed text-neutral-400">{review.body}</p>
-            <p className="text-sm text-wine-light">– {review.author}</p>
+            <Stars rating={review.rating} />
+            <h3 className="line-clamp-2 text-sm font-semibold leading-snug">{review.title}</h3>
+            {/* line-clamp kortar av äldre, längre texter med "…" */}
+            <p className="line-clamp-5 flex-1 text-[13px] leading-snug text-neutral-400">{review.body}</p>
+            <p className="text-xs text-wine-light">– {review.author}</p>
           </article>
         );
       })}
@@ -94,15 +95,15 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
   );
 }
 
-// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 20rem brett)
+// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 16rem brett, 14rem högt)
 function Arrow({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={direction === 1 ? "Nästa omdöme" : "Föregående omdöme"}
-      style={{ left: `calc(50% ${direction === 1 ? "+" : "-"} 10rem)` }}
-      className="absolute top-[calc(0.5rem+9.5rem)] z-20 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-wine bg-neutral-900 text-xl leading-none shadow-lg transition-colors hover:bg-wine"
+      style={{ left: `calc(50% ${direction === 1 ? "+" : "-"} 8rem)` }}
+      className="absolute top-[calc(0.5rem+7rem)] z-20 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-wine bg-neutral-900 text-xl leading-none shadow-lg transition-colors hover:bg-wine"
     >
       {direction === 1 ? "›" : "‹"}
     </button>

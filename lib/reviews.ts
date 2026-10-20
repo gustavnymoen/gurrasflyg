@@ -3,7 +3,8 @@ import { connection } from "next/server";
 import { AdminError } from "./admin";
 import { all, run } from "./db";
 
-export const MAX_REVIEW_LENGTH = 255;
+// Databasen tillåter 255 tecken, men korten på startsidan är byggda för 150
+export const MAX_REVIEW_LENGTH = 150;
 
 export type Review = { id: number; rating: number; title: string; author: string; body: string };
 export type ReviewInput = Omit<Review, "id">;

@@ -7,7 +7,7 @@ import { Alert, compactPrimaryButtonClass, compactInputClass, compactTextareaCla
 import { createReviewAction, deleteReviewAction } from "./actions";
 import { CollapsibleCard, DeleteButton, rowClass, subheadingClass, thClass, useAction } from "./admin-ui";
 
-const MAX_LENGTH = 255; // samma som i databasen
+const MAX_LENGTH = 150; // samma som MAX_REVIEW_LENGTH i lib/reviews.ts
 
 export default function ReviewSection({ reviews }: { reviews: Review[] }) {
   return (
