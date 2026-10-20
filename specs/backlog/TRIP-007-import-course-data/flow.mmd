@@ -1,0 +1,12 @@
+%% TRIP-007 Import the course data
+flowchart TD
+    Files["Course files (read-only)<br/>data/airports.json, destinations.json,<br/>flights.json, knowledge/*.md"] --> Script["scripts/generate-charter-data.mjs<br/>R8"]
+    Script --> Convert["Prices: EUR × 10 = whole kronor<br/>R6"]
+    Convert --> Sql["db/migrations/005_charter_data.sql"]
+    Tables["db/migrations/004_charter.sql<br/>tables and rules, R7"] --> Setup
+    Sql --> Setup["scripts/db-setup.mjs<br/>local and Turso"]
+    Setup --> Ok{Data follows the rules?}
+    Ok -- no --> Fail[Migration fails,<br/>nothing is stored]
+    Ok -- yes --> Db["Charter tables<br/>airports R1, destinations R2,<br/>pages R3, photos R4, timetables R5"]
+    Db --> Api["GET /api/destinations<br/>R9"]
+    Photos["public/images/"] -. path in destination_photos .-> Db
