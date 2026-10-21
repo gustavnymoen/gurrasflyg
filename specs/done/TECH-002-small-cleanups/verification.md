@@ -9,7 +9,7 @@ title: Small cleanups
 |---|---|---|---|---|
 | TECH-002-R1 | `npm run lint`, `npm run typecheck` and `npm run build`: no errors or warnings | local | Pass | 2026-10-21 |
 | TECH-002-R1 | The existing suite, `npm run test:local`: 49 passed | local | Pass | 2026-10-21 |
-| TECH-002-R1 | `npm test` against the live site after deploy | live | Not checked yet | |
+| TECH-002-R1 | `npm test` against the live site after the merge of pull request #5: 43 passed, 6 skipped (local only); the "Live tests" run on `main` passed too. `/next.svg` gives 404 on the live site | live | Pass | 2026-10-21 |
 | TECH-002-R2 | `git rm` of the five files; search of the project (outside `node_modules/`, `.next/`, `specs/`) finds no reference to them; `git status public/images` shows no change | local | Pass | 2026-10-21 |
 | TECH-002-R3 | Search: `getAirports` and `textareaClass` occur nowhere in the code; TRIP-001 tests (airport suggestions) pass | local | Pass | 2026-10-21 |
 | TECH-002-R4 | Search: 150 for the review text occurs once, in `lib/review-rules.ts`; TRIP-006-R3 test (counter "0/150", keeps 150 characters) passes | local | Pass | 2026-10-21 |
@@ -18,7 +18,7 @@ title: Small cleanups
 ## Definition of Done
 
 - [x] Tests: the existing suite is the test; `npm run test:local` passes
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Spec matches what was built, no open questions
 - [x] Manual not affected (no change for visitors); system docs (`architecture.md`) and `wiki/log.md` updated

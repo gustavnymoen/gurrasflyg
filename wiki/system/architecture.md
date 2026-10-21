@@ -50,8 +50,8 @@ SQLite, reached through `@libsql/client`, so the same SQL works locally and in p
 | Environment | Database |
 |---|---|
 | Local | The file `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db` (`lib/local-db.mjs`). It is kept outside OneDrive, which breaks SQLite files while they are in use. Backups go to the project's `db/backups/`, which OneDrive syncs. |
-| Production | Turso, set by `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` in Vercel's environment variables. |
-| Preview | A Turso branch database per deployment, created by Vercel's Turso integration. |
+| Production | A Turso database of its own, set by `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` added by hand in Vercel's environment variables for Production. |
+| Preview | The Turso database under Vercel → Storage, connected to Preview only; the integration sets `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` for Preview. It must not be connected to Production too: the integration and the hand-made variables would then compete for the same names. Whether the integration gives each preview deployment a database of its own has not been checked. |
 
 On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't silently run against a temporary file.
 
