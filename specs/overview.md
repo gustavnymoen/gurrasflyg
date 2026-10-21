@@ -97,6 +97,7 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 
 | ID | Item | Type | Area |
 |---|---|---|---|
+| TECH-006 | Code review: a review guide, a reviewer agent and a review step in the workflow, with a short report per feature, posted on its pull request. Light review, to try out the practice | Tech | Shared |
 | TECH-002 | Small cleanups: remove the unused images from the project template (`public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`), the unused `getAirports` in `lib/db.ts` and `textareaClass` in `app/components/ui.tsx`; define the review text limit (150) once instead of in both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` | Tech | Shared |
 | TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices, the code stops converting, add-on prices must be whole kronor (an error otherwise), and the rule is updated in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
