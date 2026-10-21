@@ -15,7 +15,7 @@ title: Code review
 | TECH-006-R4 | `specs/_template/review.md` exists; this task's and TECH-002's `review.md` follow it, summary first; both `verification.md` link to them. Run 1 stopped the task and the user was told in a few lines | local | Pass | 2026-10-21 |
 | TECH-006-R5 | Code review: the "Merge" step in `CLAUDE.md` says to post `review.md` with `gh pr comment` | docs | Pass | 2026-10-21 |
 | TECH-006-R5 | Both reports posted with `gh pr comment` on pull request #5 (TECH-002 and TECH-006 were merged in one pull request) | GitHub | Pass | 2026-10-21 |
-| TECH-006-R6 | Trial run on TECH-002: report in the R4 format, passed with two suggestions; see `specs/done/TECH-002-small-cleanups/review.md` | local | Pass | 2026-10-21 |
+| TECH-006-R6 | Trial run on TECH-002: report in the R4 format, passed with two suggestions; see `specs/TECH-002-small-cleanups/review.md` | local | Pass | 2026-10-21 |
 | TECH-006-R1 | Strictness, from the trial and this task's own runs: a correct small change passed without blocking findings; real gaps in this task (untracked files, read-only promise) were stopped; design findings stayed at should fix. As intended, so the guide was not changed | local | Pass | 2026-10-21 |
 | All | `npm run lint` and `npm run typecheck` pass; no site code changed, so build and tests are as for TECH-002 | local | Pass | 2026-10-21 |
 

@@ -23,13 +23,13 @@ The review is light. It is there to try out code review as part of the workflow,
 ## What is reviewed
 
 - **The change:** the feature's own commits (`git diff main...HEAD`), its uncommitted changes (`git diff HEAD`) and its new files not yet added to Git (`git status --short`). The review runs before the commit, so much of the change is usually uncommitted. When the branch sits on other unmerged work, the one asking for the review gives the base commit to use instead of `main`.
-- **Against:** the feature's `spec.md` (what it shall do, and why) and the rules in `CLAUDE.md`.
+- **Against:** the requirements in the feature's card on the board (what it shall do, and why; read with `gh issue view <card>`), its `solution.md` (how it was meant to be built) and the rules in `CLAUDE.md`.
 - Code around the change is read when it is needed to judge the change (for example to see if a helper already exists), but is not itself reviewed.
 
 ## What to look for
 
 1. **General errors:** wrong behaviour, missed edge cases (empty values, limits, dates and time zones), missing or wrong error handling, data that can be left half-written.
-2. **Spec:** code that doesn't do what a requirement says, or does more than the spec asks for. A requirement without a test, or a test that doesn't really check its requirement.
+2. **Requirements:** code that doesn't do what a requirement says, or does more than the requirements ask for. A requirement without a test, or a test that doesn't really check its requirement.
 3. **Bad design:** unclear responsibilities, code in the wrong place (for example database logic in a component), needless complexity, names that don't say what something is.
 4. **Duplicated code:** something an existing component or helper in `app/components/`, `app/admin/admin-ui.tsx`, `lib/` or `tests/helpers.ts` already does, or the same logic in two places in the change.
 5. **Unnecessary code:** leftovers, unused exports, files, styles or scripts the change made unused, commented-out code, debug output.
@@ -42,7 +42,7 @@ Each finding is one of three levels.
 | Level | What | Effect |
 |---|---|---|
 | **Must fix** | An error, a requirement not met or not tested, or a broken project rule. | Blocks: the feature is not done until it is fixed and the review is run again. |
-| **Should fix** | Bad design, duplicated or unnecessary code. | Doesn't block. Fixed in the same change when small, otherwise added to the backlog as a technical task. |
+| **Should fix** | Bad design, duplicated or unnecessary code. | Doesn't block. Fixed in the same change when small, otherwise added to the board as a technical task. |
 | **Suggestion** | Something worth learning: a pattern, a simpler way, a trade-off. At most three. | Doesn't block. Fixed or left as it is. |
 
 When in doubt between two levels, choose the lower one.

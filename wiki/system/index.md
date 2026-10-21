@@ -25,15 +25,15 @@ How the site works, for developers. Start with the architecture.
 
 ## Features
 
-Each feature's requirements and how they were verified are in `specs/done/<feature>/`:
+Each feature's requirements and how they were verified are in `specs/<feature>/`:
 
-| Feature | Area | Spec |
+| Feature | Area | Folder |
 |---|---|---|
-| TRIP-001 Flight search form | Flight booking | `specs/done/TRIP-001-flight-search-form/` |
-| TRIP-002 Admin sign-in | Administration | `specs/done/TRIP-002-admin-sign-in/` |
-| TRIP-003 Admin: cabin classes and add-ons | Flight booking | `specs/done/TRIP-003-admin-classes-and-addons/` |
-| TRIP-004 Admin: aircraft | Flight booking | `specs/done/TRIP-004-admin-aircraft/` |
-| TRIP-005 Routes, departures and aircraft assignment | Flight booking | `specs/done/TRIP-005-routes-and-aircraft-assignment/` |
-| TRIP-006 Reviews | Shared | `specs/done/TRIP-006-reviews/` |
+| TRIP-001 Flight search form | Flight booking | `specs/TRIP-001-flight-search-form/` |
+| TRIP-002 Admin sign-in | Administration | `specs/TRIP-002-admin-sign-in/` |
+| TRIP-003 Admin: cabin classes and add-ons | Flight booking | `specs/TRIP-003-admin-classes-and-addons/` |
+| TRIP-004 Admin: aircraft | Flight booking | `specs/TRIP-004-admin-aircraft/` |
+| TRIP-005 Routes, departures and aircraft assignment | Flight booking | `specs/TRIP-005-routes-and-aircraft-assignment/` |
+| TRIP-006 Reviews | Shared | `specs/TRIP-006-reviews/` |
 
 [Wiki](../index.md)

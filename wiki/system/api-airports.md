@@ -40,5 +40,5 @@ Status 200 with a JSON array of at most 5 airports from the table `airports` who
 
 - Code: `app/api/airports/route.ts`, `searchAirports` in `lib/db.ts`
 - Used by: `app/components/SearchForm.tsx` through `app/components/Autocomplete.tsx`
-- Spec: `specs/done/TRIP-001-flight-search-form/spec.md` (TRIP-001-R2, R10)
+- Spec: `specs/TRIP-001-flight-search-form/spec.md` (TRIP-001-R2, R10)
 - Tests: `tests/TRIP-001-flight-search-form.spec.ts`

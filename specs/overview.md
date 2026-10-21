@@ -2,7 +2,7 @@
 type: Product overview
 title: Gurras Flyg
 description: Purpose, product areas, terms, scope, features and shared rules of the Gurras Flyg booking site.
-timestamp: 2026-10-20
+timestamp: 2026-10-21
 ---
 
 # Gurras Flyg
@@ -79,7 +79,9 @@ The site is also a course project: it is built to practise real product developm
 
 ## Features
 
-Features built before this way of working was introduced were specified afterwards, so `specs/done/` describes the site as it is.
+The finished features and technical tasks. Each one's folder `specs/<ID>-<name>/` describes how it was built and how it was verified. The ones finished before the board (TRIP-001 to TECH-007) keep their `spec.md` as history; TRIP-001 to TRIP-006 were specified after they were built, so theirs describes the site as it is.
+
+What comes next, and the requirements of work not yet done, are on the board ["Gurras Flyg"](https://github.com/users/gustavnymoen/projects/2): the top card in Backlog is next.
 
 | ID | Feature or task | Area | Status |
 |---|---|---|---|
@@ -94,31 +96,11 @@ Features built before this way of working was introduced were specified afterwar
 | TECH-006 | Code review: guide, reviewer agent, review step and report on the pull request | Shared | Done |
 | TECH-005 | All prices in whole kronor | Shared | Done |
 | TECH-007 | Better pipeline: preview tests before merge, CI once per change, shared workflow setup, one whole-number parser | Shared | Done |
-
-## Backlog
-
-One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID and a spec in `specs/backlog/` when they are specified; **Tech** items (improvements to the code that don't change what the site does) get a `TECH-` ID. The spec's `area` says which part of the site it belongs to. In priority order: the top item is next.
-
-| ID | Item | Type | Area |
-|---|---|---|---|
-| TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
-| TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |
-| TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
-| TRIP-009 | Return trip date picker: typed or chosen in a designed calendar, outbound and return date, with a "Tur och retur" switch, replacing the browser's date picker and the "Boka returresa" checkbox | Feature | Flight booking |
-| | Search results for a flight search. Prices are shown as 0 kr until flights have prices per class | Feature | Flight booking |
-| | Turn routes and departures into bookable flights with prices per class | Feature | Flight booking |
-| | Booking a flight: passengers, contact, class and add-ons. The database rules (no overbooking, only allowed add-ons) already exist in `lib/bookings.ts` | Feature | Flight booking |
-| | Destination pages, and browsing and searching destinations | Feature | Charter |
-| | Searching for trips to a destination, and booking them. The arrival is worked out from the departure time and travel time in each airport's time zone, since the course data's arrival times don't follow summer time (see TRIP-007) | Feature | Charter |
-| | Enter in the airport field before new suggestions have loaded chooses from the previous list (found in TRIP-001) | Fix | Flight booking |
-| | Right after deleting an aircraft, its add-ons and classes briefly still look in use, and deleting them shows "Du kan ej ta bort" (found in TRIP-004) | Fix | Administration |
-| TECH-004 | Remove `scripts/copy-to-prod.mjs` and `npm run copy-to-prod` once production and local data are kept separate | Tech | Administration |
-| | A chatbot that answers questions from the user manual | Feature | Shared |
-| | Switching between flight booking and charter on the site (to be designed with the product owner) | Feature | Shared |
+| TECH-008 | The backlog on a GitHub board: requirements in the cards, solution in the repo | Shared | Done |
 
 ## Decisions for charter
 
-Settled with the product owner, to be written into the charter specifications:
+Settled with the product owner, to be written into the charter cards' requirements:
 
 - The course data is imported into **new tables of its own**: destinations, destination pages, photo credits, timetables and charter airports. The existing flight booking tables are not changed.
 - **Photos stay as files** in `public/images/`. The database stores each photo's path, author, licence and source. Storing 31 MB of images in the database would make every page slower and couldn't be cached.

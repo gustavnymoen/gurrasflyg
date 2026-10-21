@@ -9,7 +9,7 @@ You review one change in the Gurras Flyg project. You did not write it, and you 
 ## Before you start
 
 1. Read `wiki/system/code-review.md`. It is the review guide: what to look for, the three levels, what not to comment on. Follow it; don't add rules of your own.
-2. Read the feature's `spec.md` (in `specs/ongoing/<ID>-<name>/` or `specs/done/<ID>-<name>/`) and the parts of `CLAUDE.md` that the change touches.
+2. Read the feature's requirements in its card: find the card with `gh issue list --search "<ID> in:title" --state all`, then `gh issue view <number>`. Read its `solution.md` in `specs/<ID>-<name>/`, and the parts of `CLAUDE.md` that the change touches.
 3. Get the change, all three parts:
    - the commits: `git diff main...HEAD`, or `git diff <base>...HEAD` when you were given a base commit; `git log` shows them;
    - uncommitted changes to tracked files: `git diff HEAD`;

@@ -1,6 +1,6 @@
 # Gurras Flyg
 
-A flight booking site with fake data, built as part of a course in AI engineering. The course is about **how** software is built: specification-driven development, requirements in a backlog, tests, deploys, documentation and user manuals.
+A flight booking site with fake data, built as part of a course in AI engineering. The course is about **how** software is built: specification-driven development, requirements on a backlog board, tests, deploys, documentation and user manuals.
 
 The site has two separate product areas (see `specs/overview.md`):
 
@@ -28,19 +28,20 @@ The live site is <https://gurrasflyg.vercel.app>.
 
 ## Way of working
 
-The site is built one feature at a time, and the specifications decide what is built. `CLAUDE.md` describes the workflow step by step; it is also the instruction file for AI coding tools.
+The site is built one feature at a time, and the requirements decide what is built. `CLAUDE.md` describes the workflow step by step; it is also the instruction file for AI coding tools.
 
-- **Feature IDs** are given in the order features are specified: `TRIP-001`, `TRIP-002` and so on.
-- **Specification:** a folder `specs/<status>/<feature ID>-<name>/` with `spec.md` (the specification), `flow.mmd` (a Mermaid flow diagram) and, once work starts, `verification.md` (how it was checked) and `review.md` (the code review). The folder moves between `backlog/`, `ongoing/` and `done/` as the work progresses. Start from `specs/_template/`.
-- **One backlog** for the whole site, in `specs/overview.md`. Each spec says in its `area` field which part of the site it belongs to: Flight booking, Charter, Administration or Shared.
+- **One backlog** for the whole site: the GitHub board ["Gurras Flyg"](https://github.com/users/gustavnymoen/projects/2), with the columns Backlog, Specified, Ongoing, Review and Done. The top card in Backlog is next. Each card has a Work type (Feature, Fix or Tech) and an Area: Flight booking, Charter, Administration or Shared.
+- **IDs** are given when a card is created, and start its title: `TRIP-001`, `TRIP-002` and so on.
+- **The card** holds what is built and why: a short explanation, then the goal, scope and requirements, worked out together. New cards start from `.github/ISSUE_TEMPLATE/card.md`. A merged pull request with "Closes #<card>" moves the card to Done.
+- **The solution:** a folder `specs/<feature ID>-<name>/`, created when the work starts from `specs/_template/`, with `solution.md` (how it is built), `flow.mmd` (a Mermaid flow diagram), `verification.md` (how it was checked, and the requirements as built) and `review.md` (the code review). Features finished before the board also keep their `spec.md` as history.
 - **Requirements** have IDs within their feature: `TRIP-001-R1`, `TRIP-001-R2` and so on.
 - **Tests:** one file per feature, `tests/<feature ID>-<name>.spec.ts`, with each test named after the requirement it checks.
 - **Product overview:** `specs/overview.md` describes the product's purpose, shared terms, scope, the list of features and rules that apply across features.
 - **Wiki:** `wiki/system/` documents how the site works (English) and `wiki/manual/` how to use it (Swedish). Every page starts with frontmatter (`type`, `title`, `description`, `resource`, `feature` when the page belongs to one, `tags`, `timestamp`), so the wiki can later feed a chatbot. The `index.md` pages, `wiki/system/architecture.md` and `wiki/log.md` grow as features are finished.
 - **Code review:** before a feature is done, a reviewer agent reviews the change and its report is posted on the pull request. See [wiki/system/code-review.md](wiki/system/code-review.md).
-- **Definition of Done:** tests, updated spec, updated manual and wiki, no leftovers, clean code, code review, and technical tasks recorded for improvements found along the way. See `CLAUDE.md`.
-- **Technical tasks** (`TECH-001`, …) are improvements to the code that don't change what the site does. They are in the same backlog as features.
-- **Git:** one branch per feature, named after its spec folder. Commit messages start with the feature ID.
+- **Definition of Done:** tests, requirements that match what was built, updated manual and wiki, no leftovers, clean code, code review, and technical tasks recorded for improvements found along the way. See `CLAUDE.md`.
+- **Technical tasks** (`TECH-001`, …) are improvements to the code that don't change what the site does. They are cards on the same board as features.
+- **Git:** one branch per feature, named after its folder in `specs/`. Commit messages start with the feature ID.
 
 ## Folders
 
@@ -49,7 +50,7 @@ The site is built one feature at a time, and the specifications decide what is b
 - `db/`: `schema.sql` and `seed.sql` for a new database, and `migrations/` with numbered changes.
 - `scripts/`: database setup, route generation, copying data to production and the Playwright install.
 - `data/` and `knowledge/`: the course's sample data, see below.
-- `specs/`: product overview and feature specifications.
+- `specs/`: product overview, and each feature's solution, flow, verification and review.
 - `tests/`: Playwright tests.
 - `wiki/`: system documentation and user manual.
 - `public/`: images and other files served as they are.
