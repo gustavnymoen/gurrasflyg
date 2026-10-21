@@ -1,7 +1,9 @@
 # TECH-007: gemensam förberedelse för arbetsflödena som kör Playwright
 # (CI, Live tests, Preview tests). Kräver att repot redan är utcheckat.
+# Chromium sparas inte i cache: nedladdningen tar några sekunder, och
+# systembiblioteken måste installeras på varje ny maskin ändå.
 name: Förbered testerna
-description: Node, paketen och Chromium. Chromium sparas mellan körningarna.
+description: Node, paketen och Chromium.
 
 runs:
   using: composite
@@ -14,25 +16,6 @@ runs:
     - run: npm ci
       shell: bash
 
-    # Webbläsaren hör ihop med Playwrights version, så den versionen är nyckeln
-    - name: Playwrights version
-      id: playwright
+    # postinstall hoppar över webbläsaren när CI är satt, så den installeras här
+    - run: npx playwright install --with-deps chromium
       shell: bash
-      run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
-
-    - uses: actions/cache@v4
-      id: cache
-      with:
-        path: ~/.cache/ms-playwright
-        key: playwright-chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-    # postinstall hoppar över webbläsaren när CI är satt, så den installeras här.
-    # Systembiblioteken behövs på varje ny maskin, även när webbläsaren finns i cachen.
-    - name: Chromium
-      shell: bash
-      run: |
-        if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
-          npx playwright install-deps chromium
-        else
-          npx playwright install --with-deps chromium
-        fi
