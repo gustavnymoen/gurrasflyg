@@ -14,7 +14,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 - **Next.js 16** (App Router, TypeScript, Tailwind CSS) on **Node.js**. Pages and backend API routes are in the same project. This Next.js version differs from older ones; see `AGENTS.md`.
 - **Database:** SQLite through `@libsql/client`. Locally a file, `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, kept outside OneDrive because OneDrive breaks SQLite files while they are in use. Backups are saved in the project's `db/backups/`, which OneDrive does sync (see [Local database and backups](#local-database-and-backups)). In production **Turso**, a hosted SQLite.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
-- **Pipeline:** GitHub Actions checks every push and tests the live site after every deploy. See [Pipeline](#pipeline).
+- **Pipeline:** GitHub Actions checks every pull request, tests its preview deployment before merge, and tests the live site after every deploy. See [Pipeline](#pipeline).
 - **Tests:** Playwright, one file per feature. `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
 - **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews, and assign aircraft to routes.
 
@@ -69,15 +69,18 @@ Ready-made sample data from the course. It is read-only: features read or import
 ## Pipeline
 
 ```
-branch ──push──▶ CI (GitHub): npm ci → lint → type check → build → test:local
-   │                         green?
-   └──pull request──▶ merge to main ──▶ Vercel publishes ──▶ Live tests (GitHub): npm test
+branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint → type check → build → test:local
+   │                          └─▶ Vercel preview ──▶ Preview tests (GitHub): npm test against the preview
+   │                                     both green?
+   └──────────────▶ merge to main ──▶ Vercel publishes ──▶ Live tests (GitHub): npm test
 ```
 
-- **CI** (`.github/workflows/ci.yml`) runs on every push and pull request. It uses a throw-away admin password and its own test database, never production. A newer push to the same branch cancels the older run.
+- **CI** (`.github/workflows/ci.yml`) runs on every pull request to `main` and every push to `main`. A branch without a pull request is checked locally until its pull request is opened. CI uses a throw-away admin password and its own test database, never production. A newer push to the same branch cancels the older run.
+- **Preview tests** (`.github/workflows/preview-tests.yml`) run on every pull request to `main`: the job waits until Vercel reports the branch's preview deployment as ready, then runs `npm test` against it. The preview has its own Turso database, so test data never reaches production. Vercel's Deployment Protection is passed with the repository secret `VERCEL_AUTOMATION_BYPASS_SECRET` (created in Vercel under Settings → Deployment Protection → Protection Bypass for Automation); the admin tests use `ADMIN_PASSWORD`, which is the same on Preview as on Production. The job waits at most 10 minutes for Vercel; if Vercel is slower, re-run the job from the pull request once the preview is ready.
 - **Live tests** (`.github/workflows/live-tests.yml`) run after every successful production deploy on Vercel, against <https://gurrasflyg.vercel.app>. They can also be started by hand under Actions → Live tests → Run workflow. The admin tests need the repository secret `ADMIN_PASSWORD` (GitHub → Settings → Secrets and variables → Actions); without it they are skipped.
-- When tests fail, the run saves Playwright's report with screenshots as an artifact, downloadable from the run's page.
-- Merge to `main` only when CI is green. The repository is private on a free plan, so GitHub doesn't enforce this; it is part of the way of working.
+- The three workflows share their setup (`.github/actions/setup-tests/`): Node, `npm ci` and Chromium, which is cached between runs per Playwright version.
+- When tests fail, the run saves Playwright's report with screenshots as an artifact, downloadable from the run's page. Preview tests save no traces, since a trace would hold the bypass secret.
+- Merge to `main` only when CI and Preview tests are green. The repository is private on a free plan, so GitHub doesn't enforce this; it is part of the way of working.
 
 ## Local database and backups
 

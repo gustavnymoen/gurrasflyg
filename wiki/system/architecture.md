@@ -37,6 +37,7 @@ flowchart LR
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations, read from `data/destinations.json`. |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr"). |
+| `lib/numbers.ts` | `parseWholeNumber`: reads a whole number typed in an admin form ("1 290"), for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
 Pages read data in server components. Changes go through server actions in `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.
@@ -88,10 +89,11 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 
 | Workflow | When | What |
 |---|---|---|
-| CI (`.github/workflows/ci.yml`) | Every push and every pull request to `main` | `npm ci`, lint, type check, build and `npm run test:local`, with a throw-away admin password and the test database. Never touches production. |
+| CI (`.github/workflows/ci.yml`) | Every pull request to `main` and every push to `main` | `npm ci`, lint, type check, build and `npm run test:local`, with a throw-away admin password and the test database. Never touches production. |
+| Preview tests (`.github/workflows/preview-tests.yml`) | Every pull request to `main`; waits for Vercel's commit status `Vercel` to be `success` | `npm test` against the branch's preview address (`gurrasflyg-git-<branch>-aqc-lab.vercel.app`), with the secrets `VERCEL_AUTOMATION_BYPASS_SECRET` (sent as the header `x-vercel-protection-bypass`) and `ADMIN_PASSWORD`. Test data goes to the preview's database. Branch names must keep the address within 63 characters. |
 | Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's commit status `Vercel` on a commit in `main`), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
 
-Failing runs save Playwright's HTML report, screenshots and traces as an artifact. Changes reach `main` through pull requests that are merged when CI is green.
+The workflows share `.github/actions/setup-tests/` (Node, `npm ci`, Chromium cached per Playwright version). Failing runs save Playwright's HTML report, screenshots and traces as an artifact; Preview tests save no traces, since they would hold the bypass secret. Changes reach `main` through pull requests that are merged when CI and Preview tests are green.
 
 `npm run copy-to-prod` copies cabin classes, add-ons, aircraft and reviews from the local database to production. It only adds what is missing and never deletes.
 

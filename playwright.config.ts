@@ -6,6 +6,10 @@ import { defineConfig } from "@playwright/test";
 const baseURL = process.env.BASE_URL ?? "https://gurrasflyg.vercel.app";
 const local = baseURL.startsWith("http://localhost");
 
+// Preview deployments on Vercel ask for a Vercel sign-in. Preview tests send
+// this secret, which lets automated tests past it (TECH-007).
+const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+
 // Admin tests sign in with ADMIN_PASSWORD, read from .env.local when it exists
 try {
   process.loadEnvFile(".env.local");
@@ -27,9 +31,12 @@ export default defineConfig({
     baseURL,
     browserName: "chromium",
     locale: "sv-SE",
-    // Screenshot and trace of failing tests, for the report
+    // Sent with every request, so no bypass cookie is needed
+    extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
+    // Screenshot and trace of failing tests, for the report. No trace with the
+    // bypass secret: the trace saves every request's headers, and so the secret.
     screenshot: "only-on-failure",
-    trace: "retain-on-failure",
+    trace: bypassSecret ? "off" : "retain-on-failure",
   },
   webServer: local
     ? { command: "node scripts/test-server.mjs", url: baseURL, reuseExistingServer: false, timeout: 300_000 }

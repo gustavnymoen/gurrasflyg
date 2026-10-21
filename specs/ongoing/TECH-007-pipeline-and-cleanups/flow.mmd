@@ -1,0 +1,16 @@
+%% TECH-007 Pipeline and small cleanups
+flowchart TD
+    Push[Push to a branch] --> PR{Open pull request?}
+    PR -- no --> None[No CI run; checked locally<br/>R2]
+    PR -- yes --> One["One CI run (pull_request)<br/>R2"]
+    Push --> Preview[Vercel builds the preview,<br/>own Turso database]
+    Preview -- ready --> PT["Preview tests: npm test against the preview,<br/>with the bypass header<br/>R4"]
+    One --> Green{CI and Preview tests green?}
+    PT --> Green
+    Green -- yes --> Merge[Merge to main] --> Main["CI on main (push)<br/>R2"]
+    Main --> Live[Production deploy, then Live tests]
+    Setup["Shared setup: packages,<br/>cached Chromium<br/>R5"] -.-> One
+    Setup -.-> PT
+    Setup -.-> Live
+    Typed["Typed text: seats or price"] --> Parse["parseWholeNumber<br/>spaces ignored, digits only<br/>R3"]
+    Parse --> Rules["Own rules and messages:<br/>seats > 0, price >= 0<br/>R3"]

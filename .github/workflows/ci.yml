@@ -1,10 +1,12 @@
-# TECH-001: kontroller vid varje push och pull request.
+# TECH-001: kontroller för varje pull request och varje push till main.
+# Bara pull_request för andra grenar, annars körs allt två gånger (TECH-007).
 # Lint, typkontroll, bygge och alla tester mot ett lokalt produktionsbygge
 # med egen testdatabas. Använder varken Turso eller några riktiga lösenord.
 name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -20,15 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci
-
-      # postinstall hoppar över webbläsaren när CI är satt, så den installeras här
-      - run: npx playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-tests
 
       # Påhittat lösenord och nyckel för testservern, bara för den här körningen
       - name: Engångslösenord för testerna
