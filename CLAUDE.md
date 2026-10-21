@@ -60,7 +60,7 @@ This is a hobby project and a learning project. The code doesn't have to be perf
 ## Rules
 
 - **Course data is read-only.** `data/`, `knowledge/` and `public/images/` are the course's sample data. Specs and tests refer to their IDs. Import or read them, never edit them.
-- **Database changes go through migrations** in `db/migrations/NNN_<name>.sql`, run by `scripts/db-setup.mjs` before `dev` and `build`. Never edit an applied migration; add a new one. Prices are stored as integers in öre (SEK). Course prices in EUR are converted at 1 EUR = 10 SEK.
+- **Database changes go through migrations** in `db/migrations/NNN_<name>.sql`, run by `scripts/db-setup.mjs` before `dev` and `build`. Never edit an applied migration; add a new one. Prices are stored as whole kronor (SEK). Course prices in EUR are converted at 1 EUR = 10 SEK.
 - **The local database is the user's own data.** It lives at `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside OneDrive, with backups in `db/backups/` (synced by OneDrive). Never reset it, delete from it or write test data to it. Experiments run on a copy (`TURSO_DATABASE_URL=file:<copy>`). Tests that write data must clean up after themselves or run against a separate database.
 - **Production** is Vercel with Turso. `npm run db:reset` never runs against Turso. Secrets (`.env.local`, `.env.turso`) are never committed or printed.
 - **Git:** work on a branch per feature, commit only when the user asks, and push only when the user asks. Check staged files before every commit. Don't push directly to `main`; changes reach `main` through a pull request with a green "CI" check.

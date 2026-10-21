@@ -4,7 +4,7 @@ title: "Admin: cabin classes and add-ons"
 area: Flight booking
 status: done
 created: 2026-10-20
-updated: 2026-10-20
+updated: 2026-10-21
 depends_on: [TRIP-002]
 ---
 
@@ -82,7 +82,7 @@ Acceptance criteria:
 
 ### TRIP-003-R6 Add an add-on
 
-"Lägg till" under Addons shall open a row with name, price in kronor and description, and Spara and Avbryt. The price is stored in öre and shown in the table in kronor, without decimals for whole kronor.
+"Lägg till" under Addons shall open a row with name, price in kronor and description, and Spara and Avbryt. The price is stored and shown in the table as whole kronor.
 
 Acceptance criteria:
 
@@ -90,7 +90,7 @@ Acceptance criteria:
 
 ### TRIP-003-R7 Add-on fields are required
 
-An add-on shall have a name, a description and a price of 0 kronor or more. Names are unique regardless of case.
+An add-on shall have a name, a description and a price of 0 kronor or more, in whole kronor. Names are unique regardless of case.
 
 Acceptance criteria:
 
@@ -98,6 +98,7 @@ Acceptance criteria:
 - **When** the description is empty, **then** "Addon måste ha en beskrivning." is shown.
 - **When** the name is empty, **then** "Addon måste ha ett namn." is shown.
 - **Given** an add-on with the same name, **then** `Addon "<name>" finns redan.` is shown.
+- **When** the price isn't whole kronor (for example 12,50), **then** "Ange priset i hela kronor." is shown (TECH-005-R4).
 
 ### TRIP-003-R8 Change an add-on
 
@@ -118,7 +119,7 @@ Acceptance criteria:
 
 ## Data
 
-Tables `classes` (name unique, case-insensitive) and `addons` (name unique case-insensitive, description, price in öre). No changes.
+Tables `classes` (name unique, case-insensitive) and `addons` (name unique case-insensitive, description, price in whole kronor). No changes.
 
 ## Interface
 
@@ -128,3 +129,7 @@ Tables `classes` (name unique, case-insensitive) and `addons` (name unique case-
 ## Non-functional requirements
 
 - Whether something is in use is checked again in the database when deleting, in the same transaction, in case someone else has just started using it.
+
+## History
+
+- 2026-10-21, TECH-005: prices are whole kronor instead of öre (R6, R7, Data). Before, an add-on price could have öre.

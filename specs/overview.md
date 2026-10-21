@@ -92,6 +92,7 @@ Features built before this way of working was introduced were specified afterwar
 | TECH-001 | Automatic pipeline (CI) on GitHub | Shared | Done |
 | TECH-002 | Small cleanups: template images, unused code, review text limit defined once | Shared | Done |
 | TECH-006 | Code review: guide, reviewer agent, review step and report on the pull request | Shared | Done |
+| TECH-005 | All prices in whole kronor | Shared | Done |
 
 ## Backlog
 
@@ -99,7 +100,6 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 
 | ID | Item | Type | Area |
 |---|---|---|---|
-| TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices, the code stops converting, add-on prices must be whole kronor (an error otherwise), and the rule is updated in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
 | TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
@@ -127,7 +127,7 @@ Settled with the product owner, to be written into the charter specifications:
 ## Rules for all features
 
 - **Language:** everything visitors see is in Swedish.
-- **Prices:** stored as whole öre (SEK) and shown in kronor, for example "1 290 kr".
+- **Prices:** stored and shown as whole kronor, for example "1 290 kr".
 - **Time:** departure and arrival times are local time at each airport.
 - **Dates:** a traveller can book from today up to six months ahead (`MAX_MONTHS_AHEAD` in `lib/dates.ts`). A return is on the same day as the outbound or later, at most two months after it. Charter trips can also only be booked within their timetable's period.
 - **Errors:** an invalid value is shown in red, with a short red message under the field. Messages say what to do, not what went wrong in the code.

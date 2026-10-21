@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Addon, AddonInput } from "@/lib/admin";
 import { formatAmount } from "@/lib/format";
-import { Alert, fieldClass, noSpinnerClass, compactPrimaryButtonClass, compactTextareaClass } from "../components/ui";
+import { Alert, fieldClass, compactPrimaryButtonClass, compactTextareaClass } from "../components/ui";
 import { createAddonAction, deleteAddonAction, updateAddonAction } from "./actions";
 import type { ActionResult } from "./actions";
 import {
@@ -40,7 +40,7 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
           ))}
           {adding && (
             <AddonForm
-              initial={{ name: "", description: "", priceKr: "" }}
+              initial={{ name: "", description: "", price: "" }}
               onSave={(addon) => createAddonAction(addon)}
               onDone={() => setAdding(false)}
             />
@@ -65,7 +65,7 @@ function AddonRow({ addon }: { addon: Addon }) {
   if (editing) {
     return (
       <AddonForm
-        initial={{ name: addon.name, description: addon.description, priceKr: String(addon.price / 100) }}
+        initial={{ name: addon.name, description: addon.description, price: String(addon.price) }}
         onSave={(input) => updateAddonAction(addon.id, input)}
         onDone={() => setEditing(false)}
       />
@@ -100,13 +100,13 @@ function AddonForm({
   onSave,
   onDone,
 }: {
-  initial: { name: string; description: string; priceKr: string };
+  initial: { name: string; description: string; price: string };
   onSave: (addon: AddonInput) => Promise<ActionResult>;
   onDone: () => void;
 }) {
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description);
-  const [price, setPrice] = useState(initial.priceKr);
+  const [price, setPrice] = useState(initial.price);
   const { pending, error, setError, run } = useAction();
 
   function save() {
@@ -114,7 +114,7 @@ function AddonForm({
       setError("Ange ett pris.");
       return;
     }
-    run(() => onSave({ name, description, priceKr: Number(price) }), onDone);
+    run(() => onSave({ name, description, price }), onDone);
   }
 
   return (
@@ -138,13 +138,11 @@ function AddonForm({
             />
             <input
               aria-label="Pris i kronor"
-              type="number"
-              min={0}
-              step="any"
+              inputMode="numeric"
               placeholder="Pris"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className={`${fieldClass("compact", "w-24 text-right")} ${noSpinnerClass}`}
+              className={fieldClass("compact", "w-24 text-right")}
             />
           </div>
           <textarea

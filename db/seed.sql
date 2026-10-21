@@ -1,5 +1,5 @@
 -- Testdata. Körs efter schema.sql av scripts/db-setup.mjs.
--- Alla priser i ören.
+-- Inga priser här: migreringen 004_whole_kronor.sql skulle räkna om dem en gång till.
 
 INSERT INTO airports (iata, name, country, timezone) VALUES
   ('ARN', 'Stockholm Arlanda',        'Sverige',        'Europe/Stockholm'),

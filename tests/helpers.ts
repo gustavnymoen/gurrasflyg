@@ -66,11 +66,11 @@ export async function createClass(page: Page, name: string) {
   await expect(page.getByRole("button", { name: `Ta bort ${name}`, exact: true })).toBeVisible();
 }
 
-export async function createAddon(page: Page, name: string, priceKr: string, description: string) {
+export async function createAddon(page: Page, name: string, price: string, description: string) {
   const section = tableSection(page, "Addons");
   await section.getByRole("button", { name: "Lägg till", exact: true }).click();
   await page.getByLabel("Namn på addon").fill(name);
-  await page.getByLabel("Pris i kronor").fill(priceKr);
+  await page.getByLabel("Pris i kronor").fill(price);
   await page.getByLabel("Beskrivning").fill(description);
   await section.getByRole("button", { name: "Spara" }).click();
   await expect(page.getByRole("button", { name: `Ta bort ${name}`, exact: true })).toBeVisible();

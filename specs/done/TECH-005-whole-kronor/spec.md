@@ -2,9 +2,9 @@
 id: TECH-005
 title: All prices in whole kronor
 area: Shared
-status: backlog
+status: done
 created: 2026-10-20
-updated: 2026-10-20
+updated: 2026-10-21
 depends_on: []
 ---
 
@@ -81,12 +81,13 @@ Acceptance criteria:
 
 ### TECH-005-R4 Add-on prices are whole kronor
 
-An add-on's price shall be a whole number of kronor, 0 or more. A price with öre is rejected with the message "Ange priset i hela kronor." and nothing is saved. The check is made on the server (`lib/admin.ts`), and the price field only steps in whole kronor. The message is shown in the same way as the other add-on errors.
+An add-on's price shall be a whole number of kronor, 0 or more. Spaces are allowed ("1 290"). A price with öre, or anything else that isn't digits, is rejected with the message "Ange priset i hela kronor." and nothing is saved. The check is made on the server (`lib/admin.ts`), which reads the price as the text that was typed. The price field is a text field with a numeric keyboard (`inputMode="numeric"`), like the seats fields, not a number field: in Chromium a number field drops the comma, so "12,50" became 1 250 kr without a message (found while building, settled with the user on 2026-10-21). The message is shown in the same way as the other add-on errors.
 
 Acceptance criteria:
 
 - **When** the administrator adds an add-on with the price 249, **then** it is saved and shown as "249".
-- **When** the administrator enters 12,50 (or 12.50) and presses Spara, **then** "Ange priset i hela kronor." is shown, and the add-on isn't saved or changed.
+- **When** the administrator enters 12,50, 12.50 or a word and presses Spara, **then** "Ange priset i hela kronor." is shown, and the add-on isn't saved or changed.
+- **When** the price is 1 290 (with a space), **then** it is saved as 1290 and shown as "1 290".
 - **When** the price is 0, **then** it is saved; **when** it is negative, **then** "Priset måste vara 0 kr eller mer." is shown, as before.
 
 ### TECH-005-R5 The rule is documented
@@ -104,8 +105,9 @@ Acceptance criteria:
 ## Interface
 
 - `lib/format.ts`: `formatPrice` and `formatAmount` take kronor.
-- `lib/admin.ts`: `validateAddon` checks whole kronor, and stores the price without converting it.
-- `app/admin/AddonTable.tsx`: the edit form is filled in with the price as it is; the price field has `step={1}`.
+- `lib/admin.ts`: `AddonInput.price` is the typed text; `validateAddon` reads it as whole kronor (`parseKronor`) and stores it without converting it.
+- `app/admin/AddonTable.tsx`: the edit form is filled in with the price as it is; the price field is a text field with `inputMode="numeric"`.
+- `app/components/ui.tsx`: `noSpinnerClass` is deleted, since no number fields are left (the seats fields in `AircraftForm.tsx` were already text fields).
 - New text for the administrator: "Ange priset i hela kronor."
 
 ## Non-functional requirements

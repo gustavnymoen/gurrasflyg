@@ -36,7 +36,7 @@ flowchart LR
 | `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations, read from `data/destinations.json`. |
-| `lib/format.ts` | Price formatting (öre to "1 290 kr"). |
+| `lib/format.ts` | Price formatting (whole kronor to "1 290 kr"). |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
 Pages read data in server components. Changes go through server actions in `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.
@@ -62,7 +62,7 @@ On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't 
 - **Flights and bookings:** `flights`, `flight_prices`, `contacts`, `passengers`, `bookings`, `booking_flights` and `booking_flight_addons`. The view `available_seats` calculates free seats; they are never stored.
 - **Reviews:** `reviews`.
 
-Rules in the database: foreign keys are on, prices are whole öre, names of aircraft, classes and add-ons are unique regardless of case, and a booking can only include add-ons allowed for its aircraft and class.
+Rules in the database: foreign keys are on, prices are whole kronor, names of aircraft, classes and add-ons are unique regardless of case, and a booking can only include add-ons allowed for its aircraft and class.
 
 ### Schema changes
 
