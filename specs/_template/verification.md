@@ -16,10 +16,12 @@ How each requirement was checked. Create this file when work starts and fill it 
 
 - [ ] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [ ] Deployed, and `npm test` passes against the live site
+- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
 - [ ] Spec updated to match what was built, no open questions left
 - [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [ ] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
 - [ ] Clean code: reuses existing components and helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass
+- [ ] Code review done, no must-fix findings left; see [review.md](review.md)
 - [ ] Technical tasks for larger improvements noticed along the way added to the backlog
 
 ## Notes

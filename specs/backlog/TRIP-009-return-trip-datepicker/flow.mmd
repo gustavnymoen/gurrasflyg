@@ -1,0 +1,16 @@
+%% TRIP-009 Return trip date picker
+%% How the traveller chooses dates. Steps are labelled with requirement IDs.
+flowchart TD
+    A[Traveller clicks or focuses Utresa or Hemresa<br/>R1, R2] --> B[Calendar opens under the fields<br/>R3, R4]
+    B --> C{Click or type?}
+    C -- click a day --> D[Day set in the active field<br/>R6, R7]
+    C -- type and Enter / leave field --> E{Valid and allowed?<br/>R8}
+    E -- no --> F[Field red, message under the group<br/>R9]
+    F --> C
+    E -- yes --> D
+    D --> G{Tur och retur on and<br/>Utresa was active?<br/>R5}
+    G -- yes --> H[Hemresa becomes active,<br/>days outside the return limits disabled<br/>R7]
+    H --> C
+    G -- no --> I[Calendar closes<br/>R11]
+    B --> J[Escape or click outside<br/>R11]
+    J --> K[Calendar closes, choices kept]

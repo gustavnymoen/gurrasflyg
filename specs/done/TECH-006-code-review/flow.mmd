@@ -1,0 +1,9 @@
+%% TECH-006 Code review
+flowchart TD
+    Doc[6. Document done] --> Run["7. Review: Claude runs the reviewer agent<br/>guide + spec + the change<br/>R2"]
+    Run --> Report["review.md: summary and findings by level<br/>R4"]
+    Report --> Must{Must-fix findings?}
+    Must -- yes --> Tell["Tell the user in a few lines<br/>R4"] --> Fix[Claude fixes them] --> Run
+    Must -- no --> Should["Should fix: fixed now or added to the backlog<br/>R1"]
+    Should --> Done["8. Done<br/>R3"]
+    Done --> PR["9. Merge: open the pull request,<br/>post review.md as a comment<br/>R5"]

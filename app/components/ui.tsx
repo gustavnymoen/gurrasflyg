@@ -15,7 +15,6 @@ export function fieldClass(size: keyof typeof fieldHeights, width = "w-full") {
 // Stora fält (startsidan) och mindre fält (admin), i full bredd
 export const inputClass = fieldClass("large");
 export const smallInputClass = fieldClass("small");
-export const textareaClass = `min-h-20 w-full px-4 py-2 ${fieldBase}`;
 
 // Kompakta varianter för adminsidan
 export const compactInputClass = fieldClass("compact");

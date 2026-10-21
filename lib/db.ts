@@ -98,16 +98,11 @@ export type Airport = {
   timezone: string;
 };
 
-export async function getAirports(): Promise<Airport[]> {
-  // Säger åt Next att läsa från databasen när sidan efterfrågas,
-  // inte en gång vid bygget (se node_modules/next/dist/docs, connection.md)
-  await connection();
-  return all<Airport>("SELECT id, name, iata, country, timezone FROM airports ORDER BY name");
-}
-
 // Flygplatser vars namn (eller IATA-kod) innehåller söktexten.
 // De som börjar med söktexten hamnar först.
 export async function searchAirports(query: string, limit = 5): Promise<Airport[]> {
+  // Säger åt Next att läsa från databasen när sidan efterfrågas,
+  // inte en gång vid bygget (se node_modules/next/dist/docs, connection.md)
   await connection();
   const escaped = escapeLike(query);
   return all<Airport>(

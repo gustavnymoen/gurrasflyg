@@ -2,10 +2,15 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-20
+timestamp: 2026-10-21
 ---
 
 # Log
+
+## 2026-10-21
+
+- TECH-006: code review as a step in the workflow. A reviewer agent (`.claude/agents/code-reviewer.md`) follows the guide in `wiki/system/code-review.md`; its report is saved as `review.md` per feature and posted on the pull request.
+- TECH-002: removed leftovers (the project template's images in `public/`, `getAirports` and `textareaClass`); the review text limit is defined once, in `lib/review-rules.ts`. No change for visitors.
 
 ## 2026-10-20
 

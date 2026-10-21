@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { MAX_REVIEW_LENGTH } from "@/lib/review-rules";
 import type { Review } from "@/lib/reviews";
 import Stars from "../components/Stars";
 import { Alert, compactPrimaryButtonClass, compactInputClass, compactTextareaClass } from "../components/ui";
 import { createReviewAction, deleteReviewAction } from "./actions";
 import { CollapsibleCard, DeleteButton, rowClass, subheadingClass, thClass, useAction } from "./admin-ui";
-
-const MAX_LENGTH = 150; // samma som MAX_REVIEW_LENGTH i lib/reviews.ts
 
 export default function ReviewSection({ reviews }: { reviews: Review[] }) {
   return (
@@ -111,13 +110,13 @@ function ReviewForm() {
         <textarea
           aria-label="Text"
           placeholder="Text"
-          maxLength={MAX_LENGTH}
+          maxLength={MAX_REVIEW_LENGTH}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           className={compactTextareaClass}
         />
         <p className="text-right text-xs text-neutral-500">
-          {body.length}/{MAX_LENGTH}
+          {body.length}/{MAX_REVIEW_LENGTH}
         </p>
       </div>
       {error && <Alert kind="error" compact>{error}</Alert>}
