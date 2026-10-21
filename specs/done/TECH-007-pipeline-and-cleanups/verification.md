@@ -9,9 +9,9 @@ title: Better pipeline and small cleanups
 |---|---|---|---|---|
 | TECH-007-R1 | `npm run lint`, `npm run typecheck`, `npm run build`: no errors or warnings | local | Pass | 2026-10-21 |
 | TECH-007-R1 | `npm run test:local`: 56 passed | local | Pass | 2026-10-21 |
-| TECH-007-R1 | `npm test` against the live site after deploy | live | Not checked yet | |
+| TECH-007-R1 | `npm test` against the live site after the merge of pull request #8: 50 passed, 6 skipped (local only); "Live tests" on `main` passed too | live | Pass | 2026-10-21 |
 | TECH-007-R2 | Pull request #8: the push before the pull request started no CI run; opening it, and each later push, started exactly one | GitHub | Pass | 2026-10-21 |
-| TECH-007-R2 | CI on `main` after the merge | GitHub | Not checked yet | |
+| TECH-007-R2 | CI ran once on `main` after the merge of #8 (push) and passed | GitHub | Pass | 2026-10-21 |
 | TECH-007-R3 | Test `TECH-007-R3 whole numbers are read in one way` | local | Pass | 2026-10-21 |
 | TECH-007-R3 | Test `TECH-007-R3 the seats field accepts only whole numbers`: "120" and "1 200" accepted, "1e2" and "12.0" keep the button disabled, both when adding and changing | local | Pass | 2026-10-21 |
 | TECH-007-R3 | Test `TECH-005-R4 add-on prices must be whole kronor, 0 or more` still passes | local | Pass | 2026-10-21 |
@@ -25,7 +25,7 @@ title: Better pipeline and small cleanups
 ## Definition of Done
 
 - [x] Tests: every requirement is tested or has a recorded check; `npm run test:local` passes
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Spec updated to match what was built, no open questions left
 - [x] Manual not affected; README, `CLAUDE.md`, `architecture.md` and `wiki/log.md` updated
@@ -38,5 +38,6 @@ title: Better pipeline and small cleanups
 
 - "Preview tests" starts on `pull_request` and waits for Vercel, instead of starting on Vercel's `status` event: a `status` workflow runs in `main`'s context, so its result wouldn't show on the pull request and it couldn't be tried before merge. See the spec's Interface section.
 - CI time before the change: 2 min 19 s to 2 min 45 s (pull request #7 and its merge).
+- Pull request #8 was merged before the last two commits (removing the cache, this verification, the move to `done/`); they reached `main` through a follow-up pull request.
 - First Preview tests run: Vercel's build for the push started 12 minutes late. The job waits at most 10 minutes; README says to re-run it when Vercel is slower.
 - A first guess at the admin failures (the bypass cookie header breaking server actions) was wrong; the header was removed anyway, since the secret is sent with every request.
