@@ -28,11 +28,12 @@ Small fixes that don't change behaviour (typos, styling details) don't need a ne
 A feature or technical task is done when all of these hold. Record them in its `verification.md`.
 
 1. **Tests:** every requirement has a test named after it (or a recorded manual check or code review), and `npm run test:local` and, after deploy, `npm test` pass.
-2. **Spec:** `spec.md` describes what was actually built. Anything that changed during the work is updated, and no open questions remain.
-3. **Manual:** `wiki/manual/` (Swedish) describes how to use the feature, `wiki/system/` how it works, and `wiki/log.md` has a line.
-4. **No leftovers:** code, files, exports, styles, scripts and documentation that the change made unused are deleted. No commented-out code, debug output or temporary files. Claude is responsible for the code being clean.
-5. **Clean code:** reads like the surrounding code, reuses existing components and helpers instead of copying them, and `npm run lint`, `npm run typecheck` and `npm run build` pass without errors or warnings.
-6. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the backlog as technical tasks (see below).
+2. **Accessibility:** what visitors see meets WCAG 2.2 level AA. Every page or state the change adds or alters is checked with `expectNoA11yViolations` (axe) in its tests, and the relevant items of the checklist in `wiki/system/accessibility.md` are gone through on the live site and recorded per item.
+3. **Spec:** `spec.md` describes what was actually built. Anything that changed during the work is updated, and no open questions remain.
+4. **Manual:** `wiki/manual/` (Swedish) describes how to use the feature, `wiki/system/` how it works, and `wiki/log.md` has a line.
+5. **No leftovers:** code, files, exports, styles, scripts and documentation that the change made unused are deleted. No commented-out code, debug output or temporary files. Claude is responsible for the code being clean.
+6. **Clean code:** reads like the surrounding code, reuses existing components and helpers instead of copying them, and `npm run lint`, `npm run typecheck` and `npm run build` pass without errors or warnings.
+7. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the backlog as technical tasks (see below).
 
 ## Technical tasks
 

@@ -102,7 +102,7 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
 | TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |
-| | Add return trip datepicker: a designed calendar for choosing the outbound and return date, replacing the browser's date picker. Rethink the solution with the product owner; the calendar on the TRIP-008 design board (two months, outbound and return as a range) is a starting point | Feature | Flight booking |
+| TRIP-009 | Return trip date picker: typed or chosen in a designed calendar, outbound and return date, with a "Tur och retur" switch, replacing the browser's date picker and the "Boka returresa" checkbox | Feature | Flight booking |
 | | Search results for a flight search. Prices are shown as 0 kr until flights have prices per class | Feature | Flight booking |
 | | Turn routes and departures into bookable flights with prices per class | Feature | Flight booking |
 | | Booking a flight: passengers, contact, class and add-ons. The database rules (no overbooking, only allowed add-ons) already exist in `lib/bookings.ts` | Feature | Flight booking |
@@ -128,10 +128,10 @@ Settled with the product owner, to be written into the charter specifications:
 - **Language:** everything visitors see is in Swedish.
 - **Prices:** stored as whole öre (SEK) and shown in kronor, for example "1 290 kr".
 - **Time:** departure and arrival times are local time at each airport.
-- **Dates:** a traveller can book from today up to six months ahead. Charter trips can also only be booked within their timetable's period.
+- **Dates:** a traveller can book from today up to six months ahead (`MAX_MONTHS_AHEAD` in `lib/dates.ts`). A return is on the same day as the outbound or later, at most two months after it. Charter trips can also only be booked within their timetable's period.
 - **Errors:** an invalid value is shown in red, with a short red message under the field. Messages say what to do, not what went wrong in the code.
 - **Course data** in `data/`, `knowledge/` and `public/images/` is read-only, and photos are always shown with their credit (author and licence).
-- **Accessibility:** every field has a label, and everything can be done with the keyboard.
+- **Accessibility:** the site meets WCAG 2.2 level AA. Every field has a label, and everything can be done with the keyboard. A feature that changes what visitors see is checked with axe in its tests (`expectNoA11yViolations` in `tests/helpers.ts`) and with the manual checklist in `wiki/system/accessibility.md`, and the result is recorded in its `verification.md`. Both come with TRIP-008.
 - **Mobile:** every page works on a phone screen.
 - **Admin:** every admin page and action requires a valid sign-in. A sign-in lasts until the browser closes, at most 8 hours.
 - **Data integrity:** something that is in use cannot be deleted (for example a cabin class on an aircraft), and the administrator is told why.

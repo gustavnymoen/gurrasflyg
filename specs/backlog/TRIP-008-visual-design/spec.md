@@ -4,7 +4,7 @@ title: Visual design
 area: Shared
 status: backlog
 created: 2026-10-20
-updated: 2026-10-20
+updated: 2026-10-21
 depends_on: [TRIP-001, TRIP-002, TRIP-003, TRIP-004, TRIP-005, TRIP-006]
 ---
 
@@ -35,6 +35,7 @@ Travellers and the administrator: every page changes look. What the site does st
 - New look for the start page (header, heading, background photo, search form, review carousel, footer), the admin sign-in page and the admin page.
 - Animated wordmark.
 - `DESIGN.md` describing the system.
+- Meeting WCAG 2.2 level AA on every page, with automated and manual checks that later features reuse.
 
 **Out of scope**
 
@@ -197,6 +198,35 @@ Acceptance criteria:
 
 - **Then** `DESIGN.md` exists and lists every token in `globals.css` and every shared component. (Code review.)
 
+### TRIP-008-R18 WCAG 2.2 level AA
+
+Every page (`/`, `/admin/login`, `/admin`) shall meet WCAG 2.2 level AA. Few visitors with impaired sight or motor control are expected, but the product owner wants to learn the standard and how meeting it is checked, and the redesign touches every page anyway. Settled with the product owner on 2026-10-21.
+
+It is checked in two ways, since automated tools find only some of the problems (roughly a third):
+
+- **Automated:** axe, with the package `@axe-core/playwright` (new dev dependency), limited to the WCAG 2.x A and AA rules. A helper `expectNoA11yViolations(page)` in `tests/helpers.ts` runs it, so a later feature adds one line per page or state.
+- **Manual:** a checklist in `wiki/system/accessibility.md`. Each item names its WCAG success criteria and how to check it:
+
+| Check | WCAG |
+|---|---|
+| Everything works with the keyboard only, in a logical order, without getting stuck | 2.1.1, 2.1.2, 2.4.3 |
+| Keyboard focus is always visible and not hidden behind other content | 2.4.7, 2.4.11 |
+| A screen reader (VoiceOver) reads headings, landmarks, field names, states and messages | 1.3.1, 2.4.6, 4.1.2, 4.1.3 |
+| The page works at 200 % zoom, and at 320 px width without sideways scrolling | 1.4.4, 1.4.10 |
+| Text still fits with larger line, letter and word spacing | 1.4.12 |
+| Text has a contrast of at least 4.5:1; field borders, the focus ring and icons at least 3:1 | 1.4.3, 1.4.11 |
+| Buttons and other targets are at least 24 × 24 px | 2.5.8 |
+| Content shown on hover or focus (suggestion list, calendar) can be closed with Escape and stays while the pointer is over it | 1.4.13 |
+| Errors are shown in text, say how to fix them, and every field has a visible label | 3.3.1, 3.3.2, 3.3.3 |
+| Each page has a title and the language Swedish; images have alt text or are marked decorative | 2.4.2, 3.1.1, 1.1.1 |
+| Motion stops with reduced motion (R13; WCAG 2.3.3 is AAA, done anyway) | 2.3.3 |
+
+Acceptance criteria:
+
+- **Then** axe finds no violations on `/`, on `/` with the airport suggestions open and with a date error shown, on `/admin/login` with a wrong password message, and on `/admin` with a card open. (Test.)
+- **Then** `wiki/system/accessibility.md` has the checklist above, and says when a feature must go through it. (Code review.)
+- **Then** the checklist has been gone through on the live site and each item is recorded in `verification.md`. (Manual check.)
+
 ## Data
 
 None.
@@ -224,7 +254,7 @@ New and changed texts for visitors:
 ## Non-functional requirements
 
 - The start page's background photo doesn't delay the search form: it is at most 300 kB and the page's largest content is shown within 2.5 s on the live site.
-- Accessibility as in `specs/overview.md`; in addition, contrast at least 4.5:1 for text (R4) and visible keyboard focus (R14).
+- Accessibility: WCAG 2.2 level AA (R18, `specs/overview.md`), including contrast (R4) and visible keyboard focus (R14).
 
 ## Open questions
 

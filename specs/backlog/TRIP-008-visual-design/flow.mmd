@@ -10,4 +10,6 @@ flowchart TD
     Admin --> Check
     Check -- no --> Fix[Fix the component, not the page]
     Fix --> Comps
-    Check -- yes --> Doc["DESIGN.md<br/>R17"]
+    Check -- yes --> A11y{"WCAG 2.2 AA?<br/>axe + manual checklist R18"}
+    A11y -- no --> Fix
+    A11y -- yes --> Doc["DESIGN.md<br/>R17"]
