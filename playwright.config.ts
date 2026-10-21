@@ -31,9 +31,9 @@ export default defineConfig({
     baseURL,
     browserName: "chromium",
     locale: "sv-SE",
-    extraHTTPHeaders: bypassSecret
-      ? { "x-vercel-protection-bypass": bypassSecret, "x-vercel-set-bypass-cookie": "true" }
-      : undefined,
+    // Sent with every request, so no bypass cookie is needed. Asking Vercel for
+    // the cookie makes it answer with a redirect, which breaks server actions.
+    extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
     // Screenshot and trace of failing tests, for the report. No trace with the
     // bypass secret: the trace saves every request's headers, and so the secret.
     screenshot: "only-on-failure",
