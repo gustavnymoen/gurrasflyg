@@ -1,5 +1,6 @@
 import { getDestinations } from "@/lib/travel";
 
-export function GET() {
-  return Response.json(getDestinations());
+// GET /api/destinations  ->  alla resmål från kursdatan, sorterade på id
+export async function GET() {
+  return Response.json(await getDestinations());
 }

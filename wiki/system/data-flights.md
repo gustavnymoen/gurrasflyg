@@ -134,4 +134,5 @@ One trip on one date is identified by the timetable `id` plus the date, for exam
 
 # Related
 
+- In the database: the timetables are imported into `charter_timetables` with prices in whole kronor, see [Charter data](data-charter.md)
 - Destinations and their airports: `data/destinations.json`, generated from the [destination pages](../../knowledge/index.md)

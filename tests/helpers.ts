@@ -1,9 +1,21 @@
+import { createClient, type InArgs } from "@libsql/client";
 import { expect, test, type Page } from "@playwright/test";
+import { testDbFile } from "../lib/local-db.mjs";
 
 // True when the tests run against the local test server (npm run test:local),
 // false against the live site. Tests that change shared data in a way that
 // can't be undone run only locally.
 export const runsLocally = (process.env.BASE_URL ?? "").startsWith("http://localhost");
+
+// Reads the local test database directly. Only for tests that run locally.
+export async function queryTestDb<T>(sql: string, args: InArgs = []): Promise<T[]> {
+  const db = createClient({ url: `file:${testDbFile}` });
+  try {
+    return (await db.execute({ sql, args })).rows as unknown as T[];
+  } finally {
+    db.close();
+  }
+}
 
 // A name no one else uses, so tests can create data without clashing with
 // real data, and find and delete it afterwards. "E2E" marks it as test data.

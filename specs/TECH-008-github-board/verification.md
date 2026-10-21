@@ -14,14 +14,15 @@ How each requirement was checked. The task changes the way of working, not the s
 | TECH-008-R3 | Code review: `.github/ISSUE_TEMPLATE/card.md` has the explanation, Goal, Scope, requirements and open questions; `specs/_template/` has `solution.md`, `flow.mmd`, `verification.md`, `review.md` and no `spec.md`; `specs/` is flat | docs | Pass | 2026-10-21 |
 | TECH-008-R4 | The bodies of cards #11–#14 compared with `diff` against the old `spec.md` from Goal on, without Data and Interface: identical apart from a trailing blank line. Their Data and Interface are in `solution.md`; the old `spec.md` removed. The finished features moved with `git mv` (shown as renames) and keep `spec.md`; links in `wiki/system/index.md`, `wiki/system/api-airports.md`, `wiki/log.md` and TECH-006's records updated | docs | Pass | 2026-10-21 |
 | TECH-008-R5 | Code review: `CLAUDE.md` (the board, workflow steps 1, 2, 7, 8, 9, Definition of Done 3 and 8, technical tasks), `README.md`, `wiki/system/code-review.md` and `.claude/agents/code-reviewer.md` describe the new way. The reviewer agent found card #9 by its ID and read the requirements with `gh issue view` in review run 1 | docs, local | Pass | 2026-10-21 |
-| TECH-008-R6 | `gh api graphql`: the board's workflows "Item closed" and "Pull request merged" are enabled. That the merge of this task's pull request ("Closes #9") moves card #9 to Done | GitHub | Pass; the move not checked yet | 2026-10-21 |
+| TECH-008-R6 | `gh api graphql`: the board's workflows "Item closed" and "Pull request merged" are enabled. The merge of pull request #26 ("Closes #9") moved card #9 to Done (`gh project item-list`) | GitHub | Pass | 2026-10-21 |
 | TECH-008-R7 | The acceptance search `grep -rnE 'specs/(backlog\|ongoing\|done)'` outside `node_modules/`: one hit in `specs/TECH-005-whole-kronor/spec.md` (history, excluded), and three in this file's "Requirements as built", which quotes R4 and R7 (excluded as a copy of the card). The folders, `specs/_template/spec.md` and the backlog table are gone; the memory files describe the board | local | Pass | 2026-10-21 |
 | All | `npm run lint`, `npm run typecheck`, `npm run build`: no errors or warnings; `npm run test:local`: 56 passed | local | Pass | 2026-10-21 |
+| All | "Live tests" after the merge of #26 (`eef9dc7`): 50 passed, 6 skipped (local only) | live | Pass | 2026-10-21 |
 
 ## Definition of Done
 
 - [x] Tests: every requirement has a recorded check; `npm run test:local` passes
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual: not applicable (the site doesn't change); system docs (`wiki/system/code-review.md`, `wiki/system/index.md`) and `wiki/log.md` updated
@@ -67,4 +68,5 @@ Acceptance criteria:
 ## Notes
 
 - The cards #11–#14 had already been given the requirements when the board was set up, so R4 only needed the comparison and the move of Data and Interface.
+- The checks after the merge (R6 and Live tests) were recorded on the TRIP-007 branch, so they needed no pull request of their own.
 - Small cleanups from the review: the TRIP-009 verification checklist follows the new template, and the "Spec" column in `wiki/system/index.md` is now "Folder".

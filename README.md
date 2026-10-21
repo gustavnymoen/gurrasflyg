@@ -48,7 +48,7 @@ The site is built one feature at a time, and the requirements decide what is bui
 - `app/`: pages, and API routes under `app/api/`. Admin pages under `app/admin/`, shared interface parts under `app/components/`.
 - `lib/`: shared backend code: database access, admin logic, bookings, reviews, sign-in.
 - `db/`: `schema.sql` and `seed.sql` for a new database, and `migrations/` with numbered changes.
-- `scripts/`: database setup, route generation, copying data to production and the Playwright install.
+- `scripts/`: database setup, generating the route and charter data migrations, copying data to production and the Playwright install.
 - `data/` and `knowledge/`: the course's sample data, see below.
 - `specs/`: product overview, and each feature's solution, flow, verification and review.
 - `tests/`: Playwright tests.
@@ -65,7 +65,7 @@ Ready-made sample data from the course. It is read-only: features read or import
 - `data/airports.json`: names and locations of the airports.
 - `public/images/`: a photo of each destination, from Wikimedia Commons. The `image` field of each destination gives the photo's credit: author, licence and source. Most licences require the credit to be shown with the photo.
 
-`GET /api/destinations` returns all destinations (see `wiki/system/api-destinations.md`). The smoke test uses it.
+The course data is imported into tables of its own in the database by a generated migration, with prices in whole kronor (see `wiki/system/data-charter.md`). `GET /api/destinations` returns all destinations from there (see `wiki/system/api-destinations.md`).
 
 ## Pipeline
 

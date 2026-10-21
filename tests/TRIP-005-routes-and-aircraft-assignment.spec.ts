@@ -1,21 +1,18 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { createClient } from "@libsql/client";
 import { expect, test } from "@playwright/test";
-import { testDbFile } from "../lib/local-db.mjs";
-import { createAircraft, deleteWithConfirmation, requireAdminPassword, runsLocally, signIn, uniqueName } from "./helpers";
+import {
+  createAircraft,
+  deleteWithConfirmation,
+  queryTestDb,
+  requireAdminPassword,
+  runsLocally,
+  signIn,
+  uniqueName,
+} from "./helpers";
 
 // R1–R4 read the local test database directly. R7–R9 replace every route's
 // aircraft, which must not happen on the live site. Both run only locally.
-
-async function query<T>(sql: string): Promise<T[]> {
-  const db = createClient({ url: `file:${testDbFile}` });
-  try {
-    return (await db.execute(sql)).rows as unknown as T[];
-  } finally {
-    db.close();
-  }
-}
 
 const ROUTES = `
   SELECT r.id, f.iata AS "from", t.iata AS "to", r.duration_minutes AS minutes
@@ -25,14 +22,14 @@ test.describe("route data", () => {
   test.skip(!runsLocally, "reads the local test database");
 
   test("TRIP-005-R1 there are 51 airports", async () => {
-    const airports = await query<{ iata: string }>("SELECT iata FROM airports");
+    const airports = await queryTestDb<{ iata: string }>("SELECT iata FROM airports");
     expect(airports).toHaveLength(51);
     const codes = airports.map((a) => a.iata);
     for (const code of ["ARN", "GOT", "LHR", "JFK", "BKK"]) expect(codes).toContain(code);
   });
 
   test("TRIP-005-R2 200 routes, each with a return route", async () => {
-    const routes = await query<{ from: string; to: string; minutes: number }>(ROUTES);
+    const routes = await queryTestDb<{ from: string; to: string; minutes: number }>(ROUTES);
     expect(routes).toHaveLength(200);
     const byPair = new Map(routes.map((r) => [`${r.from}-${r.to}`, r.minutes]));
     for (const r of routes) expect(byPair.get(`${r.to}-${r.from}`)).toBe(r.minutes);
@@ -42,13 +39,13 @@ test.describe("route data", () => {
       expect(byPair.has(`${b}-${a}`)).toBe(true);
     }
 
-    const airports = await query<{ iata: string }>("SELECT iata FROM airports");
+    const airports = await queryTestDb<{ iata: string }>("SELECT iata FROM airports");
     const served = new Set(routes.flatMap((r) => [r.from, r.to]));
     for (const a of airports) expect(served).toContain(a.iata);
   });
 
   test("TRIP-005-R3 flight times follow the distance", async () => {
-    const routes = await query<{ from: string; to: string; minutes: number }>(ROUTES);
+    const routes = await queryTestDb<{ from: string; to: string; minutes: number }>(ROUTES);
     const minutes = (from: string, to: string) => routes.find((r) => r.from === from && r.to === to)?.minutes;
     expect(minutes("ARN", "JFK")).toBe(500);
     expect(minutes("ARN", "LHR")).toBe(140);
@@ -56,7 +53,7 @@ test.describe("route data", () => {
   });
 
   test("TRIP-005-R4 2–3 departures a day, 06:00–21:30, 3 hours apart", async () => {
-    const rows = await query<{ route_id: number; departure_time: string }>(
+    const rows = await queryTestDb<{ route_id: number; departure_time: string }>(
       "SELECT route_id, departure_time FROM route_departures ORDER BY route_id, departure_time",
     );
     const byRoute = Map.groupBy(rows, (r) => r.route_id);

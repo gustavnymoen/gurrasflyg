@@ -17,6 +17,7 @@ How the site works, for developers. Start with the architecture.
 ## Data
 
 - [Flight timetables](data-flights.md): the course's sample timetables to and from ARN and CPH, in `data/flights.json`.
+- [Charter data](data-charter.md): the course data in the database: airports, destinations, pages, photo credits and timetables.
 
 ## API endpoints
 
@@ -35,5 +36,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-004 Admin: aircraft | Flight booking | `specs/TRIP-004-admin-aircraft/` |
 | TRIP-005 Routes, departures and aircraft assignment | Flight booking | `specs/TRIP-005-routes-and-aircraft-assignment/` |
 | TRIP-006 Reviews | Shared | `specs/TRIP-006-reviews/` |
+| TRIP-007 Import the course data | Charter | `specs/TRIP-007-import-course-data/` |
 
 [Wiki](../index.md)
