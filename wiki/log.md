@@ -2,10 +2,14 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-20
+timestamp: 2026-10-21
 ---
 
 # Log
+
+## 2026-10-21
+
+- TECH-002: removed leftovers (the project template's images in `public/`, `getAirports` and `textareaClass`); the review text limit is defined once, in `lib/review-rules.ts`. No change for visitors.
 
 ## 2026-10-20
 

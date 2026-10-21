@@ -2,9 +2,9 @@
 id: TECH-002
 title: Small cleanups
 area: Shared
-status: backlog
+status: done
 created: 2026-10-20
-updated: 2026-10-20
+updated: 2026-10-21
 depends_on: []
 ---
 
@@ -69,7 +69,7 @@ Acceptance criteria:
 
 ### TECH-002-R4 The review text limit is defined once
 
-The limit of 150 characters shall be defined once, in a small module without `server-only` (for example `lib/review-rules.ts`) that both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` import. The constant `MAX_LENGTH` in `ReviewSection.tsx` and its comment are removed.
+The limit of 150 characters shall be defined once, in a small module without `server-only`, `lib/review-rules.ts`, that both `lib/reviews.ts` and `app/admin/ReviewSection.tsx` import. The constant `MAX_LENGTH` in `ReviewSection.tsx` and its comment are removed.
 
 Acceptance criteria:
 

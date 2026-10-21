@@ -33,7 +33,7 @@ flowchart LR
 | `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`), airport search and seat availability. |
 | `lib/admin.ts` | Cabin classes, add-ons, aircraft and aircraft assignment: validation and database changes. |
 | `lib/bookings.ts` | Creating a booking in one transaction, without overbooking. Not yet used by any page. |
-| `lib/reviews.ts` | Reviews. |
+| `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations, read from `data/destinations.json`. |
 | `lib/format.ts` | Price formatting (öre to "1 290 kr"). |
