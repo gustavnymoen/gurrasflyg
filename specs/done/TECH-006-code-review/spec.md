@@ -2,7 +2,7 @@
 id: TECH-006
 title: Code review
 area: Shared
-status: backlog
+status: done
 created: 2026-10-21
 updated: 2026-10-21
 depends_on: []
@@ -47,10 +47,10 @@ Developers: Claude, which builds and fixes, and the user, who can read the revie
 `wiki/system/code-review.md` shall describe the review, in English:
 
 - **Why:** find errors before they reach the site, keep the code easy to follow, and learn from each change.
-- **What is reviewed:** the change on the branch compared with `main`, against the feature's `spec.md` and the rules in `CLAUDE.md`.
+- **What is reviewed:** the change on the branch, against the feature's `spec.md` and the rules in `CLAUDE.md`: its commits compared with `main` (or with a given base commit when the branch sits on other unmerged work), its uncommitted changes and its new files not yet added to Git.
 - **What to look for:** general errors (wrong behaviour, missed edge cases, error handling), code that doesn't do what the spec says, bad design (unclear responsibilities, the wrong place for code, needless complexity), duplicated code where an existing component or helper could be reused, and unnecessary code (leftovers, unused exports, code the spec doesn't ask for).
 - **Levels:** each finding is one of
-  - **Must fix:** an error, a requirement not met, or a broken project rule (for example a changed migration, edited course data, a secret in the code). Blocks the feature from being done.
+  - **Must fix:** an error, a requirement not met or without a test (or with a test that doesn't really check it), or a broken project rule (for example a changed migration, edited course data, a secret in the code). Blocks the feature from being done.
   - **Should fix:** bad design, duplicated or unnecessary code. Fixed in the same change when small, otherwise added to the backlog as a technical task. Does not block.
   - **Suggestion:** at most three, only when there is something worth learning. Does not block.
 - **Not commented on:** what lint and the type check already catch, matters of taste, and code outside the change (that goes to the backlog).
@@ -62,11 +62,11 @@ Acceptance criteria:
 
 ### TECH-006-R2 A reviewer agent
 
-`.claude/agents/code-reviewer.md` shall define a reviewer agent that reads the guide, the feature's `spec.md` and the diff against `main`, and reports its findings by level, each with file, line and a short reason.
+`.claude/agents/code-reviewer.md` shall define a reviewer agent that reads the guide, the feature's `spec.md` and the change (as described in R1), and reports its findings by level, each with file, line and a short reason.
 
 Acceptance criteria:
 
-- **Then** the agent can only read files and run read-only commands (such as `git diff`); it can't edit files.
+- **Then** the agent has no tools for editing files (only Read, Grep, Glob and Bash), and its instructions say it may use Bash only for commands that read, such as `git diff`. It keeps Bash because it needs Git to see the change; for a light review an instruction is enough, and a file it changed by mistake would show up in `git status` before the commit.
 - **Then** its instructions point to `wiki/system/code-review.md` instead of repeating the guide, so the guide is the one place the rules live.
 
 ### TECH-006-R3 Review is a step in the workflow
@@ -88,7 +88,7 @@ Acceptance criteria:
 - **Given** a review with must-fix findings, **then** Claude tells the user in a few lines what stopped the feature and how it was fixed. Otherwise Claude only mentions that the review passed.
 - **Then** `verification.md` links to `review.md`.
 
-### TECH-006-R6 The report is posted on the pull request
+### TECH-006-R5 The report is posted on the pull request
 
 When Claude opens the pull request for a feature (step "Merge" in `CLAUDE.md`), it shall post the content of `review.md` as a comment on it, with `gh pr comment`. If the review is run again after the pull request is opened, the new report is posted as a new comment.
 
@@ -97,13 +97,13 @@ Acceptance criteria:
 - **Given** a feature with a `review.md`, **when** its pull request is opened, **then** the pull request has a comment with the summary and the findings.
 - **Then** the "Merge" step in `CLAUDE.md` says so.
 
-### TECH-006-R5 The review is tried out
+### TECH-006-R6 The review is tried out
 
 The reviewer agent shall be run once on an already finished change, TECH-002, to check that it works and is as strict as intended.
 
 Acceptance criteria:
 
-- **Then** the trial run gives a report in the format of R4, posted on TECH-002's pull request (R6), and the result is recorded in this task's `verification.md`. If it is too strict or too loose, the guide is adjusted.
+- **Then** the trial run gives a report in the format of R4, posted on TECH-002's pull request (R5), and the result is recorded in this task's `verification.md`. If it is too strict or too loose, the guide is adjusted.
 
 ## Data
 

@@ -24,6 +24,7 @@ title: Small cleanups
 - [x] Manual not affected (no change for visitors); system docs (`architecture.md`) and `wiki/log.md` updated
 - [x] No leftovers
 - [x] Clean code; lint, type check and build pass
+- [x] Code review done afterwards, as the trial run of TECH-006: passed; see [review.md](review.md)
 - [x] No new technical tasks
 
 ## Notes

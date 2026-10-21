@@ -91,6 +91,7 @@ Features built before this way of working was introduced were specified afterwar
 | TRIP-006 | Reviews: carousel on the start page and managing them in admin | Shared | Done |
 | TECH-001 | Automatic pipeline (CI) on GitHub | Shared | Done |
 | TECH-002 | Small cleanups: template images, unused code, review text limit defined once | Shared | Done |
+| TECH-006 | Code review: guide, reviewer agent, review step and report on the pull request | Shared | Done |
 
 ## Backlog
 
@@ -98,7 +99,6 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 
 | ID | Item | Type | Area |
 |---|---|---|---|
-| TECH-006 | Code review: a review guide, a reviewer agent and a review step in the workflow, with a short report per feature, posted on its pull request. Light review, to try out the practice | Tech | Shared |
 | TECH-005 | Store all prices as whole kronor instead of öre, so the code and data are easier to read: a migration converts the existing prices, the code stops converting, add-on prices must be whole kronor (an error otherwise), and the rule is updated in `CLAUDE.md`, `specs/overview.md`, `wiki/` and the TRIP-003 spec | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
 | TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |

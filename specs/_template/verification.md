@@ -21,6 +21,7 @@ How each requirement was checked. Create this file when work starts and fill it 
 - [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated
 - [ ] No leftovers: everything the change made unused is deleted, no commented-out code or debug output
 - [ ] Clean code: reuses existing components and helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass
+- [ ] Code review done, no must-fix findings left; see [review.md](review.md)
 - [ ] Technical tasks for larger improvements noticed along the way added to the backlog
 
 ## Notes
