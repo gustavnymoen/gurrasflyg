@@ -9,7 +9,7 @@ timestamp: 2026-10-21
 
 ## 2026-10-21
 
-- TECH-007: "Preview tests" runs `npm test` against every pull request's preview deployment before merge; CI runs once per change (pull requests and `main`); the workflows share one setup with Chromium cached; the seats fields and add-on price read whole numbers with one shared `parseWholeNumber`.
+- TECH-007: "Preview tests" runs `npm test` against every pull request's preview deployment before merge; CI runs once per change (pull requests and `main`); the workflows share one setup (a Chromium cache was measured and removed: it saved nothing); the seats fields and add-on price read whole numbers with one shared `parseWholeNumber`.
 - TECH-005: all prices are whole kronor instead of öre. Migration `004_whole_kronor.sql` converts the stored prices; an add-on price with öre gives "Ange priset i hela kronor.", and the price field is a text field, since a number field turned "12,50" into 1 250 kr.
 - TECH-006: code review as a step in the workflow. A reviewer agent (`.claude/agents/code-reviewer.md`) follows the guide in `wiki/system/code-review.md`; its report is saved as `review.md` per feature and posted on the pull request.
 - TECH-002: removed leftovers (the project template's images in `public/`, `getAirports` and `textareaClass`); the review text limit is defined once, in `lib/review-rules.ts`. No change for visitors.

@@ -2,7 +2,7 @@
 id: TECH-007
 title: Better pipeline and small cleanups
 area: Shared
-status: ongoing
+status: done
 created: 2026-10-21
 updated: 2026-10-21
 depends_on: [TECH-005]
@@ -12,7 +12,7 @@ depends_on: [TECH-005]
 
 ## Goal
 
-Every change is tested against a real Vercel and Turso environment before it reaches production, CI runs once per change and a little faster, and whole numbers typed in the admin forms are read in one way, in one place. The site behaves as before.
+Every change is tested against a real Vercel and Turso environment before it reaches production, CI runs once per change, the workflows share one setup, and whole numbers typed in the admin forms are read in one way, in one place. The site behaves as before.
 
 ## Background
 
@@ -34,7 +34,7 @@ Developers. The administrator sees no difference, apart from the stricter seats 
 
 - CI triggers.
 - Running the tests against each pull request's preview deployment, before merge.
-- Caching Playwright's browser in the workflows, and one shared setup for them.
+- One shared setup for the workflows.
 - One shared parser for whole numbers, used by the seats fields and the add-on price.
 
 **Out of scope**
@@ -86,15 +86,15 @@ Acceptance criteria:
 - **Then** step "Merge" in `CLAUDE.md` says to merge only when both "CI" and "Preview tests" are green, and `README.md` and `wiki/system/architecture.md` describe the workflow and the secrets.
 - **Then** the bypass secret is never written to logs or files.
 
-### TECH-007-R5 Faster, shared test setup in the workflows
+### TECH-007-R5 Shared test setup in the workflows
 
-The workflows that run Playwright (CI, Live tests, Preview tests) shall share one setup (a composite action, for example `.github/actions/setup-tests/`) that installs the packages and Chromium, with Chromium cached between runs, keyed on the Playwright version in `package-lock.json`.
+The workflows that run Playwright (CI, Live tests, Preview tests) shall share one setup, the composite action `.github/actions/setup-tests/`, that installs Node, the packages and Chromium.
 
 Acceptance criteria:
 
 - **Then** the three workflows use the shared setup instead of repeating the steps.
-- **Given** a cache hit, **then** Chromium isn't downloaded again; the time of a CI run before and after is recorded in `verification.md`.
-- **When** Playwright is upgraded, **then** the cache key changes and the new browser is downloaded.
+
+Chromium is not cached. A cache was built and measured on pull request #8: with a cache hit the setup took 42 s, without it 36 s, and whole CI runs 138–156 s with the cache against 139–165 s before. Downloading Chromium takes a few seconds; the time goes to the system libraries (`install-deps`), which every new machine needs anyway. The cache was removed (settled with the user on 2026-10-21).
 
 ## Data
 
@@ -105,7 +105,7 @@ None.
 - `.github/workflows/ci.yml`: the `push` trigger is limited to `main`; uses the shared setup.
 - `.github/workflows/preview-tests.yml` (new): tests against the preview deployment.
 - `.github/workflows/live-tests.yml`: uses the shared setup.
-- `.github/actions/setup-tests/` (new): packages and cached Chromium.
+- `.github/actions/setup-tests/` (new): Node, packages and Chromium.
 - `playwright.config.ts`: sends the bypass header when the secret is set.
 - `lib/numbers.ts` (new): `parseWholeNumber`.
 - `app/admin/AircraftForm.tsx`, `lib/admin.ts`: use it.

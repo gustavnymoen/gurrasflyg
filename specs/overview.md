@@ -93,6 +93,7 @@ Features built before this way of working was introduced were specified afterwar
 | TECH-002 | Small cleanups: template images, unused code, review text limit defined once | Shared | Done |
 | TECH-006 | Code review: guide, reviewer agent, review step and report on the pull request | Shared | Done |
 | TECH-005 | All prices in whole kronor | Shared | Done |
+| TECH-007 | Better pipeline: preview tests before merge, CI once per change, shared workflow setup, one whole-number parser | Shared | Done |
 
 ## Backlog
 
@@ -100,7 +101,6 @@ One backlog for the whole site. **Feature** and **Fix** items get a `TRIP-` ID a
 
 | ID | Item | Type | Area |
 |---|---|---|---|
-| TECH-007 | Better pipeline and small cleanups: tests against each pull request's preview deployment before merge; CI runs once per change instead of twice; cached Chromium and one shared setup in the workflows; one shared parser for whole numbers in the admin forms | Tech | Shared |
 | TRIP-007 | Import the course data into the database, in tables of its own, with prices converted to whole kronor (EUR × 10) | Feature | Charter |
 | TRIP-008 | Update the visual design: tokens, shared components and the "Loungen" look for the whole site (dark, wine red and brass, photo background, animated wordmark) | Feature | Shared |
 | TECH-003 | The bookable-date rules (today to six months ahead, `toDateString`, `addMonths`) live inside `app/components/SearchForm.tsx`. Move them to a shared module so later features (search results, charter) use the same rules | Tech | Flight booking |

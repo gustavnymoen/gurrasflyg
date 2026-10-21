@@ -93,7 +93,7 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 | Preview tests (`.github/workflows/preview-tests.yml`) | Every pull request to `main`; waits for Vercel's commit status `Vercel` to be `success` | `npm test` against the branch's preview address (`gurrasflyg-git-<branch>-aqc-lab.vercel.app`), with the secrets `VERCEL_AUTOMATION_BYPASS_SECRET` (sent as the header `x-vercel-protection-bypass`) and `ADMIN_PASSWORD`. Test data goes to the preview's database. Branch names must keep the address within 63 characters. |
 | Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's commit status `Vercel` on a commit in `main`), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
 
-The workflows share `.github/actions/setup-tests/` (Node, `npm ci`, Chromium cached per Playwright version). Failing runs save Playwright's HTML report, screenshots and traces as an artifact; Preview tests save no traces, since they would hold the bypass secret. Changes reach `main` through pull requests that are merged when CI and Preview tests are green.
+The workflows share `.github/actions/setup-tests/` (Node, `npm ci`, Chromium). Failing runs save Playwright's HTML report, screenshots and traces as an artifact; Preview tests save no traces, since they would hold the bypass secret. Changes reach `main` through pull requests that are merged when CI and Preview tests are green.
 
 `npm run copy-to-prod` copies cabin classes, add-ons, aircraft and reviews from the local database to production. It only adds what is missing and never deletes.
 
