@@ -20,10 +20,6 @@ export const smallInputClass = fieldClass("small");
 export const compactInputClass = fieldClass("compact");
 export const compactTextareaClass = `min-h-16 w-full px-2.5 py-1.5 text-sm ${fieldBase}`;
 
-// Döljer pilarna upp/ner i sifferfält
-export const noSpinnerClass =
-  "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
-
 export const primaryButtonClass =
   "h-11 rounded-lg bg-wine px-5 font-medium text-white transition-colors hover:bg-wine-light disabled:cursor-not-allowed disabled:opacity-50";
 export const secondaryButtonClass =

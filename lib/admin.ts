@@ -26,7 +26,8 @@ export type AircraftInput = {
   addons: { addonId: number; classId: number }[];
 };
 
-export type AddonInput = { name: string; description: string; priceKr: number };
+// Priset är texten från formuläret; servern avgör om det är hela kronor
+export type AddonInput = { name: string; description: string; price: string };
 
 // Fel som beror på vad admin matat in och som kan visas på sidan
 export class AdminError extends Error {}
@@ -349,10 +350,15 @@ function validateAircraft(input: AircraftInput): AircraftInput {
 function validateAddon(addon: AddonInput) {
   const name = requireText(addon.name, "Addon måste ha ett namn.");
   const description = requireText(addon.description, "Addon måste ha en beskrivning.");
-  if (!Number.isFinite(addon.priceKr) || addon.priceKr < 0) {
-    throw new AdminError("Priset måste vara 0 kr eller mer.");
-  }
-  return { name, description, price: Math.round(addon.priceKr * 100) };
+  return { name, description, price: parseKronor(addon.price) };
+}
+
+// "1 290" -> 1290. Mellanslag får finnas, men inte ören eller annat än siffror.
+function parseKronor(text: string) {
+  const digits = text.replace(/\s/g, "");
+  if (digits.startsWith("-")) throw new AdminError("Priset måste vara 0 kr eller mer.");
+  if (!/^\d+$/.test(digits)) throw new AdminError("Ange priset i hela kronor.");
+  return Number(digits);
 }
 
 function requireText(value: string, message: string) {

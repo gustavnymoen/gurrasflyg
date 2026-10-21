@@ -6,7 +6,7 @@
 import { useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
 import { CheckIcon, XIcon } from "../components/icons";
-import { Alert, fieldClass, noSpinnerClass, RoundButton, compactInputClass } from "../components/ui";
+import { Alert, fieldClass, RoundButton, compactInputClass } from "../components/ui";
 import type { ActionResult } from "./actions";
 import { EditButton, IconButton, RemoveButton, SaveCancel, useAction } from "./admin-ui";
 
@@ -252,7 +252,7 @@ function ClassAdder({
         value={capacity}
         onChange={(e) => setCapacity(e.target.value)}
         onKeyDown={onEnter(add)}
-        className={`${fieldClass("compact", "w-24 text-right")} ${noSpinnerClass}`}
+        className={fieldClass("compact", "w-24 text-right")}
       />
       <RoundButton compact label="Lägg till klass" disabled={classId === "" || parsed === null} onClick={add}>
         +
@@ -296,7 +296,7 @@ function ClassListRow({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={onEnter(confirm)}
-            className={`${fieldClass("compact", "w-20 text-right")} ${noSpinnerClass}`}
+            className={fieldClass("compact", "w-20 text-right")}
             autoFocus
           />
           <ConfirmCancel valid={parsed !== null} onConfirm={confirm} onCancel={() => setEditing(false)} />

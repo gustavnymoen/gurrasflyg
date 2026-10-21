@@ -5,7 +5,7 @@ description: Så skapar, ändrar och tar du bort kabinklasser och addons på adm
 resource: app/admin/ClassTable.tsx
 feature: TRIP-003
 tags: [admin, klasser, addons, pris]
-timestamp: 2026-10-20
+timestamp: 2026-10-21
 ---
 
 # Klasser och addons
@@ -28,7 +28,7 @@ Två klasser kan inte heta likadant, inte heller med olika stora och små bokst�
 - **Ändra:** klicka på pennan. Fälten fylls i med nuvarande värden.
 - **Ta bort:** som för klasser.
 
-Priset visas i kolumnen **Pris (SEK)**. Det kan vara 0 kr eller mer, och kan ha ören.
+Priset visas i kolumnen **Pris (SEK)**. Det är i hela kronor, 0 kr eller mer. Du kan skriva mellanslag mellan tusentalen, till exempel 1 290.
 
 ## Det går inte att ta bort
 
@@ -44,3 +44,4 @@ Används en klass eller addon av ett plan visas **Du kan ej ta bort** och varfö
 | Addon måste ha ett namn. / Addon måste ha en beskrivning. | Fyll i fältet. |
 | Addon "…" finns redan. | Välj ett annat namn. |
 | Priset måste vara 0 kr eller mer. | Skriv ett pris som inte är negativt. |
+| Ange priset i hela kronor. | Skriv bara siffror, till exempel 13 i stället för 12,50. |

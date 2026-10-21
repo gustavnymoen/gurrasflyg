@@ -1,7 +1,7 @@
 -- Databasens struktur. Körs av scripts/db-setup.mjs.
 -- Ändra här och kör sedan: npm run db:reset
 --
--- Alla priser lagras som heltal i ören (49900 = 499 kr).
+-- Alla priser lagras som hela kronor (499 = 499 kr).
 -- Lediga platser lagras inte utan räknas fram, se vyn available_seats längst ner.
 
 -- Flygplats
