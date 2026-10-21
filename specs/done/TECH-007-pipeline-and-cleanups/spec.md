@@ -2,7 +2,7 @@
 id: TECH-007
 title: Better pipeline and small cleanups
 area: Shared
-status: ongoing
+status: done
 created: 2026-10-21
 updated: 2026-10-21
 depends_on: [TECH-005]
