@@ -10,13 +10,17 @@ title: Better pipeline and small cleanups
 | TECH-007-R1 | `npm run lint`, `npm run typecheck`, `npm run build`: no errors or warnings | local | Pass | 2026-10-21 |
 | TECH-007-R1 | `npm run test:local`: 56 passed | local | Pass | 2026-10-21 |
 | TECH-007-R1 | `npm test` against the live site after deploy | live | Not checked yet | |
-| TECH-007-R2 | One CI run for a push to a branch with an open pull request; CI on `main` after merge | GitHub | Not checked yet | |
+| TECH-007-R2 | Pull request #8: the push before the pull request started no CI run; opening it, and each later push, started exactly one | GitHub | Pass | 2026-10-21 |
+| TECH-007-R2 | CI on `main` after the merge | GitHub | Not checked yet | |
 | TECH-007-R3 | Test `TECH-007-R3 whole numbers are read in one way` | local | Pass | 2026-10-21 |
 | TECH-007-R3 | Test `TECH-007-R3 the seats field accepts only whole numbers`: "120" and "1 200" accepted, "1e2" and "12.0" keep the button disabled, both when adding and changing | local | Pass | 2026-10-21 |
 | TECH-007-R3 | Test `TECH-005-R4 add-on prices must be whole kronor, 0 or more` still passes | local | Pass | 2026-10-21 |
-| TECH-007-R4 | "Preview tests" on the pull request: waits for Vercel, runs `npm test` against the preview, result on the pull request | GitHub | Not checked yet | |
+| TECH-007-R4 | First run on #8: Vercel started the preview 12 minutes after the push, and the job gave up after 10. Re-run: the bypass worked (20 passed), but 30 admin tests failed: the preview answered "Inget lösenord är satt", since `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` were set for Production only in Vercel | GitHub | Fail | 2026-10-21 |
+| TECH-007-R4 | After the user ticked Preview for both variables in Vercel: "Preview tests" waited for Vercel, ran against `gurrasflyg-git-tech-007-pipeline-and-cleanups-aqc-lab.vercel.app`: 50 passed, 6 skipped (local only), result shown on the pull request, 2 min 18 s | GitHub | Pass | 2026-10-21 |
+| TECH-007-R4 | The downloaded failure report holds no bypass secret (searched for it) | GitHub | Pass | 2026-10-21 |
 | TECH-007-R4 | Code review: `CLAUDE.md` step 9 and the Git rule, `README.md` and `wiki/system/architecture.md` describe the workflow and the secrets; traces are off when the bypass secret is set | docs | Pass | 2026-10-21 |
-| TECH-007-R5 | The three workflows use `.github/actions/setup-tests/`; a run with a cache hit skips the Chromium download; time before and after | GitHub | Not checked yet | |
+| TECH-007-R5 | Code review: CI, Live tests and Preview tests use `.github/actions/setup-tests/`; CI and Preview tests ran green with it on #8 | GitHub | Pass | 2026-10-21 |
+| TECH-007-R5 | The Chromium cache, as first built: hit on the later runs, but no faster (setup 42 s with hit, 36 s without; CI 138–156 s against 139–165 s before). Removed with the user; R5 changed | GitHub | Removed | 2026-10-21 |
 
 ## Definition of Done
 
@@ -33,4 +37,6 @@ title: Better pipeline and small cleanups
 ## Notes
 
 - "Preview tests" starts on `pull_request` and waits for Vercel, instead of starting on Vercel's `status` event: a `status` workflow runs in `main`'s context, so its result wouldn't show on the pull request and it couldn't be tried before merge. See the spec's Interface section.
-- CI time before the change, for R5: 2 min 19 s to 2 min 45 s (pull request #7 and its merge).
+- CI time before the change: 2 min 19 s to 2 min 45 s (pull request #7 and its merge).
+- First Preview tests run: Vercel's build for the push started 12 minutes late. The job waits at most 10 minutes; README says to re-run it when Vercel is slower.
+- A first guess at the admin failures (the bypass cookie header breaking server actions) was wrong; the header was removed anyway, since the secret is sent with every request.

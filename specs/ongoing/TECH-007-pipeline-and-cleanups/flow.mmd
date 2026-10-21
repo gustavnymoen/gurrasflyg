@@ -9,7 +9,7 @@ flowchart TD
     PT --> Green
     Green -- yes --> Merge[Merge to main] --> Main["CI on main (push)<br/>R2"]
     Main --> Live[Production deploy, then Live tests]
-    Setup["Shared setup: packages,<br/>cached Chromium<br/>R5"] -.-> One
+    Setup["Shared setup: Node,<br/>packages, Chromium<br/>R5"] -.-> One
     Setup -.-> PT
     Setup -.-> Live
     Typed["Typed text: seats or price"] --> Parse["parseWholeNumber<br/>spaces ignored, digits only<br/>R3"]
