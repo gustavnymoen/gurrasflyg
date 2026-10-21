@@ -2,7 +2,7 @@
 id: TECH-007
 title: Better pipeline and small cleanups
 area: Shared
-status: backlog
+status: ongoing
 created: 2026-10-21
 updated: 2026-10-21
 depends_on: [TECH-005]
@@ -71,7 +71,7 @@ A function in a small module without `server-only` (for example `parseWholeNumbe
 Acceptance criteria:
 
 - **Then** "1 290" gives 1290, and "12,50", "12.50", "1e2", "-5" and "" give no number.
-- **Then** the seats fields accept "120" and "1 200", and no longer accept "1e2" or "12.0" (they show the same message as other invalid seats).
+- **Then** the seats fields accept "120" and "1 200", and no longer accept "1e2" or "12.0": the button to add or confirm the class stays disabled, as for other invalid seats.
 - **Then** the TECH-005-R4 test still passes.
 
 ### TECH-007-R4 Tests against the preview deployment before merge
@@ -110,7 +110,7 @@ None.
 - `lib/numbers.ts` (new): `parseWholeNumber`.
 - `app/admin/AircraftForm.tsx`, `lib/admin.ts`: use it.
 
-How "Preview tests" learns the preview's address is decided while building: Vercel's commit status links to Vercel's dashboard, not to the deployment, so the address comes from what the status event holds, the branch address (`gurrasflyg-git-<branch>-<team>.vercel.app`) or Vercel's API. Whichever is used is written into this section.
+How it was built: "Preview tests" starts on `pull_request`, not on Vercel's `status` event. A workflow started by `status` runs in `main`'s context, so its result would show on `main` instead of the pull request, and a new such workflow can't run before it is merged. The job waits (up to 10 minutes) until the commit's status `Vercel` is `success`, then tests the branch address `gurrasflyg-git-<branch>-aqc-lab.vercel.app`, which Vercel's commit status doesn't give (it links to Vercel's dashboard). An address longer than 63 characters is shortened by Vercel, so the job stops with a clear error for such branch names. Traces are off when the bypass secret is set, since a trace saves every request's headers.
 
 ## Non-functional requirements
 

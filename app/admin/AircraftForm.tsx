@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
+import { parseWholeNumber } from "@/lib/numbers";
 import { CheckIcon, XIcon } from "../components/icons";
 import { Alert, fieldClass, RoundButton, compactInputClass } from "../components/ui";
 import type { ActionResult } from "./actions";
@@ -193,8 +194,8 @@ export default function AircraftForm({
 
 // Antal platser måste vara ett heltal större än 0
 function parseCapacity(value: string) {
-  const n = Number(value);
-  return value.trim() !== "" && Number.isInteger(n) && n > 0 ? n : null;
+  const n = parseWholeNumber(value);
+  return n !== null && n > 0 ? n : null;
 }
 
 // Enter i ett fält ska utföra radens åtgärd, inte spara hela formuläret

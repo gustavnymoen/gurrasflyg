@@ -2,6 +2,7 @@ import "server-only";
 import type { Transaction } from "@libsql/client";
 import { connection } from "next/server";
 import { all, constraintKind, get, run, withTransaction } from "./db";
+import { parseWholeNumber } from "./numbers";
 
 // inUse = något annat i databasen pekar på raden, så den kan inte tas bort
 export type CabinClass = { id: number; name: string; inUse: boolean };
@@ -353,12 +354,12 @@ function validateAddon(addon: AddonInput) {
   return { name, description, price: parseKronor(addon.price) };
 }
 
-// "1 290" -> 1290. Mellanslag får finnas, men inte ören eller annat än siffror.
+// Hela kronor, 0 eller mer. Ett minustecken får ett eget, tydligare fel.
 function parseKronor(text: string) {
-  const digits = text.replace(/\s/g, "");
-  if (digits.startsWith("-")) throw new AdminError("Priset måste vara 0 kr eller mer.");
-  if (!/^\d+$/.test(digits)) throw new AdminError("Ange priset i hela kronor.");
-  return Number(digits);
+  if (text.trim().startsWith("-")) throw new AdminError("Priset måste vara 0 kr eller mer.");
+  const kronor = parseWholeNumber(text);
+  if (kronor === null) throw new AdminError("Ange priset i hela kronor.");
+  return kronor;
 }
 
 function requireText(value: string, message: string) {

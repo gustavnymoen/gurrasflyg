@@ -1,0 +1,79 @@
+# TECH-007: alla tester mot pull requestens förhandsversion på Vercel, före merge.
+# Förhandsversionen har en egen Turso-databas, så testdata hamnar aldrig i
+# produktionen. Jobbet startar med pull requesten och väntar tills Vercel har
+# rapporterat förhandsversionen som klar (statusen "Vercel" på commiten).
+name: Preview tests
+
+on:
+  pull_request:
+    branches: [main]
+
+# En ny push på samma gren avbryter den förra körningen
+concurrency:
+  group: preview-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      statuses: read
+    env:
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      # Samma commit som förhandsversionen byggdes från, inte GitHubs merge-commit
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup-tests
+
+      - name: Vänta på förhandsversionen
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # Vercels status kommer som "pending" och sedan "success" eller "failure"
+          for attempt in $(seq 1 60); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA/statuses" \
+              --jq '[.[] | select(.context == "Vercel")][0].state // "none"')
+            echo "Vercel: $state"
+            [ "$state" = "success" ] && break
+            if [ "$state" = "failure" ] || [ "$state" = "error" ]; then
+              echo "::error::Vercel kunde inte bygga förhandsversionen"; exit 1
+            fi
+            sleep 10
+          done
+          if [ "$state" = "none" ]; then
+            echo "::error::Vercel har inte rapporterat någon förhandsversion för den här commiten"; exit 1
+          elif [ "$state" != "success" ]; then
+            echo "::error::Förhandsversionen blev inte klar på 10 minuter"; exit 1
+          fi
+
+          # Vercels fasta adress för grenen: projekt, gren och team.
+          # Längre än 63 tecken förkortar Vercel den, och då stämmer den inte.
+          slug=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+          host="gurrasflyg-git-$slug-aqc-lab"
+          if [ ${#host} -gt 63 ]; then
+            echo "::error::Grenens namn är för långt för Vercels adress ($host)"; exit 1
+          fi
+          echo "url=https://$host.vercel.app" >> "$GITHUB_OUTPUT"
+
+      - run: npm test
+        env:
+          BASE_URL: ${{ steps.preview.outputs.url }}
+
+      - name: Spara testrapporten
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-preview
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
