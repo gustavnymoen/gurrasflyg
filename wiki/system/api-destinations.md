@@ -4,7 +4,7 @@ title: GET /api/destinations
 description: Returns all destinations with their location, category, access, airports and photo.
 resource: app/api/destinations/route.ts
 tags: [destinations, data]
-timestamp: 2026-10-20
+timestamp: 2026-10-21
 ---
 
 # Request
@@ -15,7 +15,7 @@ No parameters.
 
 # Response
 
-Status 200 with a JSON array of all destinations, sorted by `id`. Each item has the fields of `data/destinations.json`:
+Status 200 with a JSON array of all destinations, sorted by `id`. The destinations are read from the database ([Charter data](data-charter.md)), which is imported from the course data; the response is the same as `data/destinations.json`. Each item has its fields:
 
 | Field | Meaning |
 |---|---|
@@ -59,7 +59,7 @@ Example item, shortened:
 # Related
 
 - Code: `app/api/destinations/route.ts`, `lib/travel.ts`
-- Data: `data/destinations.json`, which holds the facts from the [destination pages](../../knowledge/index.md)
+- Data: the [charter tables](data-charter.md), imported from `data/destinations.json` and the [destination pages](../../knowledge/index.md)
 - Flights to the destinations' airports: [Flight timetables](data-flights.md)
 - Photos: `public/images/`
-- Tests: `tests/smoke.spec.ts` checks that the endpoint responds on the live site
+- Tests: `tests/smoke.spec.ts` checks that the endpoint responds; `tests/TRIP-007-import-course-data.spec.ts` (TRIP-007-R9) that the response equals the course data, locally and on the live site

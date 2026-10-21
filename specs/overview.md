@@ -97,6 +97,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-005 | All prices in whole kronor | Shared | Done |
 | TECH-007 | Better pipeline: preview tests before merge, CI once per change, shared workflow setup, one whole-number parser | Shared | Done |
 | TECH-008 | The backlog on a GitHub board: requirements in the cards, solution in the repo | Shared | Done |
+| TRIP-007 | The course's charter data imported into the database, prices in whole kronor | Charter | Done |
 
 ## Decisions for charter
 
