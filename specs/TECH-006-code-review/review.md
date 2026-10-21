@@ -19,7 +19,7 @@ None.
 
 ### Should fix
 
-- `specs/done/TECH-002-small-cleanups/review.md:9` Called the trial run TECH-006-R5; after the renumbering it is R6. **Done:** fixed.
+- `specs/TECH-002-small-cleanups/review.md:9` Called the trial run TECH-006-R5; after the renumbering it is R6. **Done:** fixed.
 - `spec.md` R1, R2 and `flow.mmd` said "diff against `main`", while the guide and agent also cover a given base commit, uncommitted changes and new files. **Done:** spec and flow now describe the change as the guide does.
 - `spec.md` R1 must-fix said "a requirement not met"; the guide also counts a requirement without a real test. **Done:** added to R1.
 

@@ -1,0 +1,12 @@
+%% TECH-008 GitHub board for the backlog
+%% How a card moves across the board, and what is created in the repo along the way.
+flowchart TD
+    A["Card created in Backlog: ID and short explanation<br/>R2, R3"] --> B{"Top card in Backlog?"}
+    B -- no --> A
+    B -- yes --> C["Requirements and open questions worked out in the card<br/>R3"]
+    C --> D["Specified"]
+    D --> E["Branch and specs/&lt;ID&gt;-&lt;name&gt;/ with solution.md, flow.mmd, verification.md<br/>Ongoing, R3, R5"]
+    E --> F["Build, test, verify, document, review"]
+    F --> G["Requirements as built copied into verification.md<br/>R5"]
+    G --> H["Pull request with 'Closes #card'<br/>Review, R5"]
+    H --> I["Merged: card moves to Done<br/>R6"]

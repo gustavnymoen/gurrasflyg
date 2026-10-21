@@ -9,6 +9,7 @@ timestamp: 2026-10-21
 
 ## 2026-10-21
 
+- TECH-008: the backlog moved to the GitHub board "Gurras Flyg". A card holds what is built and why (the requirements); the repo holds how (`specs/<ID>-<name>/` with `solution.md`, flow, verification and review), in one flat folder per feature. The backlog table in `specs/overview.md` and the folders `backlog/`, `ongoing/` and `done/` are gone.
 - TECH-007: "Preview tests" runs `npm test` against every pull request's preview deployment before merge; CI runs once per change (pull requests and `main`); the workflows share one setup (a Chromium cache was measured and removed: it saved nothing); the seats fields and add-on price read whole numbers with one shared `parseWholeNumber`.
 - TECH-005: all prices are whole kronor instead of öre. Migration `004_whole_kronor.sql` converts the stored prices; an add-on price with öre gives "Ange priset i hela kronor.", and the price field is a text field, since a number field turned "12,50" into 1 250 kr.
 - TECH-006: code review as a step in the workflow. A reviewer agent (`.claude/agents/code-reviewer.md`) follows the guide in `wiki/system/code-review.md`; its report is saved as `review.md` per feature and posted on the pull request.
@@ -23,7 +24,7 @@ timestamp: 2026-10-21
 - Introduced specification-driven development: `specs/` with overview, template and status folders, this wiki, Playwright tests and `CLAUDE.md`.
 - Added the course sample data (`data/`, `knowledge/`, `public/images/`) and `GET /api/destinations`.
 - Moved the local database out of OneDrive to `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`. Backups are saved in the project's `db/backups/`, synced by OneDrive, every time `npm run dev` starts and with `npm run db:backup`.
-- Specified the features built before this date, TRIP-001 to TRIP-006, in `specs/done/`, with Playwright tests per requirement and verification records. All tests pass locally and against the live site.
+- Specified the features built before this date, TRIP-001 to TRIP-006, in `specs/`, with Playwright tests per requirement and verification records. All tests pass locally and against the live site.
 - `npm run test:local` now runs a production build against its own fresh test database (`~/Ai Projekt/gurrasflyg-data/test.db`); leftover "E2E" test data is removed after every run.
 - User manual (Swedish): searching for flights, reviews, and the admin pages. System documentation: `GET /api/airports`.
 - Found while verifying: pressing Enter before new airport suggestions have loaded chooses from the previous list (TRIP-001); right after deleting an aircraft, its add-ons and classes briefly look in use (TRIP-004). Both are backlog candidates.

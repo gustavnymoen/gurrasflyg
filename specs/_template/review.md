@@ -17,7 +17,7 @@ How the review works: `wiki/system/code-review.md`. A later run is added at the 
 
 ## Should fix
 
-- `file:line` What and why. **Done:** fixed in this change, or added to the backlog as TECH-00n.
+- `file:line` What and why. **Done:** fixed in this change, or added to the board as TECH-00n.
 
 ## Suggestions
 
