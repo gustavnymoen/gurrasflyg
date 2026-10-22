@@ -3,7 +3,9 @@
 import { useState } from "react";
 import type { Addon, AddonInput } from "@/lib/admin";
 import { formatAmount } from "@/lib/format";
-import { Alert, fieldClass, compactPrimaryButtonClass, compactTextareaClass } from "../components/ui";
+import { buttonClass } from "../components/Button";
+import { fieldClass, textAreaClass } from "../components/Field";
+import Message from "../components/Message";
 import { createAddonAction, deleteAddonAction, updateAddonAction } from "./actions";
 import type { ActionResult } from "./actions";
 import {
@@ -22,7 +24,7 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
   return (
     <section>
       <h3 className={subheadingClass}>
-        Addons <span className="text-xs font-normal text-neutral-500">({addons.length})</span>
+        Addons <span className="text-xs font-normal text-ink-muted">({addons.length})</span>
       </h3>
       <table className="w-full text-sm">
         <thead>
@@ -48,10 +50,10 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
         </tbody>
       </table>
       {addons.length === 0 && !adding && (
-        <p className="py-1.5 text-sm text-neutral-500">Inga addons än.</p>
+        <p className="py-1.5 text-sm text-ink-muted">Inga addons än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} mt-3`}>
+        <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} mt-3`}>
           Lägg till
         </button>
       )}
@@ -76,9 +78,9 @@ function AddonRow({ addon }: { addon: Addon }) {
     <tr className={`${rowClass} align-top`}>
       <td className="py-1.5">
         <div>{addon.name}</div>
-        <div className="text-sm text-neutral-500">{addon.description}</div>
+        <div className="text-sm text-ink-muted">{addon.description}</div>
       </td>
-      <td className="whitespace-nowrap py-2 text-right text-neutral-300">{formatAmount(addon.price)}</td>
+      <td className="whitespace-nowrap py-2 text-right text-ink">{formatAmount(addon.price)}</td>
       <td className="py-1.5">
         <div className="flex justify-end gap-1">
           <EditButton label={`Ändra ${addon.name}`} onClick={() => setEditing(true)} />
@@ -150,10 +152,10 @@ function AddonForm({
             placeholder="Beskrivning"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className={compactTextareaClass}
+            className={textAreaClass("compact")}
           />
           <SaveCancel pending={pending} onCancel={onDone} />
-          {error && <Alert kind="error" compact>{error}</Alert>}
+          {error && <Message kind="error">{error}</Message>}
         </form>
       </td>
     </tr>

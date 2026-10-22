@@ -98,6 +98,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-007 | Better pipeline: preview tests before merge, CI once per change, shared workflow setup, one whole-number parser | Shared | Done |
 | TECH-008 | The backlog on a GitHub board: requirements in the cards, solution in the repo | Shared | Done |
 | TRIP-007 | The course's charter data imported into the database, prices in whole kronor | Charter | Done |
+| TRIP-008 | Visual design "Loungen", foundation: tokens, one font, shared components, axe check | Shared | Done |
 
 ## Decisions for charter
 
@@ -116,7 +117,7 @@ Settled with the product owner, to be written into the charter cards' requiremen
 - **Dates:** a traveller can book from today up to six months ahead (`MAX_MONTHS_AHEAD` in `lib/dates.ts`). A return is on the same day as the outbound or later, at most two months after it. Charter trips can also only be booked within their timetable's period.
 - **Errors:** an invalid value is shown in red, with a short red message under the field. Messages say what to do, not what went wrong in the code.
 - **Course data** in `data/`, `knowledge/` and `public/images/` is read-only, and photos are always shown with their credit (author and licence).
-- **Accessibility:** the site meets WCAG 2.2 level AA. Every field has a label, and everything can be done with the keyboard. A feature that changes what visitors see is checked with axe in its tests (`expectNoA11yViolations` in `tests/helpers.ts`) and with the manual checklist in `wiki/system/accessibility.md`, and the result is recorded in its `verification.md`. Both come with TRIP-008.
+- **Accessibility:** the site meets WCAG 2.2 level AA. Every field has a label, and everything can be done with the keyboard. A feature that changes what visitors see is checked with axe in its tests (`expectNoA11yViolations` in `tests/helpers.ts`) and with the manual checklist in `wiki/system/accessibility.md`, and the result is recorded in its `verification.md`. The axe helper comes with TRIP-008, the checklist with TRIP-021.
 - **Mobile:** every page works on a phone screen.
 - **Admin:** every admin page and action requires a valid sign-in. A sign-in lasts until the browser closes, at most 8 hours.
 - **Data integrity:** something that is in use cannot be deleted (for example a cabin class on an aircraft), and the administrator is told why.

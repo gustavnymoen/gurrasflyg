@@ -7,6 +7,7 @@
 
 import { useRef, useState } from "react";
 import type { Review } from "@/lib/reviews";
+import RoundButton from "./RoundButton";
 import Stars from "./Stars";
 
 // Utseende per position: 0 = mitten, 1 = närmast bredvid, 2 = längre bort
@@ -78,17 +79,17 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
               opacity: hidden ? 0 : look.opacity,
               zIndex: 10 - distance,
             }}
-            className={`absolute left-1/2 top-2 flex h-56 w-64 flex-col gap-1.5 rounded-xl border bg-[#1f1f23] p-4 transition-[transform,opacity,box-shadow] duration-500 ease-out motion-reduce:transition-none ${
+            className={`absolute left-1/2 top-2 flex h-56 w-64 flex-col gap-1.5 rounded-card border bg-surface p-4 transition-[transform,opacity,box-shadow] duration-500 ease-out motion-reduce:transition-none ${
               focused
-                ? "border-wine shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_45px_-10px_rgba(176,40,79,0.6)]"
-                : "cursor-pointer border-wine/30 blur-[1px] shadow-lg"
+                ? "border-accent-strong shadow-card"
+                : "cursor-pointer border-edge blur-[1px] shadow-float"
             } ${hidden ? "pointer-events-none" : ""}`}
           >
             <Stars rating={review.rating} />
             <h3 className="line-clamp-2 text-sm font-semibold leading-snug">{review.title}</h3>
             {/* line-clamp kortar av äldre, längre texter med "…" */}
-            <p className="line-clamp-5 flex-1 text-[13px] leading-snug text-neutral-400">{review.body}</p>
-            <p className="text-xs text-wine-light">– {review.author}</p>
+            <p className="line-clamp-5 flex-1 text-small leading-snug text-ink-muted">{review.body}</p>
+            <p className="text-xs text-brass">– {review.author}</p>
           </article>
         );
       })}
@@ -106,14 +107,17 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
 // Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 16rem brett, 14rem högt)
 function Arrow({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={direction === 1 ? "Nästa omdöme" : "Föregående omdöme"}
+    <div
       style={{ left: `calc(50% ${direction === 1 ? "+" : "-"} 8rem)` }}
-      className="absolute top-[calc(0.5rem+7rem)] z-20 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-wine bg-neutral-900 text-xl leading-none shadow-lg transition-colors hover:bg-wine"
+      className="absolute top-[calc(0.5rem+7rem)] z-20 -translate-x-1/2 -translate-y-1/2"
     >
-      {direction === 1 ? "›" : "‹"}
-    </button>
+      <RoundButton
+        label={direction === 1 ? "Nästa omdöme" : "Föregående omdöme"}
+        onClick={onClick}
+        className="bg-surface"
+      >
+        {direction === 1 ? "›" : "‹"}
+      </RoundButton>
+    </div>
   );
 }

@@ -6,14 +6,8 @@
 import { useState, useTransition } from "react";
 import type { ActionResult } from "./actions";
 import { ChevronIcon, PencilIcon, TrashIcon } from "../components/icons";
-import {
-  cardClass,
-  compactCardClass,
-  compactPrimaryButtonClass,
-  compactSecondaryButtonClass,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from "../components/ui";
+import { buttonClass } from "../components/Button";
+import { cardClass, compactCardClass } from "../components/Card";
 
 // ---- Kort som går att fälla ihop
 
@@ -33,12 +27,12 @@ export function CollapsibleCard({
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex w-full items-center gap-1.5 text-left text-base font-semibold text-wine-light"
+        className="flex w-full items-center gap-1.5 text-left text-base font-semibold"
       >
         <ChevronIcon open={open} />
         {title}
         {count !== undefined && (
-          <span className="text-xs font-normal text-neutral-500">({count})</span>
+          <span className="text-xs font-normal text-ink-muted">({count})</span>
         )}
       </button>
       {open && <div className="mt-3">{children}</div>}
@@ -61,7 +55,7 @@ export function Dialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ground/80 p-4"
       onClick={onClose}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
     >
@@ -75,7 +69,7 @@ export function Dialog({
         <h2 id="dialog-title" className="text-lg font-semibold">
           {title}
         </h2>
-        {detail && <p className="mt-2 text-sm text-neutral-400">{detail}</p>}
+        {detail && <p className="mt-2 text-sm text-ink-muted">{detail}</p>}
         <div className="mt-6 flex justify-center gap-3">{children}</div>
       </div>
     </div>
@@ -102,7 +96,7 @@ export function IconButton({
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-wine/25 hover:text-wine-light disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-accent/25 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
     >
       {children}
     </button>
@@ -160,13 +154,13 @@ export function DeleteButton({
       </IconButton>
       {dialog === "confirm" && (
         <Dialog title="Är du säker?" onClose={() => setDialog(null)}>
-          <button type="button" onClick={confirm} disabled={pending} className={primaryButtonClass}>
+          <button type="button" onClick={confirm} disabled={pending} className={buttonClass("primary")}>
             {pending ? "Tar bort…" : "Ja"}
           </button>
           <button
             type="button"
             onClick={() => setDialog(null)}
-            className={secondaryButtonClass}
+            className={buttonClass("secondary")}
             autoFocus
           >
             Nej
@@ -178,7 +172,7 @@ export function DeleteButton({
           <button
             type="button"
             onClick={() => setDialog(null)}
-            className={primaryButtonClass}
+            className={buttonClass("primary")}
             autoFocus
           >
             OK
@@ -194,10 +188,10 @@ export function DeleteButton({
 export function SaveCancel({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
   return (
     <div className="flex gap-2">
-      <button type="submit" disabled={pending} className={compactPrimaryButtonClass}>
+      <button type="submit" disabled={pending} className={buttonClass("primary", "compact")}>
         {pending ? "Sparar…" : "Spara"}
       </button>
-      <button type="button" onClick={onCancel} className={compactSecondaryButtonClass}>
+      <button type="button" onClick={onCancel} className={buttonClass("secondary", "compact")}>
         Avbryt
       </button>
     </div>
@@ -224,7 +218,7 @@ export function useAction() {
 
 // Tabellstilar
 export const thClass =
-  "pb-1.5 text-left text-[11px] font-medium uppercase tracking-wider text-neutral-500";
-export const rowClass = "border-t border-wine/15";
+  "pb-1.5 text-left text-[11px] font-medium uppercase tracking-wider text-ink-muted";
+export const rowClass = "border-t border-line";
 // Rubrik inne i en container, t.ex. "Klasser" och "Addons"
-export const subheadingClass = "mb-2 text-sm font-semibold text-neutral-200";
+export const subheadingClass = "mb-2 text-sm font-semibold text-ink";

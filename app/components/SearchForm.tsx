@@ -4,14 +4,14 @@ import { Suspense, use, useState } from "react";
 import { io } from "next/cache";
 import type { Airport } from "@/lib/db";
 import Autocomplete from "./Autocomplete";
-import { Card, inputClass, RoundButton } from "./ui";
+import Card from "./Card";
+import Checkbox from "./Checkbox";
+import Field, { fieldInputClass } from "./Field";
+import RoundButton from "./RoundButton";
 
 const MIN_PASSENGERS = 1;
 const MAX_PASSENGERS = 10;
 const SAME_AIRPORT_ERROR = "Ajja bajja, du måste flyga någonstans!";
-
-// Fel visas diskret: värdet i fältet blir rött och en liten röd text visas under
-const errorTextClass = "text-red-400";
 
 export default function SearchForm() {
   const [from, setFrom] = useState<Airport | null>(null);
@@ -30,10 +30,10 @@ export default function SearchForm() {
     <Card className="flex w-full max-w-5xl flex-col gap-4">
       {/* En rad på bredare skärmar, staplat på mobil */}
       <form className="flex flex-col gap-3 md:flex-row md:items-start">
-        <Field label="Från" htmlFor="from" error={fromError} className="md:flex-1">
+        <Field label="Från" htmlFor="from" error={fromError} className="md:flex-[1.25]">
           <AirportInput
             id="from"
-            placeholder="Från"
+            placeholder="Varifrån?"
             error={fromError}
             onSelect={(airport) => {
               setFrom(airport);
@@ -45,7 +45,7 @@ export default function SearchForm() {
         <Field label="Till" htmlFor="to" error={toError} className="md:flex-1">
           <AirportInput
             id="to"
-            placeholder="Till"
+            placeholder="Vart vill du?"
             error={toError}
             onSelect={(airport) => {
               setTo(airport);
@@ -54,23 +54,24 @@ export default function SearchForm() {
           />
         </Field>
 
-        <Field label="Datum" htmlFor="date" className="md:w-52">
-          {/* Datumgränserna beror på dagens datum, så de räknas ut i webbläsaren.
-              Under tiden visas ett inaktiverat fält. */}
-          <Suspense
-            fallback={<input id="date" type="date" disabled className={inputClass} />}
-          >
-            <DateInput value={date} onChange={setDate} />
-          </Suspense>
-        </Field>
+        {/* Datumgränserna beror på dagens datum, så de räknas ut i webbläsaren.
+            Under tiden visas ett inaktiverat fält. */}
+        <Suspense
+          fallback={
+            <Field label="Datum" htmlFor="date" className="md:w-48">
+              <input id="date" type="date" disabled className={`${fieldInputClass} text-transparent`} />
+            </Field>
+          }
+        >
+          <DateInput value={date} onChange={setDate} />
+        </Suspense>
 
-        <Field label="Antal resenärer">
-          <div className="flex h-14 items-center justify-between gap-4 rounded-lg border-2 border-wine bg-neutral-900 px-4">
-            <div className="flex items-center gap-2">
-              <PersonIcon />
-              <span className="w-5 text-lg tabular-nums">{passengers}</span>
-            </div>
-            <div className="flex gap-2">
+        {/* Etiketten syns i rutan; gruppens namn säger vad siffran är */}
+        <Field label="Resenärer" className="md:w-48">
+          <div role="group" aria-label="Antal resenärer">
+            <span className="tabular-nums">{passengers}</span>
+            {/* Knapparna mitt i rutans höjd, till höger om etikett och siffra */}
+            <div className="absolute inset-y-0 right-3 flex items-center gap-2">
               <RoundButton
                 label="Färre resenärer"
                 disabled={passengers <= MIN_PASSENGERS}
@@ -90,15 +91,7 @@ export default function SearchForm() {
         </Field>
       </form>
 
-      <label className="flex cursor-pointer items-center gap-2 self-start text-sm text-neutral-300">
-        <input
-          type="checkbox"
-          checked={returnTrip}
-          onChange={(e) => setReturnTrip(e.target.checked)}
-          className="h-4 w-4 cursor-pointer accent-wine"
-        />
-        Boka returresa
-      </label>
+      <Checkbox label="Boka returresa" checked={returnTrip} onChange={setReturnTrip} className="self-start" />
     </Card>
   );
 }
@@ -118,7 +111,7 @@ function AirportInput({
     <Autocomplete<Airport>
       id={id}
       placeholder={placeholder}
-      className={`${inputClass} ${error ? errorTextClass : ""}`}
+      className={`${fieldInputClass} ${error ? "text-danger" : ""}`}
       searchUrl="/api/airports"
       label={(a) => `${a.name} (${a.iata})`}
       detail={(a) => a.country}
@@ -158,10 +151,10 @@ function DateInput({
   // Datumfält har inget stöd för placeholder, så vi lägger en egen text
   // ovanpå när fältet är tomt och inte markerat.
   const showPlaceholder = !value && !focused;
-  const textColor = showPlaceholder ? "text-transparent" : error ? errorTextClass : "";
+  const textColor = showPlaceholder ? "text-transparent" : error ? "text-danger" : "";
 
   return (
-    <>
+    <Field label="Datum" htmlFor="date" error={error} className="md:w-48">
       <div className="relative">
         <input
           id="date"
@@ -175,64 +168,15 @@ function DateInput({
           onClick={(e) => e.currentTarget.showPicker?.()}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "date-error" : undefined}
-          className={`${inputClass} ${textColor}`}
+          className={`${fieldInputClass} ${textColor}`}
         />
         {showPlaceholder && (
-          <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-neutral-500">
-            Datum
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center text-ink-faint">
+            Välj datum
           </span>
         )}
       </div>
-      <FieldError id="date-error" message={error} />
-    </>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  error = null,
-  className = "",
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  error?: string | null;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={className}>
-      {/* Etiketten syns inte (placeholdern räcker), men skärmläsare läser upp den */}
-      <label htmlFor={htmlFor} className="sr-only">
-        {label}
-      </label>
-      {children}
-      {htmlFor && <FieldError id={`${htmlFor}-error`} message={error} />}
-    </div>
-  );
-}
-
-function FieldError({ id, message }: { id: string; message: string | null }) {
-  if (!message) return null;
-  return (
-    <p id={id} role="alert" className={`mt-1.5 text-xs ${errorTextClass}`}>
-      {message}
-    </p>
-  );
-}
-
-function PersonIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className="h-6 w-6 text-wine-light"
-    >
-      <circle cx="12" cy="7" r="4" />
-      <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z" />
-    </svg>
+    </Field>
   );
 }
 

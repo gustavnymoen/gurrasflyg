@@ -6,7 +6,8 @@ import { useRef, useState } from "react";
 const SEARCH_DELAY = 150;
 
 // Sökfält med förslagslista. Hämtar förslag från searchUrl?q=<text>,
-// som ska svara med en JSON-lista av objekt med id och name.
+// som ska svara med en JSON-lista av objekt med id och name. Listan läggs
+// under närmaste positionerade förälder, t.ex. rutan i en <Field>.
 export default function Autocomplete<T extends { id: number; name: string }>({
   id,
   placeholder,
@@ -97,7 +98,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   const listId = `${id}-list`;
 
   return (
-    <div className="relative">
+    <>
       <input
         id={id}
         type="text"
@@ -121,9 +122,9 @@ export default function Autocomplete<T extends { id: number; name: string }>({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-10 mt-1 w-full min-w-64 overflow-hidden rounded-lg border-2 border-wine bg-neutral-900 shadow-xl shadow-black/50"
+          className="absolute top-full left-0 z-10 mt-1.5 w-full min-w-64 rounded-card-compact border border-line bg-surface-float p-1.5 text-base shadow-float"
         >
-          {suggestions.length === 0 && <li className="px-4 py-3 text-neutral-500">{emptyText}</li>}
+          {suggestions.length === 0 && <li className="px-3 py-2.5 text-ink-muted">{emptyText}</li>}
           {suggestions.map((item, i) => (
             <li
               key={item.id}
@@ -137,20 +138,24 @@ export default function Autocomplete<T extends { id: number; name: string }>({
                 choose(item);
               }}
               onMouseEnter={() => setHighlighted(i)}
-              className={`flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 ${
-                i === highlighted ? "bg-wine/40" : ""
+              className={`flex cursor-pointer items-center justify-between gap-3 rounded-option px-3 py-2.5 ${
+                i === highlighted ? "bg-accent/30" : ""
               }`}
             >
               <span>
                 <Highlight text={item.name} query={text.trim()} />
-                {detail && <span className="block text-xs text-neutral-500">{detail(item)}</span>}
+                {detail && <span className="block text-small text-ink-muted">{detail(item)}</span>}
               </span>
-              {badge && <span className="font-mono text-sm text-neutral-400">{badge(item)}</span>}
+              {badge && (
+                <span className="rounded-md border border-line px-1.5 py-0.5 text-xs font-semibold text-ink-muted">
+                  {badge(item)}
+                </span>
+              )}
             </li>
           ))}
         </ul>
       )}
-    </div>
+    </>
   );
 }
 
@@ -162,7 +167,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, start)}
-      <strong className="text-wine-light">{text.slice(start, end)}</strong>
+      <strong className="font-bold text-ink">{text.slice(start, end)}</strong>
       {text.slice(end)}
     </>
   );

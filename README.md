@@ -12,7 +12,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 ## How it is built
 
 - **Next.js 16** (App Router, TypeScript, Tailwind CSS) on **Node.js**. Pages and backend API routes are in the same project. This Next.js version differs from older ones; see `AGENTS.md`.
-- **Database:** SQLite through `@libsql/client`. Locally a file, `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, kept outside OneDrive because OneDrive breaks SQLite files while they are in use. Backups are saved in the project's `db/backups/`, which OneDrive does sync (see [Local database and backups](#local-database-and-backups)). In production **Turso**, a hosted SQLite.
+- **Database:** SQLite through `@libsql/client`. Locally a file, `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, kept outside the project folder so it survives a fresh clone. Backups are saved in the project's `db/backups/` (see [Local database and backups](#local-database-and-backups)). In production **Turso**, a hosted SQLite.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
 - **Pipeline:** GitHub Actions checks every pull request, tests its preview deployment before merge, and tests the live site after every deploy. See [Pipeline](#pipeline).
 - **Tests:** Playwright, one file per feature. `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
@@ -85,9 +85,9 @@ branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint �
 
 ## Local database and backups
 
-- The database is `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside OneDrive.
+- The database is `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, outside the project folder.
 - A backup is saved in `db/backups/` every time `npm run dev` starts, before migrations and before `npm run db:reset`. `npm run db:backup` saves one whenever you want. The 20 newest are kept.
-- `db/backups/` is in the project folder, so OneDrive syncs it to the cloud, but it is not in Git.
+- `db/backups/` is in the project folder but not in Git. Nothing is copied to a cloud: the code is backed up by Git, and the local database can be rebuilt (production data is in Turso).
 - **To restore:** stop the dev server, copy a backup to `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db` (replacing the file, and delete any `gurrasflyg.db-wal` and `gurrasflyg.db-shm` next to it), and start `npm run dev`.
 - On a new computer, `npm run dev` creates an empty database with sample data. Restore a backup to get your own data back.
 

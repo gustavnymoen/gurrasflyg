@@ -4,7 +4,9 @@ import { useState } from "react";
 import { MAX_REVIEW_LENGTH } from "@/lib/review-rules";
 import type { Review } from "@/lib/reviews";
 import Stars from "../components/Stars";
-import { Alert, compactPrimaryButtonClass, compactInputClass, compactTextareaClass } from "../components/ui";
+import { buttonClass } from "../components/Button";
+import { fieldClass, textAreaClass } from "../components/Field";
+import Message from "../components/Message";
 import { createReviewAction, deleteReviewAction } from "./actions";
 import { CollapsibleCard, DeleteButton, rowClass, subheadingClass, thClass, useAction } from "./admin-ui";
 
@@ -16,7 +18,7 @@ export default function ReviewSection({ reviews }: { reviews: Review[] }) {
         <div>
           <h3 className={subheadingClass}>Alla omdömen</h3>
           {reviews.length === 0 ? (
-            <p className="text-sm text-neutral-500">Inga omdömen än.</p>
+            <p className="text-sm text-ink-muted">Inga omdömen än.</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -96,7 +98,7 @@ function ReviewForm() {
         placeholder="Namn på personen"
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
-        className={compactInputClass}
+        className={fieldClass("compact")}
       />
       <StarPicker value={rating} onChange={setRating} />
       <input
@@ -104,7 +106,7 @@ function ReviewForm() {
         placeholder="Rubrik"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className={compactInputClass}
+        className={fieldClass("compact")}
       />
       <div>
         <textarea
@@ -113,15 +115,15 @@ function ReviewForm() {
           maxLength={MAX_REVIEW_LENGTH}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className={compactTextareaClass}
+          className={textAreaClass("compact")}
         />
-        <p className="text-right text-xs text-neutral-500">
+        <p className="text-right text-xs text-ink-muted">
           {body.length}/{MAX_REVIEW_LENGTH}
         </p>
       </div>
-      {error && <Alert kind="error" compact>{error}</Alert>}
-      {saved && !error && <Alert kind="success" compact>Omdömet sparades.</Alert>}
-      <button type="submit" disabled={pending} className={`${compactPrimaryButtonClass} self-start`}>
+      {error && <Message kind="error">{error}</Message>}
+      {saved && !error && <Message kind="success">Omdömet sparades.</Message>}
+      <button type="submit" disabled={pending} className={`${buttonClass("primary", "compact")} self-start`}>
         {pending ? "Sparar…" : "Spara omdöme"}
       </button>
     </form>
@@ -144,7 +146,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (rating: num
           onClick={() => onChange(n)}
           onMouseEnter={() => setHover(n)}
           className={`text-xl leading-none transition-colors ${
-            n <= shown ? "text-wine-light" : "text-neutral-700 hover:text-neutral-500"
+            n <= shown ? "text-brass" : "text-line-strong hover:text-ink-muted"
           }`}
         >
           ★

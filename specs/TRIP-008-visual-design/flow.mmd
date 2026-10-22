@@ -1,15 +1,16 @@
-%% TRIP-008 Visual design
+%% TRIP-008 Visual design: foundation
 flowchart TD
-    Tokens["Tokens in app/globals.css<br/>colours, font, radii, shadows, motion<br/>R1, R3, R4"] --> Theme["Tailwind @theme"]
-    Theme --> Comps["Shared components<br/>Button, RoundButton, fields, Checkbox,<br/>Card, Message, Wordmark, Stars<br/>R2, R5, R9, R10, R12"]
-    Comps --> Start["Start page<br/>header + wordmark R6, heading R7,<br/>photo + credit R8, search form, carousel R11"]
+    Tokens["Tokens in @theme static, app/globals.css<br/>colours, font, radii, shadows, text sizes, motion<br/>Tailwind's palette removed<br/>R1, R3, R4"] --> Comps["Shared components in app/components/<br/>Button, RoundButton, Field, Checkbox,<br/>Card, Message, Stars<br/>R2, R5–R9"]
+    Tokens --> AdminColours["Admin colours as tokens"]
+    Comps --> Search["Search form on /"]
     Comps --> Login["/admin/login"]
-    Comps --> Admin["/admin, compact sizes"]
-    Start --> Check{"Same behaviour?<br/>existing tests pass R16"}
+    Comps --> Admin["/admin: Message and the class helpers<br/>fieldClass, textAreaClass, buttonClass, cardClass<br/>components follow in TRIP-019"]
+    AdminColours --> Admin
+    Search --> Check{"Same behaviour?<br/>existing tests pass R10"}
     Login --> Check
     Admin --> Check
     Check -- no --> Fix[Fix the component, not the page]
     Fix --> Comps
-    Check -- yes --> A11y{"WCAG 2.2 AA?<br/>axe + manual checklist R18"}
+    Check -- yes --> A11y{"axe: no WCAG A/AA violations? R12"}
     A11y -- no --> Fix
-    A11y -- yes --> Doc["DESIGN.md<br/>R17"]
+    A11y -- yes --> Doc["DESIGN.md<br/>R11"]

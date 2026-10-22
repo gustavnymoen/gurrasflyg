@@ -21,10 +21,10 @@ test.beforeEach(async ({ page }) => {
 test("TRIP-001-R1 start page shows the search form", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Gurras Flyg" })).toBeVisible();
   await expect(page.getByText("Ditt livs flygresa")).toBeVisible();
-  await expect(page.getByPlaceholder("Från")).toBeVisible();
-  await expect(page.getByPlaceholder("Till")).toBeVisible();
+  await expect(page.getByPlaceholder("Varifrån?")).toBeVisible();
+  await expect(page.getByPlaceholder("Vart vill du?")).toBeVisible();
   await expect(page.getByLabel("Datum")).toBeVisible();
-  await expect(page.locator("#date + span")).toHaveText("Datum"); // the date field's placeholder
+  await expect(page.locator("#date + span")).toHaveText("Välj datum"); // the date field's placeholder
   await expect(page.getByRole("button", { name: "Fler resenärer" })).toBeVisible();
   await expect(page.getByRole("checkbox", { name: "Boka returresa" })).toBeVisible();
 });
