@@ -104,3 +104,4 @@ Acceptance criteria:
 - The search form has no "Sök flyg" button yet; R6's layout for it comes with TRIP-010.
 - The photo is darker than on the design board: the shade had to be stronger, and even over the whole width below 1024 px, for the text under the heading to reach 4.5:1 against the lightest pixel behind it.
 - While checking the contrast, the dev server stopped picking up changes to `app/globals.css` after a `npm run build` and a restart with `.next/dev` deleted; a second restart fixed it.
+- The first run of "Preview tests" failed on `TRIP-020-R6 Från and Till are full width, Datum and Resenärer side by side`: on the preview the date field is streamed in, and for a moment both the placeholder field and the real one have the label "Datum". The test now waits for the real date field and uses only visible labels. A wrong test, not a bug in the site.

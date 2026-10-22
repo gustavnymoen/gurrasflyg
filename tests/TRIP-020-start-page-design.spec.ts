@@ -182,7 +182,11 @@ test.describe("on a phone", () => {
 
   test("TRIP-020-R6 Från and Till are full width, Datum and Resenärer side by side", async ({ page }) => {
     await page.goto("/");
-    const box = async (label: string) => (await page.getByText(label, { exact: true }).locator("xpath=..").boundingBox())!;
+    // The date field is streamed in after the page (Suspense); until then a
+    // disabled placeholder field with the same label is shown
+    await expect(page.locator("#date:enabled")).toBeVisible();
+    const box = async (label: string) =>
+      (await page.getByText(label, { exact: true }).filter({ visible: true }).locator("xpath=..").boundingBox())!;
     const [from, to, date, travellers] = [await box("Från"), await box("Till"), await box("Datum"), await box("Resenärer")];
     expect(to.width).toBeCloseTo(from.width, 0);
     expect(to.y).toBeGreaterThan(from.y);
