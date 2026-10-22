@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { createClient, type InArgs } from "@libsql/client";
 import { expect, test, type Page } from "@playwright/test";
 import { testDbFile } from "../lib/local-db.mjs";
@@ -120,4 +121,24 @@ export async function fillAircraftForm(
     await page.getByLabel("Klass", { exact: true }).selectOption({ label: a.className });
     await page.getByRole("button", { name: "Lägg till addon" }).click();
   }
+}
+
+// Runs axe on the page as it looks right now and requires that it breaks no
+// WCAG 2.x level A or AA rule (TRIP-008-R12). axe finds only some of the
+// problems; the rest is checked by hand (TRIP-021).
+export async function expectNoA11yViolations(page: Page) {
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    // The review carousel's side cards are faded on purpose (TRIP-006-R1) and
+    // hidden from screen readers; the same review is shown at full contrast
+    // when it is in focus. They count as decoration (WCAG 1.4.3 exception).
+    .exclude('article[aria-hidden="true"]')
+    .analyze();
+  // Rule, description and elements, so that a failure can be understood from the report
+  const violations = results.violations.map((v) => ({
+    rule: v.id,
+    help: v.help,
+    elements: v.nodes.map((n) => n.target.join(" ")),
+  }));
+  expect(violations).toEqual([]);
 }

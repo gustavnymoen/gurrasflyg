@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { Card, primaryButtonClass, smallInputClass } from "../../components/ui";
+import Button from "../../components/Button";
+import Card from "../../components/Card";
+import Field, { fieldInputClass } from "../../components/Field";
 import { loginAction } from "./actions";
 
 export default function LoginForm() {
@@ -10,34 +12,23 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <form action={action} className="flex flex-col gap-4">
-        <h1 className="bg-linear-to-br from-wine-light via-wine to-[#5c1029] bg-clip-text text-3xl font-extrabold tracking-tight text-transparent">
-          Admin
-        </h1>
-        <div>
-          <label htmlFor="password" className="sr-only">
-            Lösenord
-          </label>
+        <h1 className="text-section font-bold">Admin</h1>
+        <Field label="Lösenord" htmlFor="password" error={state.error}>
           <input
             id="password"
             name="password"
             type="password"
-            placeholder="Lösenord"
             autoComplete="current-password"
             autoFocus
             required
             aria-invalid={state.error ? true : undefined}
             aria-describedby={state.error ? "password-error" : undefined}
-            className={smallInputClass}
+            className={fieldInputClass}
           />
-          {state.error && (
-            <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-400">
-              {state.error}
-            </p>
-          )}
-        </div>
-        <button type="submit" disabled={pending} className={primaryButtonClass}>
+        </Field>
+        <Button type="submit" disabled={pending}>
           {pending ? "Loggar in…" : "Logga in"}
-        </button>
+        </Button>
       </form>
     </Card>
   );

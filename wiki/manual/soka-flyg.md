@@ -5,7 +5,7 @@ description: Så fyller du i sökformuläret på startsidan – flygplatser, dat
 resource: app/components/SearchForm.tsx
 feature: TRIP-001
 tags: [resenär, sök, flygplats, datum, startsida]
-timestamp: 2026-10-20
+timestamp: 2026-10-22
 ---
 
 # Söka flyg
@@ -13,6 +13,8 @@ timestamp: 2026-10-20
 Sökformuläret finns överst på startsidan. Där anger du var du vill resa från och till, vilket datum, hur många ni är och om du vill ha en returresa.
 
 > Själva sökningen och listan med flyg är inte byggda än. Formuläret kontrollerar redan det du fyller i.
+
+Varje fält har sitt namn i liten text överst i rutan: **Från**, **Till**, **Datum** och **Resenärer**. Är fältet tomt står en ledtråd i det, till exempel "Varifrån?" eller "Välj datum". Fältet du skriver i får en vinröd kant.
 
 ## Välj flygplatser
 
@@ -39,7 +41,7 @@ Kryssa i **Boka returresa** om du vill resa tillbaka.
 
 ## Felmeddelanden
 
-Är något fel blir värdet rött och en kort förklaring visas under fältet.
+Är något fel får fältet en röd kant, värdet blir rött och en kort förklaring visas i röd text under fältet.
 
 | Meddelande | Vad det betyder | Gör så här |
 |---|---|---|

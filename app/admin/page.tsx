@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getRouteStats, listAddons, listAircraft, listClasses } from "@/lib/admin";
 import { requireAdminPage } from "@/lib/auth";
 import { listReviews } from "@/lib/reviews";
-import { compactSecondaryButtonClass } from "../components/ui";
+import { buttonClass } from "../components/Button";
 import AddonTable from "./AddonTable";
 import AircraftTable from "./AircraftTable";
 import AssignAircraftButton from "./AssignAircraftButton";
@@ -21,10 +21,10 @@ export default function AdminPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-8">
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="bg-linear-to-br from-wine-light via-wine to-[#5c1029] bg-clip-text text-2xl font-extrabold tracking-tight text-transparent">
+          <h1 className="text-section font-bold">
             Admin
           </h1>
-          <p className="text-xs uppercase tracking-[0.35em] text-neutral-500">
+          <p className="text-xs uppercase tracking-[0.35em] text-ink-muted">
             Plan, klasser, addons och omdömen
           </p>
         </div>
@@ -33,14 +33,14 @@ export default function AdminPage() {
             <AssignAircraft />
           </Suspense>
           <form action={logoutAction}>
-            <button type="submit" className={compactSecondaryButtonClass}>
+            <button type="submit" className={buttonClass("secondary", "compact")}>
               Logga ut
             </button>
           </form>
         </div>
       </header>
       {/* Datan läses från databasen när sidan efterfrågas, så den visas via Suspense */}
-      <Suspense fallback={<p className="text-neutral-500">Laddar…</p>}>
+      <Suspense fallback={<p className="text-ink-muted">Laddar…</p>}>
         <AdminContent />
       </Suspense>
     </main>
@@ -70,7 +70,7 @@ async function AdminContent() {
           <div className="lg:col-span-2">
             <ClassTable classes={classes} />
           </div>
-          <div className="border-wine/20 lg:col-span-3 lg:border-l lg:pl-6">
+          <div className="border-line lg:col-span-3 lg:border-l lg:pl-6">
             <AddonTable addons={addons} />
           </div>
         </div>

@@ -2,10 +2,14 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-21
+timestamp: 2026-10-22
 ---
 
 # Log
+
+## 2026-10-22
+
+- TRIP-008: the foundation of the design "Loungen". Every colour, the font (Bricolage Grotesque instead of Geist), radii, shadows and motion are tokens in `app/globals.css`, and Tailwind's own palette is removed. Shared components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Card`, `Message`) replace `ui.tsx`; fields show their label inside the box, with the placeholders "Varifrån?", "Vart vill du?" and "Välj datum"; messages are coloured text without a box. The admin page uses the tokens, its components follow in TRIP-019. Tests can check a page with axe (`expectNoA11yViolations`). Three of the design board's colours were made lighter to meet WCAG AA contrast. Described in `DESIGN.md`. The project moved out of OneDrive to `~/Documents/AI Projekt/gurrasflyg`, so the docs no longer say that OneDrive syncs `db/backups/`; nothing is copied to a cloud. The redesign was split into TRIP-008, TRIP-019 (admin), TRIP-020 (start page) and TRIP-021 (WCAG).
 
 ## 2026-10-21
 

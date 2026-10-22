@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import type { Addon, Aircraft, CabinClass } from "@/lib/admin";
 import { formatPrice } from "@/lib/format";
 import { ChevronIcon } from "../components/icons";
-import { compactPrimaryButtonClass } from "../components/ui";
+import { buttonClass } from "../components/Button";
 import { createAircraftAction, deleteAircraftAction, updateAircraftAction } from "./actions";
 import AircraftForm from "./AircraftForm";
 import { CollapsibleCard, DeleteButton, EditButton, rowClass, thClass } from "./admin-ui";
@@ -32,7 +32,7 @@ export default function AircraftTable({
             onDone={() => setAdding(false)}
           />
         ) : (
-          <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} self-start`}>
+          <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} self-start`}>
             Lägg till plan
           </button>
         )}
@@ -56,7 +56,7 @@ export default function AircraftTable({
             ))}
           </tbody>
         </table>
-        {aircraft.length === 0 && <p className="text-sm text-neutral-500">Inga plan än.</p>}
+        {aircraft.length === 0 && <p className="text-sm text-ink-muted">Inga plan än.</p>}
       </div>
     </CollapsibleCard>
   );
@@ -99,9 +99,9 @@ function AircraftRow({
           <ExpandButton open={open} label={aircraft.name} onClick={() => setOpen(!open)} />
         </td>
         <td className="py-1.5 font-medium">{aircraft.name}</td>
-        <td className="py-1.5 text-right text-neutral-300">{aircraft.classes.length}</td>
-        <td className="py-1.5 text-right text-neutral-300">{seats}</td>
-        <td className="py-1.5 text-right text-neutral-300">{aircraft.routeCount}</td>
+        <td className="py-1.5 text-right text-ink">{aircraft.classes.length}</td>
+        <td className="py-1.5 text-right text-ink">{seats}</td>
+        <td className="py-1.5 text-right text-ink">{aircraft.routeCount}</td>
         <td className="py-1.5">
           <div className="flex justify-end gap-1">
             <EditButton label={`Ändra ${aircraft.name}`} onClick={() => setEditing(true)} />
@@ -125,7 +125,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
   const [open, setOpen] = useState(false);
   return (
     <Fragment>
-      <tr className="bg-neutral-900/50 text-xs">
+      <tr className="bg-surface-sunk text-xs">
         <td />
         <td className="py-1.5">
           <div className="flex items-center gap-2 pl-2">
@@ -133,23 +133,23 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
             {cabinClass.className}
           </div>
         </td>
-        <td className="py-1.5 text-right text-neutral-500">
+        <td className="py-1.5 text-right text-ink-muted">
           {cabinClass.addons.length} {cabinClass.addons.length === 1 ? "addon" : "addons"}
         </td>
-        <td className="py-1.5 text-right text-neutral-400">{cabinClass.capacity}</td>
+        <td className="py-1.5 text-right text-ink-muted">{cabinClass.capacity}</td>
         <td colSpan={2} />
       </tr>
       {open && (
-        <tr className="bg-neutral-900/50 text-xs">
+        <tr className="bg-surface-sunk text-xs">
           <td />
           <td colSpan={5} className="pb-3 pl-12">
             {cabinClass.addons.length === 0 ? (
-              <span className="text-neutral-500">Inga addons i den här klassen.</span>
+              <span className="text-ink-muted">Inga addons i den här klassen.</span>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {cabinClass.addons.map((a) => (
-                  <span key={a.id} className="rounded-full border border-wine/60 px-2.5 py-0.5 text-xs">
-                    {a.name} <span className="text-neutral-400">· {formatPrice(a.price)}</span>
+                  <span key={a.id} className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs">
+                    {a.name} <span className="text-ink-muted">· {formatPrice(a.price)}</span>
                   </span>
                 ))}
               </div>
@@ -168,7 +168,7 @@ function ExpandButton({ open, label, onClick }: { open: boolean; label: string; 
       onClick={onClick}
       aria-expanded={open}
       aria-label={open ? `Fäll ihop ${label}` : `Visa ${label}`}
-      className="flex h-6 w-6 items-center justify-center rounded-md text-neutral-400 hover:bg-wine/25 hover:text-wine-light"
+      className="flex h-6 w-6 items-center justify-center rounded-md text-ink-muted hover:bg-accent/25 hover:text-ink"
     >
       <ChevronIcon open={open} />
     </button>

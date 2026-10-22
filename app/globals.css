@@ -1,28 +1,102 @@
 @import "tailwindcss";
 
-:root {
-  --background: #161618; /* mörkgrå */
-  --foreground: #ededed;
-  --wine: #8b1e3f; /* vinröd */
-  --wine-light: #b0284f;
+/* Designen "Loungen": allt utseende bestäms av tokens här (DESIGN.md).
+   Komponenterna använder bara dessa, t.ex. bg-surface, text-ink-muted,
+   rounded-card och shadow-card. "static" gör att alla variabler finns i
+   CSS:en även om ingen klass använder dem, så att de kan användas i var(). */
+@theme static {
+  /* Tar bort Tailwinds egna färger och typsnitt (neutral-*, red-*, font-sans …),
+     så att bara tokens nedan går att använda */
+  --color-*: initial;
+  --font-*: initial;
+
+  --color-ground: #121113; /* sidans bakgrund */
+  --color-surface: #1c1a1d; /* kort */
+  --color-surface-sunk: #151316; /* fält inuti kort */
+  --color-surface-float: #242126; /* det som svävar: förslagslistor, dialoger */
+  --color-ink: #ece6dc; /* text */
+  --color-ink-muted: #a9a196; /* sekundär text, fältetiketter */
+  --color-ink-faint: #958d83; /* platshållare */
+  --color-line: rgb(236 230 220 / 0.14); /* avdelare */
+  --color-line-strong: rgb(236 230 220 / 0.4); /* kanter på fält och kryssrutor (3:1) */
+  --color-edge: rgb(201 164 106 / 0.22); /* kortens mässingstonade kant */
+
+  /* Vinrött är bara för det besökaren gör: knappar, fokus och valt läge */
+  --color-accent: #8b1e3f;
+  --color-accent-strong: #c83560; /* hover, fokusring, fokuserat fält */
+  --color-accent-glow: rgb(176 40 79 / 0.4);
+  --color-on-accent: #fff;
+
+  /* Mässing är för detaljer: stjärnor, ordmärket, namnet på ett omdöme */
+  --color-brass: #c9a46a;
+  --color-danger: #f07a7a;
+  --color-success: #7fc9a0;
+
+  /* Samma typsnitt för rubriker och brödtext; --font-bricolage kommer från layout.tsx */
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-bricolage), system-ui, sans-serif;
+
+  /* Textstorlekar utöver Tailwinds (text-base = 16 px): sidrubrik på bred
+     skärm och mobil, avsnittsrubrik och liten text */
+  --text-title: 4.75rem;
+  --text-title--line-height: 0.98;
+  --text-title--letter-spacing: -0.035em;
+  --text-title-phone: 2.625rem;
+  --text-title-phone--line-height: 1;
+  --text-title-phone--letter-spacing: -0.035em;
+  --text-section: 1.625rem;
+  --text-section--line-height: 1.2;
+  --text-section--letter-spacing: -0.015em;
+  --text-small: 0.8125rem;
+
+  --radius-field: 12px;
+  --radius-card: 18px;
+  --radius-card-compact: 14px; /* kompakta kort och förslagslistor */
+  --radius-option: 10px; /* en rad i en förslagslista */
+  --radius-pill: 999px;
+
+  --shadow-card: 0 30px 60px -24px rgb(0 0 0 / 0.95), 0 0 44px -20px var(--color-accent-glow);
+  --shadow-float: 0 18px 40px -12px rgb(0 0 0 / 0.9);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-wine: var(--wine);
-  --color-wine-light: var(--wine-light);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Grundstilar i base-lagret, så att Tailwinds klasser (t.ex. outline-none
+   på ett fält) går före dem */
+@layer base {
+  /* Säger åt webbläsaren att sidan är mörk, så att t.ex. kalenderikonen,
+     rullistor och scrollbars får mörka färger */
+  :root {
+    color-scheme: dark;
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-}
+  body {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
 
-/* Säger åt webbläsaren att sidan är mörk, så att t.ex. kalenderikonen,
-   rullistor och scrollbars får mörka färger */
-:root {
-  color-scheme: dark;
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  /* Syns bara vid tangentbord, inte vid klick */
+  :focus-visible {
+    outline: 2px solid var(--color-accent-strong);
+    outline-offset: 3px;
+  }
+
+  /* Siffror i tabeller får lika bredd, så att kolumnerna linjerar */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
 }

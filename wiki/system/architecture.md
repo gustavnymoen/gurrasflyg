@@ -25,7 +25,8 @@ flowchart LR
 | Folder | Content |
 |---|---|
 | `app/page.tsx` | Start page: heading, search form and review carousel. |
-| `app/components/` | Shared interface parts: `SearchForm`, `Autocomplete`, `ReviewCarousel`, `Stars`, icons and `ui.tsx` (field, button and card styles). |
+| `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
+| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Card`, `Message`, `Stars`, see [`DESIGN.md`](../../DESIGN.md)), `SearchForm`, `Autocomplete`, `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, and `actions.ts` with the server actions that change data. `login/` is the sign-in page. |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
@@ -50,7 +51,7 @@ SQLite, reached through `@libsql/client`, so the same SQL works locally and in p
 
 | Environment | Database |
 |---|---|
-| Local | The file `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db` (`lib/local-db.mjs`). It is kept outside OneDrive, which breaks SQLite files while they are in use. Backups go to the project's `db/backups/`, which OneDrive syncs. |
+| Local | The file `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db` (`lib/local-db.mjs`). It is kept outside the project folder, so it survives a fresh clone. Backups go to the project's `db/backups/`, local only and not in Git. |
 | Production | A Turso database of its own, set by `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` added by hand in Vercel's environment variables for Production. |
 | Preview | The Turso database under Vercel → Storage, connected to Preview only; the integration sets `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` for Preview. It must not be connected to Production too: the integration and the hand-made variables would then compete for the same names. Whether the integration gives each preview deployment a database of its own has not been checked. |
 
@@ -68,7 +69,7 @@ Rules in the database: foreign keys are on, prices are whole kronor, names of ai
 
 ### Schema changes
 
-A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after that are numbered migrations in `db/migrations/`, recorded in the table `schema_migrations` so each runs once per database. `scripts/db-setup.mjs` runs them before `npm run dev` and `npm run build`, so a deploy updates Turso. A local backup is saved in `db/backups/` when `npm run dev` starts, before migrations run and before `npm run db:reset`; the 20 newest are kept. Backups are written to a temporary name and renamed when complete, so OneDrive never syncs a half-written file.
+A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after that are numbered migrations in `db/migrations/`, recorded in the table `schema_migrations` so each runs once per database. `scripts/db-setup.mjs` runs them before `npm run dev` and `npm run build`, so a deploy updates Turso. A local backup is saved in `db/backups/` when `npm run dev` starts, before migrations run and before `npm run db:reset`; the 20 newest are kept. Backups are written to a temporary name and renamed when complete, so a half-written file never has a backup's name.
 
 | Migration | Content |
 |---|---|

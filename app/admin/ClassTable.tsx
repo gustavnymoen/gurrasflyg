@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import type { CabinClass } from "@/lib/admin";
-import { Alert, compactPrimaryButtonClass, compactInputClass } from "../components/ui";
+import { buttonClass } from "../components/Button";
+import { fieldClass } from "../components/Field";
+import Message from "../components/Message";
 import { createClassAction, deleteClassAction, updateClassAction } from "./actions";
 import type { ActionResult } from "./actions";
 import {
@@ -21,7 +23,7 @@ export default function ClassTable({ classes }: { classes: CabinClass[] }) {
   return (
     <section>
       <h3 className={subheadingClass}>
-        Klasser <span className="text-xs font-normal text-neutral-500">({classes.length})</span>
+        Klasser <span className="text-xs font-normal text-ink-muted">({classes.length})</span>
       </h3>
       <table className="w-full text-sm">
         <thead>
@@ -46,10 +48,10 @@ export default function ClassTable({ classes }: { classes: CabinClass[] }) {
         </tbody>
       </table>
       {classes.length === 0 && !adding && (
-        <p className="py-1.5 text-sm text-neutral-500">Inga klasser än.</p>
+        <p className="py-1.5 text-sm text-ink-muted">Inga klasser än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${compactPrimaryButtonClass} mt-3`}>
+        <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} mt-3`}>
           Lägg till
         </button>
       )}
@@ -116,11 +118,11 @@ function ClassForm({
             placeholder="Namn, t.ex. Premium"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={compactInputClass}
+            className={fieldClass("compact")}
             autoFocus
           />
           <SaveCancel pending={pending} onCancel={onDone} />
-          {error && <Alert kind="error" compact>{error}</Alert>}
+          {error && <Message kind="error">{error}</Message>}
         </form>
       </td>
     </tr>

@@ -7,7 +7,9 @@ import { useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
 import { parseWholeNumber } from "@/lib/numbers";
 import { CheckIcon, XIcon } from "../components/icons";
-import { Alert, fieldClass, RoundButton, compactInputClass } from "../components/ui";
+import { fieldClass } from "../components/Field";
+import Message from "../components/Message";
+import RoundButton from "../components/RoundButton";
 import type { ActionResult } from "./actions";
 import { EditButton, IconButton, RemoveButton, SaveCancel, useAction } from "./admin-ui";
 
@@ -85,22 +87,22 @@ export default function AircraftForm({
           onDone,
         );
       }}
-      className="flex flex-col gap-4 rounded-lg border border-wine/40 bg-neutral-900/60 p-4 text-sm"
+      className="flex flex-col gap-4 rounded-lg border border-edge bg-surface-sunk p-4 text-sm"
     >
-      <h3 className="text-sm font-semibold text-wine-light">{title}</h3>
+      <h3 className="text-sm font-semibold">{title}</h3>
       <input
         aria-label="Planets namn"
         placeholder="Namn, t.ex. Airbus A320neo"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className={compactInputClass}
+        className={fieldClass("compact")}
         autoFocus
       />
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* ---- Klasser */}
         <section className="flex flex-col gap-2">
-          <h4 className="text-xs font-medium uppercase tracking-wider text-neutral-500">Klasser</h4>
+          <h4 className="text-xs font-medium uppercase tracking-wider text-ink-muted">Klasser</h4>
           {addingClass ? (
             <ClassAdder
               options={classes.filter((c) => !classRows.some((r) => r.classId === c.id))}
@@ -119,7 +121,7 @@ export default function AircraftForm({
           )}
           <ul>
             {classRows.length === 0 && (
-              <li className="py-1.5 text-sm text-neutral-500">Inga klasser tillagda.</li>
+              <li className="py-1.5 text-sm text-ink-muted">Inga klasser tillagda.</li>
             )}
             {sortedClassRows.map((row) => (
               <ClassListRow
@@ -139,7 +141,7 @@ export default function AircraftForm({
 
         {/* ---- Addons */}
         <section className="flex flex-col gap-2">
-          <h4 className="text-xs font-medium uppercase tracking-wider text-neutral-500">Addons</h4>
+          <h4 className="text-xs font-medium uppercase tracking-wider text-ink-muted">Addons</h4>
           {addingAddon ? (
             <AddonPicker
               mode="add"
@@ -161,7 +163,7 @@ export default function AircraftForm({
           )}
           <ul>
             {addonRows.length === 0 && (
-              <li className="py-1.5 text-sm text-neutral-500">Inga addons tillagda.</li>
+              <li className="py-1.5 text-sm text-ink-muted">Inga addons tillagda.</li>
             )}
             {sortedAddonRows.map((row) => (
               <AddonListRow
@@ -184,7 +186,7 @@ export default function AircraftForm({
         </section>
       </div>
 
-      {error && <Alert kind="error" compact>{error}</Alert>}
+      {error && <Message kind="error">{error}</Message>}
       <SaveCancel pending={pending} onCancel={onDone} />
     </form>
   );
@@ -287,7 +289,7 @@ function ClassListRow({
   }
 
   return (
-    <li className="flex h-9 items-center gap-2 border-t border-wine/15">
+    <li className="flex h-9 items-center gap-2 border-t border-line">
       <span className="flex-1">{name}</span>
       {editing ? (
         <>
@@ -304,7 +306,7 @@ function ClassListRow({
         </>
       ) : (
         <>
-          <span className="text-sm text-neutral-400">{capacity} platser</span>
+          <span className="text-sm text-ink-muted">{capacity} platser</span>
           <EditButton
             label={`Ändra platser i ${name}`}
             onClick={() => {
@@ -404,7 +406,7 @@ function AddonPicker({
           </>
         )}
       </div>
-      {error && <p className="text-sm text-wine-light">{error}</p>}
+      {error && <Message kind="error">{error}</Message>}
     </div>
   );
 }
@@ -432,7 +434,7 @@ function AddonListRow({
 
   if (editing) {
     return (
-      <li className="border-t border-wine/15 py-1.5">
+      <li className="border-t border-line py-1.5">
         <AddonPicker
           mode="edit"
           addons={addons}
@@ -450,9 +452,9 @@ function AddonListRow({
   }
 
   return (
-    <li className="flex h-9 items-center gap-2 border-t border-wine/15">
+    <li className="flex h-9 items-center gap-2 border-t border-line">
       <span className="flex-1">{addonName}</span>
-      <span className="text-sm text-neutral-400">{className}</span>
+      <span className="text-sm text-ink-muted">{className}</span>
       <EditButton label={`Ändra ${addonName}`} onClick={() => setEditing(true)} />
       <RemoveButton label={`Ta bort ${addonName} från planet`} onClick={onRemove} />
     </li>
@@ -476,7 +478,7 @@ function AddButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex items-center gap-1.5 self-start text-xs font-medium text-wine-light hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
+      className="flex items-center gap-1.5 self-start text-xs font-medium text-ink hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
     >
       <span className="text-base leading-none">+</span> {label}
     </button>

@@ -4,9 +4,8 @@
 //   node scripts/db-setup.mjs --backup  dessutom en säkerhetskopia (körs av npm run dev)
 //   node scripts/db-setup.mjs --reset   (bara lokalt) sparar en kopia, raderar och bygger om
 //
-// Utan miljövariabler används den lokala filen ~/Ai Projekt/gurrasflyg-data/gurrasflyg.db
-// (utanför OneDrive). Säkerhetskopiorna hamnar i db/backups/, som OneDrive
-// synkar. Se lib/local-db.mjs. Är
+// Utan miljövariabler används den lokala filen ~/Ai Projekt/gurrasflyg-data/gurrasflyg.db.
+// Säkerhetskopiorna hamnar i db/backups/. Se lib/local-db.mjs. Är
 // TURSO_DATABASE_URL och TURSO_AUTH_TOKEN satta används Turso i stället
 // (det sker på Vercel vid varje bygge, och med npm run db:turso).
 //
@@ -58,7 +57,7 @@ async function backup(db) {
   const stamp = new Date().toLocaleString("sv-SE").replace(" ", "T").replace(/:/g, "-");
   const backupFile = path.join(backupDir, `gurrasflyg-${stamp}.db`);
   // Skriv först till en tillfällig fil och byt namn när den är klar, så att
-  // OneDrive aldrig synkar en halvfärdig kopia under det riktiga namnet
+  // det aldrig finns en halvfärdig kopia under det riktiga namnet
   rmSync(`${backupFile}.tmp`, { force: true });
   await db.execute({ sql: "VACUUM INTO ?", args: [`${backupFile}.tmp`] });
   renameSync(`${backupFile}.tmp`, backupFile);

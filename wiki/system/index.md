@@ -2,7 +2,7 @@
 type: Index
 title: System documentation
 description: How Gurras Flyg is built: architecture, data, API endpoints and features.
-timestamp: 2026-10-21
+timestamp: 2026-10-22
 ---
 
 # System documentation
@@ -13,6 +13,7 @@ How the site works, for developers. Start with the architecture.
 
 - [Architecture](architecture.md): the parts of the site, the database, environments and deploys.
 - [Code review](code-review.md): how every feature is reviewed before it is done.
+- [Design](../../DESIGN.md): the design "Loungen": tokens, shared components, rules and how to change them.
 
 ## Data
 
@@ -37,5 +38,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-005 Routes, departures and aircraft assignment | Flight booking | `specs/TRIP-005-routes-and-aircraft-assignment/` |
 | TRIP-006 Reviews | Shared | `specs/TRIP-006-reviews/` |
 | TRIP-007 Import the course data | Charter | `specs/TRIP-007-import-course-data/` |
+| TRIP-008 Visual design: foundation | Shared | `specs/TRIP-008-visual-design/` |
 
 [Wiki](../index.md)

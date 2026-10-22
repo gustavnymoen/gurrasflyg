@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Ett typsnitt för hela sajten. Variabeln används av --font-display och
+// --font-body i globals.css. "opsz" gör att stora rubriker får tätare former.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -20,20 +18,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="sv"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans">
+    <html lang="sv" className={`${bricolage.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">
         {children}
-        <footer className="mt-auto border-t border-wine/30 px-4 py-6">
-          <div className="mx-auto flex max-w-5xl items-center justify-between text-sm text-neutral-500">
+        <footer className="mt-auto border-t border-line px-4 py-6">
+          <div className="mx-auto flex max-w-5xl items-center justify-between text-small text-ink-muted">
             <span>© Gurras Flyg</span>
             <nav className="flex gap-6">
-              <Link href="/" className="hover:text-wine-light">
+              <Link href="/" className="hover:text-ink">
                 Start
               </Link>
-              <Link href="/admin" className="hover:text-wine-light">
+              <Link href="/admin" className="hover:text-ink">
                 Admin
               </Link>
             </nav>
