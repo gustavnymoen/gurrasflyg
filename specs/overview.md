@@ -99,6 +99,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-008 | The backlog on a GitHub board: requirements in the cards, solution in the repo | Shared | Done |
 | TRIP-007 | The course's charter data imported into the database, prices in whole kronor | Charter | Done |
 | TRIP-008 | Visual design "Loungen", foundation: tokens, one font, shared components, axe check | Shared | Done |
+| TRIP-019 | Visual design "Loungen", admin page: shared components in compact size, floating dialogs | Administration | Done |
 
 ## Decisions for charter
 

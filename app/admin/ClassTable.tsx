@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { CabinClass } from "@/lib/admin";
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import { fieldClass } from "../components/Field";
 import Message from "../components/Message";
 import { createClassAction, deleteClassAction, updateClassAction } from "./actions";
@@ -51,9 +51,9 @@ export default function ClassTable({ classes }: { classes: CabinClass[] }) {
         <p className="py-1.5 text-sm text-ink-muted">Inga klasser än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} mt-3`}>
+        <Button size="compact" onClick={() => setAdding(true)} className="mt-3">
           Lägg till
-        </button>
+        </Button>
       )}
     </section>
   );

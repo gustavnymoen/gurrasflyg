@@ -1,0 +1,14 @@
+%% TRIP-019 Visual design: admin page
+flowchart TD
+    Comps["Shared components from TRIP-008<br/>Button, Card, floatClass, fieldClass,<br/>textAreaClass, Message"] --> AdminUi["app/admin/admin-ui.tsx<br/>CollapsibleCard = compact Card<br/>Dialog = floatClass<br/>IconButton, SaveCancel<br/>R1, R3, R5"]
+    Comps --> Tables["Tables and forms in app/admin/<br/>compact Button everywhere<br/>R1, R5"]
+    AdminUi --> Tables
+    Tables --> Search{"Raw colours or palette classes<br/>outside globals.css? R2"}
+    Search -- yes --> Fix[Use a token]
+    Fix --> Tables
+    Search -- no --> Check{"Admin tests TRIP-002 to TRIP-006<br/>pass unchanged? R6"}
+    Check -- no --> FixComp[Fix the component, not the test]
+    FixComp --> AdminUi
+    Check -- yes --> A11y{"axe: no WCAG A/AA violations?"}
+    A11y -- no --> FixComp
+    A11y -- yes --> Doc["DESIGN.md: admin pieces<br/>R7"]

@@ -6,6 +6,7 @@
 import { useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
 import { parseWholeNumber } from "@/lib/numbers";
+import Button from "../components/Button";
 import { CheckIcon, XIcon } from "../components/icons";
 import { fieldClass } from "../components/Field";
 import Message from "../components/Message";
@@ -87,7 +88,7 @@ export default function AircraftForm({
           onDone,
         );
       }}
-      className="flex flex-col gap-4 rounded-lg border border-edge bg-surface-sunk p-4 text-sm"
+      className="flex flex-col gap-4 rounded-card-compact border border-edge bg-surface-sunk p-4 text-sm"
     >
       <h3 className="text-sm font-semibold">{title}</h3>
       <input
@@ -358,7 +359,7 @@ function AddonPicker({
     onConfirm(Number(addonId), Number(classId));
   }
 
-    return (
+  return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <select
@@ -463,7 +464,7 @@ function AddonListRow({
 
 // ---------------------------------------------------------------- Gemensamt
 
-// Textknapp som visar fälten för en ny klass/addon
+// Diskret knapp som visar fälten för en ny klass/addon
 function AddButton({
   label,
   disabled,
@@ -474,14 +475,9 @@ function AddButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="flex items-center gap-1.5 self-start text-xs font-medium text-ink hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:no-underline"
-    >
+    <Button variant="quiet" size="compact" onClick={onClick} disabled={disabled} className="self-start">
       <span className="text-base leading-none">+</span> {label}
-    </button>
+    </Button>
   );
 }
 

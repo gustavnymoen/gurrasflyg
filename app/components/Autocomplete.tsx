@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { floatClass } from "./Card";
 
 // Hur länge vi väntar efter sista tangenttrycket innan vi söker (ms)
 const SEARCH_DELAY = 150;
@@ -122,7 +123,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
         <ul
           id={listId}
           role="listbox"
-          className="absolute top-full left-0 z-10 mt-1.5 w-full min-w-64 rounded-card-compact border border-line bg-surface-float p-1.5 text-base shadow-float"
+          className={`absolute top-full left-0 z-10 mt-1.5 w-full min-w-64 rounded-card-compact p-1.5 text-base ${floatClass}`}
         >
           {suggestions.length === 0 && <li className="px-3 py-2.5 text-ink-muted">{emptyText}</li>}
           {suggestions.map((item, i) => (

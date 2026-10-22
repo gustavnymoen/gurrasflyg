@@ -61,16 +61,30 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 
 | Component | File | Variants | Use |
 |---|---|---|---|
-| `Button`, `buttonClass()` | `Button.tsx` | `primary`, `secondary`, `quiet`; sizes `default`, `compact` (admin) | Every button. `buttonClass()` for elements that can't be `<Button>`. Shrinks slightly when pressed; faded and `not-allowed` when disabled. |
+| `Button` | `Button.tsx` | `primary`, `secondary`, `quiet`; sizes `default`, `compact` (admin) | Every button with text. Shrinks slightly when pressed; faded and `not-allowed` when disabled. |
 | `RoundButton` | `RoundButton.tsx` | default, `compact` | + and −, the carousel's arrows. Needs a `label` (read aloud and shown on hover). |
 | `Field` | `Field.tsx` | error state | A field with its label small inside the box, above the value, and the error message under it. The input inside uses `fieldInputClass`. |
 | `fieldClass()`, `textAreaClass()` | `Field.tsx` | sizes `large`, `small`, `compact`; error state | A field without a label inside, for example in admin tables. |
 | `Checkbox` | `Checkbox.tsx` | | A checkbox drawn in the design, still a real `<input>`. |
-| `Card`, `cardClass`, `compactCardClass` | `Card.tsx` | default, compact (`compactCardClass`) | Cards. |
+| `Card` | `Card.tsx` | sizes `default`, `compact` (admin) | Cards. |
+| `floatClass`, `floatingCardClass` | `Card.tsx` | | What floats above the page (floating surface and shadow): suggestion lists, and dialogs with a card's shape (`floatingCardClass`). |
 | `Message` | `Message.tsx` | `error`, `success` | Errors (`role="alert"`) and confirmations (`role="status"`) as coloured text, without a box. |
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |
 
-The admin page's own pieces (collapsible card, dialog, icon buttons, tables) are in `app/admin/admin-ui.tsx`; TRIP-019 moves them onto these components.
+### Admin pieces
+
+The admin page's own pieces are in `app/admin/admin-ui.tsx`, built on the components above in compact size.
+
+| Piece | Built on | Use |
+|---|---|---|
+| `CollapsibleCard` | `Card` (compact) | Each part of the admin page (Klasser & addons, Plan, Omdömen), with a heading that folds it in and out. |
+| `Dialog` | `floatingCardClass` | A question over the page ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. |
+| `IconButton` | tokens | A small button with only an icon: pencil, trash can, check, cross, the arrow that unfolds a row. Needs a `label` (read aloud and shown on hover). |
+| `EditButton`, `RemoveButton`, `DeleteButton` | `IconButton`, `Dialog` | Pencil; trash can without a question (rows in an unsaved form); trash can with "Är du säker?". |
+| `SaveCancel` | `Button` (compact) | Spara and Avbryt under a form. |
+| `thClass`, `rowClass`, `subheadingClass` | tokens | Table heads, table rows with a divider, and headings inside a card. |
+
+In forms, admin fields are `fieldClass("compact", …)` and `textAreaClass("compact")`.
 
 ## Rules
 

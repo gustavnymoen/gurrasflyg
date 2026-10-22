@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getRouteStats, listAddons, listAircraft, listClasses } from "@/lib/admin";
 import { requireAdminPage } from "@/lib/auth";
 import { listReviews } from "@/lib/reviews";
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import AddonTable from "./AddonTable";
 import AircraftTable from "./AircraftTable";
 import AssignAircraftButton from "./AssignAircraftButton";
@@ -21,9 +21,7 @@ export default function AdminPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-8">
       <header className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-section font-bold">
-            Admin
-          </h1>
+          <h1 className="text-section font-bold">Admin</h1>
           <p className="text-xs uppercase tracking-[0.35em] text-ink-muted">
             Plan, klasser, addons och omdömen
           </p>
@@ -33,9 +31,9 @@ export default function AdminPage() {
             <AssignAircraft />
           </Suspense>
           <form action={logoutAction}>
-            <button type="submit" className={buttonClass("secondary", "compact")}>
+            <Button type="submit" variant="secondary" size="compact">
               Logga ut
-            </button>
+            </Button>
           </form>
         </div>
       </header>

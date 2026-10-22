@@ -15,13 +15,8 @@ const variants = {
 // default: startsidan och inloggningen, compact: adminsidan
 const sizes = { default: "h-13 px-7 text-[17px]", compact: "h-8.5 px-3.5 text-sm" };
 
-export type ButtonVariant = keyof typeof variants;
-export type ButtonSize = keyof typeof sizes;
-
-// Klasserna för en knapp, för element som inte kan vara <Button>
-export function buttonClass(variant: ButtonVariant = "primary", size: ButtonSize = "default") {
-  return `${base} ${variants[variant]} ${sizes[size]}`;
-}
+type ButtonVariant = keyof typeof variants;
+type ButtonSize = keyof typeof sizes;
 
 export default function Button({
   variant = "primary",
@@ -30,5 +25,5 @@ export default function Button({
   type = "button",
   ...props
 }: React.ComponentProps<"button"> & { variant?: ButtonVariant; size?: ButtonSize }) {
-  return <button type={type} className={`${buttonClass(variant, size)} ${className}`} {...props} />;
+  return <button type={type} className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
 }

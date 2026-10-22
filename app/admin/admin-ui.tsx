@@ -2,12 +2,13 @@
 
 // Byggstenar för adminsidans tabeller: ihopfällbart kort, dialogruta,
 // penna/papperskorg-knappar och en hjälpare för att anropa server actions.
+// De bygger på de delade komponenterna i app/components/ (DESIGN.md).
 
 import { useState, useTransition } from "react";
 import type { ActionResult } from "./actions";
 import { ChevronIcon, PencilIcon, TrashIcon } from "../components/icons";
-import { buttonClass } from "../components/Button";
-import { cardClass, compactCardClass } from "../components/Card";
+import Button from "../components/Button";
+import Card, { floatingCardClass } from "../components/Card";
 
 // ---- Kort som går att fälla ihop
 
@@ -22,7 +23,7 @@ export function CollapsibleCard({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <section className={compactCardClass}>
+    <Card size="compact">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -36,11 +37,11 @@ export function CollapsibleCard({
         )}
       </button>
       {open && <div className="mt-3">{children}</div>}
-    </section>
+    </Card>
   );
 }
 
-// ---- Dialogruta ovanpå sidan
+// ---- Dialogruta som svävar ovanpå sidan
 
 export function Dialog({
   title,
@@ -64,7 +65,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby="dialog-title"
         onClick={(e) => e.stopPropagation()}
-        className={`${cardClass} w-full max-w-sm text-center`}
+        className={`${floatingCardClass} w-full max-w-sm text-center`}
       >
         <h2 id="dialog-title" className="text-lg font-semibold">
           {title}
@@ -76,23 +77,27 @@ export function Dialog({
   );
 }
 
-// ---- Penna och papperskorg
+// ---- Små knappar med en ikon: penna, papperskorg, bock, kryss och pil
 
 export function IconButton({
   label,
   onClick,
   disabled = false,
+  expanded,
   children,
 }: {
   label: string;
   onClick: () => void;
   disabled?: boolean;
+  // Bara för knappar som fäller ut något
+  expanded?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       aria-label={label}
+      aria-expanded={expanded}
       title={label}
       onClick={onClick}
       disabled={disabled}
@@ -154,29 +159,19 @@ export function DeleteButton({
       </IconButton>
       {dialog === "confirm" && (
         <Dialog title="Är du säker?" onClose={() => setDialog(null)}>
-          <button type="button" onClick={confirm} disabled={pending} className={buttonClass("primary")}>
+          <Button size="compact" onClick={confirm} disabled={pending}>
             {pending ? "Tar bort…" : "Ja"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setDialog(null)}
-            className={buttonClass("secondary")}
-            autoFocus
-          >
+          </Button>
+          <Button variant="secondary" size="compact" onClick={() => setDialog(null)} autoFocus>
             Nej
-          </button>
+          </Button>
         </Dialog>
       )}
       {dialog !== null && dialog !== "confirm" && (
         <Dialog title="Du kan ej ta bort" detail={dialog.blocked} onClose={() => setDialog(null)}>
-          <button
-            type="button"
-            onClick={() => setDialog(null)}
-            className={buttonClass("primary")}
-            autoFocus
-          >
+          <Button size="compact" onClick={() => setDialog(null)} autoFocus>
             OK
-          </button>
+          </Button>
         </Dialog>
       )}
     </>
@@ -188,12 +183,12 @@ export function DeleteButton({
 export function SaveCancel({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
   return (
     <div className="flex gap-2">
-      <button type="submit" disabled={pending} className={buttonClass("primary", "compact")}>
+      <Button type="submit" size="compact" disabled={pending}>
         {pending ? "Sparar…" : "Spara"}
-      </button>
-      <button type="button" onClick={onCancel} className={buttonClass("secondary", "compact")}>
+      </Button>
+      <Button variant="secondary" size="compact" onClick={onCancel}>
         Avbryt
-      </button>
+      </Button>
     </div>
   );
 }

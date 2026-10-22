@@ -21,12 +21,12 @@ How each requirement was checked.
 | TRIP-008-R10 | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:local` 85 passed. Changed tests: only the placeholders in `TRIP-001-R1` | local | Pass | 2026-10-22 |
 | TRIP-008-R11 | Code review: `DESIGN.md` lists every token in `globals.css` and every shared component; linked from `wiki/system/index.md` and `architecture.md` | local | Pass | 2026-10-22 |
 | TRIP-008-R12 | Tests `TRIP-008-R12 axe finds no WCAG A or AA violations on the start page`, `… with a date error shown`, `… on the sign-in page with a wrong password` | local | Pass | 2026-10-22 |
-| All | `npm test` against the live site | live | Not checked yet (after deploy) | |
+| All | `npm test` against the live site, by the "Live tests" workflow after the merge: 72 passed, 13 skipped (local only) | live | Pass | 2026-10-22 |
 
 ## Definition of Done
 
 - [x] Tests: every requirement is tested or has a recorded code review; `npm run test:local` passes (85 passed, 2026-10-22)
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site ("Live tests", 2026-10-22)
 - [ ] Accessibility: the changed pages and states pass `expectNoA11yViolations` (R12, locally). The manual checklist `wiki/system/accessibility.md` doesn't exist yet: it comes with TRIP-021, which goes through it on every page. Not checked here.
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/soka-flyg.md`), system docs (`DESIGN.md`, `wiki/system/index.md`, `architecture.md`) and `wiki/log.md` updated

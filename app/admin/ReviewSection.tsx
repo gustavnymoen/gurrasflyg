@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MAX_REVIEW_LENGTH } from "@/lib/review-rules";
 import type { Review } from "@/lib/reviews";
 import Stars from "../components/Stars";
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import { fieldClass, textAreaClass } from "../components/Field";
 import Message from "../components/Message";
 import { createReviewAction, deleteReviewAction } from "./actions";
@@ -123,9 +123,9 @@ function ReviewForm() {
       </div>
       {error && <Message kind="error">{error}</Message>}
       {saved && !error && <Message kind="success">Omdömet sparades.</Message>}
-      <button type="submit" disabled={pending} className={`${buttonClass("primary", "compact")} self-start`}>
+      <Button type="submit" size="compact" disabled={pending} className="self-start">
         {pending ? "Sparar…" : "Spara omdöme"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -135,7 +135,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (rating: num
   const [hover, setHover] = useState(0);
   const shown = hover || value;
   return (
-    <div role="radiogroup" aria-label="Betyg" className="flex gap-1" onMouseLeave={() => setHover(0)}>
+    <div role="radiogroup" aria-label="Betyg" className="flex" onMouseLeave={() => setHover(0)}>
       {[1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
@@ -145,7 +145,8 @@ function StarPicker({ value, onChange }: { value: number; onChange: (rating: num
           aria-label={`${n} ${n === 1 ? "stjärna" : "stjärnor"}`}
           onClick={() => onChange(n)}
           onMouseEnter={() => setHover(n)}
-          className={`text-xl leading-none transition-colors ${
+          // Klickytan är minst 24 px (WCAG 2.5.8), större än själva stjärnan
+          className={`grid h-7 w-7 place-items-center text-xl leading-none transition-colors ${
             n <= shown ? "text-brass" : "text-line-strong hover:text-ink-muted"
           }`}
         >
