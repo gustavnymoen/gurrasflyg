@@ -60,7 +60,7 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
           go(dx < 0 ? 1 : -1);
         }
       }}
-      className="relative mx-auto h-60 w-full touch-pan-y overflow-x-clip outline-none"
+      className="relative mx-auto h-52 w-full touch-pan-y overflow-x-clip outline-none"
     >
       {reviews.map((review, index) => {
         const offset = offsetOf(index);
@@ -79,16 +79,14 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
               opacity: hidden ? 0 : look.opacity,
               zIndex: 10 - distance,
             }}
-            className={`absolute left-1/2 top-2 flex h-56 w-64 flex-col gap-1.5 rounded-card border bg-surface p-4 transition-[transform,opacity,box-shadow] duration-500 ease-out motion-reduce:transition-none ${
-              focused
-                ? "border-accent-strong shadow-card"
-                : "cursor-pointer border-edge blur-[1px] shadow-float"
+            className={`absolute top-2 left-1/2 flex h-48 w-60 flex-col gap-1 rounded-card border bg-surface p-4 shadow-card transition-[transform,opacity] duration-500 ease-out ${
+              focused ? "border-accent-strong" : "cursor-pointer border-edge blur-[1px]"
             } ${hidden ? "pointer-events-none" : ""}`}
           >
             <Stars rating={review.rating} />
             <h3 className="line-clamp-2 text-sm font-semibold leading-snug">{review.title}</h3>
             {/* line-clamp kortar av äldre, längre texter med "…" */}
-            <p className="line-clamp-5 flex-1 text-small leading-snug text-ink-muted">{review.body}</p>
+            <p className="line-clamp-4 flex-1 text-small leading-snug text-ink-muted">{review.body}</p>
             <p className="text-xs text-brass">– {review.author}</p>
           </article>
         );
@@ -104,12 +102,12 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
   );
 }
 
-// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 16rem brett, 14rem högt)
+// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 15rem brett, 12rem högt)
 function Arrow({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
   return (
     <div
-      style={{ left: `calc(50% ${direction === 1 ? "+" : "-"} 8rem)` }}
-      className="absolute top-[calc(0.5rem+7rem)] z-20 -translate-x-1/2 -translate-y-1/2"
+      style={{ left: `calc(50% ${direction === 1 ? "+" : "-"} 7.5rem)` }}
+      className="absolute top-[calc(0.5rem+6rem)] z-20 -translate-x-1/2 -translate-y-1/2"
     >
       <RoundButton
         label={direction === 1 ? "Nästa omdöme" : "Föregående omdöme"}

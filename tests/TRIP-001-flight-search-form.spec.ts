@@ -19,8 +19,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("TRIP-001-R1 start page shows the search form", async ({ page }) => {
-  await expect(page.getByRole("heading", { name: "Gurras Flyg" })).toBeVisible();
-  await expect(page.getByText("Ditt livs flygresa")).toBeVisible();
+  // Heading and text from TRIP-020-R2; the name "Gurras Flyg" is in the wordmark
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Vi ordnar det ingen annan kan");
+  await expect(page.getByText("Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort.")).toBeVisible();
   await expect(page.getByPlaceholder("Varifrån?")).toBeVisible();
   await expect(page.getByPlaceholder("Vart vill du?")).toBeVisible();
   await expect(page.getByLabel("Datum")).toBeVisible();

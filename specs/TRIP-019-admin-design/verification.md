@@ -17,12 +17,12 @@ How each requirement was checked.
 | TRIP-019-R6 | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:local` 91 passed. The admin tests TRIP-002 to TRIP-006 are unchanged, except that `reviewForm` and `writeReview` moved from the TRIP-006 test file to `tests/helpers.ts` unchanged | local | Pass | 2026-10-22 |
 | TRIP-019-R7 | Code review: `DESIGN.md` has the section "Admin pieces" with `CollapsibleCard`, `Dialog`, `IconButton`, `EditButton`/`RemoveButton`/`DeleteButton`, `SaveCancel` and the table helpers | local | Pass | 2026-10-22 |
 | Accessibility | Tests `TRIP-019 accessibility: axe finds no violations on the admin page, also with the aircraft form open`, and axe in the dialog and add-on error tests | local | Pass | 2026-10-22 |
-| All | `npm test` against the live site | live | Not checked yet (after deploy) | |
+| All | `npm test` against the live site, by the "Live tests" workflow after the merge: 78 passed, 13 skipped (local only) | live | Pass | 2026-10-22 |
 
 ## Definition of Done
 
 - [x] Tests: every requirement is tested or has a recorded code review; `npm run test:local` passes (91 passed, 2026-10-22)
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site ("Live tests", 2026-10-22)
 - [ ] Accessibility: `/admin`, the open aircraft form, a dialog and an error message pass `expectNoA11yViolations` (locally). The manual checklist `wiki/system/accessibility.md` doesn't exist yet: it comes with TRIP-021. Not checked here.
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual: `wiki/manual/admin-*.md` still describe the admin page correctly (it works as before), so they are unchanged; system docs (`DESIGN.md`, `wiki/system/architecture.md`) and `wiki/log.md` updated

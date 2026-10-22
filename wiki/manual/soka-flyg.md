@@ -10,7 +10,11 @@ timestamp: 2026-10-22
 
 # Söka flyg
 
-Sökformuläret finns överst på startsidan. Där anger du var du vill resa från och till, vilket datum, hur många ni är och om du vill ha en returresa.
+Sökformuläret finns på startsidan, under rubriken "Vi ordnar det ingen annan kan". Där anger du var du vill resa från och till, vilket datum, hur många ni är och om du vill ha en returresa.
+
+Överst på varje sida står **Gurras Flyg** med ett plan i en ring. Klicka på det för att komma tillbaka till startsidan.
+
+På mobilen ligger **Från** och **Till** under varandra i full bredd, och **Datum** och **Resenärer** bredvid varandra under dem.
 
 > Själva sökningen och listan med flyg är inte byggda än. Formuläret kontrollerar redan det du fyller i.
 

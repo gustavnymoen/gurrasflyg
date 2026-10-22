@@ -248,7 +248,12 @@ test("TRIP-008-R8 buttons are pills, and a disabled button is faded", async ({ p
 
 test("TRIP-008-R9 keyboard focus shows a visible ring", async ({ page }) => {
   await page.goto("/");
-  // Tab from the start of the page to the first field, then on to a button
+  // Tab from the start of the page: first the wordmark in the header (TRIP-020-R1),
+  // then the first field, then on to a button
+  await page.keyboard.press("Tab");
+  const wordmark = page.getByRole("banner").getByRole("link", { name: "Gurras Flyg" });
+  await expect(wordmark).toBeFocused();
+  await expect(wordmark).toHaveCSS("outline-color", ACCENT_STRONG);
   await page.keyboard.press("Tab");
   const from = page.getByRole("combobox", { name: "Från" });
   await expect(from).toBeFocused();

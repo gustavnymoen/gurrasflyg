@@ -24,9 +24,10 @@ flowchart LR
 
 | Folder | Content |
 |---|---|
-| `app/page.tsx` | Start page: heading, search form and review carousel. |
+| `app/layout.tsx` | Every page: the header with the wordmark, and the footer (with the photo credit on the start page). |
+| `app/page.tsx` | Start page: background photo, heading, search form and review carousel. The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
-| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Card`, `Message`, `Stars`, see [`DESIGN.md`](../../DESIGN.md)), `SearchForm`, `Autocomplete`, `ReviewCarousel` and icons. |
+| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, dialog, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. `login/` is the sign-in page. |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |

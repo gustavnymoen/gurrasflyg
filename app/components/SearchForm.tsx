@@ -28,9 +28,10 @@ export default function SearchForm() {
 
   return (
     <Card className="flex w-full max-w-5xl flex-col gap-4">
-      {/* En rad på bredare skärmar, staplat på mobil */}
-      <form className="flex flex-col gap-3 md:flex-row md:items-start">
-        <Field label="Från" htmlFor="from" error={fromError} className="md:flex-[1.25]">
+      {/* En rad på bredare skärmar. På mobil Från och Till i full bredd,
+          Datum och Resenärer bredvid varandra under. */}
+      <form className="grid grid-cols-2 gap-3 md:flex md:items-start">
+        <Field label="Från" htmlFor="from" error={fromError} className="col-span-2 md:flex-[1.25]">
           <AirportInput
             id="from"
             placeholder="Varifrån?"
@@ -42,7 +43,7 @@ export default function SearchForm() {
           />
         </Field>
 
-        <Field label="Till" htmlFor="to" error={toError} className="md:flex-1">
+        <Field label="Till" htmlFor="to" error={toError} className="col-span-2 md:flex-1">
           <AirportInput
             id="to"
             placeholder="Vart vill du?"

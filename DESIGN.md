@@ -50,6 +50,7 @@ Faint ink, the strong accent and the strong line differ from the design board, w
 | `--shadow-card` | `shadow-card` | Cards: deep shadow with a faint wine red glow. |
 | `--shadow-float` | `shadow-float` | What floats above: suggestion lists, dialogs. |
 | `--ease-out` | `ease-out` | All motion. |
+| `--animate-takeoff`, `--animate-trail`, `--animate-hop` | `motion-safe:animate-takeoff` … | The wordmark's take-off with its contrail when the page loads (1.4 s, once), and its hop on hover. Keyframes in `@theme`. |
 
 Tailwind's own small radii (`rounded-md`, `rounded-lg`, `rounded-full`) are kept for small details such as the checkbox and icon buttons.
 
@@ -70,6 +71,7 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | `floatClass`, `floatingCardClass` | `Card.tsx` | | What floats above the page (floating surface and shadow): suggestion lists, and dialogs with a card's shape (`floatingCardClass`). |
 | `Message` | `Message.tsx` | `error`, `success` | Errors (`role="alert"`) and confirmations (`role="status"`) as coloured text, without a box. |
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |
+| `Wordmark` | `Wordmark.tsx` | | The plane in a brass ring and "Gurras Flyg", linking to the start page, in the header of every page (`app/layout.tsx`). The plane takes off into the ring once when the page loads and hops on hover; the take-off is removed when it has played, so the page stands still afterwards. |
 
 ### Admin pieces
 
@@ -86,6 +88,12 @@ The admin page's own pieces are in `app/admin/admin-ui.tsx`, built on the compon
 
 In forms, admin fields are `fieldClass("compact", …)` and `textAreaClass("compact")`.
 
+## The start page photo
+
+The start page has an evening photo behind the header, heading and search form: `public/brand/skymning.jpg` ("Boeing 757 climbing after the sunset" by Bill Abbott, CC BY-SA 2.0), 1600 px wide and at most 300 kB, loaded with `fetchPriority="high"`. It is decoration (`alt=""`). Two utilities in `globals.css` darken it so that text over it keeps 4.5:1: `photo-shade` evenly on phones and tablets, `lg:photo-shade-wide` towards the text on the left on wide screens; both fade it into the ground towards the reviews. The licence requires the credit, which `PhotoCredit` shows in the footer of the start page only.
+
+The site's own images are in `public/brand/`; `public/images/` is the course's sample data and is never edited.
+
 ## Rules
 
 - **The accent is for what the visitor does:** primary buttons, focus and chosen states. Headings and text are never wine red.
@@ -95,7 +103,8 @@ In forms, admin fields are `fieldClass("compact", …)` and `textAreaClass("comp
 - **Messages are coloured text**, never boxes.
 - **Cards** have the brass-tinted edge and the card shadow; menus and dialogs float with the floating shadow.
 - **Contrast:** text and placeholders at least 4.5:1, borders that show a control and the focus ring at least 3:1. Check a new colour with the tests in `tests/TRIP-008-visual-design.spec.ts`.
-- **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours.
+- **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours. Motion has a purpose: a button responds to a press, the carousel slides, the wordmark takes off once. The wordmark's take-off (1.4 s) and hop (0.9 s) are decoration, not a control's response, so the 300 ms limit doesn't apply to them.
+- **Reduced motion:** when the visitor prefers reduced motion, a rule in `globals.css` turns off every animation and limits transitions to colours and opacity, so nothing moves. New motion needs nothing extra; animations that should only run otherwise are also written `motion-safe:`.
 - **Tailwind only finds whole class names.** Write `focus:ring-3`, never `` `${state}:ring-3` ``. To vary a class, choose between whole strings (see `borders` in `Field.tsx`).
 
 ## How to change
