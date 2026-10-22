@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Suspense } from "react";
 import { listReviews } from "@/lib/reviews";
 import ReviewCarousel from "./components/ReviewCarousel";
@@ -5,26 +6,26 @@ import SearchForm from "./components/SearchForm";
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center px-4 py-20">
-      <header className="mb-12 flex flex-col items-center gap-3">
-        <h1 className="flex items-center gap-4 text-title-phone font-bold md:text-title">
-          <PlaneIcon />
-          Gurras Flyg
+    <>
+      <HeroPhoto />
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-16">
+        <h1 className="mt-12 max-w-165 text-title-phone font-bold md:mt-20 md:text-title">
+          Vi ordnar det ingen annan kan
         </h1>
-        <p className="text-lg text-ink-muted">Ditt livs flygresa</p>
-      </header>
-      <SearchForm />
+        <p className="mt-4 mb-6 max-w-130 text-[17px] text-ink-muted md:mt-4.5 md:mb-8.5 md:text-xl">
+          Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort.
+        </p>
+        <SearchForm />
 
-      <section className="mt-16 w-full max-w-5xl">
-        <h2 className="mb-6 text-center text-section font-bold">
-          Vad våra resenärer säger
-        </h2>
-        {/* Omdömena läses från databasen när sidan efterfrågas */}
-        <Suspense fallback={<div className="h-60" />}>
-          <Reviews />
-        </Suspense>
-      </section>
-    </main>
+        <section className="mt-14">
+          <h2 className="mb-2 text-center text-section font-bold">Vad våra resenärer säger</h2>
+          {/* Omdömena läses från databasen när sidan efterfrågas */}
+          <Suspense fallback={<div className="h-52" />}>
+            <Reviews />
+          </Suspense>
+        </section>
+      </main>
+    </>
   );
 }
 
@@ -32,15 +33,22 @@ async function Reviews() {
   return <ReviewCarousel reviews={await listReviews()} />;
 }
 
-function PlaneIcon() {
+// Kvällsfotot bakom sidhuvudet, rubriken och sökformuläret. Det är dekoration
+// (tom alt-text) och mörkas mot texten (photo-shade i globals.css). Det
+// hämtas med hög prioritet, eftersom det syns direkt.
+function HeroPhoto() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className="h-10 w-10 shrink-0 rotate-45 text-brass md:h-14 md:w-14"
-    >
-      <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" />
-    </svg>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-176 md:h-224">
+      <Image
+        src="/brand/skymning.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        fetchPriority="high"
+        loading="eager"
+        className="object-cover object-[60%_45%]"
+      />
+      <div className="photo-shade lg:photo-shade-wide absolute inset-0" />
+    </div>
   );
 }

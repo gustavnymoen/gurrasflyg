@@ -43,6 +43,8 @@ Traveller.
 
 The start page shall show the heading "Gurras Flyg", the subtitle "Ditt livs flygresa" and a search form in a card with the fields Från, Till, Datum and Antal resenärer, and the checkbox "Boka returresa". On wide screens the fields are on one row; on a phone they are stacked.
 
+*Changed by TRIP-020-R2 (2026-10-22): the heading is "Vi ordnar det ingen annan kan" and the text under it "Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort."; the name "Gurras Flyg" is in the wordmark in the header. On a phone, Datum and Resenärer are side by side (TRIP-020-R6).*
+
 Acceptance criteria:
 
 - **Given** a visitor opens `/`, **then** the heading, the subtitle and the four fields with placeholders "Från", "Till" and "Datum" are shown, together with the checkbox.

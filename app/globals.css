@@ -59,6 +59,68 @@
   --shadow-float: 0 18px 40px -12px rgb(0 0 0 / 0.9);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Ordmärket: planet lyfter in i ringen med en kort kondensstrimma när
+     sidan laddas, och hoppar till när pekaren är över (Wordmark.tsx) */
+  --animate-takeoff: takeoff 1.4s var(--ease-out) 0.3s backwards;
+  --animate-trail: trail 1.4s var(--ease-out) 0.3s backwards;
+  --animate-hop: hop 0.9s var(--ease-out);
+
+  @keyframes takeoff {
+    from {
+      transform: translate(-18px, 18px) scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  @keyframes trail {
+    0% {
+      opacity: 0;
+      transform: rotate(-45deg) scaleX(0);
+    }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(-45deg) scaleX(1);
+    }
+  }
+  @keyframes hop {
+    40% {
+      transform: translate(5px, -5px);
+    }
+    41% {
+      transform: translate(-14px, 14px);
+      opacity: 0;
+    }
+  }
+}
+
+/* Mörkar fotot på startsidan och tonar ut det i bakgrunden nedåt, så att
+   rubriken går att läsa. På mobil och surfplatta står texten över nästan
+   hela bredden och fotot mörkas jämnt (photo-shade), på bred skärm mot
+   texten till vänster (lg:photo-shade-wide). */
+@utility photo-shade {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-ground) 55%, transparent) 30%,
+    var(--color-ground) 92%
+  );
+}
+
+@utility photo-shade-wide {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ground) 90%, transparent) 30%,
+      color-mix(in srgb, var(--color-ground) 25%, transparent) 75%,
+      color-mix(in srgb, var(--color-ground) 45%, transparent)
+    ),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-ground) 10%, transparent) 35%, var(--color-ground) 88%);
 }
 
 /* Grundstilar i base-lagret, så att Tailwinds klasser (t.ex. outline-none
@@ -98,5 +160,16 @@
   /* Siffror i tabeller får lika bredd, så att kolumnerna linjerar */
   table {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Vill besökaren ha mindre rörelse står allt still: inga animationer, och
+     övergångar bara för färger och genomskinlighet (DESIGN.md) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation: none !important;
+      transition-property: color, background-color, border-color, opacity !important;
+    }
   }
 }

@@ -142,6 +142,7 @@ export const ACCENT_STRONG = "rgb(200, 53, 96)";
 export const DANGER = "rgb(240, 122, 122)";
 export const SUCCESS = "rgb(127, 201, 160)";
 export const EDGE = "rgba(201, 164, 106, 0.22)";
+export const BRASS = "rgb(201, 164, 106)";
 // The start of --shadow-card and --shadow-float, enough to tell them apart
 export const CARD_SHADOW = "0px 30px 60px -24px";
 export const FLOAT_SHADOW = "0px 18px 40px -12px";

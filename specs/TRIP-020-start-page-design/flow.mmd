@@ -1,0 +1,15 @@
+%% TRIP-020 Visual design: start page
+flowchart TD
+    Load[Visitor opens a page] --> Header["Header with Wordmark<br/>every page, links to / (R1)"]
+    Header --> Motion{"Prefers reduced motion?"}
+    Motion -- no --> Takeoff["Plane takes off into the ring, 1.4 s<br/>then the animation is removed (R1, R5)"]
+    Motion -- yes --> Still["No animation, transitions only<br/>for colours and opacity (R5)"]
+    Load --> Start{"Start page?"}
+    Start -- yes --> Hero["Photo behind header, heading and form<br/>darkened, fading into the ground (R3)"]
+    Hero --> Content["h1 'Vi ordnar det ingen annan kan',<br/>text, search form, reviews (R2)"]
+    Content --> Carousel["Carousel, card 15 × 12 rem (R4)"]
+    Content --> Credit["Photo credit in the footer (R3)"]
+    Start -- no --> Page[Sign-in or admin page]
+    Content --> Width{"390 px wide?"}
+    Page --> Width
+    Width -- yes --> Phone["Fields stacked, Datum and Resenärer<br/>side by side, no sideways scroll (R6)"]
