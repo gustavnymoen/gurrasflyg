@@ -1,6 +1,6 @@
 "use client";
 
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import Message from "../components/Message";
 import { assignAircraftAction } from "./actions";
 import { useAction } from "./admin-ui";
@@ -17,14 +17,9 @@ export default function AssignAircraftButton({
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <button
-        type="button"
-        onClick={() => run(assignAircraftAction, () => {})}
-        disabled={pending || total === 0}
-        className={buttonClass("primary", "compact")}
-      >
+      <Button size="compact" onClick={() => run(assignAircraftAction, () => {})} disabled={pending || total === 0}>
         {pending ? "Tilldelar…" : "Tilldela plan"}
-      </button>
+      </Button>
       {error ? (
         <Message kind="error" className="max-w-64 text-right">
           {error}

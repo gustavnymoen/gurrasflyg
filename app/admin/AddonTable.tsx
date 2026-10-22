@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Addon, AddonInput } from "@/lib/admin";
 import { formatAmount } from "@/lib/format";
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import { fieldClass, textAreaClass } from "../components/Field";
 import Message from "../components/Message";
 import { createAddonAction, deleteAddonAction, updateAddonAction } from "./actions";
@@ -53,9 +53,9 @@ export default function AddonTable({ addons }: { addons: Addon[] }) {
         <p className="py-1.5 text-sm text-ink-muted">Inga addons än.</p>
       )}
       {!adding && (
-        <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} mt-3`}>
+        <Button size="compact" onClick={() => setAdding(true)} className="mt-3">
           Lägg till
-        </button>
+        </Button>
       )}
     </section>
   );

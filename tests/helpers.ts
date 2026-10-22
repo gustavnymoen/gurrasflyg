@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { createClient, type InArgs } from "@libsql/client";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { testDbFile } from "../lib/local-db.mjs";
 
 // True when the tests run against the local test server (npm run test:local),
@@ -48,6 +48,19 @@ export async function deleteWithConfirmation(page: Page, label: string) {
   // Wait until the page shows the row is gone. Until then the page's data is
   // old, and for example an add-on can still look like it is in use.
   await expect(page.getByRole("button", { name: label, exact: true })).toHaveCount(0);
+}
+
+// The form "Nytt omdöme" on the admin page, and writing a review in it
+export const reviewForm = (page: Page) =>
+  page.locator("form").filter({ has: page.getByRole("heading", { name: "Nytt omdöme" }) });
+
+export async function writeReview(page: Page, review: { author: string; rating: number; title: string; body: string }) {
+  const form = reviewForm(page);
+  await form.getByLabel("Namn på personen").fill(review.author);
+  await form.getByRole("radio", { name: new RegExp(`^${review.rating} stjärn`) }).click();
+  await form.getByLabel("Rubrik").fill(review.title);
+  await form.getByLabel("Text").fill(review.body);
+  await form.getByRole("button", { name: "Spara omdöme" }).click();
 }
 
 // Today and six months ahead as YYYY-MM-DD in local time, the same way the search form counts
@@ -121,6 +134,28 @@ export async function fillAircraftForm(
     await page.getByLabel("Klass", { exact: true }).selectOption({ label: a.className });
     await page.getByRole("button", { name: "Lägg till addon" }).click();
   }
+}
+
+// The token values from app/globals.css, as the browser reports them
+export const ACCENT = "rgb(139, 30, 63)";
+export const ACCENT_STRONG = "rgb(200, 53, 96)";
+export const DANGER = "rgb(240, 122, 122)";
+export const SUCCESS = "rgb(127, 201, 160)";
+export const EDGE = "rgba(201, 164, 106, 0.22)";
+// The start of --shadow-card and --shadow-float, enough to tell them apart
+export const CARD_SHADOW = "0px 30px 60px -24px";
+export const FLOAT_SHADOW = "0px 18px 40px -12px";
+
+// A computed CSS value of an element (or of its ::before/::after)
+export const css = (locator: Locator, property: string, pseudo?: string) =>
+  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps).getPropertyValue(p), [property, pseudo] as const);
+
+// A message is coloured text: no background, no border
+export async function expectTextMessage(message: Locator, color: string) {
+  await expect(message).toBeVisible();
+  await expect(message).toHaveCSS("color", color);
+  await expect(message).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(message).toHaveCSS("border-top-width", "0px");
 }
 
 // Runs axe on the page as it looks right now and requires that it breaks no

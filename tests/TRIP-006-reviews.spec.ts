@@ -1,21 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { deleteWithConfirmation, requireAdminPassword, signIn, uniqueName } from "./helpers";
+import { deleteWithConfirmation, requireAdminPassword, reviewForm, signIn, uniqueName, writeReview } from "./helpers";
 
 // Tests that need a known review create one with a unique name and delete it
 // again, so they can also run against the live site.
 
 const carousel = (page: Page) => page.getByRole("region", { name: "Omdömen" });
 const focused = (page: Page) => carousel(page).locator('article[aria-hidden="false"]');
-const reviewForm = (page: Page) => page.locator("form").filter({ has: page.getByRole("heading", { name: "Nytt omdöme" }) });
-
-async function writeReview(page: Page, review: { author: string; rating: number; title: string; body: string }) {
-  const form = reviewForm(page);
-  await form.getByLabel("Namn på personen").fill(review.author);
-  await form.getByRole("radio", { name: new RegExp(`^${review.rating} stjärn`) }).click();
-  await form.getByLabel("Rubrik").fill(review.title);
-  await form.getByLabel("Text").fill(review.body);
-  await form.getByRole("button", { name: "Spara omdöme" }).click();
-}
 
 // The cards glide for half a second; wait until they stand still before
 // clicking or swiping on them, like a person would

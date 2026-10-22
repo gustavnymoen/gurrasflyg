@@ -4,10 +4,10 @@ import { Fragment, useState } from "react";
 import type { Addon, Aircraft, CabinClass } from "@/lib/admin";
 import { formatPrice } from "@/lib/format";
 import { ChevronIcon } from "../components/icons";
-import { buttonClass } from "../components/Button";
+import Button from "../components/Button";
 import { createAircraftAction, deleteAircraftAction, updateAircraftAction } from "./actions";
 import AircraftForm from "./AircraftForm";
-import { CollapsibleCard, DeleteButton, EditButton, rowClass, thClass } from "./admin-ui";
+import { CollapsibleCard, DeleteButton, EditButton, IconButton, rowClass, thClass } from "./admin-ui";
 
 export default function AircraftTable({
   aircraft,
@@ -32,9 +32,9 @@ export default function AircraftTable({
             onDone={() => setAdding(false)}
           />
         ) : (
-          <button type="button" onClick={() => setAdding(true)} className={`${buttonClass("primary", "compact")} self-start`}>
+          <Button size="compact" onClick={() => setAdding(true)} className="self-start">
             Lägg till plan
-          </button>
+          </Button>
         )}
 
         <table className="w-full text-sm">
@@ -148,7 +148,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
             ) : (
               <div className="flex flex-wrap gap-2">
                 {cabinClass.addons.map((a) => (
-                  <span key={a.id} className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs">
+                  <span key={a.id} className="rounded-pill border border-line-strong px-2.5 py-0.5 text-xs">
                     {a.name} <span className="text-ink-muted">· {formatPrice(a.price)}</span>
                   </span>
                 ))}
@@ -163,14 +163,8 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
 
 function ExpandButton({ open, label, onClick }: { open: boolean; label: string; onClick: () => void }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-expanded={open}
-      aria-label={open ? `Fäll ihop ${label}` : `Visa ${label}`}
-      className="flex h-6 w-6 items-center justify-center rounded-md text-ink-muted hover:bg-accent/25 hover:text-ink"
-    >
+    <IconButton label={open ? `Fäll ihop ${label}` : `Visa ${label}`} expanded={open} onClick={onClick}>
       <ChevronIcon open={open} />
-    </button>
+    </IconButton>
   );
 }

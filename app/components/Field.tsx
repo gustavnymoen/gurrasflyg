@@ -31,7 +31,7 @@ const areaSizes = {
   compact: "min-h-16 px-2.5 py-1.5 text-sm",
 };
 
-export type FieldSize = keyof typeof heights;
+type FieldSize = keyof typeof heights;
 
 // Stil för ett fristående <input> eller <select> med given storlek och bredd.
 // Bredden får inte läggas till i efterhand (t.ex. `${fieldClass("small")} w-24`),

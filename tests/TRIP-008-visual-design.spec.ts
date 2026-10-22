@@ -1,11 +1,15 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
-
-// The token values from app/globals.css, as the browser reports them
-const ACCENT = "rgb(139, 30, 63)";
-const ACCENT_STRONG = "rgb(200, 53, 96)";
-const DANGER = "rgb(240, 122, 122)";
-const EDGE = "rgba(201, 164, 106, 0.22)";
+import {
+  ACCENT,
+  ACCENT_STRONG,
+  CARD_SHADOW,
+  css,
+  DANGER,
+  EDGE,
+  expectNoA11yViolations,
+  expectTextMessage,
+  FLOAT_SHADOW,
+} from "./helpers";
 
 // WCAG contrast ratio between two colours given as "rgb(…)" or "rgba(…)".
 // A translucent colour is first laid over the background.
@@ -36,9 +40,6 @@ function backgroundOf(locator: Locator) {
     return getComputedStyle(document.body).backgroundColor;
   });
 }
-
-const css = (locator: Locator, property: string, pseudo?: string) =>
-  locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps).getPropertyValue(p), [property, pseudo] as const);
 
 // The box around a field: <Field> draws the border and the ring, not the input itself
 const fieldBox = (input: Locator) => input.locator("xpath=..");
@@ -171,15 +172,15 @@ test("TRIP-008-R5 the search form and the sign-in form are cards that stand out"
   await page.goto("/");
   const searchCard = page.locator("section").filter({ has: page.getByRole("combobox", { name: "Från" }) });
   await expect(searchCard).toHaveCSS("border-top-color", EDGE);
-  expect(await css(searchCard, "box-shadow")).toContain("0px 30px 60px -24px");
+  expect(await css(searchCard, "box-shadow")).toContain(CARD_SHADOW);
 
   await page.getByRole("combobox", { name: "Från" }).fill("lon");
-  expect(await css(page.getByRole("listbox"), "box-shadow")).toContain("0px 18px 40px -12px");
+  expect(await css(page.getByRole("listbox"), "box-shadow")).toContain(FLOAT_SHADOW);
 
   await page.goto("/admin/login");
   const loginCard = page.locator("section").filter({ has: page.getByLabel("Lösenord") });
   await expect(loginCard).toHaveCSS("border-top-color", EDGE);
-  expect(await css(loginCard, "box-shadow")).toContain("0px 30px 60px -24px");
+  expect(await css(loginCard, "box-shadow")).toContain(CARD_SHADOW);
 });
 
 test("TRIP-008-R6 each field shows its label and placeholder and keeps its accessible name", async ({ page }) => {
@@ -219,14 +220,6 @@ test("TRIP-008-R6 the checkbox is drawn with the accent when chosen", async ({ p
   await expect(checkbox).toBeChecked();
   await expect(checkbox).toHaveCSS("background-color", ACCENT);
 });
-
-// A message is coloured text: no background, no border
-async function expectTextMessage(message: Locator, color: string) {
-  await expect(message).toBeVisible();
-  await expect(message).toHaveCSS("color", color);
-  await expect(message).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expect(message).toHaveCSS("border-top-width", "0px");
-}
 
 test("TRIP-008-R7 a date error is red text without a box", async ({ page }) => {
   await page.goto("/");
