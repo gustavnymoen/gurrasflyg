@@ -12,9 +12,19 @@ How each requirement was checked. Create this file when work starts and fill it 
 | TRIP-000-R1 | Test `TRIP-000-R1 …` in `tests/TRIP-000-<name>.spec.ts` | local, live | Pass | YYYY-MM-DD |
 | TRIP-000-R2 | Manual: … (why it can't be automated) | live | Pass | YYYY-MM-DD |
 
+## Test suite
+
+`npm run test:time` before and after the change (budgets and rules in `CLAUDE.md`).
+
+| | Tests | Total time | Slowest test |
+|---|---|---|---|
+| Before | … | … s | … s |
+| After | … | … s | … s |
+
 ## Definition of Done
 
 - [ ] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes
+- [ ] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `CLAUDE.md`
 - [ ] Deployed, and `npm test` passes against the live site
 - [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built

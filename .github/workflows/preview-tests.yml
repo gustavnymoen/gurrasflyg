@@ -1,7 +1,8 @@
 # TECH-007: alla tester mot pull requestens förhandsversion på Vercel, före merge.
 # Förhandsversionen har en egen Turso-databas, så testdata hamnar aldrig i
-# produktionen. Jobbet startar med pull requesten och väntar tills Vercel har
-# rapporterat förhandsversionen som klar (statusen "Vercel" på commiten).
+# produktionen. Första jobbet startar med pull requesten och väntar tills Vercel
+# har rapporterat förhandsversionen som klar (statusen "Vercel" på commiten),
+# sedan kör det andra testerna mot den.
 name: Preview tests
 
 on:
@@ -14,23 +15,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  preview:
+  # Väntar på Vercel med gh, som inte finns i Playwrights image (TECH-011)
+  wait:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     permissions:
       contents: read
       statuses: read
-    env:
-      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    outputs:
+      url: ${{ steps.preview.outputs.url }}
     steps:
-      # Samma commit som förhandsversionen byggdes från, inte GitHubs merge-commit
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - uses: ./.github/actions/setup-tests
-
       - name: Vänta på förhandsversionen
         id: preview
         env:
@@ -64,9 +58,30 @@ jobs:
           fi
           echo "url=https://$host.vercel.app" >> "$GITHUB_OUTPUT"
 
+  preview:
+    needs: wait
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # TECH-011: Playwrights image, samma version som @playwright/test
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --user 1001
+    permissions:
+      contents: read
+    env:
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      # Samma commit som förhandsversionen byggdes från, inte GitHubs merge-commit
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: ./.github/actions/setup-tests
+
       - run: npm test
         env:
-          BASE_URL: ${{ steps.preview.outputs.url }}
+          BASE_URL: ${{ needs.wait.outputs.url }}
 
       - name: Spara testrapporten
         if: failure()

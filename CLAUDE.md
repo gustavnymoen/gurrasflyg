@@ -27,7 +27,7 @@ Every change to the site's behaviour belongs to a card with an ID (`TRIP-001`, `
    - Data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself.
    - Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
    - Never weaken a test to make it pass. A failing test is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the requirement).
-5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npm run typecheck`, `npm run build` and `npm run test:local`, and after deploy `npm test` against the live site.
+5. **Verify.** Fill in `verification.md`: each requirement, how it was checked, where (local or live), the result and the date. Only record checks that were actually done; anything not checked is written as not checked. Run `npm run lint`, `npm run typecheck`, `npm run build` and `npm run test:time` (which runs `npm run test:local` and gives the test numbers for `verification.md`), and after deploy `npm test` against the live site.
 6. **Document.** Update `wiki/system/` (how it works, in English) and `wiki/manual/` (how to use it, in Swedish), the `index.md` pages, `wiki/system/architecture.md` if the structure changed, and add a line to `wiki/log.md`.
 7. **Review.** Run the reviewer agent (`.claude/agents/code-reviewer.md`), which follows `wiki/system/code-review.md` and reads the requirements from the card. Save its report as `review.md` in the feature's folder, from `specs/_template/review.md`. Fix every must-fix finding, run lint, the type check and the affected tests again, and run the review again until none are left; fix small should-fix findings now and add larger ones to the board. If the review stopped the feature, tell the user in a few lines what it found and how it was fixed; otherwise just say that it passed.
 8. **Done.** Check every point in the Definition of Done below. Copy the card's requirements, as built, into `verification.md`, so the repo shows what was built even if the card changes later. Add the feature to the list in `specs/overview.md`. Commit with the feature ID in the message, for example `TRIP-007: Sök charterresor`.
@@ -47,6 +47,31 @@ A feature or technical task is done when all of these hold. Record them in its `
 6. **Clean code:** reads like the surrounding code, reuses existing components and helpers instead of copying them, and `npm run lint`, `npm run typecheck` and `npm run build` pass without errors or warnings.
 7. **Code review:** the review is done, `review.md` is saved, and no must-fix findings are left.
 8. **Improvements handled:** small cleanups related to the work are fixed in the same change; larger or unrelated ones are added to the board as technical tasks (see below).
+9. **Test suite:** the number of tests and the total time before and after the change are recorded, the suite is within the time budgets below, and the new tests follow the quality rules.
+
+## Tests
+
+The test suite is checked with every change, so that it doesn't grow slower and weaker as the site grows.
+
+**Time budgets**, from the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s):
+
+| What | Budget |
+|---|---|
+| One test, locally | at most 5 s |
+| All tests in `npm run test:local` (without the build) | at most 3 min |
+| `npm test` against a preview or the live site | at most 5 min |
+| A whole job on GitHub (CI, Preview tests, Live tests) | at most 8 min, of which at most 2 min preparation |
+
+`npm run test:time` runs `npm run test:local` and prints the number of tests, the total time and the five slowest tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
+
+**Quality rules:**
+
+- **No flaky tests.** Tests are not retried. A test that sometimes fails is fixed (or the bug in the site is), never retried or skipped.
+- **No fixed waits.** Tests wait for what the user sees (`expect`, `toBeVisible`), never for a time (`waitForTimeout`).
+- **Each test checks behaviour** named in its requirement, not only CSS or markup, unless the requirement is about the look.
+- **No duplicates.** A behaviour already checked by another feature's test is not tested again; a test that a later change made redundant is removed.
+- **Shared helpers** in `tests/helpers.ts` instead of copies.
+- **Cheap where it can be:** checks that don't need a browser or a new page load are combined or done without one.
 
 ## Technical tasks
 

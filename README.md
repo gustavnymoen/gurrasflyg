@@ -79,7 +79,7 @@ branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint �
 - **CI** (`.github/workflows/ci.yml`) runs on every pull request to `main` and every push to `main`. A branch without a pull request is checked locally until its pull request is opened. CI uses a throw-away admin password and its own test database, never production. A newer push to the same branch cancels the older run.
 - **Preview tests** (`.github/workflows/preview-tests.yml`) run on every pull request to `main`: the job waits until Vercel reports the branch's preview deployment as ready, then runs `npm test` against it. The preview has its own Turso database, so test data never reaches production. Vercel's Deployment Protection is passed with the repository secret `VERCEL_AUTOMATION_BYPASS_SECRET` (created in Vercel under Settings → Deployment Protection → Protection Bypass for Automation); the admin tests use `ADMIN_PASSWORD`, which is the same on Preview as on Production. The job waits at most 10 minutes for Vercel; if Vercel is slower, re-run the job from the pull request once the preview is ready.
 - **Live tests** (`.github/workflows/live-tests.yml`) run after every successful production deploy on Vercel, against <https://gurrasflyg.vercel.app>. They can also be started by hand under Actions → Live tests → Run workflow. The admin tests need the repository secret `ADMIN_PASSWORD` (GitHub → Settings → Secrets and variables → Actions); without it they are skipped.
-- The three workflows share their setup (`.github/actions/setup-tests/`): Node, `npm ci` and Chromium.
+- The test jobs run in Playwright's Docker image (`mcr.microsoft.com/playwright:v<version>-noble`), which already has Node, Chromium and its system libraries. Their shared setup (`.github/actions/setup-tests/`) runs `npm ci` and stops the job if the image's Playwright version differs from `@playwright/test` in `package-lock.json`. When `@playwright/test` is updated, change the image's version in all three workflows to match.
 - When tests fail, the run saves Playwright's report with screenshots as an artifact, downloadable from the run's page. Preview tests save no traces, since a trace would hold the bypass secret.
 - Merge to `main` only when CI and Preview tests are green. The repository is private on a free plan, so GitHub doesn't enforce this; it is part of the way of working.
 
@@ -98,6 +98,7 @@ branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint �
 - `npm test` runs against <https://gurrasflyg.vercel.app>. Admin tests sign in with `ADMIN_PASSWORD` from `.env.local` and are skipped without it.
 - Tests create their own data named "E2E …" and delete it again. `tests/global-teardown.ts` removes any leftovers after every run. Tests that would change shared data irreversibly (for example reassigning every route's aircraft) or read the database directly run only locally.
 - Run both before a feature is done: locally before pushing, against the live site after the deploy.
+- `npm run test:time` runs `npm run test:local` and prints the number of tests, their total time and the five slowest, marking what is over the time budgets in `CLAUDE.md`.
 
 ## Commands
 
@@ -110,6 +111,7 @@ branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint �
 | `npm run typecheck` | Generates Next.js route types and checks the TypeScript types. |
 | `npm test` | Runs all tests against the live site. `BASE_URL=<address> npm test` runs them against another address. |
 | `npm run test:local` | Runs all tests against a local production build with a fresh test database. |
+| `npm run test:time` | Runs `npm run test:local` and prints the number of tests, the total time and the slowest tests, against the time budgets. |
 | `npm run db:backup` | Saves a backup of the local database in `db/backups/`. |
 | `npm run db:reset` | Rebuilds the local database from scratch, after saving a backup. Never runs against Turso. |
 | `npm run db:turso` | Runs new migrations against Turso, using `.env.turso`. |

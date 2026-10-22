@@ -33,7 +33,8 @@ The review is light. It is there to try out code review as part of the workflow,
 3. **Bad design:** unclear responsibilities, code in the wrong place (for example database logic in a component), needless complexity, names that don't say what something is.
 4. **Duplicated code:** something an existing component or helper in `app/components/`, `app/admin/admin-ui.tsx`, `lib/` or `tests/helpers.ts` already does, or the same logic in two places in the change.
 5. **Unnecessary code:** leftovers, unused exports, files, styles or scripts the change made unused, commented-out code, debug output.
-6. **Project rules:** database changes only through new migrations, course data (`data/`, `knowledge/`, `public/images/`) read-only, no secrets in the code, Swedish for visitors and code comments, English for specs and system docs.
+6. **Test quality** (the rules in `CLAUDE.md`, Tests): retries or skips that hide a flaky test, fixed waits (`waitForTimeout`), tests that only check CSS or markup when the requirement is about behaviour, a behaviour already tested by another feature, copies of what `tests/helpers.ts` does, and extra page loads or browsers where one would do.
+7. **Project rules:** database changes only through new migrations, course data (`data/`, `knowledge/`, `public/images/`) read-only, no secrets in the code, Swedish for visitors and code comments, English for specs and system docs.
 
 ## Levels
 

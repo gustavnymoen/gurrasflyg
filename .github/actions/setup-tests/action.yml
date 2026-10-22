@@ -1,21 +1,20 @@
 # TECH-007: gemensam förberedelse för arbetsflödena som kör Playwright
 # (CI, Live tests, Preview tests). Kräver att repot redan är utcheckat.
-# Chromium sparas inte i cache: nedladdningen tar några sekunder, och
-# systembiblioteken måste installeras på varje ny maskin ändå.
+# TECH-011: jobben körs i Playwrights image, där Node, Chromium och dess
+# systembibliotek redan finns, så här installeras bara paketen.
 name: Förbered testerna
-description: Node, paketen och Chromium.
+description: Paketen, och en kontroll av att imagen har rätt Playwright-version.
 
 runs:
   using: composite
   steps:
+    # Imagens Node, men npm-cachen från setup-node
     - uses: actions/setup-node@v4
       with:
-        node-version: 24
         cache: npm
 
     - run: npm ci
       shell: bash
 
-    # postinstall hoppar över webbläsaren när CI är satt, så den installeras här
-    - run: npx playwright install --with-deps chromium
+    - run: node scripts/check-playwright-image.mjs
       shell: bash
