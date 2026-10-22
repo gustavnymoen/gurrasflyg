@@ -101,6 +101,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-008 | Visual design "Loungen", foundation: tokens, one font, shared components, axe check | Shared | Done |
 | TRIP-019 | Visual design "Loungen", admin page: shared components in compact size, floating dialogs | Administration | Done |
 | TRIP-020 | Visual design "Loungen", start page: wordmark header, new heading, background photo, smaller carousel, reduced motion, phone layout | Shared | Done |
+| TECH-011 | Faster and healthier test suite: test jobs in the Playwright image, version check, `npm run test:time`, time budgets and quality rules | Shared | Done |
 
 ## Decisions for charter
 

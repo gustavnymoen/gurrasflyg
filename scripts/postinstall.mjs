@@ -1,5 +1,6 @@
-// Downloads the browser that Playwright uses for tests.
-// Skipped on Vercel's build servers, which don't run the tests.
+// Laddar ner webbläsaren som Playwright använder i testerna. Hoppas över på
+// Vercels byggservrar, som inte kör testerna, och på GitHub (CI), där jobben
+// körs i Playwrights image som redan har webbläsaren (TECH-011).
 import { execSync } from 'node:child_process';
 
 if (!process.env.VERCEL && !process.env.CI) {

@@ -1,0 +1,14 @@
+%% TECH-011 Faster and healthier test suite
+flowchart TD
+    PR[Pull request] --> CI["CI job in the Playwright image<br/>R1"]
+    PR --> Wait["Preview tests: wait job on the runner,<br/>gh reads Vercel's status"]
+    Wait -- preview ready, address --> PT["Preview tests: test job in the Playwright image<br/>R1"]
+    Merge[Merge, production deploy] --> Live["Live tests job in the Playwright image<br/>R1"]
+    CI --> Setup
+    PT --> Setup
+    Live --> Setup
+    Setup["setup-tests: npm cache, npm ci<br/>no browser install<br/>R1, R3"] --> Check{"Image version =<br/>@playwright/test?<br/>R2"}
+    Check -- no --> Stop["Job stops: both versions,<br/>the image to use, the files to change"]
+    Check -- yes --> Run["Checks as before: lint, type check, build,<br/>tests; report saved on failure<br/>R4"]
+    Local["npm run test:time"] --> Numbers["Tests, total time, five slowest,<br/>marked over budget<br/>R6"]
+    Numbers --> Verif["verification.md: before and after<br/>R6"]

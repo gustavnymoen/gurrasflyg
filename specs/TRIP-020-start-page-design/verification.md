@@ -17,13 +17,13 @@ How each requirement was checked. Tests are in `tests/TRIP-020-start-page-design
 | TRIP-020-R6 | Tests `TRIP-020-R6 the start page and the sign-in page don't scroll sideways`, `… the admin page doesn't scroll sideways`, `… Från and Till are full width, Datum and Resenärer side by side` (390 × 844); the heading size on a phone by `TRIP-008-R3` | local | Pass | 2026-10-22 |
 | TRIP-020-R7 | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:local` 108 passed. Changed tests: `TRIP-001-R1` (heading and text) and `TRIP-008-R9` (tabs past the wordmark first) | local | Pass | 2026-10-22 |
 | Accessibility | Tests `TRIP-020 accessibility: axe finds no violations on the start page with the photo` and `… on the start page on a phone` | local | Pass | 2026-10-22 |
-| Performance | The photo is 254 kB (test above). Largest content shown within 2.5 s on the live site | live | Not checked yet (after deploy) | |
-| All | `npm test` against the live site | live | Not checked yet (after deploy) | |
+| Performance | The photo is 254 kB (test above). Largest Contentful Paint measured with Playwright's `PerformanceObserver` on https://gurrasflyg.vercel.app, five runs each at 1440 × 900 and 390 × 844, new browser and empty cache each run; the largest content is the photo. Unthrottled: 112–428 ms wide, 92–116 ms phone. With simulated 4G (9 Mbit/s, 150 ms latency) and 4× slower CPU: 740–808 ms wide, 528–532 ms phone | live | Pass (under 2.5 s) | 2026-10-22 |
+| All | `npm test` against the live site ("Live tests", run 39794780384, after a redeploy without build cache, see Notes): 95 passed, 13 skipped | live | Pass | 2026-10-22 |
 
 ## Definition of Done
 
 - [x] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes (2026-10-22)
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site (2026-10-22, after a redeploy without build cache)
 - [ ] Accessibility: the start page (wide and phone), the sign-in page and the admin page pass `expectNoA11yViolations` in their tests (locally); contrast over the photo measured by hand. The manual checklist `wiki/system/accessibility.md` doesn't exist yet: it comes with TRIP-021. Not checked here.
 - [x] Requirements in the card match what was built (R1, R3 and R7 updated on 2026-10-22), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/soka-flyg.md`, `omdomen.md`), system docs (`DESIGN.md`, `wiki/system/architecture.md`) and `wiki/log.md` updated
@@ -105,3 +105,4 @@ Acceptance criteria:
 - The photo is darker than on the design board: the shade had to be stronger, and even over the whole width below 1024 px, for the text under the heading to reach 4.5:1 against the lightest pixel behind it.
 - While checking the contrast, the dev server stopped picking up changes to `app/globals.css` after a `npm run build` and a restart with `.next/dev` deleted; a second restart fixed it.
 - The first run of "Preview tests" failed on `TRIP-020-R6 Från and Till are full width, Datum and Resenärer side by side`: on the preview the date field is streamed in, and for a moment both the placeholder field and the real one have the label "Datum". The test now waits for the real date field and uses only visible labels. A wrong test, not a bug in the site.
+- The first "Live tests" run after the merge (39791920930) failed on `TRIP-020-R1 the plane takes off into the ring when the page loads` and `TRIP-020-R5 the carousel changes card without sliding`. The live site served the new HTML with TRIP-019's stylesheet: no `@keyframes takeoff`, no `photo-shade`, and the removed `motion-reduce:transition-none` still there. A local build gave the right CSS, so Vercel's build cache most likely made Turbopack reuse the old CSS. Redeploying the production deployment in Vercel without the build cache fixed it, and the next run passed. A bug in the deploy, not in the site or the tests.
