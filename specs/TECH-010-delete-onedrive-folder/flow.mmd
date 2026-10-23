@@ -1,0 +1,14 @@
+%% TECH-010 Delete the old OneDrive folder
+flowchart TD
+    Start[Old repo in OneDrive] --> C1{"Every old file's content<br/>in the new repo's Git, or identical?<br/>R1.1"}
+    C1 -- no --> Look[Compare the file by hand,<br/>move what is missing]
+    Look --> C1
+    C1 -- yes --> C2{"New repo: clean, no stash,<br/>branches pushed or merged<br/>R1.2"}
+    C2 --> C3{"Old repo: no commits<br/>or stashes missing<br/>R1.3"}
+    C3 --> C4{"Secrets identical (cmp)<br/>R1.4"}
+    C4 --> C5{"New folder works:<br/>lint, types, build, tests, dev<br/>R1.5"}
+    C5 --> C6{"Database outside, backups present<br/>R1.6"}
+    C6 --> C7{"Nothing points at the old path<br/>R1.7"}
+    C7 --> OK{"User confirms<br/>R1.8"}
+    OK -- yes --> Del["The user deletes the folder through OneDrive,<br/>its recycle bin keeps it<br/>R2"]
+    Del --> After["Folder gone, npm run test:local passes<br/>R2"]

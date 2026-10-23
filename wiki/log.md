@@ -2,10 +2,14 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-22
+timestamp: 2026-10-23
 ---
 
 # Log
+
+## 2026-10-23
+
+- TECH-010: the old project folder in OneDrive is deleted, after checking that nothing in it was missing from this repo, GitHub or the local database. The course's starter (`travel-workshop`) and a Node download next to it were removed too.
 
 ## 2026-10-22
 
