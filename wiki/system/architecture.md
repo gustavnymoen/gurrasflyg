@@ -39,6 +39,7 @@ flowchart LR
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database. |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr"). |
+| `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time) and their messages, for both the search form and the server. |
 | `lib/numbers.ts` | `parseWholeNumber`: reads a whole number typed in an admin form ("1 290"), for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 

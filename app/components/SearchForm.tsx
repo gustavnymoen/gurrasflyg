@@ -3,6 +3,7 @@
 import { Suspense, use, useState } from "react";
 import { io } from "next/cache";
 import type { Airport } from "@/lib/db";
+import { bookableRange, dateError } from "@/lib/dates";
 import Autocomplete from "./Autocomplete";
 import Card from "./Card";
 import Checkbox from "./Checkbox";
@@ -136,18 +137,10 @@ function DateInput({
   use(io());
   const [focused, setFocused] = useState(false);
 
-  const min = toDateString(new Date());
-  const max = toDateString(addMonths(new Date(), 6));
-
+  const range = bookableRange(new Date());
   // Kalendern hindrar datum utanför gränserna, men man kan fortfarande
-  // skriva in ett datum för hand. Datumen är "YYYY-MM-DD" och går därför
-  // att jämföra som text.
-  const error =
-    value !== "" && value < min
-      ? "Datumet har redan passerat."
-      : value > max
-        ? "Du kan boka max 6 månader framåt."
-        : null;
+  // skriva in ett datum för hand
+  const error = dateError(value, range);
 
   // Datumfält har inget stöd för placeholder, så vi lägger en egen text
   // ovanpå när fältet är tomt och inte markerat.
@@ -160,8 +153,8 @@ function DateInput({
         <input
           id="date"
           type="date"
-          min={min}
-          max={max}
+          min={range.min}
+          max={range.max}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
@@ -181,18 +174,3 @@ function DateInput({
   );
 }
 
-// "YYYY-MM-DD" i lokal tid (toISOString() ger UTC och kan bli fel dag)
-function toDateString(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-// Lägger till månader utan att "rinna över", t.ex. 31 aug + 6 mån = 28/29 feb
-function addMonths(d: Date, months: number) {
-  const result = new Date(d.getFullYear(), d.getMonth() + months, 1);
-  const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
-  result.setDate(Math.min(d.getDate(), lastDay));
-  return result;
-}
