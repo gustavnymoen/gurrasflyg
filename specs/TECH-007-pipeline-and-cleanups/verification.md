@@ -41,3 +41,7 @@ title: Better pipeline and small cleanups
 - Pull request #8 was merged before the last two commits (removing the cache, this verification, the move to `done/`); they reached `main` through a follow-up pull request.
 - First Preview tests run: Vercel's build for the push started 12 minutes late. The job waits at most 10 minutes; README says to re-run it when Vercel is slower.
 - A first guess at the admin failures (the bypass cookie header breaking server actions) was wrong; the header was removed anyway, since the secret is sent with every request.
+
+## Moved by TECH-015 (2026-10-23)
+
+`TECH-007-R3 whole numbers are read in one way` moved, with the same checks, to the unit tests in `lib/numbers.test.ts`.

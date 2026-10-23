@@ -1,7 +1,4 @@
-import { readFileSync } from "node:fs";
-import { createClient } from "@libsql/client";
 import { expect, test } from "@playwright/test";
-import { formatAmount, formatPrice } from "../lib/format";
 import {
   createAddon,
   createAircraft,
@@ -12,44 +9,9 @@ import {
   uniqueName,
 } from "./helpers";
 
-// R2 runs the migration on a database in memory, so it never touches
-// a real database. The admin tests create and delete their own add-ons.
-
-const readSql = (file: string) => readFileSync(`db/${file}`, "utf8");
-
-test("TECH-005-R2 the migration converts öre to the nearest whole krona", async () => {
-  const db = createClient({ url: ":memory:" });
-  try {
-    await db.executeMultiple(readSql("schema.sql"));
-    await db.execute(`INSERT INTO addons (name, description, price) VALUES
-      ('Bagage', '', 24900), ('Halv', '', 1250), ('Under halv', '', 1249), ('Gratis', '', 0)`);
-    await db.executeMultiple(readSql("migrations/004_whole_kronor.sql"));
-
-    const rows = await db.execute("SELECT name, price FROM addons ORDER BY id");
-    expect(rows.rows.map((r) => [r.name, r.price])).toEqual([
-      ["Bagage", 249],
-      ["Halv", 13],
-      ["Under halv", 12],
-      ["Gratis", 0],
-    ]);
-  } finally {
-    db.close();
-  }
-});
-
-test("TECH-005-R3 prices are formatted as whole kronor", () => {
-  // Intl skriver mellanslag som hårt mellanslag
-  expect(formatPrice(1290).replace(/\s/g, " ")).toBe("1 290 kr");
-  expect(formatAmount(1290).replace(/\s/g, " ")).toBe("1 290");
-  expect(formatPrice(0).replace(/\s/g, " ")).toBe("0 kr");
-});
-
-test("TECH-005-R3 the seed data has no prices", () => {
-  const seed = readSql("seed.sql");
-  for (const table of ["addons", "flight_prices", "booking_flights", "booking_flight_addons"]) {
-    expect(seed).not.toMatch(new RegExp(`INSERT INTO ${table}\\b`));
-  }
-});
+// R2 and R3 are unit tests in db/migrations/004_whole_kronor.test.ts,
+// lib/format.test.ts and db/seed.test.ts (TECH-015). The admin tests create and
+// delete their own add-ons.
 
 test.describe("admin", () => {
   test.beforeEach(async ({ page }) => {

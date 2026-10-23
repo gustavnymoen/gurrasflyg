@@ -279,3 +279,7 @@ Acceptance criteria:
 
 - The old TRIP-001, TRIP-008, TRIP-020 tests that used the date field or the checkbox were changed or removed, and their specs note it (TRIP-001 R6, R7, R9 replaced; TRIP-008's checkbox is the switch; TRIP-020-R6's phone layout).
 - After one-way got one month (R3), `TRIP-009-R6 with Tur och retur off, choosing a day closes the calendar` failed: 13 November was no longer shown. A wrong test, not a bug in the site; it now goes on to November first.
+
+## Moved by TECH-015 (2026-10-23)
+
+The two `TRIP-009-R13 …` tests moved to the unit tests in `lib/dates.test.ts`. The browser tests `TRIP-009-R8 …` and `TRIP-009-R9 …` keep one or two typed dates each; the formats, the year and every message are unit tests there (`TRIP-009-R8 a typed date is shown as day/month, and in the summary with its weekday`, `TRIP-009-R9 readDate gives the message for a date that can't be used`).

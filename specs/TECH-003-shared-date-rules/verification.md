@@ -78,3 +78,7 @@ Acceptance criteria:
 ## Notes
 
 - `bookableDates()` in `tests/helpers.ts` was removed by TRIP-009 (2026-10-23), when the TRIP-001 date tests it served were replaced; the TRIP-009 tests fix the browser's clock instead.
+
+## Moved by TECH-015 (2026-10-23)
+
+The three `TECH-003-R3 …` tests moved, with the same checks and names, from `tests/TECH-003-shared-date-rules.spec.ts` (now deleted) to the unit tests in `lib/dates.test.ts`.

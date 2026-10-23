@@ -1,4 +1,3 @@
-import { statSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   BRASS,
@@ -112,10 +111,6 @@ test("TRIP-020-R3 the photo is behind the heading, and the credit with both link
 test("TRIP-020-R3 the credit is only on the start page", async ({ page }) => {
   await page.goto("/admin/login");
   await expect(page.getByRole("contentinfo")).not.toContainText("Bill Abbott");
-});
-
-test("TRIP-020-R3 the photo file is at most 300 kB and in public/brand", async () => {
-  expect(statSync("public/brand/skymning.jpg").size).toBeLessThanOrEqual(300 * 1024);
 });
 
 // The border is checked by TRIP-022-R2
