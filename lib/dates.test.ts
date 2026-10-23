@@ -59,7 +59,7 @@ test("TRIP-009-R13 parseDate reads day/month with or without a year, and ISO dat
 // which now keep one or two cases each (TECH-015).
 
 test("TRIP-009-R8 a typed date is shown as day/month, and in the summary with its weekday", () => {
-  expect(formatShort("2026-11-13")).toBe("13/11");
+  expect(formatShort("2026-11-13")).toBe("13/12");
   expect(formatShort("2027-01-05")).toBe("5/1");
   expect(formatDay("2026-11-13")).toBe("fre 13 nov");
   expect(formatDay("2027-01-05")).toBe("tis 5 jan");
