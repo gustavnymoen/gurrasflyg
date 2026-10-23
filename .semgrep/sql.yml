@@ -10,17 +10,29 @@ rules:
     message: >-
       SQL is built from text with a value joined in. Pass values as parameters (?) instead.
       If the joined part can never come from a visitor, mark the line with nosemgrep and say why.
-    patterns:
-      - pattern-either:
-          - pattern: $F(`...${$X}...`, ...)
-          - pattern: $F("..." + $X, ...)
-          - pattern: $F($X + "...", ...)
-          - pattern: $O.$F(`...${$X}...`, ...)
-          - pattern: $O.$F("..." + $X, ...)
-          - pattern: $O.$F($X + "...", ...)
-      - metavariable-regex:
-          metavariable: $F
-          regex: ^(all|get|run|execute|query)$
-      - metavariable-regex:
-          metavariable: $X
-          regex: ^(?![A-Z][A-Z0-9_]*$)
+    pattern-either:
+      # Vår databashjälp i lib/db.ts anropas fristående: all(…), get(…), run(…)
+      - patterns:
+          - pattern-either:
+              - pattern: $F(`...${$X}...`, ...)
+              - pattern: $F("..." + $X, ...)
+              - pattern: $F($X + "...", ...)
+          - metavariable-regex:
+              metavariable: $F
+              regex: ^(all|get|run)$
+          - metavariable-regex:
+              metavariable: $X
+              regex: ^(?![A-Z][A-Z0-9_]*$)
+      # Klienten direkt: db.execute(…), tx.execute(…), client.query(…). Inte t.ex.
+      # en Map:s get, som också är ett metodanrop.
+      - patterns:
+          - pattern-either:
+              - pattern: $O.$F(`...${$X}...`, ...)
+              - pattern: $O.$F("..." + $X, ...)
+              - pattern: $O.$F($X + "...", ...)
+          - metavariable-regex:
+              metavariable: $F
+              regex: ^(execute|query)$
+          - metavariable-regex:
+              metavariable: $X
+              regex: ^(?![A-Z][A-Z0-9_]*$)
