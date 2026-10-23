@@ -113,7 +113,7 @@ Playwright tests in `tests/`, one file per feature, each test named after a requ
 | `npm test` | <https://gurrasflyg.vercel.app> | Production (Turso). Tests only create and delete their own "E2E" data. |
 | `npm run test:local` | Production build on port 3100, built in `.next-test/` by `scripts/test-server.mjs` | `~/Ai Projekt/gurrasflyg-data/test.db`, rebuilt from schema, seed and migrations every run. |
 
-`tests/global-teardown.ts` removes leftover "E2E" data after every run. `npm run test:time` (`scripts/test-time.mjs`) runs `npm run test:local` with Playwright's JSON report and prints the number of tests, their total time (without the build) and the five slowest, against the time budgets in `CLAUDE.md`. See `README.md` for the rules.
+`tests/global-teardown.ts` removes leftover "E2E" data after every run. `npm run test:time` (`scripts/test-time.mjs`) runs `npm run test:local` with Playwright's JSON report and prints the number of tests, their total time (without the build) and the five slowest, against the time budgets in `wiki/system/testing.md`, which also has the rules.
 
 ## Related
 

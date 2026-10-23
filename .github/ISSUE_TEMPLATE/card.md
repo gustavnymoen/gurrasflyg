@@ -46,6 +46,17 @@ Acceptance criteria:
 
 - **Given** …, **when** …, **then** ….
 
+## Test plan
+
+How the requirements will be checked (see `wiki/system/testing.md`). Write "none" with the reason where a kind doesn't apply.
+
+- **Unit tests:** which logic, calculations, rules or data.
+- **Browser tests:** which flows and states, with axe on each.
+- **Smoke test:** what a quick read-only check against the preview and production shows, if the card adds or changes a main page or flow.
+- **Accessibility:** which pages go through the checklist on the live site.
+- **Security:** whether `/security-review` is needed (sign-in, admin, API routes, server actions, database queries, personal data).
+- **Code review:** always; anything the reviewer should look at in particular.
+
 ## Non-functional requirements
 
 Performance, accessibility, security, mobile. "None beyond `specs/overview.md`" if nothing special.

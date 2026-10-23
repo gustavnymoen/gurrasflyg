@@ -93,12 +93,13 @@ branch ──push──▶ pull request ──▶ CI (GitHub): npm ci → lint �
 
 ## Tests
 
-- Every requirement has a test named after its ID, for example `TRIP-003-R5 delete a cabin class, unless it is in use`, in `tests/<feature ID>-<name>.spec.ts`. Requirements that can't be tested from the browser are checked in code review, recorded in the feature's `verification.md`.
+Which kind of test checks what, how tests are named, the rules for test data and the time budgets are in [Testing](wiki/system/testing.md). How to run them:
+
 - `npm run test:local` (`scripts/test-server.mjs`) builds the site in `.next-test/`, rebuilds the test database `~/Ai Projekt/gurrasflyg-data/test.db` from scratch and starts the site on port 3100. Your own local database is never touched, and a running `npm run dev` isn't disturbed.
 - `npm test` runs against <https://gurrasflyg.vercel.app>. Admin tests sign in with `ADMIN_PASSWORD` from `.env.local` and are skipped without it.
-- Tests create their own data named "E2E …" and delete it again. `tests/global-teardown.ts` removes any leftovers after every run. Tests that would change shared data irreversibly (for example reassigning every route's aircraft) or read the database directly run only locally.
+- `tests/global-teardown.ts` removes any leftover "E2E" test data after every run.
 - Run both before a feature is done: locally before pushing, against the live site after the deploy.
-- `npm run test:time` runs `npm run test:local` and prints the number of tests, their total time and the five slowest, marking what is over the time budgets in `CLAUDE.md`.
+- `npm run test:time` runs `npm run test:local` and prints the number of tests, their total time and the five slowest, marking what is over the time budgets in `wiki/system/testing.md`.
 
 ## Commands
 

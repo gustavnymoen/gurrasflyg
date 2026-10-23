@@ -1,6 +1,6 @@
 // Mäter testsviten för npm run test:time (TECH-011): kör npm run test:local och
 // skriver ut antalet tester, testernas sammanlagda tid och de fem
-// långsammaste, och markerar det som går över tidsbudgeten i CLAUDE.md.
+// långsammaste, och markerar det som går över tidsbudgeten i wiki/system/testing.md.
 //
 // Tiden är testernas egen tid, utan bygget av testservern, så att den går
 // att jämföra mellan körningar.
