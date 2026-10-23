@@ -1,0 +1,7 @@
+%% TECH-015 Unit tests with Vitest
+flowchart TD
+    A["npm run test:unit"] --> B["vitest.global-setup.mjs: rebuild unit-test.db with db-setup.mjs"]
+    B --> C["*.test.ts next to the code: lib/, db/, app/"]
+    C -->|logic| D["lib/dates.test.ts, numbers, format"]
+    C -->|data| E["db/migrations/*.test.ts read unit-test.db"]
+    F[CI] --> G[lint, type check] --> A --> H[build] --> I["npm run test:local: browser tests in tests/"]

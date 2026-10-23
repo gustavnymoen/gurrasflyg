@@ -83,6 +83,7 @@ The whole test suite runs once, in CI; the preview and the live site get read-on
 
 Which kind of test checks what, how tests are named, the rules for test data and the time budgets are in [Testing](wiki/system/testing.md). How to run them:
 
+- `npm run test:unit` runs the unit tests (Vitest, `*.test.ts` next to the code) in well under a second, after building their own test database; `npm run test:unit -- --watch` reruns them on every save.
 - `npm run test:local` (`scripts/test-server.mjs`) builds the site in `.next-test/`, rebuilds the test database `~/Ai Projekt/gurrasflyg-data/test.db` from scratch and starts the site on port 3100. Your own local database is never touched, and a running `npm run dev` isn't disturbed.
 - `npm test` runs every test against <https://gurrasflyg.vercel.app>, by hand only (the pipeline runs the smoke tests there). Admin tests sign in with `ADMIN_PASSWORD` from `.env.local` and are skipped without it; they create and delete their own "E2E" data in production.
 - `tests/global-teardown.ts` removes any leftover "E2E" test data after every run.
@@ -99,9 +100,10 @@ Which kind of test checks what, how tests are named, the rules for test data and
 | `npm run lint` | Checks the code with ESLint. |
 | `npm run typecheck` | Generates Next.js route types and checks the TypeScript types. |
 | `npm test` | Runs all tests against the live site. `BASE_URL=<address> npm test` runs them against another address. |
-| `npm run test:local` | Runs all tests against a local production build with a fresh test database. |
+| `npm run test:unit` | Runs the unit tests (Vitest). Add `-- --watch` to rerun them on every save. |
+| `npm run test:local` | Runs all browser tests against a local production build with a fresh test database. |
 | `npm run test:smoke` | Runs the read-only smoke tests (`@smoke`) against the live site, or against `BASE_URL`. |
-| `npm run test:time` | Runs `npm run test:local` and prints the number of tests, the total time and the slowest tests, against the time budgets. |
+| `npm run test:time` | Runs the unit tests and `npm run test:local` and prints the number of tests, the total time and the slowest tests, against the time budgets. |
 | `npm run db:backup` | Saves a backup of the local database in `db/backups/`. |
 | `npm run db:reset` | Rebuilds the local database from scratch, after saving a backup. Never runs against Turso. |
 | `npm run db:turso` | Runs new migrations against Turso, using `.env.turso`. |

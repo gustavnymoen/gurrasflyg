@@ -38,3 +38,7 @@ title: All prices in whole kronor
 - **Small cleanup in the same change:** `noSpinnerClass` (hid the arrows in number fields) was deleted; the seats fields in `AircraftForm.tsx` were already text fields, so it did nothing there.
 - **Mistake during the work:** the new test file was first run without `BASE_URL`, so against the live site with the old code; the R4 test saved an "E2E Addon" for 12,50 kr there. The global teardown removed it; a check of the live admin page afterwards found no "E2E" data left.
 - `npm run copy-to-prod` could not be run between the local migration and the deploy, when the local database was in kronor and Turso still in öre. Both are in kronor since the deploy of pull request #7.
+
+## Moved by TECH-015 (2026-10-23)
+
+`TECH-005-R2 …` moved to `db/migrations/004_whole_kronor.test.ts`, and the two `TECH-005-R3 …` tests to `lib/format.test.ts` and `db/seed.test.ts`, with the same checks and names, as unit tests.

@@ -32,3 +32,7 @@ Specified after the feature was built. Checked with the tests in `tests/TRIP-005
 - R1–R4 read the database directly, which is only possible locally. R7–R9 would replace the live site's assignments, so they are skipped against the live site. Production has the same migrations, so the data is the same.
 - The spec first said ARN–JFK takes 505 minutes; the generated data says 500, which matches the formula. The spec was corrected.
 - R8 requires that no aircraft exist in the test database, which holds because every test deletes its aircraft and the database is rebuilt for every run.
+
+## Moved by TECH-015 (2026-10-23)
+
+`TRIP-005-R1` to `TRIP-005-R5` moved, with the same checks and names, to the unit tests in `db/migrations/002_routes_data.test.ts`, which read the unit tests' own database instead of the browser tests' test database.

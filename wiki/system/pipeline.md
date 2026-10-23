@@ -15,7 +15,7 @@ Every change reaches the live site through a pull request to `main`. The whole t
 ```mermaid
 flowchart TD
     A[Branch: code, tests, review] -->|push| B[Pull request to main]
-    B --> C["CI: check<br/>lint, type check, build,<br/>the whole test suite"]
+    B --> C["CI: check<br/>lint, type check, unit tests,<br/>build, every browser test"]
     B --> D["CI: security<br/>npm audit, Semgrep, Gitleaks"]
     B --> E[Vercel builds a preview<br/>with its own database]
     E -->|deployment_status| F["Preview tests<br/>smoke tests against the preview;<br/>fails if the deploy failed"]
@@ -31,7 +31,7 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 
 | Workflow | When | Against | What |
 |---|---|---|---|
-| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:local` (every browser test, also those that read the database) |
+| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `npm run test:local` (every browser test) |
 | **CI**, job `security` | Every pull request to `main`; by hand | The code and its whole Git history | `npm audit`, Semgrep, Gitleaks ([Testing](testing.md#security)) |
 | **Preview tests** (`preview-tests.yml`) | When Vercel reports a preview as ready (`deployment_status`) | The pull request's preview on Vercel | `npm run test:smoke` |
 | **Live tests** (`live-tests.yml`) | When Vercel reports a production deploy as ready (`deployment_status`); by hand | <https://gurrasflyg.vercel.app> | `npm run test:smoke` |

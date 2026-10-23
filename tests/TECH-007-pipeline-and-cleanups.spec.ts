@@ -1,19 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { parseWholeNumber } from "../lib/numbers";
 import { requireAdminPassword, signIn } from "./helpers";
 
 // R2, R4 and R5 are about the GitHub workflows and are checked on GitHub
-// (see verification.md). The admin test only opens the aircraft form and
+// (see verification.md). R3's parser is a unit test in lib/numbers.test.ts (TECH-015). The admin test only opens the aircraft form and
 // saves nothing.
-
-test("TECH-007-R3 whole numbers are read in one way", () => {
-  expect(parseWholeNumber("1290")).toBe(1290);
-  expect(parseWholeNumber("1 290")).toBe(1290);
-  expect(parseWholeNumber(" 0 ")).toBe(0);
-  for (const text of ["12,50", "12.50", "1e2", "12.0", "-5", "tolv", "", "  "]) {
-    expect(parseWholeNumber(text), text).toBeNull();
-  }
-});
 
 test("TECH-007-R3 the seats field accepts only whole numbers", async ({ page }) => {
   requireAdminPassword();

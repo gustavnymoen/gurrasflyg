@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { parseDate, returnRange } from "../lib/dates";
 import { animationsDone, expectNoA11yViolations } from "./helpers";
 
 // The browser's clock is fixed to Wednesday 21 October 2026, so the
@@ -147,20 +146,18 @@ test.describe("in the browser", () => {
     await expect(returnField(page)).toHaveValue("");
   });
 
+  // The formats and the year are unit tests of parseDate and formatShort in
+  // lib/dates.test.ts; here only that the page reads a date on Enter and Tab.
   test("TRIP-009-R8 a typed date is read on Enter and when leaving the field", async ({ page }) => {
     await typeDate(page, "Utresa", "13/11");
     await expect(returnField(page)).toBeFocused();
     await expect(calendar(page).getByText("Välj hemresa")).toBeVisible();
     await expect(summary(page)).toHaveText("Utresa fre 13 nov · Hemresa –");
 
-    // Without a year: the next 5 January, which is in 2027 (a Tuesday)
-    await outboundField(page).fill("5/1");
+    await outboundField(page).fill("2027-01-05");
     await outboundField(page).press("Tab");
     await expect(outboundField(page)).toHaveValue("5/1");
     await expect(summary(page)).toHaveText("Utresa tis 5 jan · Hemresa –");
-
-    await typeDate(page, "Utresa", "2026-11-13");
-    await expect(outboundField(page)).toHaveValue("13/11");
 
     // Enter on an unchanged date moves on, as a click on the day would
     await outboundField(page).click();
@@ -168,19 +165,16 @@ test.describe("in the browser", () => {
     await expect(returnField(page)).toBeFocused();
   });
 
+  // Every message is a unit test of readDate in lib/dates.test.ts; here one for
+  // each field, shown under the group, and that a valid date removes it.
   test("TRIP-009-R9 a typed date that can't be used gives a message under the group", async ({ page }) => {
     await typeDate(page, "Utresa", "31/2");
     await expect(dateMessage(page, "Skriv datumet som 13/11 eller 2026-11-13.")).toBeVisible();
     await expect(outboundField(page)).toHaveAttribute("aria-invalid", "true");
     await expect(outboundField(page)).toHaveValue("31/2");
 
-    await typeDate(page, "Utresa", "2026-10-20");
-    await expect(dateMessage(page, "Datumet har redan passerat.")).toBeVisible();
-
     await typeDate(page, "Utresa", "13/11");
     await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0);
-    await typeDate(page, "Hemresa", "12/11");
-    await expect(dateMessage(page, "Hemresan kan inte vara före utresan.")).toBeVisible();
     await typeDate(page, "Hemresa", "14/1");
     await expect(dateMessage(page, "Hemresan kan vara max 2 månader efter utresan.")).toBeVisible();
 
@@ -291,24 +285,4 @@ test.describe("in the browser", () => {
       await expect(calendar(page).getByRole("grid")).toHaveCount(1);
     });
   });
-});
-
-test("TRIP-009-R13 returnRange is from the outbound day up to two months after, within the bookable days", () => {
-  const range = { min: "2026-10-20", max: "2027-04-20" };
-  expect(returnRange("2026-11-13", range)).toEqual({ min: "2026-11-13", max: "2027-01-13" });
-  expect(returnRange("2026-12-31", range)).toEqual({ min: "2026-12-31", max: "2027-02-28" });
-  expect(returnRange("2027-03-01", range)).toEqual({ min: "2027-03-01", max: "2027-04-20" });
-});
-
-test("TRIP-009-R13 parseDate reads day/month with or without a year, and ISO dates", () => {
-  const today = new Date(2026, 9, 21);
-  for (const text of ["13/11", "13/11 2026", "13/11/2026", "2026-11-13"]) {
-    expect(parseDate(text, today), text).toBe("2026-11-13");
-  }
-  expect(parseDate("5/1", today)).toBe("2027-01-05");
-  expect(parseDate("21/10", today)).toBe("2026-10-21");
-  expect(parseDate("20/10", today)).toBe("2027-10-20");
-  for (const text of ["31/2", "13/13", "2026-02-30", "abc", ""]) {
-    expect(parseDate(text, today), text).toBeNull();
-  }
 });

@@ -41,6 +41,8 @@ jobs:
 
       - run: npm run lint
       - run: npm run typecheck
+      # TECH-015: enhetstesterna före bygget, så att en trasig regel stoppar tidigt
+      - run: npm run test:unit
       - run: npm run build
       - run: npm run test:local
 

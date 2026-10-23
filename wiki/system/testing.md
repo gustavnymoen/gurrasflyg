@@ -15,7 +15,7 @@ The project follows specification-driven development (see "How we work" in `spec
 
 | Check | What it checks | Written | Runs | Passes when | Status |
 |---|---|---|---|---|---|
-| [Unit tests](#unit-tests) | Logic, calculations, rules and data | With the code, while building | On save (watch mode), in CI | Every unit test passes | Comes with TECH-015 |
+| [Unit tests](#unit-tests) | Logic, calculations, rules and data | With the code, while building | On save (watch mode), in CI before the build | Every unit test passes | In use |
 | [Browser tests](#browser-tests) | What a visitor or the administrator sees and does, the keyboard, and look | In the Test step | Locally and in CI | Every browser test passes, none retried | In use |
 | [Smoke tests](#smoke-tests) | That a deployed site works: the main pages and flows answer | When a feature adds or changes a main page or flow | Against the preview and production after each deploy | Every smoke test passes against the deployed site | In use |
 | [Accessibility](#accessibility) | WCAG 2.2 AA | axe in the browser tests; the checklist after deploy | In the browser tests; by hand on the live site | axe finds no violations, and every relevant checklist item passes | In use |
@@ -26,11 +26,10 @@ The project follows specification-driven development (see "How we work" in `spec
 
 ## Unit tests
 
-*Comes with TECH-015. Until then, tests without a browser run in Playwright, in `tests/`.*
-
 - **Tool:** Vitest. `npm run test:unit` runs all unit tests once; `npm run test:unit -- --watch` reruns the affected ones on every save.
 - **Place and name:** next to the code they test, as `<file>.test.ts` (for example `lib/dates.test.ts`); data checks next to the data or migrations they check. Each test is named after its requirement, as the browser tests are.
-- **Data:** tests that read the database use a fresh test database built by the migrations, never the user's own.
+- **Data:** tests that read the database use their own test database, `~/Ai Projekt/gurrasflyg-data/unit-test.db`, which `vitest.global-setup.mjs` deletes and builds again from the schema, seed and migrations (with `scripts/db-setup.mjs`) before every run, so it is never the user's own. Read it with `queryUnitDb` or `openUnitDb` from `db/test-db.ts`.
+- **Every test that needs no browser is a unit test.** `tests/` holds only browser tests (and the smoke tests); Vitest runs only `*.test.ts` outside `tests/`, Playwright only `tests/*.spec.ts`.
 - **Written** together with the code, while building. A feature with logic (prices, dates, rules, generated data) gets its unit tests in the same change.
 
 ## Browser tests
@@ -78,7 +77,7 @@ Every feature and technical task is reviewed by the reviewer agent before it is 
 |---|---|---|---|---|
 | Lint, type check, build | ✓ | ✓ | | |
 | Browser tests | `npm run test:local` | ✓ (all) | | |
-| Unit tests (TECH-015) | ✓ | ✓ | | |
+| Unit tests | `npm run test:unit` | ✓ (before the build) | | |
 | Smoke tests | `npm run test:smoke` | ✓ (part of all) | ✓ | ✓ |
 | axe | in the browser tests | ✓ | | |
 | Security scans | | ✓ (job `security`) | | |
@@ -104,10 +103,11 @@ From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 
 | What | Budget |
 |---|---|
 | One test, locally | at most 5 s |
+| All unit tests (`npm run test:unit`) | at most 30 s |
 | All tests in `npm run test:local` (without the build) | at most 3 min |
 | The smoke tests against a preview or the live site | at most 1 min |
 | A whole job on GitHub | CI at most 8 min, of which at most 2 min preparation; Preview tests and Live tests at most 2 min |
 
-`npm run test:time` runs `npm run test:local` and prints the number of tests, the total time and the five slowest tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
+`npm run test:time` runs the unit tests and `npm run test:local`, and prints the number of each, their total time and the five slowest browser tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
 
 [System documentation](index.md)

@@ -135,3 +135,7 @@ Acceptance criteria:
 - From the review: the generator sorts with a plain comparison instead of `localeCompare`, so the file is the same on every computer, and names a missing value; the R2 test also checks `status_source`.
 - Small cleanup: TRIP-005's tests had their own function for reading the test database; it is now `queryTestDb` in `tests/helpers.ts`, shared with TRIP-007.
 - `npm run build` ran the two migrations on the local database too (the normal path, as `npm run dev` does), after saving a backup in `db/backups/`.
+
+## Moved by TECH-015 (2026-10-23)
+
+`TRIP-007-R1` to `TRIP-007-R8` moved, with the same checks and names, to the unit tests in `db/migrations/006_charter_data.test.ts`, which read the unit tests' own database.
