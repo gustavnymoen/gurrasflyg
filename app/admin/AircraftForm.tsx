@@ -88,7 +88,7 @@ export default function AircraftForm({
           onDone,
         );
       }}
-      className="flex flex-col gap-4 rounded-card-compact border border-edge bg-surface-sunk p-4 text-sm"
+      className="flex flex-col gap-4 rounded-card-compact border border-line-strong bg-surface-sunk p-4 text-sm"
     >
       <h3 className="text-sm font-semibold">{title}</h3>
       <LabeledField label="Planets namn">

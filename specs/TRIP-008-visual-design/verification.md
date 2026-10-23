@@ -9,10 +9,10 @@ How each requirement was checked.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TRIP-008-R1 | Tests `TRIP-008-R1 changing --font-display changes every heading` and `TRIP-008-R1 changing the accent changes buttons, focus ring, checkbox and suggestions` in `tests/TRIP-008-visual-design.spec.ts`. Code review: `grep -rnE '#[0-9a-fA-F]{3,8}\b\|rgba?\(\|(bg\|text\|border\|…)-(neutral\|red\|emerald\|…)' app` finds nothing outside `globals.css`; `--color-*: initial` removes the palette | local | Pass | 2026-10-22 |
+| TRIP-008-R1 | Tests `TRIP-008-R1 changing --font-display changes every heading` and `TRIP-008-R1 changing the accent changes buttons, focus ring, switch and suggestions` in `tests/TRIP-008-visual-design.spec.ts`. Code review: `grep -rnE '#[0-9a-fA-F]{3,8}\b\|rgba?\(\|(bg\|text\|border\|…)-(neutral\|red\|emerald\|…)' app` finds nothing outside `globals.css`; `--color-*: initial` removes the palette | local | Pass | 2026-10-22 |
 | TRIP-008-R2 | Code review: every button, input and card in the search form and on the sign-in page uses `Button`, `RoundButton`, `Field`/`fieldInputClass`, `Checkbox` or `Card`; `ui.tsx` deleted, admin imports the class helpers from the component files | local | Pass | 2026-10-22 |
 | TRIP-008-R3 | Tests `TRIP-008-R3 headings and text are set in Bricolage Grotesque in the right sizes` and `TRIP-008-R3 the page no longer loads Geist` | local | Pass | 2026-10-22 |
-| TRIP-008-R4 | Tests `TRIP-008-R4 the primary button has the accent and a focused field the accent border`, `TRIP-008-R4 text and placeholders have a contrast of at least 4.5:1` and `TRIP-008-R4 field borders and the focus ring have a contrast of at least 3:1` | local | Pass | 2026-10-22 |
+| TRIP-008-R4 | Tests `TRIP-008-R4 the primary button has the accent and a focused field the accent border` (renamed `… a focused field has the accent border` by TRIP-022, which checks the primary button), `TRIP-008-R4 text and placeholders have a contrast of at least 4.5:1` and `TRIP-008-R4 field borders and the focus ring have a contrast of at least 3:1` | local | Pass | 2026-10-22 |
 | TRIP-008-R5 | Test `TRIP-008-R5 the search form and the sign-in form are cards that stand out` | local | Pass | 2026-10-22 |
 | TRIP-008-R6 | Tests `TRIP-008-R6 each field shows its label and placeholder and keeps its accessible name`, `… a focused field has the accent border`, `… an invalid date gives a red border and red text under the field`, `… the checkbox is drawn with the accent when chosen`; TRIP-001 tests unchanged apart from the placeholders | local | Pass | 2026-10-22 |
 | TRIP-008-R7 | Tests `TRIP-008-R7 a date error is red text without a box` and `TRIP-008-R7 a wrong password is red text without a box` | local | Pass | 2026-10-22 |
@@ -74,6 +74,8 @@ Acceptance criteria:
 
 ### TRIP-008-R4 Colour use
 
+*Changed by TRIP-022-R4 (2026-10-23): primary buttons are no longer filled with the accent but have a faint tone of it (`--color-accent-soft`), the fields' border and light text; on hover the border turns `accent-strong`. Checked by `TRIP-022-R4 …`.*
+
 The ground shall be dark (`color-scheme: dark`). Wine red is reserved for what the visitor does: primary buttons, the focus ring, the selected state (checkbox, suggestion, review in focus). Brass is for details: the stars and the name on a review. Text and placeholders have a contrast of at least 4.5:1 against their background; field borders, checkbox borders and the focus ring at least 3:1 (WCAG 1.4.11).
 
 Acceptance criteria:
@@ -83,6 +85,8 @@ Acceptance criteria:
 - **Then** field borders and the focus ring have a contrast of at least 3:1 against the surface around them. (Test: computed colours.)
 
 ### TRIP-008-R5 Cards that stand out
+
+*Changed by TRIP-022 (2026-10-23): cards have the fields' border colour (`--color-line-strong`) instead of the brass-tinted edge, which is removed. The border is checked by `TRIP-022-R1 …`; this test checks the shadows.*
 
 Cards shall have a thin brass-tinted border and a deep shadow with a faint wine red glow, so that they stand out from the background, as on the design board. Menus and pop-ups (airport suggestions) float above with their own shadow.
 
@@ -113,6 +117,8 @@ Acceptance criteria:
 - **When** the administrator signs in with a wrong password, **then** the message is red text without a background or border.
 
 ### TRIP-008-R8 Buttons
+
+*Changed by TRIP-022-R4 (2026-10-23): primary buttons are no longer filled with the accent but have a faint tone of it (`--color-accent-soft`), the fields' border and light text; on hover the border turns `accent-strong`. Checked by `TRIP-022-R4 …`.*
 
 Buttons shall have one shape, a rounded pill, and three variants: primary (filled with the accent), secondary (accent border) and quiet (text only), in a default and a compact size. A button pressed down shrinks slightly (`scale(0.97)`, 160 ms); a disabled button is faded and doesn't react.
 

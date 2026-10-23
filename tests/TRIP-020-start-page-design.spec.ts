@@ -1,7 +1,6 @@
 import { statSync } from "node:fs";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
-  ACCENT_STRONG,
   BRASS,
   CARD_SHADOW,
   css,
@@ -119,7 +118,8 @@ test("TRIP-020-R3 the photo file is at most 300 kB and in public/brand", async (
   expect(statSync("public/brand/skymning.jpg").size).toBeLessThanOrEqual(300 * 1024);
 });
 
-test("TRIP-020-R4 the card in focus is at most 15 × 12 rem, with the card shadow, the accent border and the name in brass", async ({
+// The border is checked by TRIP-022-R2
+test("TRIP-020-R4 the card in focus is at most 15 × 12 rem, with the card shadow and the name in brass", async ({
   page,
 }) => {
   await page.goto("/");
@@ -129,8 +129,6 @@ test("TRIP-020-R4 the card in focus is at most 15 × 12 rem, with the card shado
   expect(box.width).toBeLessThanOrEqual(15 * 16);
   expect(box.height).toBeLessThanOrEqual(12 * 16);
   expect(await css(card, "box-shadow")).toContain(CARD_SHADOW);
-  await expect(card).toHaveCSS("border-top-width", "1px");
-  await expect(card).toHaveCSS("border-top-color", ACCENT_STRONG);
   await expect(card.getByText(/^– /)).toHaveCSS("color", BRASS);
 });
 

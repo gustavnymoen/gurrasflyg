@@ -1,0 +1,9 @@
+%% TRIP-022 One border colour for cards
+%% Which border each kind of frame gets.
+flowchart TD
+    A[A frame on the site] --> B{What is it?}
+    B -- field, checkbox, round button --> C["--color-line-strong"]
+    B -- card or aircraft form (R1) --> C
+    B -- review card, in focus or not (R2) --> C
+    B -- dialog or suggestion list (R3) --> D["--color-line, unchanged"]
+    B -- field with focus (R3) --> E["accent border and focus ring, unchanged"]

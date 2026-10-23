@@ -3,44 +3,15 @@ import {
   ACCENT,
   animationsDone,
   ACCENT_STRONG,
+  backgroundOf,
   CARD_SHADOW,
+  contrast,
   css,
   DANGER,
-  EDGE,
   expectNoA11yViolations,
   expectTextMessage,
   FLOAT_SHADOW,
 } from "./helpers";
-
-// WCAG contrast ratio between two colours given as "rgb(…)" or "rgba(…)".
-// A translucent colour is first laid over the background.
-function contrast(foreground: string, background: string) {
-  const parse = (c: string) => c.match(/[\d.]+/g)!.map(Number);
-  const [br, bg, bb] = parse(background);
-  const [fr, fg, fb, alpha = 1] = parse(foreground);
-  const blend = (f: number, b: number) => f * alpha + b * (1 - alpha);
-  const luminance = (rgb: number[]) => {
-    const [r, g, b] = rgb.map((v) => {
-      const s = v / 255;
-      return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-    });
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  };
-  const l1 = luminance([blend(fr, br), blend(fg, bg), blend(fb, bb)]);
-  const l2 = luminance([br, bg, bb]);
-  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-}
-
-// The first non-transparent background behind an element (the surfaces are opaque)
-function backgroundOf(locator: Locator) {
-  return locator.evaluate((el) => {
-    for (let e: Element | null = el; e; e = e.parentElement) {
-      const bg = getComputedStyle(e).backgroundColor;
-      if (bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
-    }
-    return getComputedStyle(document.body).backgroundColor;
-  });
-}
 
 // The box around a field: <Field> draws the border and the ring, not the input itself
 const fieldBox = (input: Locator) => input.locator("xpath=..");
@@ -86,7 +57,11 @@ test("TRIP-008-R1 changing the accent changes buttons, focus ring, switch and su
   const green = "rgb(0, 128, 0)";
   await page.goto("/admin/login");
   await setToken(page, "--color-accent", green);
-  await expect(page.getByRole("button", { name: "Logga in" })).toHaveCSS("background-color", green);
+  // The primary button has the accent at 30 % (TRIP-022-R4), reported as color(srgb …)
+  await expect(page.getByRole("button", { name: "Logga in" })).toHaveCSS(
+    "background-color",
+    "color(srgb 0 0.501961 0 / 0.3)",
+  );
 
   await page.goto("/");
   // The chosen suggestion has the accent mixed with transparency, so compare before and after
@@ -137,10 +112,8 @@ test("TRIP-008-R3 the page no longer loads Geist", async ({ page }) => {
   expect(fonts).not.toMatch(/Geist/i);
 });
 
-test("TRIP-008-R4 the primary button has the accent and a focused field the accent border", async ({ page }) => {
-  await page.goto("/admin/login");
-  await expect(page.getByRole("button", { name: "Logga in" })).toHaveCSS("background-color", ACCENT);
-
+// The primary button's look is checked by TRIP-022-R4
+test("TRIP-008-R4 a focused field has the accent border", async ({ page }) => {
   await page.goto("/");
   const from = page.getByRole("combobox", { name: "Från" });
   await from.focus();
@@ -183,10 +156,10 @@ test("TRIP-008-R4 field borders and the focus ring have a contrast of at least 3
   expect(contrast(await css(track, "border-top-color"), await backgroundOf(calendar))).toBeGreaterThanOrEqual(3);
 });
 
+// The card border is checked by TRIP-022-R1
 test("TRIP-008-R5 the search form and the sign-in form are cards that stand out", async ({ page }) => {
   await page.goto("/");
   const searchCard = page.locator("section").filter({ has: page.getByRole("combobox", { name: "Från" }) });
-  await expect(searchCard).toHaveCSS("border-top-color", EDGE);
   expect(await css(searchCard, "box-shadow")).toContain(CARD_SHADOW);
 
   await page.getByRole("combobox", { name: "Från" }).fill("lon");
@@ -194,7 +167,6 @@ test("TRIP-008-R5 the search form and the sign-in form are cards that stand out"
 
   await page.goto("/admin/login");
   const loginCard = page.locator("section").filter({ has: page.getByLabel("Lösenord") });
-  await expect(loginCard).toHaveCSS("border-top-color", EDGE);
   expect(await css(loginCard, "box-shadow")).toContain(CARD_SHADOW);
 });
 
@@ -246,7 +218,6 @@ test("TRIP-008-R7 a wrong password is red text without a box", async ({ page }) 
 test("TRIP-008-R8 buttons are pills, and a disabled button is faded", async ({ page }) => {
   await page.goto("/admin/login");
   const login = page.getByRole("button", { name: "Logga in" });
-  await expect(login).toHaveCSS("background-color", ACCENT);
   await expect(login).toHaveCSS("border-top-left-radius", "999px");
 
   await page.goto("/");

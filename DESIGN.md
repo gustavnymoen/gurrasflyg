@@ -20,10 +20,10 @@ All tokens are defined once, in `@theme static` in `app/globals.css`. Tailwind t
 | `--color-ink-muted` | `text-ink-muted` | Secondary text and field labels (6.8:1 on a card). |
 | `--color-ink-faint` | `placeholder:text-ink-faint` | Placeholders (5.3:1 on a card). |
 | `--color-line` | `border-line` | Dividers and table rows. Decorative, so no contrast requirement. |
-| `--color-line-strong` | `border-line-strong` | Borders of fields, checkboxes and round buttons; empty stars. At least 3:1 (WCAG 1.4.11). |
-| `--color-edge` | `border-edge` | The thin brass-tinted border of cards. |
-| `--color-accent` | `bg-accent` | Primary buttons, a chosen checkbox, a chosen suggestion. |
-| `--color-accent-strong` | `border-accent-strong` | Hover on buttons, the focus ring, a focused field, the review in focus. At least 3:1 against the ground. |
+| `--color-line-strong` | `border-line-strong` | Borders of fields, checkboxes, buttons and cards (also the review cards); empty stars. At least 3:1 (WCAG 1.4.11). |
+| `--color-accent` | `bg-accent` | A chosen day, the switch turned on, a chosen suggestion. |
+| `--color-accent-soft` | `bg-accent-soft` | Primary buttons: the accent at 30 %, with the fields' border and light text. |
+| `--color-accent-strong` | `border-accent-strong` | Hover on buttons (the border turns wine red), the focus ring, a focused field. At least 3:1 against the ground. |
 | `--color-accent-glow` | `ring-accent-glow` | The glow around a focused field and in the card shadow. |
 | `--color-on-accent` | `text-on-accent` | Text on the accent. |
 | `--color-brass` | `text-brass` | Details: stars, the plane, the name on a review. |
@@ -100,12 +100,12 @@ The site's own images are in `public/brand/`; `public/images/` is the course's s
 
 ## Rules
 
-- **The accent is for what the visitor does:** primary buttons, focus and chosen states. Headings and text are never wine red.
+- **The accent is for what the visitor does:** focus, hover and chosen states. Buttons have the fields' light border, which turns wine red on hover; primary buttons also have a faint tone of the accent (`accent-soft`), since a strong filled wine red looked like a warning. Headings and text are never wine red.
 - **Brass is for details:** stars, the plane, a reviewer's name. Never for text one has to read.
 - **One font**, Bricolage Grotesque, for headings and text.
 - **Buttons are pills**, in three variants. A page's most important action is `primary`.
 - **Messages are coloured text**, never boxes.
-- **Cards** have the brass-tinted edge and the card shadow; menus and dialogs float with the floating shadow.
+- **Cards** have the same border as the fields and the card shadow; menus and dialogs float with the fainter `--color-line` border and the floating shadow. The review in focus is told apart by its size and full visibility, not by its border.
 - **Contrast:** text and placeholders at least 4.5:1, borders that show a control and the focus ring at least 3:1. Check a new colour with the tests in `tests/TRIP-008-visual-design.spec.ts`.
 - **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours. Motion has a purpose: a button responds to a press, the carousel slides, the calendar floats in, the wordmark takes off once. The wordmark's take-off (1.4 s) and hop (0.9 s) are decoration, not a control's response, so the 300 ms limit doesn't apply to them.
 - **Reduced motion:** when the visitor prefers reduced motion, a rule in `globals.css` turns off every animation and limits transitions to colours and opacity, so nothing moves. New motion needs nothing extra; animations that should only run otherwise are also written `motion-safe:`.

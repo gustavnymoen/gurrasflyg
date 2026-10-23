@@ -1,7 +1,7 @@
-// Kort som "poppar" ut från bakgrunden: tunn mässingstonad kant och djup
+// Kort som "poppar" ut från bakgrunden: samma kant som fälten och djup
 // skugga med ett svagt vinrött sken (DESIGN.md)
 
-const look = "border border-edge bg-surface shadow-card";
+const look = "border border-line-strong bg-surface shadow-card";
 // default: startsidan och inloggningen, compact: adminsidan
 const sizes = { default: "rounded-card p-6", compact: "rounded-card-compact p-4" };
 

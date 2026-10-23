@@ -1,16 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
-  ACCENT,
-  ACCENT_STRONG,
+  adminCard,
   CARD_SHADOW,
   createClass,
   css,
   DANGER,
   deleteWithConfirmation,
-  EDGE,
   expectNoA11yViolations,
   expectTextMessage,
   FLOAT_SHADOW,
+  LINE,
   requireAdminPassword,
   reviewForm,
   signIn,
@@ -22,10 +21,6 @@ import {
 
 // Tests that need data create it with a unique name and delete it again, so
 // they can also run against the live site.
-
-// A collapsible admin card, found by the button in its heading ("Plan (3)")
-const adminCard = (page: Page, title: string) =>
-  page.locator("section").filter({ has: page.getByRole("button", { name: new RegExp(`^${title}`), expanded: true }) });
 
 // Opens the form for a new add-on, fills in everything but the name and saves
 async function saveAddonWithoutName(page: Page) {
@@ -42,11 +37,10 @@ test.beforeEach(async ({ page }) => {
   await signIn(page);
 });
 
-test("TRIP-019-R3 the admin cards have the card border and the card shadow", async ({ page }) => {
+// The card border is checked by TRIP-022-R1
+test("TRIP-019-R3 the admin cards have the card shadow", async ({ page }) => {
   for (const title of ["Klasser & addons", "Plan", "Omdömen"]) {
-    const card = adminCard(page, title);
-    await expect(card).toHaveCSS("border-top-color", EDGE);
-    expect(await css(card, "box-shadow")).toContain(CARD_SHADOW);
+    expect(await css(adminCard(page, title), "box-shadow")).toContain(CARD_SHADOW);
   }
 });
 
@@ -58,6 +52,8 @@ test("TRIP-019-R3 a dialog floats with the floating shadow", async ({ page }) =>
   const dialog = page.getByRole("alertdialog");
   await expect(dialog).toBeVisible();
   expect(await css(dialog, "box-shadow")).toContain(FLOAT_SHADOW);
+  // TRIP-022-R3: dialogs keep their fainter border
+  await expect(dialog).toHaveCSS("border-top-color", LINE);
   await expectNoA11yViolations(page);
   await dialog.getByRole("button", { name: "Nej" }).click();
 
@@ -83,9 +79,7 @@ test("TRIP-019-R5 Spara and Avbryt are compact pill buttons of the same shape", 
   const save = section.getByRole("button", { name: "Spara" });
   const cancel = section.getByRole("button", { name: "Avbryt" });
 
-  await expect(save).toHaveCSS("background-color", ACCENT);
-  await expect(cancel).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expect(cancel).toHaveCSS("border-top-color", ACCENT_STRONG);
+  // The buttons' colours are checked by TRIP-022-R4
   for (const button of [save, cancel]) {
     await expect(button).toHaveCSS("border-top-left-radius", "999px");
     await expect(button).toHaveCSS("height", "34px");
