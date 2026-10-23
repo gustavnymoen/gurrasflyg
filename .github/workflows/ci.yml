@@ -1,4 +1,5 @@
 # TECH-001: kontroller för varje pull request och varje push till main.
+# TECH-013: säkerhetsjobbet bredvid: sårbara paket, osäker kod och läckta hemligheter.
 # Bara pull_request för andra grenar, annars körs allt två gånger (TECH-007).
 # Lint, typkontroll, bygge och alla tester mot ett lokalt produktionsbygge
 # med egen testdatabas. Använder varken Turso eller några riktiga lösenord.
@@ -9,6 +10,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
+# GITHUB_TOKEN får bara läsa (TECH-013)
+permissions:
+  contents: read
 
 # En ny push på samma gren avbryter den förra körningen
 concurrency:
@@ -48,3 +53,41 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 14
+
+  # TECH-013: sårbara paket (npm audit), osäkra mönster i vår kod (Semgrep) och
+  # hemligheter i hela git-historiken (Gitleaks). Gratisverktyg; Semgrep och
+  # Gitleaks körs från sina officiella images med fast version.
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      # Hela historiken, så att Gitleaks ser varje commit
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Bara paketen sajten använder i produktion, och bara allvarliga fynd
+      - name: Sårbara paket
+        run: npm audit --omit=dev --audit-level=high
+
+      # Semgreps fria regler för JavaScript, TypeScript, React, Next.js och SQL.
+      # Ett fel som inte är ett fel markeras i koden med nosemgrep och varför.
+      # Varje skanning körs även om en tidigare föll, så att alla fynd syns.
+      # Plus vår egen regel i .semgrep/ för SQL med vår databashjälp. .claude/ är
+      # verktyg för utvecklingen, inte sajten, och skannas inte.
+      - name: Osäker kod
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.182.0 \
+            semgrep scan --error --metrics=off --exclude .claude \
+              --config p/javascript --config p/typescript --config p/react \
+              --config p/nextjs --config p/sql-injection --config .semgrep/
+
+      # Hela historiken bakom den här ändringen (HEAD, inte andra brancher) varje
+      # gång: den är liten, och en hemlighet som kommit in tidigare ska också
+      # hittas. Värdena skrivs aldrig ut (--redact).
+      - name: Läckta hemligheter
+        if: ${{ !cancelled() }}
+        run: |
+          docker run --rm -v "$PWD:/repo" --entrypoint sh ghcr.io/gitleaks/gitleaks:v8.30.1 -c \
+            'git config --global --add safe.directory /repo && gitleaks git /repo --log-opts=HEAD --redact --verbose'

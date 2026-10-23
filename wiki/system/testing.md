@@ -19,7 +19,7 @@ The project follows specification-driven development (see "How we work" in `spec
 | [Browser tests](#browser-tests) | What a visitor or the administrator sees and does, the keyboard, and look | In the Test step | Locally and in CI; today also against the preview and production (until TECH-014) | Every browser test passes, none retried | In use |
 | [Smoke tests](#smoke-tests) | That a deployed site works: the main pages and flows answer | When a feature adds or changes a main page or flow | Against the preview and production after each deploy | Every smoke test passes against the deployed site | Comes with TECH-014 |
 | [Accessibility](#accessibility) | WCAG 2.2 AA | axe in the browser tests; the checklist after deploy | In the browser tests; by hand on the live site | axe finds no violations, and every relevant checklist item passes | In use |
-| [Security](#security) | Security mistakes in our code, leaked secrets, vulnerable packages | In the review step; scans in the pipeline | Review; CI and Dependabot from TECH-013 | No security finding left that must be fixed, and the scans pass | Partly; the rest comes with TECH-013 |
+| [Security](#security) | Security mistakes in our code, leaked secrets, vulnerable packages | In the review step; scans in the pipeline | Review; CI (the job `security`); Dependabot | No security finding left that must be fixed, and the scans pass | In use |
 | [Code review](#code-review) | What the tools can't: design, duplication, requirements and tests | In the review step | Before the feature is done | No must-fix finding left | In use |
 
 **Which kind to choose:** test a rule or calculation in a unit test, with as many cases as it needs, and show in one or two browser tests that the page uses it. Test in the browser what only a browser can show: a flow, the keyboard, focus, what a screen reader is told, the look. Every requirement has at least one test named after it, of either kind, or a recorded manual check or code review in `verification.md` with the reason it can't be automated.
@@ -59,9 +59,15 @@ The site meets WCAG 2.2 AA. How it is checked is in [Accessibility](accessibilit
 
 ## Security
 
-- **In the code review:** the reviewer looks for security mistakes in the change (see [Code review](code-review.md)). Today the guide has "no secrets in the code"; TECH-013 adds a full security section (sign-in checked on the server, input validated on the server, parameterised queries, secrets kept out of logs and the browser, secure cookies).
-- **`/security-review`** *(comes with TECH-013):* a change that touches sign-in, admin, API routes, server actions, database queries or personal data is also checked with Claude Code's `/security-review`, and the result goes into `review.md`.
-- **In the pipeline** *(comes with TECH-013):* `npm audit` for vulnerable packages, Semgrep for insecure patterns in our code and Gitleaks for leaked secrets, on every pull request; Dependabot for security updates.
+Security is checked in three places, each for what it is good at:
+
+- **In the code review,** for what only a reader sees: the security points in [Code review](code-review.md) (sign-in checked on the server, input validated on the server, parameterised queries, secrets kept out of the code, the browser, logs and error messages, secure cookies, no internals in error messages, personal data shown only to the right person). Breaking one is a must-fix finding.
+- **With `/security-review`,** Claude Code's security review, for a change that touches sign-in, admin, API routes, server actions, database queries or personal data. It is run in the review step; its high-severity findings are must-fix, and its result goes into `review.md`. When it is needed is decided by what the change touches, as above; the card's test plan only records it.
+- **In the pipeline,** for known problems, by the CI job `security` on every pull request:
+  - `npm audit --omit=dev --audit-level=high` fails on a known high or critical vulnerability in a package the site uses in production.
+  - **Semgrep** (the free community rules for JavaScript, TypeScript, React, Next.js and SQL injection) fails on an insecure pattern in our code. Our own rule in `.semgrep/sql.yml` (`sql-built-from-text`) catches SQL joined from text inside a call to `all`, `get`, `run` or `execute`, which the community rules don't know; it doesn't see SQL built in a variable first, so the review's point on parameters still matters. A finding that is wrong is marked on its line with `// nosemgrep: <rule id>` and a comment that says why, never by turning a rule off for the whole project.
+  - **Gitleaks** scans the whole Git history and fails on anything that looks like a password, token or key; values are never printed. A real secret found is rotated (changed where it is used) before anything else, since removing it from Git doesn't make it secret again.
+  - **Dependabot** watches the npm packages and the GitHub Actions and opens a pull request with the fix when one has a known vulnerability (security updates only; regular version updates are off). Such a pull request goes through CI and Preview tests like any other.
 
 ## Code review
 
@@ -76,7 +82,7 @@ Every feature and technical task is reviewed by the reviewer agent before it is 
 | Unit tests (TECH-015) | ✓ | ✓ | | |
 | Smoke tests (TECH-014) | | | ✓ | ✓ |
 | axe | in the browser tests | ✓ | ✓ (until TECH-014) | ✓ (until TECH-014) |
-| Security scans (TECH-013) | | ✓ | | |
+| Security scans | | ✓ (job `security`) | | |
 | Code review | ✓ | | | |
 
 The pipeline itself (workflows, events and environments) is described in the README's "Pipeline" section.

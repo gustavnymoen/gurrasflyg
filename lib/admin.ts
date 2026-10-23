@@ -324,9 +324,14 @@ export async function assignAircraftToRoutes() {
 
 function validateAircraft(input: AircraftInput): AircraftInput {
   const name = requireText(input.name, "Planet måste ha ett namn.");
+  if (!Array.isArray(input.classes) || !Array.isArray(input.addons)) {
+    throw new AdminError("Något gick fel, ladda om sidan.");
+  }
   if (input.classes.length === 0) {
     throw new AdminError("Planet måste ha minst en klass.");
   }
+  const ids = [...input.classes.map((c) => c.classId), ...input.addons.flatMap((a) => [a.addonId, a.classId])];
+  if (!ids.every(Number.isInteger)) throw new AdminError("Något gick fel, ladda om sidan.");
   const classIds = input.classes.map((c) => c.classId);
   if (new Set(classIds).size !== classIds.length) {
     throw new AdminError("Samma klass finns flera gånger på planet.");
@@ -355,17 +360,32 @@ function validateAddon(addon: AddonInput) {
 }
 
 // Hela kronor, 0 eller mer. Ett minustecken får ett eget, tydligare fel.
-function parseKronor(text: string) {
+function parseKronor(text: unknown) {
+  if (typeof text !== "string") throw new AdminError("Ange priset i hela kronor.");
   if (text.trim().startsWith("-")) throw new AdminError("Priset måste vara 0 kr eller mer.");
   const kronor = parseWholeNumber(text);
   if (kronor === null) throw new AdminError("Ange priset i hela kronor.");
   return kronor;
 }
 
-function requireText(value: string, message: string) {
+// Namn och beskrivningar: text, inte tom, och inte orimligt lång. Typerna
+// gäller bara i koden; en server action kan anropas med vad som helst.
+const MAX_TEXT_LENGTH = 200;
+
+function requireText(value: unknown, message: string) {
+  if (typeof value !== "string") throw new AdminError(message);
   const clean = value.trim();
   if (clean === "") throw new AdminError(message);
+  if (clean.length > MAX_TEXT_LENGTH) {
+    throw new AdminError(`Texten får vara högst ${MAX_TEXT_LENGTH} tecken.`);
+  }
   return clean;
+}
+
+/** Ett id från sidan måste vara ett heltal, annars stoppas anropet. */
+export function requireId(id: unknown) {
+  if (!Number.isInteger(id)) throw new AdminError("Något gick fel, ladda om sidan.");
+  return id as number;
 }
 
 // Gör om databasfel (t.ex. namn som redan finns) till meddelanden för admin

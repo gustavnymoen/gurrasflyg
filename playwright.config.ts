@@ -33,10 +33,11 @@ export default defineConfig({
     locale: "sv-SE",
     // Sent with every request, so no bypass cookie is needed
     extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
-    // Screenshot and trace of failing tests, for the report. No trace with the
-    // bypass secret: the trace saves every request's headers, and so the secret.
+    // Screenshot of failing tests, for the report. A trace only locally: it
+    // saves every request's headers and typed values, and so the bypass secret
+    // and the admin password, which the runs against a deployed site use (TECH-013).
     screenshot: "only-on-failure",
-    trace: bypassSecret ? "off" : "retain-on-failure",
+    trace: local ? "retain-on-failure" : "off",
   },
   webServer: local
     ? { command: "node scripts/test-server.mjs", url: baseURL, reuseExistingServer: false, timeout: 300_000 }

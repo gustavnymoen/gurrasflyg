@@ -4,7 +4,7 @@ title: Architecture
 description: The parts of Gurras Flyg, how they fit together, the database, environments and deploys.
 resource: app/
 tags: [architecture, database, deploy, admin]
-timestamp: 2026-10-21
+timestamp: 2026-10-23
 ---
 
 # Architecture
@@ -85,6 +85,13 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 ## Admin sign-in
 
 The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasflyg_admin` with an expiry time and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`. The cookie lasts until the browser closes, and is rejected after 8 hours. `proxy.ts` checks it before admin pages load, and every server action checks it again.
+
+Security details (TECH-013):
+
+- The password is compared as SHA-256 hashes with `timingSafeEqual` (`passwordMatches` in `lib/session.ts`), so the response time reveals neither how many characters were right nor how long the password is. A wrong password is answered after one second, which makes guessing slow. There is no lockout or counter yet; a limit per IP is on the board.
+- The session is stateless: signing out deletes the cookie in the browser, but a copied cookie stays valid until its 8 hours are up. To end every session at once, change `ADMIN_SESSION_SECRET` (or the version in `lib/session.ts`). Acceptable for this site, where the admin has no real data.
+- Server actions check their input at run time, not only by TypeScript types: ids must be integers (`requireId`), texts strings of at most 200 characters, and lists arrays.
+- Every response has security headers from `next.config.ts`: the site can't be shown in a frame on another site (`X-Frame-Options: DENY`, `frame-ancestors 'none'`), file types aren't guessed (`nosniff`), and other sites get only the origin as referrer.
 
 ## Environments and deploys
 

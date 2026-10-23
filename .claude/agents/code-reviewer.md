@@ -28,6 +28,7 @@ Answer in English, in exactly this format, so it can be saved as `review.md`:
 ```
 Result: Passed | Stopped (<n> must fix)
 Summary: <one or two sentences>
+Security: <the security points of the guide: passed, or which findings below>
 
 ## Must fix
 - `<file>:<line>` <what is wrong and why>
