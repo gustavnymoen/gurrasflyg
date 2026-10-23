@@ -12,6 +12,7 @@ How the site works, for developers. Start with the architecture.
 ## Overview
 
 - [Architecture](architecture.md): the parts of the site, the database, environments and deploys.
+- [Pipeline](pipeline.md): how a change goes from a branch to the live site: the workflows, Vercel's deploys, which checks run where, and the branch protection on `main`.
 - [Testing](testing.md): how the site is tested: unit tests, browser tests, smoke tests, accessibility, security and code review, and the rules and time budgets for the tests.
 - [Code review](code-review.md): how every feature is reviewed before it is done.
 - [Accessibility](accessibility.md): how the site is kept at WCAG 2.2 AA: the axe check in the tests and the manual checklist.
