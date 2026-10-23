@@ -28,9 +28,11 @@ test("TRIP-021-R1 axe finds no violations with the airport suggestions open", as
 
 test("TRIP-021-R3 the review carousel shows the focus ring when it gets keyboard focus", async ({ page }) => {
   await page.goto("/");
+  // The reviews are streamed in after the form; Tab before that skips them
+  const carousel = page.getByRole("region", { name: "Omdömen" });
+  await expect(carousel).toBeVisible();
   await page.getByRole("checkbox", { name: "Boka returresa" }).focus();
   await page.keyboard.press("Tab");
-  const carousel = page.getByRole("region", { name: "Omdömen" });
   await expect(carousel).toBeFocused();
   await expect(carousel).toHaveCSS("outline-style", "solid");
   await expect(carousel).toHaveCSS("outline-width", "2px");
