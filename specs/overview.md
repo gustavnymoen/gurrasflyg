@@ -122,6 +122,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-013 | Security: security points and `/security-review` in the code review, a CI job with `npm audit`, Semgrep and Gitleaks, Dependabot, hardening from a review of the whole code base, the repo public | Shared | Done |
 | TECH-012 | GitHub Actions v7 on Node.js 24, pinned to commits, monthly updates by Dependabot | Shared | Done |
 | TECH-014 | Whole suite once in CI, read-only smoke tests against the preview and production via `deployment_status`, branch protection on `main` | Shared | Done |
+| TECH-015 | Unit tests with Vitest next to the code, with their own test database; the tests without a browser moved there, fewer repeated browser cases | Shared | Done |
 
 ## Decisions for charter
 

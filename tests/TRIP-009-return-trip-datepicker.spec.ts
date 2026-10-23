@@ -154,9 +154,10 @@ test.describe("in the browser", () => {
     await expect(calendar(page).getByText("Välj hemresa")).toBeVisible();
     await expect(summary(page)).toHaveText("Utresa fre 13 nov · Hemresa –");
 
-    await outboundField(page).fill("2026-11-13");
+    await outboundField(page).fill("2027-01-05");
     await outboundField(page).press("Tab");
-    await expect(outboundField(page)).toHaveValue("13/11");
+    await expect(outboundField(page)).toHaveValue("5/1");
+    await expect(summary(page)).toHaveText("Utresa tis 5 jan · Hemresa –");
 
     // Enter on an unchanged date moves on, as a click on the day would
     await outboundField(page).click();

@@ -40,7 +40,9 @@ try {
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
-if (!report) process.exit(unitRun.status || run.status || 0);
+// Fel om någon av körningarna föll eller inte gav någon status (t.ex. avbröts)
+const failed = (r) => r.status !== 0;
+if (!report) process.exit(1);
 
 if (unitReport) {
   const unitMs = unitReport.testResults
@@ -76,4 +78,4 @@ for (const test of slowest) {
 }
 if (overBudget.length > 0) console.log(`\n${overBudget.length} tester över budget`);
 
-process.exit(run.status ?? 1);
+process.exit(failed(unitRun) || failed(run) ? 1 : 0);

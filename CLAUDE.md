@@ -35,7 +35,7 @@ Small fixes that don't change behaviour (typos, styling details) don't need a ne
 
 A feature or technical task is done when all of these hold. Record them in its `verification.md`.
 
-1. **Tests:** every check in the card's test plan is done, every requirement has a test named after it (or a recorded manual check or code review), `npm run test:local` passes, and after the deploy the smoke tests pass against production (Live tests).
+1. **Tests:** every check in the card's test plan is done, every requirement has a test named after it (or a recorded manual check or code review), `npm run test:unit` and `npm run test:local` pass, and after the deploy the smoke tests pass against production (Live tests).
 2. **Accessibility:** what visitors see meets WCAG 2.2 level AA. Every page or state the change adds or alters is checked with `expectNoA11yViolations` (axe) in its tests, and the relevant items of the checklist in `wiki/system/accessibility.md` are gone through on the live site and recorded per item.
 3. **Requirements:** the card's requirements describe what was actually built, and no open questions remain. Anything that changed during the work is updated in the card, `verification.md` records the requirements as built, and `solution.md` describes how it was built.
 4. **Manual:** `wiki/manual/` (Swedish) describes how to use the feature, `wiki/system/` how it works, and `wiki/log.md` has a line.

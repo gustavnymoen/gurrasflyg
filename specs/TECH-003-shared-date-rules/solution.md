@@ -27,7 +27,7 @@ Visitors see no change.
 
 **`app/components/SearchForm.tsx` (R1):** `DateInput` calls `bookableRange(new Date())` and `dateError(value, range)`, and gives `range.min` and `range.max` to the date field. Everything else is unchanged, including `use(io())`, which makes "today" the visitor's today and not the day the page was built.
 
-**Tests (R3):** `tests/TECH-003-shared-date-rules.spec.ts` imports the module and calls it directly, without a page, like `TECH-005-R3`. `tests/helpers.ts` keeps its own `bookableDates()` on purpose (see the card).
+**Tests (R3):** `tests/TECH-003-shared-date-rules.spec.ts` (since TECH-015 the unit tests in `lib/dates.test.ts`) imports the module and calls it directly, without a page, like `TECH-005-R3`. `tests/helpers.ts` keeps its own `bookableDates()` on purpose (see the card).
 
 ## Decisions
 
