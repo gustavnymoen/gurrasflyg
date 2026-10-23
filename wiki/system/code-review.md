@@ -54,10 +54,22 @@ Each finding is one of three levels.
 | Level | What | Effect |
 |---|---|---|
 | **Must fix** | An error, a requirement not met or not tested, or a broken project rule. | Blocks: the feature is not done until it is fixed and the review is run again. |
-| **Should fix** | Bad design, duplicated or unnecessary code. | Doesn't block. Fixed in the same change when small, otherwise added to the board as a technical task. |
-| **Suggestion** | Something worth learning: a pattern, a simpler way, a trade-off. At most three. | Doesn't block. Fixed or left as it is. |
+| **Should fix** | Bad design, duplicated or unnecessary code. | Doesn't block, but is always handled: fixed in the same change when small, otherwise added to the board as a technical task. |
+| **Suggestion** | Something worth learning: a pattern, a simpler way, a trade-off. At most three. | Doesn't block. Fixed when cheap, otherwise left as it is with the reason. |
 
 When in doubt between two levels, choose the lower one.
+
+### What is done with each finding
+
+The project is a course project, so not every finding has to be fixed, but every finding gets a decision and a reason in `review.md` (the **Done:** line). The reasons are part of the learning, so they stay in the report.
+
+- **Must fix:** always fixed, then lint, the type check and the affected tests are run again, and the review is run again until none are left.
+- **Should fix:** fixed now when it takes minutes and stays inside the change. Otherwise it goes to the board as a technical task (several small ones grouped into one card), with the card's ID in the report. A should-fix is never only left as it is.
+- **Suggestion:**
+  - **Fix it now** when it is cheap (minutes) and makes the code clearer, for example a copy that can become an import, or a comment that warns the next person.
+  - **Leave it, with the reason,** when it is a matter of taste, already good, or a pattern worth remembering ("left as it is: …"). That line is the lesson.
+  - **A card on the board** only when it is larger and really makes the code worse; grouped into a technical task, never one card per suggestion.
+- **Outside the change:** mentioned in the report; added to the board only when it is a real problem, grouped with others.
 
 ## Not commented on
 
