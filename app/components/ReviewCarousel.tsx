@@ -62,7 +62,9 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
           go(dx < 0 ? 1 : -1);
         }
       }}
-      className="relative mx-auto grid w-full touch-pan-y justify-items-center overflow-x-clip rounded-card py-2"
+      // isolate: korten och pilarnas z-index gäller bara inom karusellen,
+      // så att det som svävar över sidan (kalendern, förslagslistor) hamnar överst
+      className="relative isolate mx-auto grid w-full touch-pan-y justify-items-center overflow-x-clip rounded-card py-2"
     >
       {reviews.map((review, index) => {
         const offset = offsetOf(index);

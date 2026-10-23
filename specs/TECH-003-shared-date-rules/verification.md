@@ -9,7 +9,7 @@ How each requirement was checked.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TECH-003-R1 | `npm run lint`, `npm run typecheck` and `npm run build` without errors or warnings; `npm run test:time` 120 passed, among them `TRIP-001-R6 date can be chosen from today to six months ahead` and `TRIP-001-R7 …` with the date messages. Against the live site after the deploy: not checked yet | local | Pass locally | 2026-10-23 |
+| TECH-003-R1 | `npm run lint`, `npm run typecheck` and `npm run build` without errors or warnings; `npm run test:time` 120 passed, among them `TRIP-001-R6 date can be chosen from today to six months ahead` and `TRIP-001-R7 …` with the date messages. Against the live site after the deploy: "Live tests" on `main`, `npm test` 107 passed, 13 skipped (`runsLocally`) | local, live | Pass | 2026-10-23 |
 | TECH-003-R2 | Code review with a search (`grep -rn` for `toDateString`, `addMonths`, "redan passerat" and "månader framåt" in `app`, `lib`, `scripts`, `tests`): they occur only in `lib/dates.ts`, the tests, and `bookableDates()` in `tests/helpers.ts`, which keeps its own copy on purpose (card, Background). `lib/dates.ts` has no `server-only` and uses no browser API; it is imported by the client component `SearchForm.tsx` (the build passes) and by the tests running in Node | local | Pass | 2026-10-23 |
 | TECH-003-R3 | Tests `TECH-003-R3 addMonths ends on the last day of a shorter month`, `… toDateString writes the local date with leading zeros`, `… bookableRange and dateError allow today up to six months ahead`, without a browser page | local | Pass | 2026-10-23 |
 
@@ -26,7 +26,7 @@ How each requirement was checked.
 
 - [x] Tests: every requirement is tested or has a recorded check; `npm run test:local` passes (2026-10-23)
 - [x] Test suite: within the time budgets, total time unchanged (the three new tests take no browser and a few milliseconds), the new tests follow the quality rules
-- [ ] Deployed, and `npm test` passes against the live site
+- [x] Deployed, and `npm test` passes against the live site ("Live tests", 2026-10-23)
 - [x] Accessibility: not applicable, visitors see no change (the existing axe tests of the start page pass)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual: not affected (visitors see no change); system docs (`wiki/system/architecture.md`) and `wiki/log.md` updated
@@ -77,4 +77,4 @@ Acceptance criteria:
 
 ## Notes
 
-None.
+- `bookableDates()` in `tests/helpers.ts` was removed by TRIP-009 (2026-10-23), when the TRIP-001 date tests it served were replaced; the TRIP-009 tests fix the browser's clock instead.

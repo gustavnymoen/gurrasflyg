@@ -164,3 +164,4 @@ The review carousel's side cards are left out of the check: they are faded on pu
 - Found by the tests while building: an invalid date gave no red border, because two border colour classes were stacked and the CSS order decided. Fixed in `Field.tsx`.
 - axe leaves out the review carousel's faded side cards (see `solution.md`).
 - Small cleanup in the same change: the arrows in the carousel now use `RoundButton` instead of their own button style.
+- Changed by TRIP-009 (2026-10-23): the checkbox "Boka returresa" and `Checkbox` are replaced by the switch "Tur och retur" (`Switch`), and the date field by Utresa and Hemresa with the placeholder "dd/mm". The R1, R4 and R6 tests check the switch instead of the checkbox, R6 the new labels, and the date error is typed in Utresa.

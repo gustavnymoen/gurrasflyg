@@ -45,6 +45,8 @@ The start page shall show the heading "Gurras Flyg", the subtitle "Ditt livs fly
 
 *Changed by TRIP-020-R2 (2026-10-22): the heading is "Vi ordnar det ingen annan kan" and the text under it "Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort."; the name "Gurras Flyg" is in the wordmark in the header. On a phone, Datum and Resenärer are side by side (TRIP-020-R6).*
 
+*Changed by TRIP-009 (2026-10-23): the date field is the group Datum with the fields Utresa and Hemresa, the checkbox is replaced by the switch "Tur och retur" in the calendar, and on a phone Resenärer is on the row below the date group (TRIP-009-R1, R5).*
+
 Acceptance criteria:
 
 - **Given** a visitor opens `/`, **then** the heading, the subtitle and the four fields with placeholders "Från", "Till" and "Datum" are shown, together with the checkbox.
@@ -90,6 +92,8 @@ Acceptance criteria:
 
 ### TRIP-001-R6 Bookable dates
 
+*Replaced by TRIP-009-R4 (2026-10-23): the site's own calendar instead of the browser's.*
+
 The date field shall show the placeholder "Datum" when empty, and its calendar shall only offer dates from today up to six months ahead. When six months ahead doesn't exist (for example 31 August + 6 months), the last day of that month is used.
 
 Acceptance criteria:
@@ -97,6 +101,8 @@ Acceptance criteria:
 - **Given** the start page, **then** the date field's earliest date is today and its latest date six months ahead, in the visitor's local time.
 
 ### TRIP-001-R7 Invalid date
+
+*Replaced by TRIP-009-R9 (2026-10-23): typed dates and their messages.*
 
 A date typed by hand that is outside the bookable dates shall be shown in red with a message under the field: "Datumet har redan passerat." for a past date, "Du kan boka max 6 månader framåt." for a date too far ahead.
 
@@ -116,6 +122,8 @@ Acceptance criteria:
 - **When** the traveller presses + nine times, **then** the number is 10 and + is disabled.
 
 ### TRIP-001-R9 Return trip
+
+*Replaced by TRIP-009-R5 (2026-10-23): the switch "Tur och retur", on from the start.*
 
 The checkbox "Boka returresa" shall be unchecked from the start and can be checked and unchecked.
 

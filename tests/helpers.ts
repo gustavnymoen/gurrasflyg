@@ -63,17 +63,6 @@ export async function writeReview(page: Page, review: { author: string; rating: 
   await form.getByRole("button", { name: "Spara omdöme" }).click();
 }
 
-// Today and six months ahead as YYYY-MM-DD in local time, the same way the search form counts
-export function bookableDates() {
-  const toDateString = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const today = new Date();
-  const max = new Date(today.getFullYear(), today.getMonth() + 6, 1);
-  const lastDay = new Date(max.getFullYear(), max.getMonth() + 1, 0).getDate();
-  max.setDate(Math.min(today.getDate(), lastDay));
-  return { min: toDateString(today), max: toDateString(max) };
-}
-
 // The table Klasser or Addons on the admin page. Both sit inside the card
 // "Klasser & addons", which is also a <section>, so take the innermost.
 export function tableSection(page: Page, heading: "Klasser" | "Addons") {
@@ -157,6 +146,13 @@ export async function expectTextMessage(message: Locator, color: string) {
   await expect(message).toHaveCSS("color", color);
   await expect(message).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   await expect(message).toHaveCSS("border-top-width", "0px");
+}
+
+// Waits until an element's animations and transitions (its own and those
+// inside it) have finished. Until then something fading in (the calendar) is
+// half transparent and a colour is between two values, so contrast can't be measured.
+export async function animationsDone(locator: Locator) {
+  await locator.evaluate((el) => Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
 // Runs axe on the page as it looks right now and requires that it breaks no

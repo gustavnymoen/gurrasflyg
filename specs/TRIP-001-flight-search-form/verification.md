@@ -14,10 +14,10 @@ Specified after the feature was built. Checked with the tests in `tests/TRIP-001
 | TRIP-001-R3 | Test `TRIP-001-R3 says when no airport matches` | local, live | Pass | 2026-10-20 |
 | TRIP-001-R4 | Test `TRIP-001-R4 airport can be chosen with mouse or keyboard` | local, live | Pass | 2026-10-20 |
 | TRIP-001-R5 | Test `TRIP-001-R5 same airport in both fields …` | local, live | Pass | 2026-10-20 |
-| TRIP-001-R6 | Test `TRIP-001-R6 date can be chosen from today to six months ahead` | local, live | Pass | 2026-10-20 |
-| TRIP-001-R7 | Test `TRIP-001-R7 dates outside the bookable range show a message` | local, live | Pass | 2026-10-20 |
+| TRIP-001-R6 | Test `TRIP-001-R6 date can be chosen from today to six months ahead`. Replaced by TRIP-009-R4 on 2026-10-23; the test is removed | local, live | Pass | 2026-10-20 |
+| TRIP-001-R7 | Test `TRIP-001-R7 dates outside the bookable range show a message`. Replaced by TRIP-009-R9 on 2026-10-23; the test is removed | local, live | Pass | 2026-10-20 |
 | TRIP-001-R8 | Test `TRIP-001-R8 number of travellers is between 1 and 10` | local, live | Pass | 2026-10-20 |
-| TRIP-001-R9 | Test `TRIP-001-R9 return trip checkbox starts unchecked` | local, live | Pass | 2026-10-20 |
+| TRIP-001-R9 | Test `TRIP-001-R9 return trip checkbox starts unchecked`. Replaced by TRIP-009-R5 on 2026-10-23; the test is removed | local, live | Pass | 2026-10-20 |
 | TRIP-001-R10 | Test `TRIP-001-R10 airport endpoint returns at most 5 matches` | local, live | Pass | 2026-10-20 |
 
 ## Checks before done
