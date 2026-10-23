@@ -1,0 +1,17 @@
+%% TRIP-021 Accessibility: WCAG 2.2 AA
+flowchart TD
+    Feature[A feature changes what people see] --> Axe["Tests: expectNoA11yViolations<br/>for each new or changed state<br/>R1"]
+    Feature --> Deploy[Deploy]
+    Deploy --> List["Checklist in wiki/system/accessibility.md<br/>on the live site, per page<br/>R2"]
+    List --> Result{"Every item passes AA?"}
+    Result -- yes --> Record["verification.md: item, page, result, date<br/>R3"]
+    Result -- no --> Fix[Fix in the same feature,<br/>or a fix card if another page]
+    Fix --> Axe
+    subgraph TRIP-021 fixes
+      F1["Carousel focus ring (2.4.7)"]
+      F2["Aircraft table scrolls in its card at 320 px (1.4.10)"]
+      F3["Dialog: native dialog, Tab stays, Escape, focus back (2.1.2, 2.4.3)"]
+      F4["Visible labels in admin forms (3.3.2)"]
+      F5["Reviews: limits 20/25/145, card grows only when needed (1.4.12)<br/>R4"]
+    end
+    Fix -.-> F1 & F2 & F3 & F4 & F5

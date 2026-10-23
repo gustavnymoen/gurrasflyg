@@ -58,7 +58,7 @@ Acceptance criteria:
 
 ### TRIP-006-R3 Review form
 
-The card "Omdömen" on the admin page shall have a form "Nytt omdöme" with, in this order: name of the person, a star rating (1–5, clickable stars), title and text. The text is at most 150 characters, with a counter "<n>/150".
+The card "Omdömen" on the admin page shall have a form "Nytt omdöme" with, in this order: name of the person, a star rating (1–5, clickable stars), title and text. The text is at most 150 characters, with a counter "<n>/150". *Changed by TRIP-021-R4 (2026-10-23): name at most 20, title at most 25 and text at most 145 characters, counter "<n>/145".*
 
 Acceptance criteria:
 

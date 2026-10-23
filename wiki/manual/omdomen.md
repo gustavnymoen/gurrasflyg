@@ -12,7 +12,7 @@ timestamp: 2026-10-22
 
 Under sökformuläret, under rubriken **Vad våra resenärer säger**, visas omdömen från resenärer. Det nyaste omdömet visas först.
 
-Varje kort visar betyget (1–5 stjärnor), en rubrik, texten och namnet på den som skrev det.
+Varje kort visar betyget (1–5 stjärnor), en rubrik, texten och namnet på den som skrev det. Hela texten visas alltid. Har du ställt in större textavstånd eller större text i webbläsaren blir kortet högre, så att inget klipps bort.
 
 ## Bläddra
 

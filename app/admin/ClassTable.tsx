@@ -10,6 +10,7 @@ import type { ActionResult } from "./actions";
 import {
   DeleteButton,
   EditButton,
+  LabeledField,
   rowClass,
   SaveCancel,
   subheadingClass,
@@ -113,14 +114,15 @@ function ClassForm({
           }}
           className="flex flex-col gap-2"
         >
-          <input
-            aria-label="Namn på klassen"
-            placeholder="Namn, t.ex. Premium"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={fieldClass("compact")}
-            autoFocus
-          />
+          <LabeledField label="Namn på klassen">
+            <input
+              placeholder="t.ex. Premium"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={fieldClass("compact")}
+              autoFocus
+            />
+          </LabeledField>
           <SaveCancel pending={pending} onCancel={onDone} />
           {error && <Message kind="error">{error}</Message>}
         </form>

@@ -4,6 +4,8 @@
 // nedtonade bakom. Pilarna sitter på mittkortets kant. När man bläddrar
 // glider alla kort ett steg (CSS-transition på transform), så nästa kort
 // hamnar i fokus längst fram. Karusellen går runt: efter sista kommer första.
+// Korten ligger staplade i samma ruta i ett rutnät, så att karusellen blir
+// högre om ett kort växer (större textavstånd, äldre långa omdömen; TRIP-021-R4).
 
 import { useRef, useState } from "react";
 import type { Review } from "@/lib/reviews";
@@ -60,7 +62,7 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
           go(dx < 0 ? 1 : -1);
         }
       }}
-      className="relative mx-auto h-52 w-full touch-pan-y overflow-x-clip outline-none"
+      className="relative mx-auto grid w-full touch-pan-y justify-items-center overflow-x-clip rounded-card py-2"
     >
       {reviews.map((review, index) => {
         const offset = offsetOf(index);
@@ -69,24 +71,25 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
         const hidden = distance >= LOOK.length;
         const focused = offset === 0;
 
+        // py-3.5 i stället för p-4: fem rader text ryms då inom 12rem (TRIP-021-R4).
+        // self-start: varje kort får sin egen höjd, inte det högsta kortets
         return (
           <article
             key={review.id}
             aria-hidden={!focused}
             onClick={() => !focused && !swiped.current && go(offset)}
             style={{
-              transform: `translateX(calc(-50% + ${Math.sign(offset) * look.shift}%)) scale(${look.scale})`,
+              transform: `translateX(${Math.sign(offset) * look.shift}%) scale(${look.scale})`,
               opacity: hidden ? 0 : look.opacity,
               zIndex: 10 - distance,
             }}
-            className={`absolute top-2 left-1/2 flex h-48 w-60 flex-col gap-1 rounded-card border bg-surface p-4 shadow-card transition-[transform,opacity] duration-500 ease-out ${
+            className={`col-start-1 row-start-1 flex min-h-48 w-60 self-start flex-col gap-1 rounded-card border bg-surface px-4 py-3.5 shadow-card transition-[transform,opacity] duration-500 ease-out ${
               focused ? "border-accent-strong" : "cursor-pointer border-edge blur-[1px]"
             } ${hidden ? "pointer-events-none" : ""}`}
           >
             <Stars rating={review.rating} />
-            <h3 className="line-clamp-2 text-sm font-semibold leading-snug">{review.title}</h3>
-            {/* line-clamp kortar av äldre, längre texter med "…" */}
-            <p className="line-clamp-4 flex-1 text-small leading-snug text-ink-muted">{review.body}</p>
+            <h3 className="text-sm font-semibold leading-snug">{review.title}</h3>
+            <p className="flex-1 text-small leading-snug text-ink-muted">{review.body}</p>
             <p className="text-xs text-brass">– {review.author}</p>
           </article>
         );
@@ -102,7 +105,7 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
   );
 }
 
-// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 15rem brett, 12rem högt)
+// Pil som ligger mitt på mittkortets vänstra/högra kant (kortet är 15rem brett och normalt 12rem högt)
 function Arrow({ direction, onClick }: { direction: 1 | -1; onClick: () => void }) {
   return (
     <div

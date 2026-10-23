@@ -11,6 +11,7 @@ import type { ActionResult } from "./actions";
 import {
   DeleteButton,
   EditButton,
+  LabeledField,
   rowClass,
   SaveCancel,
   subheadingClass,
@@ -130,30 +131,31 @@ function AddonForm({
           className="flex flex-col gap-2"
         >
           <div className="flex gap-3">
-            <input
-              aria-label="Namn på addon"
-              placeholder="Namn, t.ex. Extra bagage"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={fieldClass("compact", "min-w-0 flex-1")}
-              autoFocus
-            />
-            <input
-              aria-label="Pris i kronor"
-              inputMode="numeric"
-              placeholder="Pris"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className={fieldClass("compact", "w-24 text-right")}
-            />
+            <LabeledField label="Namn på addon" className="min-w-0 flex-1">
+              <input
+                placeholder="t.ex. Extra bagage"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={fieldClass("compact")}
+                autoFocus
+              />
+            </LabeledField>
+            <LabeledField label="Pris i kronor" className="w-24">
+              <input
+                inputMode="numeric"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className={fieldClass("compact", "w-full text-right")}
+              />
+            </LabeledField>
           </div>
-          <textarea
-            aria-label="Beskrivning"
-            placeholder="Beskrivning"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className={textAreaClass("compact")}
-          />
+          <LabeledField label="Beskrivning">
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className={textAreaClass("compact")}
+            />
+          </LabeledField>
           <SaveCancel pending={pending} onCancel={onDone} />
           {error && <Message kind="error">{error}</Message>}
         </form>

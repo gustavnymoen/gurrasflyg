@@ -12,7 +12,7 @@ import { fieldClass } from "../components/Field";
 import Message from "../components/Message";
 import RoundButton from "../components/RoundButton";
 import type { ActionResult } from "./actions";
-import { EditButton, IconButton, RemoveButton, SaveCancel, useAction } from "./admin-ui";
+import { EditButton, IconButton, LabeledField, RemoveButton, SaveCancel, useAction } from "./admin-ui";
 
 type ClassRow = { classId: number; capacity: number };
 type AddonRow = { key: number; addonId: number; classId: number };
@@ -91,14 +91,15 @@ export default function AircraftForm({
       className="flex flex-col gap-4 rounded-card-compact border border-edge bg-surface-sunk p-4 text-sm"
     >
       <h3 className="text-sm font-semibold">{title}</h3>
-      <input
-        aria-label="Planets namn"
-        placeholder="Namn, t.ex. Airbus A320neo"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className={fieldClass("compact")}
-        autoFocus
-      />
+      <LabeledField label="Planets namn">
+        <input
+          placeholder="t.ex. Airbus A320neo"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={fieldClass("compact")}
+          autoFocus
+        />
+      </LabeledField>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* ---- Klasser */}
@@ -232,32 +233,33 @@ function ClassAdder({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <select
-        aria-label="Klass att lägga till"
-        value={classId}
-        onChange={(e) => setClassId(e.target.value)}
-        className={fieldClass("compact", "min-w-0 flex-1")}
-        autoFocus
-      >
-        <option value="" disabled>
-          {options.length === 0 ? "Alla klasser tillagda" : "Välj klass"}
-        </option>
-        {options.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.name}
+    <div className="flex items-end gap-2">
+      <LabeledField label="Klass att lägga till" className="min-w-0 flex-1">
+        <select
+          value={classId}
+          onChange={(e) => setClassId(e.target.value)}
+          className={fieldClass("compact")}
+          autoFocus
+        >
+          <option value="" disabled>
+            {options.length === 0 ? "Alla klasser tillagda" : "Välj klass"}
           </option>
-        ))}
-      </select>
-      <input
-        aria-label="Antal platser"
-        inputMode="numeric"
-        placeholder="Platser"
-        value={capacity}
-        onChange={(e) => setCapacity(e.target.value)}
-        onKeyDown={onEnter(add)}
-        className={fieldClass("compact", "w-24 text-right")}
-      />
+          {options.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </LabeledField>
+      <LabeledField label="Antal platser" className="w-24">
+        <input
+          inputMode="numeric"
+          value={capacity}
+          onChange={(e) => setCapacity(e.target.value)}
+          onKeyDown={onEnter(add)}
+          className={fieldClass("compact", "w-full text-right")}
+        />
+      </LabeledField>
       <RoundButton compact label="Lägg till klass" disabled={classId === "" || parsed === null} onClick={add}>
         +
       </RoundButton>
@@ -361,39 +363,41 @@ function AddonPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <select
-          aria-label="Addon"
-          value={addonId}
-          onChange={(e) => setAddonId(e.target.value)}
-          className={fieldClass("compact", "min-w-0 flex-1")}
-          autoFocus
-        >
-          <option value="" disabled>
-            {addons.length === 0 ? "Inga addons finns" : "Välj addon"}
-          </option>
-          {addons.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
+      <div className="flex items-end gap-2">
+        <LabeledField label="Addon" className="min-w-0 flex-1">
+          <select
+            value={addonId}
+            onChange={(e) => setAddonId(e.target.value)}
+            className={fieldClass("compact")}
+            autoFocus
+          >
+            <option value="" disabled>
+              {addons.length === 0 ? "Inga addons finns" : "Välj addon"}
             </option>
-          ))}
-        </select>
-        <select
-          aria-label="Klass"
-          value={classId}
-          onChange={(e) => setClassId(e.target.value)}
-          className={fieldClass("compact", "min-w-0 flex-1")}
-        >
-          <option value="" disabled>
-            {classes.length === 0 ? "Lägg till klass först" : "Välj klass"}
-          </option>
-          {/* Bara klasser som planet har */}
-          {classes.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+            {addons.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </LabeledField>
+        <LabeledField label="Klass" className="min-w-0 flex-1">
+          <select
+            value={classId}
+            onChange={(e) => setClassId(e.target.value)}
+            className={fieldClass("compact")}
+          >
+            <option value="" disabled>
+              {classes.length === 0 ? "Lägg till klass först" : "Välj klass"}
             </option>
-          ))}
-        </select>
+            {/* Bara klasser som planet har */}
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </LabeledField>
         {editing ? (
           <ConfirmCancel valid={valid} onConfirm={confirm} onCancel={onCancel} />
         ) : (
