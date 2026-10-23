@@ -43,6 +43,7 @@ The review is light. It is there to try out code review as part of the workflow,
    - **Cookies:** session cookies are `HttpOnly`, `Secure` in production and `SameSite`, and are signed or otherwise impossible to forge.
    - **Errors to visitors:** messages say what to do, never show stack traces, SQL or internal names.
    - **Personal data:** only what the feature needs is stored, and it is not shown to anyone who shouldn't see it (for example by guessing an ID in the address).
+   - **GitHub Actions:** a third-party action in `.github/` is pinned to a full commit SHA with its version as a comment, for example `actions/checkout@<sha> # v7.0.1`, never only to a tag that its owner can move. Dependabot proposes updates.
 
    A change that breaks one of these is a must-fix finding. A change that touches sign-in, admin, API routes, server actions, database queries or personal data is also checked with Claude Code's `/security-review` in the review step; its high-severity findings are must-fix, and its result goes into `review.md`.
 

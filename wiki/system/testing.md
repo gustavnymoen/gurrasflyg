@@ -67,7 +67,7 @@ Security is checked in three places, each for what it is good at:
   - `npm audit --omit=dev --audit-level=high` fails on a known high or critical vulnerability in a package the site uses in production.
   - **Semgrep** (the free community rules for JavaScript, TypeScript, React, Next.js and SQL injection) fails on an insecure pattern in our code. Our own rule in `.semgrep/sql.yml` (`sql-built-from-text`) catches SQL joined from text inside a call to `all`, `get`, `run` or `execute`, which the community rules don't know; it doesn't see SQL built in a variable first, so the review's point on parameters still matters. A finding that is wrong is marked on its line with `// nosemgrep: <rule id>` and a comment that says why, never by turning a rule off for the whole project.
   - **Gitleaks** scans the whole Git history and fails on anything that looks like a password, token or key; values are never printed. A real secret found is rotated (changed where it is used) before anything else, since removing it from Git doesn't make it secret again.
-  - **Dependabot** watches the npm packages and the GitHub Actions and opens a pull request with the fix when one has a known vulnerability (security updates only; regular version updates are off). Such a pull request goes through CI and Preview tests like any other.
+  - **Dependabot** watches the npm packages and the GitHub Actions and opens a pull request with the fix when one has a known vulnerability. For npm it proposes security updates only; the GitHub Actions, which are pinned to commits, also get one grouped pull request a month with new versions. Such a pull request goes through CI and Preview tests like any other.
 
 ## Code review
 

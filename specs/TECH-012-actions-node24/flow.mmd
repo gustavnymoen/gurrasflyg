@@ -1,0 +1,8 @@
+%% TECH-012 Current GitHub Actions, pinned to commits
+%% How an action is referenced and kept up to date.
+flowchart TD
+    A[Workflow step] -->|uses: owner/action@40-char SHA # vX.Y.Z| B[The exact commit of that version]
+    C[Dependabot, monthly] -->|one grouped pull request: new SHA and comment| D[Pull request]
+    D --> E[CI and Preview tests]
+    E -->|green| F[Merge]
+    F --> A
