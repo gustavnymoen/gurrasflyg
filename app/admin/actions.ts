@@ -29,11 +29,11 @@ async function run(change: () => Promise<void>): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function createClassAction(name: string) {
-  return run(() => admin.createClass(name));
+export async function createClassAction(name: string, factor: string) {
+  return run(() => admin.createClass(name, factor));
 }
-export async function updateClassAction(id: number, name: string) {
-  return run(() => admin.updateClass(admin.requireId(id), name));
+export async function updateClassAction(id: number, name: string, factor: string) {
+  return run(() => admin.updateClass(admin.requireId(id), name, factor));
 }
 export async function deleteClassAction(id: number) {
   return run(() => admin.deleteClass(admin.requireId(id)));

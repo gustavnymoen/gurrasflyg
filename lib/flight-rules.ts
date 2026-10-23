@@ -1,15 +1,19 @@
 // Regler för sökresultaten (TRIP-010), gemensamma för webbläsaren och servern.
 
-export type FlightAirport = { iata: string; name: string; city: string; country: string };
+export type FlightAirport = { iata: string; name: string; city: string; country: string; timezone: string };
 
-// En avgång av en rutt på ett datum. Tiden är lokal tid på avgångsflygplatsen,
-// priset per person i hela kronor.
+// En avgång av en rutt på ett datum. Tiden är lokal tid på avgångsflygplatsen.
+// price är avgångens pris per person i hela kronor, fromPrice det billigaste
+// priset med plan och klass, som visas i resultaten (TRIP-011-R9). Ruttens
+// flygtid visas inte förrän ett plan valts (TRIP-011-R7).
 export type Flight = {
   id: string;
   number: string;
   date: string;
   time: string;
   price: number;
+  fromPrice: number;
+  routeMinutes: number;
   from: FlightAirport;
   to: FlightAirport;
 };
@@ -50,5 +54,5 @@ export function hasLeft(flight: Pick<Flight, "date" | "time">, now: { date: stri
 
 // Tidigast först, eller billigast först (samma pris: tidigast först)
 export function sortFlights(flights: Flight[], by: SortBy) {
-  return flights.toSorted((a, b) => (by === "price" && a.price - b.price) || a.time.localeCompare(b.time));
+  return flights.toSorted((a, b) => (by === "price" && a.fromPrice - b.fromPrice) || a.time.localeCompare(b.time));
 }

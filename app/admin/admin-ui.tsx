@@ -10,6 +10,7 @@ import type { ActionResult } from "./actions";
 import { ChevronIcon, PencilIcon, TrashIcon } from "../components/icons";
 import Button from "../components/Button";
 import Card, { floatingCardClass } from "../components/Card";
+import { fieldClass } from "../components/Field";
 
 // ---- Kort som går att fälla ihop
 
@@ -65,6 +66,35 @@ export function LabeledField({
       </label>
       {cloneElement(children, { id })}
     </div>
+  );
+}
+
+// Ett fält för en pris- eller tidsfaktor (TRIP-011-R6, R8), rött när den inte
+// går att läsa. Meddelandet står under formuläret, med id errorId.
+export function FactorField({
+  label,
+  value,
+  onChange,
+  invalid,
+  errorId,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  invalid: boolean;
+  errorId: string;
+}) {
+  return (
+    <LabeledField label={label} className="w-24">
+      <input
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={invalid || undefined}
+        aria-describedby={invalid ? errorId : undefined}
+        className={fieldClass("compact", "w-full text-right", invalid)}
+      />
+    </LabeledField>
   );
 }
 

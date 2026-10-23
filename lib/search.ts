@@ -9,14 +9,17 @@ export type Search = { from: string; to: string; outbound: string; return: strin
 
 export const RESULTS_PATH = "/flyg";
 
-export function searchUrl(search: Search) {
+export const searchUrl = (search: Search) => `${RESULTS_PATH}?${searchParams(search)}`;
+
+// Sökningen som parametrar i en adress, också för sidorna efter sökresultaten (TRIP-011)
+export function searchParams(search: Search) {
   const params = new URLSearchParams({ fran: search.from, till: search.to, utresa: search.outbound });
   if (search.return) params.set("hemresa", search.return);
   params.set("resenarer", String(search.travellers));
-  return `${RESULTS_PATH}?${params}`;
+  return params;
 }
 
-type Params = Record<string, string | string[] | undefined>;
+export type Params = Record<string, string | string[] | undefined>;
 
 // Sökningen i adressen, eller null om något saknas eller är fel. Att
 // flygplatserna finns och datumen går att boka avgör sidan.

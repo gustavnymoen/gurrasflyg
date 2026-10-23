@@ -15,6 +15,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 
 - [Söka flyg](soka-flyg.md): sökformuläret på startsidan.
 - [Välja flyg](valja-flyg.md): flygen för din sökning, sortering och att välja utresa och hemresa.
+- [Välja plan och klass](valja-plan-och-klass.md): plan för varje flyg, resenärer per klass, priser, flygtider och ankomst.
 - [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
 
 ## För administratörer

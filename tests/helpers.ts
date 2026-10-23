@@ -61,11 +61,13 @@ export function tableSection(page: Page, heading: "Klasser" | "Addons") {
     .last();
 }
 
-// Creates a cabin class or an add-on through the admin page
-export async function createClass(page: Page, name: string) {
+// Creates a cabin class or an add-on through the admin page. A new class's
+// price factor is 1,00 unless another is given (TRIP-011-R6).
+export async function createClass(page: Page, name: string, priceFactor?: string) {
   const section = tableSection(page, "Klasser");
   await section.getByRole("button", { name: "Lägg till", exact: true }).click();
   await page.getByLabel("Namn på klassen").fill(name);
+  if (priceFactor) await section.getByLabel("Prisfaktor").fill(priceFactor);
   await section.getByRole("button", { name: "Spara" }).click();
   await expect(page.getByRole("button", { name: `Ta bort ${name}`, exact: true })).toBeVisible();
 }
@@ -80,15 +82,24 @@ export async function createAddon(page: Page, name: string, price: string, descr
   await expect(page.getByRole("button", { name: `Ta bort ${name}`, exact: true })).toBeVisible();
 }
 
-// Creates an aircraft with the given classes and add-ons through the aircraft form
+// The aircraft's price and time factors, as typed in the form (TRIP-011-R8)
+export type AircraftFactors = { price: string; time: string };
+
+// Creates an aircraft with the given classes and add-ons through the aircraft
+// form. Its factors are 1,00 and 1,00 unless others are given.
 export async function createAircraft(
   page: Page,
   name: string,
   classes: { name: string; seats: number }[],
   addons: { name: string; className: string }[] = [],
+  factors?: AircraftFactors,
 ) {
   await page.getByRole("button", { name: "Lägg till plan" }).click();
   await fillAircraftForm(page, name, classes, addons);
+  if (factors) {
+    await page.getByLabel("Prisfaktor").fill(factors.price);
+    await page.getByLabel("Tidsfaktor").fill(factors.time);
+  }
   await page.getByRole("button", { name: "Spara", exact: true }).click();
   await expect(page.getByRole("button", { name: `Ta bort ${name}`, exact: true })).toBeVisible();
 }

@@ -20,6 +20,10 @@ const sizes = { default: "h-13 px-7 text-[17px]", compact: "h-8.5 px-3.5 text-sm
 type ButtonVariant = keyof typeof variants;
 type ButtonSize = keyof typeof sizes;
 
+// Klasserna, också för en länk som ska se ut som en knapp (t.ex. Fortsätt till nästa sida)
+export const buttonClass = (variant: ButtonVariant = "primary", size: ButtonSize = "default") =>
+  `${base} ${variants[variant]} ${sizes[size]}`;
+
 export default function Button({
   variant = "primary",
   size = "default",
@@ -27,5 +31,5 @@ export default function Button({
   type = "button",
   ...props
 }: React.ComponentProps<"button"> & { variant?: ButtonVariant; size?: ButtonSize }) {
-  return <button type={type} className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props} />;
+  return <button type={type} className={`${buttonClass(variant, size)} ${className}`} {...props} />;
 }

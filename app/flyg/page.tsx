@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { findFlights, getAirportPair } from "@/lib/flights";
+import { findFlights, getAirportPair, listFleet } from "@/lib/flights";
 import { parseSearch, searchUrl } from "@/lib/search";
+import { parseLegs } from "@/lib/trip";
 import SearchForm from "../components/SearchForm";
 import FlightResults from "./FlightResults";
 
@@ -24,8 +25,12 @@ export default function FlightsPage({ searchParams }: PageProps<"/flyg">) {
 }
 
 async function Results({ searchParams }: Pick<PageProps<"/flyg">, "searchParams">) {
-  const search = parseSearch(await searchParams);
-  const airports = search && (await getAirportPair(search.from, search.to));
+  const params = await searchParams;
+  const search = parseSearch(params);
+  // "Från"-priset beror på planen (TRIP-011-R9); de läses samtidigt som flygplatserna
+  const [airports, fleet] = search
+    ? await Promise.all([getAirportPair(search.from, search.to), listFleet()])
+    : [null, []];
   if (!search || !airports) {
     return (
       <>
@@ -36,8 +41,8 @@ async function Results({ searchParams }: Pick<PageProps<"/flyg">, "searchParams"
   }
 
   const [outbound, inbound] = await Promise.all([
-    findFlights(search.from, search.to, search.outbound),
-    search.return ? findFlights(search.to, search.from, search.return) : null,
+    findFlights(search.from, search.to, search.outbound, search.travellers, fleet),
+    search.return ? findFlights(search.to, search.from, search.return, search.travellers, fleet) : null,
   ]);
   // En ny sökning börjar om: formuläret och resultaten byggs om från början
   const key = searchUrl(search);
@@ -58,6 +63,7 @@ async function Results({ searchParams }: Pick<PageProps<"/flyg">, "searchParams"
         cities={{ from: airports.from.city, to: airports.to.city }}
         outbound={outbound}
         inbound={inbound}
+        chosen={parseLegs(params, search)}
       />
     </>
   );

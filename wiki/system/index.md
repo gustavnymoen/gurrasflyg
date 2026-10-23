@@ -19,6 +19,7 @@ How the site works, for developers. Start with the architecture.
 - [Design](../../DESIGN.md): the design "Loungen": tokens, shared components, rules and how to change them.
 - [Date picker](date-picker.md): the date fields Utresa and Hemresa, the calendar, and the date rules in `lib/dates.ts`.
 - [Search results](search-results.md): the Sök button, the results page `/flyg`, choosing flights, and the routes, departures and prices behind it.
+- [Aircraft and classes](aircraft-and-classes.md): the page `/flyg/plan`, choosing an aircraft and the travellers per class for each flight, and the price and time factors.
 
 ## Data
 
@@ -49,5 +50,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-020 Visual design: start page | Shared | `specs/TRIP-020-start-page-design/` |
 | TRIP-021 Accessibility: WCAG 2.2 AA | Shared | `specs/TRIP-021-wcag/` |
 | TRIP-010 Search results | Flight booking | `specs/TRIP-010-search-results/` |
+| TRIP-011 Choose aircraft and classes | Flight booking | `specs/TRIP-011-aircraft-and-classes/` |
 
 [Wiki](../index.md)

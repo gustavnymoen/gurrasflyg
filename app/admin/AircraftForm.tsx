@@ -1,18 +1,26 @@
 "use client";
 
-// Formulär för att skapa eller ändra ett plan: namn, klasser och addons.
+// Formulär för att skapa eller ändra ett plan: namn, pris- och tidsfaktor
+// (TRIP-011-R8), klasser och addons.
 // Inget sparas förrän man trycker Spara, då sparas hela planet på en gång.
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { Addon, Aircraft, AircraftInput, CabinClass } from "@/lib/admin";
-import { parseWholeNumber } from "@/lib/numbers";
+import {
+  formatFactor,
+  parsePriceFactor,
+  parseTimeFactor,
+  parseWholeNumber,
+  PRICE_FACTOR_ERROR,
+  TIME_FACTOR_ERROR,
+} from "@/lib/numbers";
 import Button from "../components/Button";
 import { CheckIcon, XIcon } from "../components/icons";
 import { fieldClass } from "../components/Field";
 import Message from "../components/Message";
 import RoundButton from "../components/RoundButton";
 import type { ActionResult } from "./actions";
-import { EditButton, IconButton, LabeledField, RemoveButton, SaveCancel, useAction } from "./admin-ui";
+import { EditButton, FactorField, IconButton, LabeledField, RemoveButton, SaveCancel, useAction } from "./admin-ui";
 
 type ClassRow = { classId: number; capacity: number };
 type AddonRow = { key: number; addonId: number; classId: number };
@@ -36,6 +44,11 @@ export default function AircraftForm({
   onDone: () => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
+  // Ett nytt plan börjar på 1,00 och 1,00
+  const [priceFactor, setPriceFactor] = useState(formatFactor(initial?.pricePercent ?? 100));
+  const [timeFactor, setTimeFactor] = useState(formatFactor(initial?.timePercent ?? 100));
+  const [invalid, setInvalid] = useState<{ price: boolean; time: boolean }>({ price: false, time: false });
+  const errorId = useId();
   const [classRows, setClassRows] = useState<ClassRow[]>(
     initial?.classes.map((c) => ({ classId: c.classId, capacity: c.capacity })) ?? [],
   );
@@ -47,7 +60,7 @@ export default function AircraftForm({
   // Fälten för ny klass/addon visas först när man klickat på "Lägg till"
   const [addingClass, setAddingClass] = useState(false);
   const [addingAddon, setAddingAddon] = useState(false);
-  const { pending, error, run } = useAction();
+  const { pending, error, setError, run } = useAction();
 
   const className = (id: number) => classes.find((c) => c.id === id)?.name ?? "?";
   const addonName = (id: number) => addons.find((a) => a.id === id)?.name ?? "?";
@@ -74,32 +87,49 @@ export default function AircraftForm({
     setAddonRows((rows) => rows.filter((r) => r.classId !== classId));
   }
 
+  // Faktorerna kontrolleras här och igen på servern
+  function save() {
+    const check = { price: parsePriceFactor(priceFactor) === null, time: parseTimeFactor(timeFactor) === null };
+    setInvalid(check);
+    if (check.price || check.time) {
+      setError([check.price && PRICE_FACTOR_ERROR, check.time && TIME_FACTOR_ERROR].filter(Boolean).join(" "));
+      return;
+    }
+    run(
+      () =>
+        onSave({
+          name,
+          priceFactor,
+          timeFactor,
+          classes: classRows,
+          addons: addonRows.map(({ addonId, classId }) => ({ addonId, classId })),
+        }),
+      onDone,
+    );
+  }
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        run(
-          () =>
-            onSave({
-              name,
-              classes: classRows,
-              addons: addonRows.map(({ addonId, classId }) => ({ addonId, classId })),
-            }),
-          onDone,
-        );
+        save();
       }}
       className="flex flex-col gap-4 rounded-card-compact border border-line-strong bg-surface-sunk p-4 text-sm"
     >
       <h3 className="text-sm font-semibold">{title}</h3>
-      <LabeledField label="Planets namn">
-        <input
-          placeholder="t.ex. Airbus A320neo"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={fieldClass("compact")}
-          autoFocus
-        />
-      </LabeledField>
+      <div className="flex flex-wrap gap-3">
+        <LabeledField label="Planets namn" className="min-w-48 flex-1">
+          <input
+            placeholder="t.ex. Airbus A320neo"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={fieldClass("compact")}
+            autoFocus
+          />
+        </LabeledField>
+        <FactorField label="Prisfaktor" value={priceFactor} onChange={setPriceFactor} invalid={invalid.price} errorId={errorId} />
+        <FactorField label="Tidsfaktor" value={timeFactor} onChange={setTimeFactor} invalid={invalid.time} errorId={errorId} />
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* ---- Klasser */}
@@ -188,11 +218,16 @@ export default function AircraftForm({
         </section>
       </div>
 
-      {error && <Message kind="error">{error}</Message>}
+      {error && (
+        <Message kind="error" id={errorId}>
+          {error}
+        </Message>
+      )}
       <SaveCancel pending={pending} onCancel={onDone} />
     </form>
   );
 }
+
 
 // ---------------------------------------------------------------- Klasser
 

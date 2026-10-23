@@ -1,13 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { formatDay } from "@/lib/dates";
 import { type Flight, searchDelay, type SortBy, sortFlights, totalPrice } from "@/lib/flight-rules";
 import { formatPrice } from "@/lib/format";
 import type { Search } from "@/lib/search";
-import Button from "../components/Button";
+import { keepChoice, type LegChoice, planUrl } from "@/lib/trip";
+import Button, { buttonClass } from "../components/Button";
 import Card from "../components/Card";
 import FlightCard, { FlightSkeleton } from "./FlightCard";
+import FlightLine from "./FlightLine";
+import Steps from "./Steps";
 
 type Step = "outbound" | "return" | "summary";
 
@@ -19,24 +23,32 @@ const STEPS: { step: Step; label: string }[] = [
 
 // Sökresultaten: först en simulerad sökning med skelettkort (R3), sedan
 // flygen att välja bland, för tur och retur i två steg (R8), och till sist
-// den valda resan (R9). inbound är null för en enkel resa; cities är
-// städerna för sökningens Från och Till.
+// den valda resan (R9) med Fortsätt till plan och klasser (TRIP-011-R1).
+// inbound är null för en enkel resa; cities är städerna för sökningens Från
+// och Till. chosen är det som valts tidigare, när besökaren kommer tillbaka
+// från plan och klasser (TRIP-011-R10).
 export default function FlightResults({
   search,
   cities,
   outbound,
   inbound,
+  chosen,
 }: {
   search: Search;
   cities: { from: string; to: string };
   outbound: Flight[];
   inbound: Flight[] | null;
+  chosen: LegChoice[] | null;
 }) {
   const ready = useSimulatedSearch();
   const started = useHydrated();
   const [sortBy, setSortBy] = useState<SortBy>("time");
-  const [chosenOutbound, setChosenOutbound] = useState<Flight | null>(null);
-  const [chosenReturn, setChosenReturn] = useState<Flight | null>(null);
+  const [chosenOutbound, setChosenOutbound] = useState<Flight | null>(
+    () => outbound.find((f) => f.time === chosen?.[0].time) ?? null,
+  );
+  const [chosenReturn, setChosenReturn] = useState<Flight | null>(
+    () => inbound?.find((f) => f.time === chosen?.[1]?.time) ?? null,
+  );
 
   const step: Step = !chosenOutbound ? "outbound" : inbound && !chosenReturn ? "return" : "summary";
 
@@ -76,7 +88,7 @@ export default function FlightResults({
         {status}
       </p>
 
-      {inbound && <Steps current={step} />}
+      {inbound && <Steps steps={STEPS} current={STEPS.findIndex((s) => s.step === step)} />}
 
       {step === "outbound" && (
         <FlightList
@@ -115,6 +127,10 @@ export default function FlightResults({
           outbound={chosenOutbound}
           inbound={chosenReturn}
           travellers={search.travellers}
+          next={planUrl(search, [
+            keepChoice(chosen?.[0], chosenOutbound.time),
+            ...(chosenReturn ? [keepChoice(chosen?.[1], chosenReturn.time)] : []),
+          ])}
           onChangeOutbound={changeOutbound}
           onChangeReturn={changeReturn}
         />
@@ -141,31 +157,6 @@ function useHydrated() {
 }
 // Inget att prenumerera på: värdet ändras bara från server till webbläsare
 const subscribeNever = () => () => {};
-
-function Steps({ current }: { current: Step }) {
-  const index = STEPS.findIndex((s) => s.step === current);
-  return (
-    <ol aria-label="Steg" className="flex flex-wrap gap-x-6 gap-y-2 text-small">
-      {STEPS.map((s, i) => (
-        <li
-          key={s.step}
-          aria-current={i === index ? "step" : undefined}
-          className={`flex items-center gap-2 ${i === index ? "font-bold text-ink" : "text-ink-muted"}`}
-        >
-          <span
-            aria-hidden="true"
-            className={`grid h-6 w-6 place-items-center rounded-full border-[1.5px] tabular-nums ${
-              i === index ? "border-accent-strong" : "border-line-strong"
-            }`}
-          >
-            {i + 1}
-          </span>
-          {s.label}
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 function FlightList({
   headingRef,
@@ -270,22 +261,13 @@ function ChosenOutbound({ flight, onChange }: { flight: Flight; onChange: () => 
   );
 }
 
-// "fre 13 nov, 07:20 ARN Stockholm – LHR London"
-function FlightLine({ flight }: { flight: Flight }) {
-  return (
-    <p className="font-medium">
-      {formatDay(flight.date)}, <span className="tabular-nums">{flight.time}</span> {flight.from.iata}{" "}
-      {flight.from.city} – {flight.to.iata} {flight.to.city}
-    </p>
-  );
-}
-
-// Den valda resan och priset för alla resenärer (R9). Att välja plan och klass kommer i TRIP-011.
+// Den valda resan och priset för alla resenärer (R9). next är sidan för plan och klasser.
 function Summary({
   headingRef,
   outbound,
   inbound,
   travellers,
+  next,
   onChangeOutbound,
   onChangeReturn,
 }: {
@@ -293,6 +275,7 @@ function Summary({
   outbound: Flight;
   inbound: Flight | null;
   travellers: number;
+  next: string;
   onChangeOutbound: () => void;
   onChangeReturn: () => void;
 }) {
@@ -300,7 +283,7 @@ function Summary({
     { label: "Utresa", flight: outbound, onChange: onChangeOutbound },
     ...(inbound ? [{ label: "Hemresa", flight: inbound, onChange: onChangeReturn }] : []),
   ];
-  const total = legs.reduce((sum, leg) => sum + totalPrice(leg.flight.price, travellers), 0);
+  const total = legs.reduce((sum, leg) => sum + totalPrice(leg.flight.fromPrice, travellers), 0);
 
   return (
     <Card className="flex flex-col gap-5">
@@ -314,7 +297,7 @@ function Summary({
               <p className="text-small text-ink-muted">{leg.label}</p>
               <FlightLine flight={leg.flight} />
               <p className="text-small text-ink-muted">
-                {leg.flight.number} · från {formatPrice(leg.flight.price)} / person
+                {leg.flight.number} · från {formatPrice(leg.flight.fromPrice)} / person
               </p>
             </div>
             <Button variant="secondary" size="compact" onClick={leg.onChange}>
@@ -329,7 +312,9 @@ function Summary({
         </span>
         <span className="text-xl font-bold">från {formatPrice(total)}</span>
       </p>
-      <p className="text-small text-ink-muted">Snart väljer du plan och klass här.</p>
+      <Link href={next} className={`${buttonClass()} self-start`}>
+        Fortsätt
+      </Link>
     </Card>
   );
 }

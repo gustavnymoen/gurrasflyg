@@ -124,6 +124,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-014 | Whole suite once in CI, read-only smoke tests against the preview and production via `deployment_status`, branch protection on `main` | Shared | Done |
 | TECH-015 | Unit tests with Vitest next to the code, with their own test database; the tests without a browser moved there, fewer repeated browser cases | Shared | Done |
 | TRIP-010 | Flight search results: the Sök button, the results page with a simulated search, flight cards, sorting and choosing outbound and return flights; routes between every pair of airports with a price per departure | Flight booking | Done |
+| TRIP-011 | Choose aircraft and classes: `/flyg/plan` with an aircraft per flight (price, flight time, arrival, compared) and travellers per class, prices that follow every change, everything in the address; price and time factors in admin; the "från" price from the cheapest aircraft | Flight booking | Done |
 
 ## Decisions for charter
 
