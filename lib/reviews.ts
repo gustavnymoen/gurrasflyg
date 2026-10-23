@@ -2,7 +2,7 @@ import "server-only";
 import { connection } from "next/server";
 import { AdminError } from "./admin";
 import { all, run } from "./db";
-import { MAX_REVIEW_LENGTH } from "./review-rules";
+import { MAX_AUTHOR_LENGTH, MAX_REVIEW_LENGTH, MAX_TITLE_LENGTH } from "./review-rules";
 
 export type Review = { id: number; rating: number; title: string; author: string; body: string };
 export type ReviewInput = Omit<Review, "id">;
@@ -24,6 +24,12 @@ export async function createReview(input: ReviewInput) {
   if (!title) throw new AdminError("Omdömet måste ha en rubrik.");
   if (!author) throw new AdminError("Ange vem som lämnat omdömet.");
   if (!body) throw new AdminError("Skriv en text till omdömet.");
+  if (author.length > MAX_AUTHOR_LENGTH) {
+    throw new AdminError(`Namnet får vara max ${MAX_AUTHOR_LENGTH} tecken.`);
+  }
+  if (title.length > MAX_TITLE_LENGTH) {
+    throw new AdminError(`Rubriken får vara max ${MAX_TITLE_LENGTH} tecken.`);
+  }
   if (body.length > MAX_REVIEW_LENGTH) {
     throw new AdminError(`Texten får vara max ${MAX_REVIEW_LENGTH} tecken.`);
   }

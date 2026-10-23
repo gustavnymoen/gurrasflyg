@@ -2,7 +2,7 @@
 type: Index
 title: System documentation
 description: How Gurras Flyg is built: architecture, data, API endpoints and features.
-timestamp: 2026-10-22
+timestamp: 2026-10-23
 ---
 
 # System documentation
@@ -13,6 +13,7 @@ How the site works, for developers. Start with the architecture.
 
 - [Architecture](architecture.md): the parts of the site, the database, environments and deploys.
 - [Code review](code-review.md): how every feature is reviewed before it is done.
+- [Accessibility](accessibility.md): how the site is kept at WCAG 2.2 AA: the axe check in the tests and the manual checklist.
 - [Design](../../DESIGN.md): the design "Loungen": tokens, shared components, rules and how to change them.
 
 ## Data

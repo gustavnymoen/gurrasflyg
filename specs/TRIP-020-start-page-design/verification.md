@@ -67,6 +67,8 @@ Acceptance criteria:
 
 ### TRIP-020-R4 A smaller review carousel
 
+*Changed by TRIP-021-R4 (2026-10-23): the card is 12 rem high as before but grows when its text needs it (`min-h-48`, `self-start` in a grid instead of absolute positioning), `line-clamp` is removed and the padding is `py-3.5`; reviews have at most 20/25/145 characters.*
+
 The review carousel shall work exactly as in TRIP-006-R1 and R2 (one card in focus in the middle with the cards next to it smaller, fainter and behind it, arrows on the edges of the card in focus, going round, arrow keys, click on a side card, swipe on a phone), but smaller so that it doesn't take too much attention: the card in focus is at most 15 rem wide and 12 rem high (today 16 × 14 rem). The cards use the card look of TRIP-008-R5, the review in focus is marked with the accent, and the name is in brass.
 
 Acceptance criteria:

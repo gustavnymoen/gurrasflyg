@@ -65,7 +65,7 @@ test("TRIP-019-R3 a dialog floats with the floating shadow", async ({ page }) =>
 });
 
 test("TRIP-019-R4 a saved review gives green text without a box", async ({ page }) => {
-  const author = uniqueName("Resenär");
+  const author = uniqueName("R"); // names are at most 20 characters (TRIP-021-R4)
   await writeReview(page, { author, rating: 4, title: "Rubrik", body: "Text" });
   await expectTextMessage(reviewForm(page).getByRole("status").filter({ hasText: "Omdömet sparades." }), SUCCESS);
 

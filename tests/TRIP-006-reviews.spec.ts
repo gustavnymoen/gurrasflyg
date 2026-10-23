@@ -85,15 +85,16 @@ test.describe("admin", () => {
   test("TRIP-006-R3 form has name, stars, title and text with a counter", async ({ page }) => {
     const form = reviewForm(page);
     const fields = form.locator("input, textarea, [role=radiogroup]");
-    await expect(fields.nth(0)).toHaveAttribute("aria-label", "Namn på personen");
-    await expect(fields.nth(1)).toHaveAttribute("aria-label", "Betyg");
-    await expect(fields.nth(2)).toHaveAttribute("aria-label", "Rubrik");
-    await expect(fields.nth(3)).toHaveAttribute("aria-label", "Text");
-    await expect(form.getByText("0/150")).toBeVisible();
+    await expect(fields.nth(0)).toHaveAccessibleName("Namn på personen");
+    await expect(fields.nth(1)).toHaveAccessibleName("Betyg");
+    await expect(fields.nth(2)).toHaveAccessibleName("Rubrik");
+    await expect(fields.nth(3)).toHaveAccessibleName("Text");
+    // The limit is 145 characters since TRIP-021-R4
+    await expect(form.getByText("0/145")).toBeVisible();
 
     await form.getByLabel("Text").fill("x".repeat(200));
-    await expect(form.getByLabel("Text")).toHaveValue("x".repeat(150));
-    await expect(form.getByText("150/150")).toBeVisible();
+    await expect(form.getByLabel("Text")).toHaveValue("x".repeat(145));
+    await expect(form.getByText("145/145")).toBeVisible();
   });
 
   test("TRIP-006-R4 every field is required", async ({ page }) => {
@@ -116,7 +117,8 @@ test.describe("admin", () => {
   });
 
   test("TRIP-006-R5 and R6 a saved review is listed and shown first, and can be deleted", async ({ page }) => {
-    const author = uniqueName("Resenär");
+    // A short prefix: names are at most 20 characters (TRIP-021-R4)
+    const author = uniqueName("R");
     const title = "Bästa resan någonsin";
     await writeReview(page, { author, rating: 5, title, body: "Mjuk landning och god kaffe." });
 

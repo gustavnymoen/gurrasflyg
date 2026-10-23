@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { MAX_REVIEW_LENGTH } from "@/lib/review-rules";
+import { useId, useState } from "react";
+import { MAX_AUTHOR_LENGTH, MAX_REVIEW_LENGTH, MAX_TITLE_LENGTH } from "@/lib/review-rules";
 import type { Review } from "@/lib/reviews";
 import Stars from "../components/Stars";
 import Button from "../components/Button";
 import { fieldClass, textAreaClass } from "../components/Field";
 import Message from "../components/Message";
 import { createReviewAction, deleteReviewAction } from "./actions";
-import { CollapsibleCard, DeleteButton, rowClass, subheadingClass, thClass, useAction } from "./admin-ui";
+import { CollapsibleCard, DeleteButton, LabeledField, rowClass, subheadingClass, thClass, useAction } from "./admin-ui";
 
 export default function ReviewSection({ reviews }: { reviews: Review[] }) {
   return (
@@ -93,30 +93,32 @@ function ReviewForm() {
       className="flex flex-col gap-2"
     >
       <h3 className={subheadingClass}>Nytt omdöme</h3>
-      <input
-        aria-label="Namn på personen"
-        placeholder="Namn på personen"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        className={fieldClass("compact")}
-      />
-      <StarPicker value={rating} onChange={setRating} />
-      <input
-        aria-label="Rubrik"
-        placeholder="Rubrik"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className={fieldClass("compact")}
-      />
-      <div>
-        <textarea
-          aria-label="Text"
-          placeholder="Text"
-          maxLength={MAX_REVIEW_LENGTH}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          className={textAreaClass("compact")}
+      <LabeledField label="Namn på personen">
+        <input
+          maxLength={MAX_AUTHOR_LENGTH}
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          className={fieldClass("compact")}
         />
+      </LabeledField>
+      <StarPicker value={rating} onChange={setRating} />
+      <LabeledField label="Rubrik">
+        <input
+          maxLength={MAX_TITLE_LENGTH}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className={fieldClass("compact")}
+        />
+      </LabeledField>
+      <div>
+        <LabeledField label="Text">
+          <textarea
+            maxLength={MAX_REVIEW_LENGTH}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            className={textAreaClass("compact")}
+          />
+        </LabeledField>
         <p className="text-right text-xs text-ink-muted">
           {body.length}/{MAX_REVIEW_LENGTH}
         </p>
@@ -133,26 +135,32 @@ function ReviewForm() {
 // Fem klickbara stjärnor
 function StarPicker({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
   const [hover, setHover] = useState(0);
+  const labelId = useId();
   const shown = hover || value;
   return (
-    <div role="radiogroup" aria-label="Betyg" className="flex" onMouseLeave={() => setHover(0)}>
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          role="radio"
-          aria-checked={value === n}
-          aria-label={`${n} ${n === 1 ? "stjärna" : "stjärnor"}`}
-          onClick={() => onChange(n)}
-          onMouseEnter={() => setHover(n)}
-          // Klickytan är minst 24 px (WCAG 2.5.8), större än själva stjärnan
-          className={`grid h-7 w-7 place-items-center text-xl leading-none transition-colors ${
-            n <= shown ? "text-brass" : "text-line-strong hover:text-ink-muted"
-          }`}
-        >
-          ★
-        </button>
-      ))}
+    <div className="flex flex-col gap-1">
+      <span id={labelId} className="text-xs text-ink-muted">
+        Betyg
+      </span>
+      <div role="radiogroup" aria-labelledby={labelId} className="flex" onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={value === n}
+            aria-label={`${n} ${n === 1 ? "stjärna" : "stjärnor"}`}
+            onClick={() => onChange(n)}
+            onMouseEnter={() => setHover(n)}
+            // Klickytan är minst 24 px (WCAG 2.5.8), större än själva stjärnan
+            className={`grid h-7 w-7 place-items-center text-xl leading-none transition-colors ${
+              n <= shown ? "text-brass" : "text-line-strong hover:text-ink-muted"
+            }`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

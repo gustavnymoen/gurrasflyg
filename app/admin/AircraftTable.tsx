@@ -37,25 +37,29 @@ export default function AircraftTable({
           </Button>
         )}
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr>
-              <th className="w-8" />
-              <th className={thClass}>Namn</th>
-              <th className={`${thClass} text-right`}>Klasser</th>
-              <th className={`${thClass} text-right`}>Platser</th>
-              <th className={`${thClass} text-right`}>Rutter</th>
-              <th className="w-20">
-                <span className="sr-only">Åtgärder</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {aircraft.map((a) => (
-              <AircraftRow key={a.id} aircraft={a} classes={classes} addons={addons} />
-            ))}
-          </tbody>
-        </table>
+        {/* På en smal skärm rullar tabellen i sidled i kortet, inte hela sidan (WCAG 1.4.10).
+            relative: annars hamnar tabellens sr-only-text utanför och gör sidan bredare */}
+        <div className="relative overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr>
+                <th className="w-8" />
+                <th className={thClass}>Namn</th>
+                <th className={`${thClass} text-right`}>Klasser</th>
+                <th className={`${thClass} text-right`}>Platser</th>
+                <th className={`${thClass} text-right`}>Rutter</th>
+                <th className="w-20">
+                  <span className="sr-only">Åtgärder</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {aircraft.map((a) => (
+                <AircraftRow key={a.id} aircraft={a} classes={classes} addons={addons} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {aircraft.length === 0 && <p className="text-sm text-ink-muted">Inga plan än.</p>}
       </div>
     </CollapsibleCard>

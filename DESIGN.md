@@ -80,13 +80,14 @@ The admin page's own pieces are in `app/admin/admin-ui.tsx`, built on the compon
 | Piece | Built on | Use |
 |---|---|---|
 | `CollapsibleCard` | `Card` (compact) | Each part of the admin page (Klasser & addons, Plan, Omdömen), with a heading that folds it in and out. |
-| `Dialog` | `floatingCardClass` | A question over the page ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. |
+| `Dialog` | `floatingCardClass` | A question over the page ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. The browser's `<dialog>` with `showModal()`: Tab stays in it, Escape closes it, and focus goes back to the button that opened it. The button to focus first has `data-autofocus`. |
+| `LabeledField` | tokens | A visible label above an admin field (`label` with `htmlFor`, WCAG 3.3.2). The width goes on `LabeledField`, the field inside fills it. |
 | `IconButton` | tokens | A small button with only an icon: pencil, trash can, check, cross, the arrow that unfolds a row. Needs a `label` (read aloud and shown on hover). |
 | `EditButton`, `RemoveButton`, `DeleteButton` | `IconButton`, `Dialog` | Pencil; trash can without a question (rows in an unsaved form); trash can with "Är du säker?". |
 | `SaveCancel` | `Button` (compact) | Spara and Avbryt under a form. |
 | `thClass`, `rowClass`, `subheadingClass` | tokens | Table heads, table rows with a divider, and headings inside a card. |
 
-In forms, admin fields are `fieldClass("compact", …)` and `textAreaClass("compact")`.
+In forms, admin fields are `fieldClass("compact", …)` and `textAreaClass("compact")`, each in a `LabeledField`; placeholders give only an example ("t.ex. Premium"). A table too wide for a phone scrolls sideways inside a `relative overflow-x-auto` wrapper, not the page.
 
 ## The start page photo
 
