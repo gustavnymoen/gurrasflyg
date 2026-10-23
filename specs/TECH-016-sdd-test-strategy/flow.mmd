@@ -1,0 +1,11 @@
+%% TECH-016 SDD and the test strategy
+%% How a requirement is checked, from card to verification.
+flowchart TD
+    A[Card: requirements and test plan] -->|Specified| B[Build: code and unit tests]
+    B --> C[Test: browser tests, smoke test]
+    C --> D[Verify: verification.md per requirement and per kind of check]
+    D --> E[Review: code review, security]
+    E --> F[Done: requirements as built]
+    F --> G[After deploy: smoke tests and accessibility checklist on the live site]
+    T[wiki/system/testing.md] -.->|which kind of check for what| A
+    T -.-> C

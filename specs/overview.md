@@ -2,7 +2,7 @@
 type: Product overview
 title: Gurras Flyg
 description: Purpose, product areas, terms, scope, features and shared rules of the Gurras Flyg booking site.
-timestamp: 2026-10-21
+timestamp: 2026-10-23
 ---
 
 # Gurras Flyg
@@ -21,6 +21,17 @@ An administrator manages the airline's data and the reviews shown on the start p
 All data is fake. No real payments are taken and no real personal data should be entered.
 
 The site is also a course project: it is built to practise real product development (specifications, backlog, tests, deploys, documentation and manuals), so how it is built matters as much as what it does.
+
+## How we work
+
+The site is built by **specification-driven development (SDD)**, the method the course teaches:
+
+- **The requirements are the source of truth.** Each change starts as a card on the board ["Gurras Flyg"](https://github.com/users/gustavnymoen/projects/2), with a goal, a scope, numbered requirements (`TRIP-010-R1`, …) with acceptance criteria, and a test plan. It is built only when no open questions remain.
+- **Code, tests and documentation follow from the requirements.** `specs/<ID>-<name>/solution.md` says how a card is built, each test is named after the requirement it checks, and the manual and the system documentation describe what was built.
+- **Every requirement is traceable:** from the card, to its tests, to a row in the feature's `verification.md` that says how it was checked, where, with what result and when. When the feature is done, its requirements are copied into `verification.md` as built.
+- **A requirement that turns out wrong is changed in the card first,** together with the product owner, and then in the code. Code and requirements never disagree.
+
+The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement is checked (unit tests, browser tests, smoke tests, accessibility, security and code review) is in [Testing](../wiki/system/testing.md).
 
 ## Users
 
@@ -107,6 +118,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-003 | The bookable-date rule and its messages in a shared module, `lib/dates.ts` | Shared | Done |
 | TRIP-009 | Return trip date picker: Utresa and Hemresa typed or chosen in the site's own calendar, the switch "Tur och retur" | Flight booking | Done |
 | TRIP-022 | One border colour for cards and buttons: cards, review cards and buttons have the fields' border, the brass edge is removed, primary buttons have a faint wine red tone | Shared | Done |
+| TECH-016 | SDD and the test strategy: "How we work" in this overview, `wiki/system/testing.md`, a test plan in every card | Shared | Done |
 
 ## Decisions for charter
 

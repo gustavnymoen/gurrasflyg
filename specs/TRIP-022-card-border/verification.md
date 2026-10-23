@@ -11,14 +11,19 @@ How each requirement was checked. Tests are in `tests/TRIP-022-card-border.spec.
 |---|---|---|---|---|
 | TRIP-022-R1 | Tests `TRIP-022-R1 the search form and the sign-in form have the fields' border colour` (the search card has the same colour as the Från field) and `TRIP-022-R1 and R4 the admin cards, the aircraft form and its Spara and Avbryt have the fields' border colour` (also axe with the aircraft form open) | local | Pass | 2026-10-23 |
 | TRIP-022-R2 | Test `TRIP-022-R2 every review card has the fields' border colour, also the one in focus`. That the review in focus is still larger and more visible: the TRIP-006 and TRIP-020 carousel tests, unchanged apart from the border check removed from `TRIP-020-R4 …` | local | Pass | 2026-10-23 |
-| TRIP-022-R3 | Test `TRIP-022-R3 the airport suggestions keep their fainter border`. The focused field and the focus ring: `TRIP-008-R6 … a focused field has the accent border` and `TRIP-008-R9 keyboard focus shows a visible ring`, unchanged. Dialogs: `TRIP-019-R3 a dialog floats with the floating shadow`, which now also checks the border (added after the review) | local | Pass | 2026-10-23 |
+| TRIP-022-R3 | Test `TRIP-022-R3 the airport suggestions keep their fainter border`. The focused field and the focus ring: `TRIP-008-R6 … a focused field has the accent border` (since TECH-016 `TRIP-008-R4 and R6 a focused field has the accent border and ring`) and `TRIP-008-R9 keyboard focus shows a visible ring`, unchanged. Dialogs: `TRIP-019-R3 a dialog floats with the floating shadow`, which now also checks the border (added after the review) | local | Pass | 2026-10-23 |
 | TRIP-022-R4 | Tests `TRIP-022-R4 the primary button is toned down, and buttons get a wine red border on hover` (Logga in: background, border, text colour, text contrast 4.5:1 against the button laid over the card, wine red border on hover) and `TRIP-022-R1 and R4 …` (Spara in the aircraft form, compact, and Avbryt without fill, with the fields' border, wine red on hover; it is the same shared `SaveCancel` in `app/admin/admin-ui.tsx` as in the add-on form the criterion names, and the aircraft form is already open in that test). That changing the accent still changes the buttons: `TRIP-008-R1 changing the accent …`, now comparing before and after. Looked at in the browser on `/admin/login` | local | Pass | 2026-10-23 |
-| All | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:time` 144 passed. Against the live site after the deploy: not checked yet | local | Pass locally | 2026-10-23 |
-| Accessibility | `expectNoA11yViolations` on the admin page with the aircraft form open (R1); the start page and the admin page by the existing axe tests (TRIP-020, TRIP-021), unchanged. The checklist on the live site: not checked yet | local | Pass locally | 2026-10-23 |
+| All | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:time` 144 passed. Against the live site after the deploy: Live tests run 39958375790 on `main`, 131 passed, 13 skipped (`runsLocally`) | local, live | Pass | 2026-10-23 |
+| Accessibility | `expectNoA11yViolations` on the admin page with the aircraft form open (R1); the start page and the admin page by the existing axe tests (TRIP-020, TRIP-021), unchanged. The checklist on the live site: items 2 and 6, below | local, live | Pass | 2026-10-23 |
 
 ## The checklist
 
-Items of `wiki/system/accessibility.md` that the change concerns, to go through on <https://gurrasflyg.vercel.app> after the deploy: 2 (focus visible: the focus ring and the focused field still stand out against the new card border, and a focused primary button shows its ring) and 6 (contrast: the card border is decorative, so it has no contrast requirement, but the fields' borders inside the cards must still be at least 3:1, and the primary buttons' text at least 4.5:1). Not checked yet.
+The items of `wiki/system/accessibility.md` that the change concerns, gone through on <https://gurrasflyg.vercel.app> on 2026-10-23 in the browser, with the colours measured by a throw-away script. Recorded on TECH-016's branch, the next one after the merge.
+
+| Item | Result |
+|---|---|
+| 2 Focus visible | On `/admin/login`, Tab from Lösenord to Logga in gives the button a 2 px `#c83560` outline (`:focus-visible`), clearly visible against the toned-down button and the new card border. The focused field keeps its accent border and ring (`TRIP-008-R4 and R6 a focused field has the accent border and ring`). Pass |
+| 6 Contrast | Measured on `/admin/login`: the text on Logga in against the button laid over the card 12.18:1 (at least 4.5:1); the button's border against the card 3.30:1; the field's border against the card 3.30:1 and against the field 3.32:1 (at least 3:1). The card's border against the page 3.31:1, though it is decorative and has no requirement. Pass |
 
 ## Test suite
 
@@ -35,8 +40,8 @@ Five new tests; the border checks in `TRIP-008-R5 …`, `TRIP-019-R3 …` and `T
 
 - [x] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [x] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `CLAUDE.md`
-- [ ] Deployed, and `npm test` passes against the live site
-- [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
+- [x] Deployed, and `npm test` passes against the live site
+- [x] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (items 2 and 6, 2026-10-23)
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (the manual and `wiki/system/` describe no border colours, so only `DESIGN.md` and the log changed)
 - [x] No leftovers: everything the change made unused is deleted, no commented-out code or debug output

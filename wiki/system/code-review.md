@@ -5,7 +5,7 @@ description: Why and how every feature and technical task is reviewed before it 
 resource: .claude/agents/code-reviewer.md
 feature: TECH-006
 tags: [workflow, code-review, quality]
-timestamp: 2026-10-21
+timestamp: 2026-10-23
 ---
 
 # Code review
@@ -29,11 +29,11 @@ The review is light. It is there to try out code review as part of the workflow,
 ## What to look for
 
 1. **General errors:** wrong behaviour, missed edge cases (empty values, limits, dates and time zones), missing or wrong error handling, data that can be left half-written.
-2. **Requirements:** code that doesn't do what a requirement says, or does more than the requirements ask for. A requirement without a test, or a test that doesn't really check its requirement.
+2. **Requirements:** code that doesn't do what a requirement says, or does more than the requirements ask for. A requirement without a test, a check in the card's test plan that wasn't done, or a test that doesn't really check its requirement.
 3. **Bad design:** unclear responsibilities, code in the wrong place (for example database logic in a component), needless complexity, names that don't say what something is.
 4. **Duplicated code:** something an existing component or helper in `app/components/`, `app/admin/admin-ui.tsx`, `lib/` or `tests/helpers.ts` already does, or the same logic in two places in the change.
 5. **Unnecessary code:** leftovers, unused exports, files, styles or scripts the change made unused, commented-out code, debug output.
-6. **Test quality** (the rules in `CLAUDE.md`, Tests): retries or skips that hide a flaky test, fixed waits (`waitForTimeout`), tests that only check CSS or markup when the requirement is about behaviour, a behaviour already tested by another feature, copies of what `tests/helpers.ts` does, and extra page loads or browsers where one would do.
+6. **Test quality** (the quality rules in [Testing](testing.md)): retries or skips that hide a flaky test, fixed waits (`waitForTimeout`), tests that only check CSS or markup when the requirement is about behaviour, a behaviour already tested by another feature, copies of what `tests/helpers.ts` does, and extra page loads or browsers where one would do.
 7. **Project rules:** database changes only through new migrations, course data (`data/`, `knowledge/`, `public/images/`) read-only, no secrets in the code, Swedish for visitors and code comments, English for specs and system docs.
 
 ## Levels

@@ -12,9 +12,22 @@ How each requirement was checked. Create this file when work starts and fill it 
 | TRIP-000-R1 | Test `TRIP-000-R1 …` in `tests/TRIP-000-<name>.spec.ts` | local, live | Pass | YYYY-MM-DD |
 | TRIP-000-R2 | Manual: … (why it can't be automated) | live | Pass | YYYY-MM-DD |
 
+## The test plan
+
+How each kind of check in the card's test plan was done (see `wiki/system/testing.md`). Write "not applicable" with the reason where the plan says none.
+
+| Check | How it was done | Where | Result | Date |
+|---|---|---|---|---|
+| Unit tests | … | local, CI | Pass | YYYY-MM-DD |
+| Browser tests | … | local, CI | Pass | YYYY-MM-DD |
+| Smoke test | … | preview, live | Pass | YYYY-MM-DD |
+| Accessibility | axe in …; the checklist items … on the live site | local, live | Pass | YYYY-MM-DD |
+| Security | Security points in the review; `/security-review` (if needed) | local | Pass | YYYY-MM-DD |
+| Code review | [review.md](review.md) | local | Passed | YYYY-MM-DD |
+
 ## Test suite
 
-`npm run test:time` before and after the change (budgets and rules in `CLAUDE.md`).
+`npm run test:time` before and after the change (budgets and rules in `wiki/system/testing.md`).
 
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
@@ -23,9 +36,9 @@ How each requirement was checked. Create this file when work starts and fill it 
 
 ## Definition of Done
 
-- [ ] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes
-- [ ] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `CLAUDE.md`
-- [ ] Deployed, and `npm test` passes against the live site
+- [ ] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes
+- [ ] Test suite: within the time budgets, total time grown by at most 25 % (or the cause handled), and the new tests follow the quality rules in `wiki/system/testing.md`
+- [ ] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site)
 - [ ] Accessibility: changed pages and states pass `expectNoA11yViolations`, and the relevant items of `wiki/system/accessibility.md` are checked on the live site (not applicable if visitors see no change)
 - [ ] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [ ] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated

@@ -113,7 +113,7 @@ test("TRIP-008-R3 the page no longer loads Geist", async ({ page }) => {
 });
 
 // The primary button's look is checked by TRIP-022-R4
-test("TRIP-008-R4 a focused field has the accent border", async ({ page }) => {
+test("TRIP-008-R4 and R6 a focused field has the accent border and ring", async ({ page }) => {
   await page.goto("/");
   const from = page.getByRole("combobox", { name: "Från" });
   await from.focus();
@@ -179,13 +179,6 @@ test("TRIP-008-R6 each field shows its label and placeholder and keeps its acces
   await expect(page.getByRole("combobox", { name: "Från" })).toHaveAttribute("placeholder", "Varifrån?");
   await expect(page.getByRole("combobox", { name: "Till" })).toHaveAttribute("placeholder", "Vart vill du?");
   await expect(page.getByRole("group", { name: "Antal resenärer" })).toBeVisible();
-});
-
-test("TRIP-008-R6 a focused field has the accent border", async ({ page }) => {
-  await page.goto("/");
-  const to = page.getByRole("combobox", { name: "Till" });
-  await to.focus();
-  await expect(fieldBox(to)).toHaveCSS("border-color", ACCENT_STRONG);
 });
 
 test("TRIP-008-R6 an invalid date gives a red border and red text under the field", async ({ page }) => {
