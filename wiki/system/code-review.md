@@ -34,7 +34,17 @@ The review is light. It is there to try out code review as part of the workflow,
 4. **Duplicated code:** something an existing component or helper in `app/components/`, `app/admin/admin-ui.tsx`, `lib/` or `tests/helpers.ts` already does, or the same logic in two places in the change.
 5. **Unnecessary code:** leftovers, unused exports, files, styles or scripts the change made unused, commented-out code, debug output.
 6. **Test quality** (the quality rules in [Testing](testing.md)): retries or skips that hide a flaky test, fixed waits (`waitForTimeout`), tests that only check CSS or markup when the requirement is about behaviour, a behaviour already tested by another feature, copies of what `tests/helpers.ts` does, and extra page loads or browsers where one would do.
-7. **Project rules:** database changes only through new migrations, course data (`data/`, `knowledge/`, `public/images/`) read-only, no secrets in the code, Swedish for visitors and code comments, English for specs and system docs.
+7. **Project rules:** database changes only through new migrations, course data (`data/`, `knowledge/`, `public/images/`) read-only, Swedish for visitors and code comments, English for specs and system docs.
+8. **Security** (what only a reader sees; the pipeline's scans catch known patterns, secrets and vulnerable packages):
+   - **Sign-in on the server:** every admin page, server action and API route that changes or reveals admin data checks the sign-in on the server (`requireAdminPage`, `requireAdmin` or the like), not only in `proxy.ts` or by hiding a button.
+   - **Input validated on the server:** values from forms, the address and API calls are checked on the server (type, length, allowed values) before they are used; the checks in the browser are only for the visitor's convenience.
+   - **Database queries with parameters:** values go into queries as parameters (`?`), never joined into the SQL text.
+   - **Secrets kept secret:** no passwords, keys or tokens in the code, in what is sent to the browser (`NEXT_PUBLIC_…`, props of client components), in logs or in error messages.
+   - **Cookies:** session cookies are `HttpOnly`, `Secure` in production and `SameSite`, and are signed or otherwise impossible to forge.
+   - **Errors to visitors:** messages say what to do, never show stack traces, SQL or internal names.
+   - **Personal data:** only what the feature needs is stored, and it is not shown to anyone who shouldn't see it (for example by guessing an ID in the address).
+
+   A change that breaks one of these is a must-fix finding. A change that touches sign-in, admin, API routes, server actions, database queries or personal data is also checked with Claude Code's `/security-review` in the review step; its high-severity findings are must-fix, and its result goes into `review.md`.
 
 ## Levels
 

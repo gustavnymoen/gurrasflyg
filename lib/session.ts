@@ -6,7 +6,7 @@
 //
 // Inloggningen gäller tills webbläsaren stängs, dock max SESSION_HOURS timmar.
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "gurrasflyg_admin";
 export const SESSION_HOURS = 8;
@@ -41,4 +41,11 @@ export function isValidSessionToken(token: string | undefined) {
 export function safeEqual(a: string, b: string) {
   const [x, y] = [Buffer.from(a), Buffer.from(b)];
   return x.length === y.length && timingSafeEqual(x, y);
+}
+
+// Lösenordet jämförs som hashar av samma längd, så att svarstiden inte heller
+// avslöjar hur långt det rätta lösenordet är
+export function passwordMatches(password: string, expected: string) {
+  const hash = (text: string) => createHash("sha256").update(text).digest();
+  return timingSafeEqual(hash(password), hash(expected));
 }

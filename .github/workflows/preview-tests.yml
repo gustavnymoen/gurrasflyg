@@ -68,9 +68,6 @@ jobs:
       options: --user 1001
     permissions:
       contents: read
-    env:
-      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
     steps:
       # Samma commit som förhandsversionen byggdes från, inte GitHubs merge-commit
       - uses: actions/checkout@v4
@@ -79,9 +76,12 @@ jobs:
 
       - uses: ./.github/actions/setup-tests
 
+      # Hemligheterna bara i det här steget, inte när paketen installeras (TECH-013)
       - run: npm test
         env:
           BASE_URL: ${{ needs.wait.outputs.url }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Spara testrapporten
         if: failure()

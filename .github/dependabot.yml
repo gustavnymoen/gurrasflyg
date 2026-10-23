@@ -1,0 +1,20 @@
+# TECH-013: Dependabot föreslår säkerhetsuppdateringar som pull requests, som
+# går igenom CI och Preview tests som alla andra. Bara säkerhet: vanliga
+# versionsuppdateringar är avstängda (open-pull-requests-limit: 0), så att
+# Next.js och de andra paketen uppdateras när vi själva väljer det.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+
+  # Arbetsflödena och den gemensamma förberedelsen i .github/actions/
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/setup-tests
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

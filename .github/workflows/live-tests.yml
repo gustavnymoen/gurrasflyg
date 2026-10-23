@@ -9,6 +9,10 @@ on:
   status:
   workflow_dispatch:
 
+# GITHUB_TOKEN får bara läsa (TECH-013)
+permissions:
+  contents: read
+
 jobs:
   live:
     if: >-
@@ -22,9 +26,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
-    env:
-      # Produktionens lösenord. Saknas det hoppas admin-testerna över.
-      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
       # Testerna från samma commit som publicerades
       - uses: actions/checkout@v4
@@ -32,7 +33,12 @@ jobs:
           ref: ${{ github.event.sha || github.sha }}
 
       - uses: ./.github/actions/setup-tests
+
+      # Lösenordet bara i det här steget, inte när paketen installeras (TECH-013).
+      # Produktionens lösenord; saknas det hoppas admin-testerna över.
       - run: npm test
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
       - name: Spara testrapporten
         if: failure()

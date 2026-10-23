@@ -33,30 +33,30 @@ export async function createClassAction(name: string) {
   return run(() => admin.createClass(name));
 }
 export async function updateClassAction(id: number, name: string) {
-  return run(() => admin.updateClass(id, name));
+  return run(() => admin.updateClass(admin.requireId(id), name));
 }
 export async function deleteClassAction(id: number) {
-  return run(() => admin.deleteClass(id));
+  return run(() => admin.deleteClass(admin.requireId(id)));
 }
 
 export async function createAddonAction(addon: AddonInput) {
   return run(() => admin.createAddon(addon));
 }
 export async function updateAddonAction(id: number, addon: AddonInput) {
-  return run(() => admin.updateAddon(id, addon));
+  return run(() => admin.updateAddon(admin.requireId(id), addon));
 }
 export async function deleteAddonAction(id: number) {
-  return run(() => admin.deleteAddon(id));
+  return run(() => admin.deleteAddon(admin.requireId(id)));
 }
 
 export async function createAircraftAction(input: AircraftInput) {
   return run(() => admin.createAircraft(input));
 }
 export async function updateAircraftAction(id: number, input: AircraftInput) {
-  return run(() => admin.updateAircraft(id, input));
+  return run(() => admin.updateAircraft(admin.requireId(id), input));
 }
 export async function deleteAircraftAction(id: number) {
-  return run(() => admin.deleteAircraft(id));
+  return run(() => admin.deleteAircraft(admin.requireId(id)));
 }
 
 export async function assignAircraftAction() {
@@ -67,5 +67,5 @@ export async function createReviewAction(input: ReviewInput) {
   return run(() => createReview(input));
 }
 export async function deleteReviewAction(id: number) {
-  return run(() => deleteReview(id));
+  return run(() => deleteReview(admin.requireId(id)));
 }

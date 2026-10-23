@@ -8,6 +8,7 @@ title: Short name of the feature
 **Result:** Passed | Stopped (n must fix)
 **Date:** YYYY-MM-DD, review run 1
 **Summary:** One or two sentences.
+**Security:** The security points of the review: passed, or the findings below. `/security-review`: run, with its result, or not needed and why (see `wiki/system/code-review.md`).
 
 How the review works: `wiki/system/code-review.md`. A later run is added at the top as "Review run 2".
 

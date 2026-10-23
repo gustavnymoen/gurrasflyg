@@ -2,17 +2,26 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createSessionToken, safeEqual, SESSION_COOKIE } from "@/lib/session";
+import { createSessionToken, passwordMatches, SESSION_COOKIE } from "@/lib/session";
 
 export type LoginState = { error: string | null };
+
+const WRONG_PASSWORD_DELAY_MS = 1000;
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const expected = process.env.ADMIN_PASSWORD;
   if (!expected) {
-    return { error: "Inget lösenord är satt. Lägg till ADMIN_PASSWORD i .env.local." };
+    // Vad som saknas visas bara lokalt; besökare på riktiga sidan ser inga namn på inställningar
+    if (process.env.NODE_ENV !== "production") {
+      return { error: "Inget lösenord är satt. Lägg till ADMIN_PASSWORD i .env.local." };
+    }
+    console.error("ADMIN_PASSWORD saknas");
+    return { error: "Inloggningen fungerar inte just nu." };
   }
   const password = String(formData.get("password") ?? "");
-  if (!safeEqual(password, expected)) {
+  if (!passwordMatches(password, expected)) {
+    // En sekunds väntan gör det långsamt att gissa lösenordet
+    await new Promise((resolve) => setTimeout(resolve, WRONG_PASSWORD_DELAY_MS));
     return { error: "Fel lösenord." };
   }
 
