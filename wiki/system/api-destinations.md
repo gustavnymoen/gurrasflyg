@@ -62,4 +62,4 @@ Example item, shortened:
 - Data: the [charter tables](data-charter.md), imported from `data/destinations.json` and the [destination pages](../../knowledge/index.md)
 - Flights to the destinations' airports: [Flight timetables](data-flights.md)
 - Photos: `public/images/`
-- Tests: `tests/smoke.spec.ts` checks that the endpoint responds; `tests/TRIP-007-import-course-data.spec.ts` (TRIP-007-R9) that the response equals the course data, locally and on the live site
+- Tests: the smoke test `TECH-014-R2 @smoke the charter data answers with destinations` in `tests/TECH-014-smoke-tests.spec.ts` checks that the endpoint responds; `tests/TRIP-007-import-course-data.spec.ts` (TRIP-007-R9) that the response equals the course data, locally and on the live site
