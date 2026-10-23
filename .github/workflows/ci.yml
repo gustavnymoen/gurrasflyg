@@ -59,7 +59,7 @@ jobs:
   # Gitleaks körs från sina officiella images med fast version.
   security:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       # Hela historiken, så att Gitleaks ser varje commit
       - uses: actions/checkout@v4

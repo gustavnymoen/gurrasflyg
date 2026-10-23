@@ -330,6 +330,8 @@ function validateAircraft(input: AircraftInput): AircraftInput {
   if (input.classes.length === 0) {
     throw new AdminError("Planet måste ha minst en klass.");
   }
+  const ids = [...input.classes.map((c) => c.classId), ...input.addons.flatMap((a) => [a.addonId, a.classId])];
+  if (!ids.every(Number.isInteger)) throw new AdminError("Något gick fel, ladda om sidan.");
   const classIds = input.classes.map((c) => c.classId);
   if (new Set(classIds).size !== classIds.length) {
     throw new AdminError("Samma klass finns flera gånger på planet.");

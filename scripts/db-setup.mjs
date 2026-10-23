@@ -139,7 +139,7 @@ for (const file of pending) {
 }
 
 // Tabellnamnen kommer bara från raderna nedan i det här skriptet
-const count = async (table) => (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0]; // nosemgrep
+const count = async (table) => (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0]; // nosemgrep: semgrep.sql-built-from-text
 console.log(
   `Databas ${isNew ? "skapad" : pending.length > 0 ? "uppdaterad" : "oförändrad"}: ` +
     `${where.replace(/^(Turso \(libsql:\/\/[^.]+).*$/, "$1…)")} ` +

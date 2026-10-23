@@ -18,9 +18,11 @@ export async function createReview(input: ReviewInput) {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     throw new AdminError("Välj mellan 1 och 5 stjärnor.");
   }
-  const title = input.title.trim();
-  const author = input.author.trim();
-  const body = input.body.trim();
+  // Typerna gäller bara i koden; en server action kan anropas med vad som helst
+  const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+  const title = text(input.title);
+  const author = text(input.author);
+  const body = text(input.body);
   if (!title) throw new AdminError("Omdömet måste ha en rubrik.");
   if (!author) throw new AdminError("Ange vem som lämnat omdömet.");
   if (!body) throw new AdminError("Skriv en text till omdömet.");

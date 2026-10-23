@@ -37,7 +37,7 @@ type PhotoRow = NonNullable<Destination["image"]> & { destination_id: string };
 // Ett resmåls lista (alias, taggar eller transport) i den ordning den har i kursdatan.
 // Tabell och kolumn kommer bara från anropen här i filen, aldrig från en besökare.
 const listQuery = (table: string, column: string) =>
-  all<ListRow>(`SELECT destination_id, ${column} AS value FROM ${table} ORDER BY destination_id, position`); // nosemgrep
+  all<ListRow>(`SELECT destination_id, ${column} AS value FROM ${table} ORDER BY destination_id, position`); // nosemgrep: semgrep.sql-built-from-text
 
 // Alla resmål, sorterade på id
 export async function getDestinations(): Promise<Destination[]> {

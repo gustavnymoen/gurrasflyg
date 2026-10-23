@@ -1,0 +1,15 @@
+%% TECH-013 Security in the review and the pipeline
+%% Where a change is checked for security, and what stops it.
+flowchart TD
+    A[Change on a branch] --> B{Touches sign-in, admin, API, actions, queries or personal data?}
+    B -- yes --> C["/security-review (R2)"]
+    B -- no --> D[Code review with its security points (R1)]
+    C --> D
+    D --> E[Pull request]
+    E --> F[CI job security]
+    F --> G["npm audit (R3)"]
+    F --> H["Semgrep: community rules + sql-built-from-text (R4)"]
+    F --> I["Gitleaks: the whole history (R5)"]
+    G & H & I -- any fails --> X[Merge stopped]
+    G & H & I -- all pass --> M[Merge]
+    J["Dependabot (R6)"] -->|security update| E
