@@ -12,19 +12,20 @@ on:
 permissions:
   contents: read
 
-# En nyare förhandsversion av samma gren avbryter den förra körningen
-concurrency:
-  group: preview-${{ github.event.deployment.ref }}
-  cancel-in-progress: true
-
 jobs:
   preview:
     # Förhandsversioner i ett slutligt läge; produktionen testas av Live tests.
     # Även en misslyckad deploy kör jobbet, som då faller: ett överhoppat jobb
-    # räknas som godkänt av branch protection.
+    # räknas som godkänt av branch protection. (Vercels egen status "Vercel" är
+    # också ett krav för merge; de två skydden kompletterar varandra.)
     if: >-
       startsWith(github.event.deployment.environment, 'Preview') &&
       contains(fromJSON('["success", "failure", "error"]'), github.event.deployment_status.state)
+    # En nyare förhandsversion av samma gren avbryter den förra körningen. På
+    # jobbet, inte arbetsflödet, så att överhoppade händelser inte avbryter något.
+    concurrency:
+      group: preview-${{ github.event.deployment.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 8
     # TECH-011: Playwrights image, samma version som @playwright/test

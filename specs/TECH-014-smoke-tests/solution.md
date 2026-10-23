@@ -18,9 +18,10 @@ None.
 - `tests/TECH-014-smoke-tests.spec.ts`: five smoke tests named `TECH-014-R2 @smoke …`: the start page with its heading and search form, the reviews, `/api/airports?q=sto` containing ARN, `/admin` sending a visitor to `/admin/login`, and `/api/destinations` answering with destinations. The API checks use Playwright's `request` and need no browser page.
 - `package.json`: `npm run test:smoke` (`playwright test --grep @smoke`), against the live site or `BASE_URL`.
 - `.github/workflows/ci.yml`: on pull requests to `main` and by hand (`workflow_dispatch`), no longer on pushes to `main` (R1).
-- `.github/workflows/preview-tests.yml`: started by `deployment_status`; runs when the state is `success` and the environment starts with `Preview`; checks out `deployment.sha` and runs the smoke tests against `deployment_status.environment_url`, with only the bypass secret. The job that polled Vercel's commit status and built the address from the branch name is gone (R3, R5).
+- `.github/workflows/preview-tests.yml`: started by `deployment_status`; runs when the environment starts with `Preview` and the state is final (`success`, `failure` or `error`); a first step fails unless it is `success`, so a failed preview gives a failing check instead of a skipped one, which GitHub would count as passed. Then it checks out `deployment.sha` and runs the smoke tests against `deployment_status.environment_url`, with only the bypass secret. Its `concurrency` is on the job, so a skipped event doesn't cancel a running test. The job that polled Vercel's commit status and built the address from the branch name is gone (R3, R5).
 - `.github/workflows/live-tests.yml`: started by `deployment_status` for `Production`, or by hand; runs the smoke tests against the live site's fixed address, with no secret (R4, R5).
-- Branch protection on `main`, set with `gh api` (R6).
+- Branch protection on `main`, set with `gh api` (R6): required checks `check`, `security`, `preview` and `Vercel`, up to date with `main`, a pull request with 0 approvals, enforced for admins, no force pushes or deletion.
+- The repository secret `ADMIN_PASSWORD` is deleted (2026-10-23, with the user's OK): no workflow uses it any more, and a workflow on any deployed branch could otherwise read it.
 - Docs (R7): `wiki/system/pipeline.md` (new, with a Mermaid diagram), `wiki/system/testing.md` (smoke tests in use, where each check runs, new budgets), `README.md` (a short Pipeline section and `test:smoke`), `wiki/system/architecture.md`, `CLAUDE.md` (Verify, Merge, Definition of Done, Git rules), `specs/_template/verification.md`, `wiki/system/index.md`, `wiki/log.md`.
 
 ## Decisions
@@ -31,4 +32,5 @@ None.
 - **Live tests use the fixed address,** not the deployment's own address: the production domain is what visitors use, and Vercel's protection covers the deployment addresses.
 - **`npm test` stays** as a way to run the whole suite against the live site by hand (the course's `npm test`), but the pipeline doesn't run it there any more.
 - **Smoke tests may overlap browser tests**, the one exception to "No duplicates", since they check the deployed site; the rule is in `testing.md`.
+- **Two guards against a failed preview:** Preview tests fails on it, and Vercel's own status is required too, found by the code review (run 1): with only a job-level `if: success`, the job was skipped and counted as passed.
 - **No approving review in branch protection:** the user merges their own pull requests, and GitHub doesn't let an author approve their own.

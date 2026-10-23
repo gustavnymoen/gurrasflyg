@@ -3,7 +3,9 @@ flowchart TD
     A[Pull request to main] --> B["CI check: the whole suite (R1)"]
     A --> C[CI security]
     A --> D[Vercel preview]
-    D -->|"deployment_status success, Preview (R5)"| E["Preview tests: npm run test:smoke (R2, R3)"]
+    D -->|"deployment_status, Preview (R5)"| P{"Deploy succeeded?"}
+    P -- yes --> E["Preview tests: npm run test:smoke (R2, R3)"]
+    P -- no --> X
     B & C & E --> F{"All green and up to date? (R6)"}
     F -- no --> X[GitHub refuses the merge]
     F -- yes --> G[Merge]

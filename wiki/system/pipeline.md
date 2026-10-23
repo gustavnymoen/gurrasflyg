@@ -18,7 +18,7 @@ flowchart TD
     B --> C["CI: check<br/>lint, type check, build,<br/>the whole test suite"]
     B --> D["CI: security<br/>npm audit, Semgrep, Gitleaks"]
     B --> E[Vercel builds a preview<br/>with its own database]
-    E -->|deployment_status: success| F["Preview tests<br/>smoke tests against the preview"]
+    E -->|deployment_status| F["Preview tests<br/>smoke tests against the preview;<br/>fails if the deploy failed"]
     C & D & F -->|all green, branch up to date| G[Merge to main]
     G --> H[Vercel builds production<br/>and runs the migrations on Turso]
     H -->|deployment_status: success| I["Live tests<br/>smoke tests against gurrasflyg.vercel.app"]
