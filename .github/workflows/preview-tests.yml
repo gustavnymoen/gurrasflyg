@@ -1,86 +1,58 @@
-# TECH-007: alla tester mot pull requestens förhandsversion på Vercel, före merge.
-# Förhandsversionen har en egen Turso-databas, så testdata hamnar aldrig i
-# produktionen. Första jobbet startar med pull requesten och väntar tills Vercel
-# har rapporterat förhandsversionen som klar (statusen "Vercel" på commiten),
-# sedan kör det andra testerna mot den.
+# TECH-007: tester mot pull requestens förhandsversion på Vercel, före merge.
+# TECH-014: bara rökproven (npm run test:smoke); hela sviten körs en gång, i CI.
+# Startar när Vercel meddelar att en förhandsversion är klar (deployment_status),
+# med förhandsversionens adress i händelsen, och körs på samma commit.
+# Förhandsversionen har en egen Turso-databas, och rökproven skriver ingenting.
 name: Preview tests
 
 on:
-  pull_request:
-    branches: [main]
+  deployment_status:
 
-# En ny push på samma gren avbryter den förra körningen
-concurrency:
-  group: preview-${{ github.head_ref }}
-  cancel-in-progress: true
+# GITHUB_TOKEN får bara läsa (TECH-013)
+permissions:
+  contents: read
 
 jobs:
-  # Väntar på Vercel med gh, som inte finns i Playwrights image (TECH-011)
-  wait:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      statuses: read
-    outputs:
-      url: ${{ steps.preview.outputs.url }}
-    steps:
-      - name: Vänta på förhandsversionen
-        id: preview
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-          BRANCH: ${{ github.head_ref }}
-        run: |
-          # Vercels status kommer som "pending" och sedan "success" eller "failure"
-          for attempt in $(seq 1 60); do
-            state=$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA/statuses" \
-              --jq '[.[] | select(.context == "Vercel")][0].state // "none"')
-            echo "Vercel: $state"
-            [ "$state" = "success" ] && break
-            if [ "$state" = "failure" ] || [ "$state" = "error" ]; then
-              echo "::error::Vercel kunde inte bygga förhandsversionen"; exit 1
-            fi
-            sleep 10
-          done
-          if [ "$state" = "none" ]; then
-            echo "::error::Vercel har inte rapporterat någon förhandsversion för den här commiten"; exit 1
-          elif [ "$state" != "success" ]; then
-            echo "::error::Förhandsversionen blev inte klar på 10 minuter"; exit 1
-          fi
-
-          # Vercels fasta adress för grenen: projekt, gren och team.
-          # Längre än 63 tecken förkortar Vercel den, och då stämmer den inte.
-          slug=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
-          host="gurrasflyg-git-$slug-aqc-lab"
-          if [ ${#host} -gt 63 ]; then
-            echo "::error::Grenens namn är för långt för Vercels adress ($host)"; exit 1
-          fi
-          echo "url=https://$host.vercel.app" >> "$GITHUB_OUTPUT"
-
   preview:
-    needs: wait
+    # Förhandsversioner i ett slutligt läge; produktionen testas av Live tests.
+    # Även en misslyckad deploy kör jobbet, som då faller: ett överhoppat jobb
+    # räknas som godkänt av branch protection. (Vercels egen status "Vercel" är
+    # också ett krav för merge; de två skydden kompletterar varandra.)
+    if: >-
+      startsWith(github.event.deployment.environment, 'Preview') &&
+      contains(fromJSON('["success", "failure", "error"]'), github.event.deployment_status.state)
+    # En nyare förhandsversion av samma gren avbryter den förra körningen. På
+    # jobbet, inte arbetsflödet, så att överhoppade händelser inte avbryter något.
+    concurrency:
+      group: preview-${{ github.event.deployment.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 8
     # TECH-011: Playwrights image, samma version som @playwright/test
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
-    permissions:
-      contents: read
     steps:
-      # Samma commit som förhandsversionen byggdes från, inte GitHubs merge-commit
+      - name: Förhandsversionen byggdes
+        if: github.event.deployment_status.state != 'success'
+        env:
+          STATE: ${{ github.event.deployment_status.state }}
+        run: |
+          echo "::error::Vercel kunde inte bygga förhandsversionen ($STATE), så den kan inte testas"
+          exit 1
+
+      # Samma commit som förhandsversionen byggdes från
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.deployment.sha }}
 
       - uses: ./.github/actions/setup-tests
 
-      # Hemligheterna bara i det här steget, inte när paketen installeras (TECH-013)
-      - run: npm test
+      # Bypass-hemligheten tar testerna förbi Vercels inloggning för
+      # förhandsversioner, och bara i det här steget (TECH-013)
+      - run: npm run test:smoke
         env:
-          BASE_URL: ${{ needs.wait.outputs.url }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Spara testrapporten

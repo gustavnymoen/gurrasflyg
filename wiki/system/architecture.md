@@ -101,13 +101,7 @@ Security details (TECH-013):
 
 ### Pipeline
 
-| Workflow | When | What |
-|---|---|---|
-| CI (`.github/workflows/ci.yml`) | Every pull request to `main` and every push to `main` | `npm ci`, lint, type check, build and `npm run test:local`, with a throw-away admin password and the test database. Never touches production. |
-| Preview tests (`.github/workflows/preview-tests.yml`) | Every pull request to `main`; waits for Vercel's commit status `Vercel` to be `success` | `npm test` against the branch's preview address (`gurrasflyg-git-<branch>-aqc-lab.vercel.app`), with the secrets `VERCEL_AUTOMATION_BYPASS_SECRET` (sent as the header `x-vercel-protection-bypass`) and `ADMIN_PASSWORD`. Test data goes to the preview's database. Branch names must keep the address within 63 characters. |
-| Live tests (`.github/workflows/live-tests.yml`) | After each successful production deploy (Vercel's commit status `Vercel` on a commit in `main`), or by hand | `npm test` against the live site, with the secret `ADMIN_PASSWORD`. |
-
-The test jobs run in Playwright's Docker image `mcr.microsoft.com/playwright:v<version>-noble` (`options: --user 1001`, as in Playwright's docs), which has Node, Chromium and its system libraries, so nothing is installed with `apt`. Preview tests wait for Vercel in a separate job outside the image, since the image has no `gh`. The jobs share `.github/actions/setup-tests/`: `npm ci` with the npm cache, then `scripts/check-playwright-image.mjs`, which compares the image's version (`/ms-playwright/.docker-info`) with the installed `@playwright/test` and stops the job with both versions if they differ. **Updating Playwright:** change `@playwright/test` and the image's tag in `ci.yml`, `preview-tests.yml` and `live-tests.yml` in the same change. Failing runs save Playwright's HTML report, screenshots and traces as an artifact; Preview tests save no traces, since they would hold the bypass secret. Changes reach `main` through pull requests that are merged when CI and Preview tests are green.
+Changes reach `main` through pull requests, which branch protection merges only when CI (the whole test suite and the security scans) and Preview tests (smoke tests against the preview) are green and the branch is up to date. After each production deploy, Live tests runs the smoke tests against the live site. The workflows, their events and secrets are described in [Pipeline](pipeline.md).
 
 `npm run copy-to-prod` copies cabin classes, add-ons, aircraft and reviews from the local database to production. It only adds what is missing and never deletes.
 
@@ -117,7 +111,8 @@ Playwright tests in `tests/`, one file per feature, each test named after a requ
 
 | Command | Site | Database |
 |---|---|---|
-| `npm test` | <https://gurrasflyg.vercel.app> | Production (Turso). Tests only create and delete their own "E2E" data. |
+| `npm run test:smoke` | <https://gurrasflyg.vercel.app>, or `BASE_URL` | Production (Turso), read only: the smoke tests write nothing. |
+| `npm test` | <https://gurrasflyg.vercel.app>, or `BASE_URL` | Production (Turso). Run by hand only; tests create and delete their own "E2E" data. |
 | `npm run test:local` | Production build on port 3100, built in `.next-test/` by `scripts/test-server.mjs` | `~/Ai Projekt/gurrasflyg-data/test.db`, rebuilt from schema, seed and migrations every run. |
 
 `tests/global-teardown.ts` removes leftover "E2E" data after every run. `npm run test:time` (`scripts/test-time.mjs`) runs `npm run test:local` with Playwright's JSON report and prints the number of tests, their total time (without the build) and the five slowest, against the time budgets in `wiki/system/testing.md`, which also has the rules.

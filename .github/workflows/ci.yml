@@ -1,15 +1,15 @@
-# TECH-001: kontroller för varje pull request och varje push till main.
+# TECH-001: kontroller för varje pull request till main.
+# TECH-014: inte igen efter merge. Branch protection kräver att grenen är
+# uppdaterad mot main, så det CI testade är precis det som mergas.
 # TECH-013: säkerhetsjobbet bredvid: sårbara paket, osäker kod och läckta hemligheter.
-# Bara pull_request för andra grenar, annars körs allt två gånger (TECH-007).
 # Lint, typkontroll, bygge och alla tester mot ett lokalt produktionsbygge
 # med egen testdatabas. Använder varken Turso eller några riktiga lösenord.
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 # GITHUB_TOKEN får bara läsa (TECH-013)
 permissions:

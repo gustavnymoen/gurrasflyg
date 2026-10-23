@@ -16,8 +16,8 @@ The project follows specification-driven development (see "How we work" in `spec
 | Check | What it checks | Written | Runs | Passes when | Status |
 |---|---|---|---|---|---|
 | [Unit tests](#unit-tests) | Logic, calculations, rules and data | With the code, while building | On save (watch mode), in CI | Every unit test passes | Comes with TECH-015 |
-| [Browser tests](#browser-tests) | What a visitor or the administrator sees and does, the keyboard, and look | In the Test step | Locally and in CI; today also against the preview and production (until TECH-014) | Every browser test passes, none retried | In use |
-| [Smoke tests](#smoke-tests) | That a deployed site works: the main pages and flows answer | When a feature adds or changes a main page or flow | Against the preview and production after each deploy | Every smoke test passes against the deployed site | Comes with TECH-014 |
+| [Browser tests](#browser-tests) | What a visitor or the administrator sees and does, the keyboard, and look | In the Test step | Locally and in CI | Every browser test passes, none retried | In use |
+| [Smoke tests](#smoke-tests) | That a deployed site works: the main pages and flows answer | When a feature adds or changes a main page or flow | Against the preview and production after each deploy | Every smoke test passes against the deployed site | In use |
 | [Accessibility](#accessibility) | WCAG 2.2 AA | axe in the browser tests; the checklist after deploy | In the browser tests; by hand on the live site | axe finds no violations, and every relevant checklist item passes | In use |
 | [Security](#security) | Security mistakes in our code, leaked secrets, vulnerable packages | In the review step; scans in the pipeline | Review; CI (the job `security`); Dependabot | No security finding left that must be fixed, and the scans pass | In use |
 | [Code review](#code-review) | What the tools can't: design, duplication, requirements and tests | In the review step | Before the feature is done | No must-fix finding left | In use |
@@ -38,15 +38,14 @@ The project follows specification-driven development (see "How we work" in `spec
 - **Tool:** Playwright, one file per feature: `tests/<ID>-<name>.spec.ts`, each test named after its requirement, for example `test("TRIP-007-R2 shows only departures on the chosen date", …)`.
 - **Helpers:** `tests/helpers.ts` (sign-in, unique names, creating classes, add-ons and aircraft, colours, contrast, axe). Use them instead of copying.
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
-- **Runs:** `npm run test:local` against a local production build with its own test database (also in CI); `npm test` against a deployed site (`BASE_URL`), today the preview and production (TECH-014 replaces those runs with smoke tests).
+- **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
 - **A failing test** is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the requirement). Never weaken a test to make it pass.
 
 ## Smoke tests
 
-*Comes with TECH-014. Until then, the whole browser suite runs against the preview and production.*
-
 - **What:** a few fast checks that a deployed site works: each main page loads and each main flow answers, for example the start page, the airport search, the search results, admin requiring sign-in.
-- **Rules:** read-only: no sign-in, no secrets, no data written, so they can run against production. Marked `@smoke` in their names and run with `npm run test:smoke`.
+- **Rules:** read-only: no sign-in, no secrets, no data written, so they can run against production. Marked `@smoke` in their names, for example `TECH-014-R2 @smoke the start page loads with its heading and search form`, and run with `npm run test:smoke` (against the live site, or `BASE_URL`). They live with the feature that needs them; the first five are in `tests/TECH-014-smoke-tests.spec.ts` (start page, reviews, airport search, admin requires sign-in, charter data).
+- **Overlap:** a smoke test may check something a browser test also checks, since it runs against a different place (the deployed site). It is the one exception to the rule "No duplicates"; keep smoke tests few and fast (all of them under a minute).
 - **Written** when a feature adds or changes a main page or flow, as its test plan says.
 - **Runs** against the preview of every pull request and against production after every deploy.
 
@@ -78,14 +77,14 @@ Every feature and technical task is reviewed by the reviewer agent before it is 
 | | Locally | CI (pull request) | Preview tests | Live tests (after deploy) |
 |---|---|---|---|---|
 | Lint, type check, build | ✓ | ✓ | | |
-| Browser tests | `npm run test:local` | ✓ (all) | ✓ (all, until TECH-014) | ✓ (all, until TECH-014) |
+| Browser tests | `npm run test:local` | ✓ (all) | | |
 | Unit tests (TECH-015) | ✓ | ✓ | | |
-| Smoke tests (TECH-014) | | | ✓ | ✓ |
-| axe | in the browser tests | ✓ | ✓ (until TECH-014) | ✓ (until TECH-014) |
+| Smoke tests | `npm run test:smoke` | ✓ (part of all) | ✓ | ✓ |
+| axe | in the browser tests | ✓ | | |
 | Security scans | | ✓ (job `security`) | | |
 | Code review | ✓ | | | |
 
-The pipeline itself (workflows, events and environments) is described in the README's "Pipeline" section.
+The pipeline itself (workflows, events, secrets and the branch protection) is described in [Pipeline](pipeline.md).
 
 ## Quality rules
 
@@ -106,8 +105,8 @@ From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 
 |---|---|
 | One test, locally | at most 5 s |
 | All tests in `npm run test:local` (without the build) | at most 3 min |
-| `npm test` against a preview or the live site | at most 5 min |
-| A whole job on GitHub (CI, Preview tests, Live tests) | at most 8 min, of which at most 2 min preparation |
+| The smoke tests against a preview or the live site | at most 1 min |
+| A whole job on GitHub | CI at most 8 min, of which at most 2 min preparation; Preview tests and Live tests at most 2 min |
 
 `npm run test:time` runs `npm run test:local` and prints the number of tests, the total time and the five slowest tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
 

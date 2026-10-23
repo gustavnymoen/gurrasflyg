@@ -14,7 +14,7 @@ How each requirement was checked. The task changes documentation and templates, 
 | TECH-016-R3 | Code review: `.github/ISSUE_TEMPLATE/card.md` has "Test plan"; `CLAUDE.md` step 1 needs a test plan before Specified | local | Pass | 2026-10-23 |
 | TECH-016-R4 | Code review: `CLAUDE.md` steps 3 (unit tests with the code) and 4 (the test plan's tests, a smoke test for a main page or flow), and Definition of Done item 1 (every check in the test plan done, and the smoke tests against production after the deploy, until TECH-014 `npm test`) | local | Pass | 2026-10-23 |
 | TECH-016-R5 | Code review: `specs/_template/verification.md` has "The test plan" with rows for unit, browser, smoke, accessibility, security and code review | local | Pass | 2026-10-23 |
-| All | `npm run lint`, `npm run typecheck` and `npm run build` without errors or warnings; `npm run test:time` 143 passed (one fewer: the merged TRIP-008 test). Against the live site after the deploy: not checked yet | local | Pass locally | 2026-10-23 |
+| All | `npm run lint`, `npm run typecheck` and `npm run build` without errors or warnings; `npm run test:time` 143 passed (one fewer: the merged TRIP-008 test). Against the live site after the deploy: Live tests run 39963783255 on `main`, 130 passed, 13 skipped (`runsLocally`) | local, live | Pass | 2026-10-23 |
 
 ## The test plan
 
@@ -38,7 +38,7 @@ How each requirement was checked. The task changes documentation and templates, 
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [x] Test suite: within the time budgets, and the merged test follows the quality rules
-- [ ] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site)
+- [x] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site; run 39963783255, recorded on TECH-014's branch)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (no manual change: visitors see nothing new)

@@ -17,6 +17,7 @@
     "test": "playwright test",
     "test:local": "BASE_URL=http://localhost:3100 playwright test",
     "test:time": "node scripts/test-time.mjs",
+    "test:smoke": "playwright test --grep @smoke",
     "db:backup": "node scripts/db-setup.mjs --backup"
   },
   "dependencies": {

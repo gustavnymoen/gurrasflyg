@@ -43,7 +43,7 @@ The time grew because a wrong password is now answered after one second (five te
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [x] Test suite: within the time budgets, total time grown by at most 25 %
-- [ ] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site)
+- [x] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site; Live tests run 39970652333 on `main`, 130 passed, 13 skipped, recorded on TECH-014's branch)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (no manual change: visitors see nothing new)
