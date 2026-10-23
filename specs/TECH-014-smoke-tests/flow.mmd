@@ -1,0 +1,12 @@
+%% TECH-014 Whole suite once, smoke tests after deploy, branch protection
+flowchart TD
+    A[Pull request to main] --> B["CI check: the whole suite (R1)"]
+    A --> C[CI security]
+    A --> D[Vercel preview]
+    D -->|"deployment_status success, Preview (R5)"| E["Preview tests: npm run test:smoke (R2, R3)"]
+    B & C & E --> F{"All green and up to date? (R6)"}
+    F -- no --> X[GitHub refuses the merge]
+    F -- yes --> G[Merge]
+    G --> H[Vercel production]
+    H -->|"deployment_status success, Production (R5)"| I["Live tests: npm run test:smoke, no secrets (R4)"]
+    G -.->|"no CI run on main (R1)"| B

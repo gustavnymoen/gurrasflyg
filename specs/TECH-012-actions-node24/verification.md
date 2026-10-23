@@ -9,7 +9,7 @@ How each requirement was checked.
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TECH-012-R1 | CI run 39971000771 and Preview tests run 39971000864 on pull request #55 pass, and their annotations have no "Node.js 20 is deprecated" warning (only GitHub's notice about Ubuntu 26). The CI run before the change (39965901244) had two such warnings. Live tests after the merge: not checked yet | CI | Pass on the pull request; live not checked yet | 2026-10-23 |
+| TECH-012-R1 | CI run 39971000771 and Preview tests run 39971000864 on pull request #55 pass, and their annotations have no "Node.js 20 is deprecated" warning (only GitHub's notice about Ubuntu 26). The CI run before the change (39965901244) had two such warnings. Live tests run 39973082487 after the merge: 130 passed, 13 skipped, no Node.js 20 warning (recorded on TECH-014's branch) | CI, live | Pass | 2026-10-23 |
 | TECH-012-R2 | Every `uses:` in `.github/` that is not local has a 40-character SHA and a version comment (`grep -rn "uses:" .github`); each SHA equals what `gh api repos/<action>/commits/<tag>` returns for its tag | local | Pass | 2026-10-23 |
 | TECH-012-R3 | Code review: `.github/dependabot.yml` has `github-actions` for `/` and `/.github/actions/setup-tests`, `interval: monthly` and one group for all actions; npm still has `open-pull-requests-limit: 0` (security updates only) | local | Pass | 2026-10-23 |
 | TECH-012-R4 | The same steps run as before; CI: `npm run test:local` 143 passed (as before); Preview tests: 130 passed, 13 skipped (`runsLocally`), 143 in all as before | CI | Pass | 2026-10-23 |
@@ -34,7 +34,7 @@ No test changed; CI's `npm run test:local` ran 143 tests in 2.4 min of tests. Th
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes (in CI)
 - [x] Test suite: within the time budgets
-- [ ] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site)
+- [x] Deployed, and the smoke tests pass against production (until TECH-014: `npm test` against the live site; run 39973082487)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (no manual change)
