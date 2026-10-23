@@ -83,10 +83,11 @@ jobs:
               --config p/javascript --config p/typescript --config p/react \
               --config p/nextjs --config p/sql-injection --config .semgrep/
 
-      # Hela historiken varje gång: den är liten, och en hemlighet som kommit in
-      # tidigare ska också hittas. Värdena skrivs aldrig ut (--redact).
+      # Hela historiken bakom den här ändringen (HEAD, inte andra brancher) varje
+      # gång: den är liten, och en hemlighet som kommit in tidigare ska också
+      # hittas. Värdena skrivs aldrig ut (--redact).
       - name: Läckta hemligheter
         if: ${{ !cancelled() }}
         run: |
           docker run --rm -v "$PWD:/repo" --entrypoint sh ghcr.io/gitleaks/gitleaks:v8.30.1 -c \
-            'git config --global --add safe.directory /repo && gitleaks git /repo --redact --verbose'
+            'git config --global --add safe.directory /repo && gitleaks git /repo --log-opts=HEAD --redact --verbose'
