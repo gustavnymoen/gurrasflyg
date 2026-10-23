@@ -10,6 +10,8 @@ depends_on: [TRIP-004]
 
 # TRIP-005 Routes, departures and aircraft assignment
 
+> **Superseded in part by TRIP-010 (2026-10-23):** every pair of airports now has a route with at least 5 departures a day (TRIP-010-R10), and routes have no aircraft, so "Tilldela plan" is gone (TRIP-010-R12). The requirements below are kept as history.
+
 ## Goal
 
 The airline has a realistic route network: a couple of hundred routes in both directions, with flight times that match the distance and a few departures a day. The administrator can give every route an aircraft with one click.

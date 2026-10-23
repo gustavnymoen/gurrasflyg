@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { addDays, toDateString } from "../lib/dates";
 
 // True when the tests run against the local test server (npm run test:local),
 // false against the live site. Tests that change shared data in a way that
@@ -207,3 +208,39 @@ export async function expectNoA11yViolations(page: Page) {
   }));
   expect(violations).toEqual([]);
 }
+
+// Types in an airport field in the search form and waits for the suggestion list
+export async function typeAirport(page: Page, field: "Från" | "Till", text: string) {
+  await page.getByRole("combobox", { name: field }).fill(text);
+  const list = page.getByRole("listbox");
+  await expect(list).toBeVisible();
+  return list;
+}
+
+export async function chooseAirport(page: Page, field: "Från" | "Till", text: string, option: string) {
+  const list = await typeAirport(page, field, text);
+  await list.getByRole("option", { name: new RegExp(option) }).click();
+}
+
+// A date some days from today, as "YYYY-MM-DD" in local time
+export const daysFromToday = (days: number) => addDays(toDateString(new Date()), days);
+
+// Opens a results page without waiting the simulated 1–4 seconds (TRIP-010-R3):
+// the browser's clock is faked, and moved forward once the search has started
+export async function openResults(page: Page, url: string) {
+  await page.clock.install();
+  await page.goto(url);
+  await searchDone(page);
+}
+
+// Moves the clock past the simulated search and waits for its result
+export async function searchDone(page: Page) {
+  const status = page.getByRole("status");
+  await expect(status).toHaveText("Söker flyg…");
+  await page.clock.runFor(4000);
+  await expect(status).toHaveText(/^\d+ flyg hittades$/);
+}
+
+// "från 1 290 kr / person" -> 1290 (the spaces in a price are non-breaking)
+export const kronor = (text: string) => Number(text.match(/från\s*([\d\s]+?)\s*kr/)![1].replace(/\s/g, ""));
+

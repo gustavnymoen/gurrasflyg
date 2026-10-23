@@ -47,7 +47,6 @@ export default function AircraftTable({
                 <th className={thClass}>Namn</th>
                 <th className={`${thClass} text-right`}>Klasser</th>
                 <th className={`${thClass} text-right`}>Platser</th>
-                <th className={`${thClass} text-right`}>Rutter</th>
                 <th className="w-20">
                   <span className="sr-only">Åtgärder</span>
                 </th>
@@ -82,7 +81,7 @@ function AircraftRow({
   if (editing) {
     return (
       <tr className={rowClass}>
-        <td colSpan={6} className="py-3">
+        <td colSpan={5} className="py-3">
           <AircraftForm
             title={`Ändra ${aircraft.name}`}
             classes={classes}
@@ -105,7 +104,6 @@ function AircraftRow({
         <td className="py-1.5 font-medium">{aircraft.name}</td>
         <td className="py-1.5 text-right text-ink">{aircraft.classes.length}</td>
         <td className="py-1.5 text-right text-ink">{seats}</td>
-        <td className="py-1.5 text-right text-ink">{aircraft.routeCount}</td>
         <td className="py-1.5">
           <div className="flex justify-end gap-1">
             <EditButton label={`Ändra ${aircraft.name}`} onClick={() => setEditing(true)} />
@@ -141,12 +139,12 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
           {cabinClass.addons.length} {cabinClass.addons.length === 1 ? "addon" : "addons"}
         </td>
         <td className="py-1.5 text-right text-ink-muted">{cabinClass.capacity}</td>
-        <td colSpan={2} />
+        <td />
       </tr>
       {open && (
         <tr className="bg-surface-sunk text-xs">
           <td />
-          <td colSpan={5} className="pb-3 pl-12">
+          <td colSpan={4} className="pb-3 pl-12">
             {cabinClass.addons.length === 0 ? (
               <span className="text-ink-muted">Inga addons i den här klassen.</span>
             ) : (

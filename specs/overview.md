@@ -54,9 +54,9 @@ The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement i
 | Term | Meaning |
 |---|---|
 | Airport | One of the airline's 51 airports, with IATA code, name, country and time zone (table `airports`). |
-| Route | A connection between two airports, flown in one direction, with a flight time and usually an assigned aircraft. Every route has a return route. |
-| Departure | A time of day when a route is flown. A route has 2–3 departures a day. |
-| Flight | One departure of a route on one date, with a given aircraft. This is what a traveller books. |
+| Route | A connection between two airports, flown in one direction, with a flight time. Every pair of airports has a route in each direction. |
+| Departure | A time of day when a route is flown, with its own price per person, the same every date. A route has at least 5 departures a day. |
+| Flight | One departure of a route on one date, with a flight number such as GF 2013. This is what a traveller searches for and books; the traveller also chooses its aircraft (TRIP-011). |
 | Aircraft | One of the airline's planes. It has one or more cabin classes, each with a number of seats. |
 | Cabin class | A part of the aircraft with its own seats and price, for example Ekonomi, Business or Första klass. |
 | Add-on | An extra a traveller can buy, such as a meal. Which add-ons can be bought depends on the aircraft and cabin class. |
@@ -123,6 +123,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-012 | GitHub Actions v7 on Node.js 24, pinned to commits, monthly updates by Dependabot | Shared | Done |
 | TECH-014 | Whole suite once in CI, read-only smoke tests against the preview and production via `deployment_status`, branch protection on `main` | Shared | Done |
 | TECH-015 | Unit tests with Vitest next to the code, with their own test database; the tests without a browser moved there, fewer repeated browser cases | Shared | Done |
+| TRIP-010 | Flight search results: the Sök button, the results page with a simulated search, flight cards, sorting and choosing outbound and return flights; routes between every pair of airports with a price per departure | Flight booking | Done |
 
 ## Decisions for charter
 

@@ -1,17 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-
-// Types in an airport field and waits for the suggestion list
-async function typeAirport(page: Page, field: "Från" | "Till", text: string) {
-  await page.getByRole("combobox", { name: field }).fill(text);
-  const list = page.getByRole("listbox");
-  await expect(list).toBeVisible();
-  return list;
-}
-
-async function chooseAirport(page: Page, field: "Från" | "Till", text: string, option: string) {
-  const list = await typeAirport(page, field, text);
-  await list.getByRole("option", { name: new RegExp(option) }).click();
-}
+import { expect, test } from "@playwright/test";
+import { chooseAirport, typeAirport } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

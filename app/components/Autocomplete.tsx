@@ -19,6 +19,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   badge,
   emptyText = "Inga träffar",
   errorId,
+  initial,
   onSelect,
 }: {
   id: string;
@@ -33,14 +34,18 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   emptyText?: string;
   // id på ett felmeddelande som hör till fältet (fältet markeras då som ogiltigt)
   errorId?: string;
+  // Det som är valt från början, t.ex. sökningen på resultatsidan
+  initial?: T;
   // Anropas med valt objekt, eller null när fältet töms/ändras.
   // Returnera false för att neka valet (fältet töms då).
   onSelect: (item: T | null) => boolean | void;
 }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(initial ? label(initial) : "");
   const [suggestions, setSuggestions] = useState<T[]>([]);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
+  // Söktexten som förslagen i listan svarar på
+  const [answered, setAnswered] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pending = useRef<AbortController>(undefined);
 
@@ -55,6 +60,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
         signal: controller.signal,
       });
       setSuggestions(await res.json());
+      setAnswered(query);
       setHighlighted(0);
       setOpen(true);
     } catch (e) {
@@ -82,6 +88,9 @@ export default function Autocomplete<T extends { id: number; name: string }>({
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (!open || suggestions.length === 0) return;
+    // Förslag för en äldre söktext (de nya har inte kommit än) väljs inte
+    // med Enter eller Tab, så att valet alltid matchar det som står i fältet
+    const current = answered === text.trim();
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setHighlighted((i) => (i + 1) % suggestions.length);
@@ -90,7 +99,10 @@ export default function Autocomplete<T extends { id: number; name: string }>({
       setHighlighted((i) => (i - 1 + suggestions.length) % suggestions.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
-      choose(suggestions[highlighted]);
+      if (current) choose(suggestions[highlighted]);
+    } else if (e.key === "Tab") {
+      // Tab väljer det markerade förslaget och fokus går vidare som vanligt (TRIP-010-R13)
+      if (current) choose(suggestions[highlighted]);
     } else if (e.key === "Escape") {
       setOpen(false);
     }

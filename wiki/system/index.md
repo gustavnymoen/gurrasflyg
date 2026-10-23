@@ -18,6 +18,7 @@ How the site works, for developers. Start with the architecture.
 - [Accessibility](accessibility.md): how the site is kept at WCAG 2.2 AA: the axe check in the tests and the manual checklist.
 - [Design](../../DESIGN.md): the design "Loungen": tokens, shared components, rules and how to change them.
 - [Date picker](date-picker.md): the date fields Utresa and Hemresa, the calendar, and the date rules in `lib/dates.ts`.
+- [Search results](search-results.md): the Sök button, the results page `/flyg`, choosing flights, and the routes, departures and prices behind it.
 
 ## Data
 
@@ -47,5 +48,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-019 Visual design: admin page | Administration | `specs/TRIP-019-admin-design/` |
 | TRIP-020 Visual design: start page | Shared | `specs/TRIP-020-start-page-design/` |
 | TRIP-021 Accessibility: WCAG 2.2 AA | Shared | `specs/TRIP-021-wcag/` |
+| TRIP-010 Search results | Flight booking | `specs/TRIP-010-search-results/` |
 
 [Wiki](../index.md)

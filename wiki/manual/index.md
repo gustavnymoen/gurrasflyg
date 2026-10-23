@@ -2,7 +2,7 @@
 type: Index
 title: Användarmanual
 description: Hur man använder Gurras Flyg, för resenärer och administratörer.
-timestamp: 2026-10-20
+timestamp: 2026-10-23
 ---
 
 # Användarmanual
@@ -14,6 +14,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 ## För resenärer
 
 - [Söka flyg](soka-flyg.md): sökformuläret på startsidan.
+- [Välja flyg](valja-flyg.md): flygen för din sökning, sortering och att välja utresa och hemresa.
 - [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
 
 ## För administratörer
@@ -21,7 +22,6 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 - [Logga in som administratör](admin-logga-in.md)
 - [Klasser och addons](admin-klasser-och-addons.md)
 - [Plan](admin-plan.md)
-- [Tilldela plan till rutter](admin-tilldela-plan.md)
 - [Omdömen i admin](admin-omdomen.md)
 
 [Wiki](../index.md)

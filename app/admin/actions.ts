@@ -59,10 +59,6 @@ export async function deleteAircraftAction(id: number) {
   return run(() => admin.deleteAircraft(admin.requireId(id)));
 }
 
-export async function assignAircraftAction() {
-  return run(() => admin.assignAircraftToRoutes());
-}
-
 export async function createReviewAction(input: ReviewInput) {
   return run(() => createReview(input));
 }

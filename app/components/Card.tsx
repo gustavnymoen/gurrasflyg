@@ -2,8 +2,9 @@
 // skugga med ett svagt vinrött sken (DESIGN.md)
 
 const look = "border border-line-strong bg-surface shadow-card";
-// default: startsidan och inloggningen, compact: adminsidan
-const sizes = { default: "rounded-card p-6", compact: "rounded-card-compact p-4" };
+// default: startsidan och inloggningen, compact: adminsidan, flush: utan
+// marginal, när innehållet fyller kortet (flygkorten, där hela kortet är en knapp)
+const sizes = { default: "rounded-card p-6", compact: "rounded-card-compact p-4", flush: "rounded-card-compact" };
 
 // Det som svävar ovanför sidan: förslagslistor och dialoger
 export const floatClass = "border border-line bg-surface-float shadow-float";

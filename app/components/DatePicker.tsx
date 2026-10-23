@@ -24,21 +24,27 @@ const PLACEMENT = { one: "inset-x-0 md:right-auto md:w-80", two: "lg:right-0 lg:
 const todayString = () => toDateString(new Date());
 
 // Datumgruppen i sökformuläret: fälten Utresa och Hemresa, som går att skriva
-// i, och kalendern som öppnas under dem (TRIP-009)
+// i, och kalendern som öppnas under dem (TRIP-009). missing är meddelanden för
+// datum som saknas när besökaren trycker Sök (TRIP-010-R1); ett eget fel går före.
 export default function DatePicker({
   value,
   onChange,
+  missing = {},
   className = "",
 }: {
   value: TripDates;
   onChange: (value: TripDates) => void;
+  missing?: Partial<Record<Leg, string | null>>;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
   // Fältet kalendern väljer för
   const [active, setActive] = useState<Leg>("outbound");
   // Texten i fälten: det besökaren skrivit, eller det valda datumet som "13/11"
-  const [texts, setTexts] = useState<Record<Leg, string>>({ outbound: "", return: "" });
+  const [texts, setTexts] = useState<Record<Leg, string>>(() => ({
+    outbound: value.outbound ? formatShort(value.outbound) : "",
+    return: value.return ? formatShort(value.return) : "",
+  }));
   const [errors, setErrors] = useState<Record<Leg, string | null>>({ outbound: null, return: null });
   // Första månaden kalendern visar, och dagen som har fokus i den
   const [month, setMonth] = useState("");
@@ -186,6 +192,8 @@ export default function DatePicker({
   }
 
   const legs: Leg[] = value.roundTrip ? ["outbound", "return"] : ["outbound"];
+  // Felet som visas för ett fält: det inskrivna först, annars att datumet saknas
+  const shownError = (leg: Leg) => errors[leg] ?? missing[leg] ?? null;
 
   return (
     <div
@@ -204,7 +212,7 @@ export default function DatePicker({
               key={leg}
               label={LABELS[leg]}
               htmlFor={leg}
-              invalid={errors[leg] !== null}
+              invalid={shownError(leg) !== null}
               active={open && active === leg}
               className="min-w-0 flex-1"
             >
@@ -216,8 +224,8 @@ export default function DatePicker({
                 aria-haspopup="dialog"
                 aria-expanded={open && active === leg}
                 aria-controls={open ? CALENDAR_ID : undefined}
-                aria-invalid={errors[leg] ? true : undefined}
-                aria-describedby={errors[leg] ? `${leg}-error` : undefined}
+                aria-invalid={shownError(leg) ? true : undefined}
+                aria-describedby={shownError(leg) ? `${leg}-error` : undefined}
                 autoComplete="off"
                 placeholder="dd/mm"
                 value={texts[leg]}
@@ -259,9 +267,9 @@ export default function DatePicker({
 
       {legs.map(
         (leg) =>
-          errors[leg] && (
+          shownError(leg) && (
             <Message key={leg} kind="error" id={`${leg}-error`} className="mt-1.5">
-              {errors[leg]}
+              {shownError(leg)}
             </Message>
           ),
       )}
