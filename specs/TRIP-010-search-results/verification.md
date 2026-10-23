@@ -56,7 +56,7 @@ Within every budget. The new browser tests take at most about 1 s each: they nev
 - [x] No leftovers: "Tilldela plan" (button, action, functions, column Rutter, manual page, tests) deleted; no debug output
 - [x] Clean code: reuses `Card`, `Button`, `Field`, `Message`, `formatPrice` and the date helpers; `npm run lint`, `npm run typecheck` and `npm run build` pass
 - [x] Code review done, no must-fix findings left; see [review.md](review.md)
-- [x] Technical tasks: TECH-018 (fewer, combined design tests) added to the board. Small related fixes made here: `tests/smoke.spec.ts` deleted (its two tests repeated TECH-014's smoke tests and weren't named after requirements), Enter no longer chooses from an older suggestion list (noted in TRIP-001's verification), the airport test helpers moved to `tests/helpers.ts`
+- [x] Technical tasks: TECH-018 (fewer, combined design tests, #61) added to the board. Small related fixes made here: `tests/smoke.spec.ts` deleted (its two tests repeated TECH-014's smoke tests and weren't named after requirements), Enter no longer chooses from an older suggestion list (noted in TRIP-001's verification), the airport test helpers moved to `tests/helpers.ts`
 
 ## Requirements as built
 
