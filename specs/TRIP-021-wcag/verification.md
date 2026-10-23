@@ -11,10 +11,11 @@ How each requirement was checked. Tests are in `tests/TRIP-021-wcag.spec.ts` unl
 |---|---|---|---|---|
 | TRIP-021-R1 | Tests `TRIP-021-R1 axe finds no violations with the airport suggestions open` and `… on the admin page with an aircraft and its class unfolded`. The other states the card lists were already checked: `/` and `/` with a date error and `/admin/login` with a wrong password by `TRIP-008-R12`, `/` with the photo and on a phone by TRIP-020, `/admin` with its cards open (and the aircraft form, a dialog, an error) by TRIP-019 | local | Pass | 2026-10-23 |
 | TRIP-021-R2 | Code review: `wiki/system/accessibility.md` has the eleven checklist items with their WCAG criteria and how to check them, the table of axe-checked states, and when a feature goes through the list; linked from `wiki/system/index.md` | local | Pass | 2026-10-23 |
-| TRIP-021-R3 | Checklist gone through on the live site before the fixes, per page below; the four failures found are fixed and tested (`TRIP-021-R3 …` tests), and the fixed items were checked again locally. Again on the live site after the deploy: not checked yet | live, local | Pass locally; live after deploy not checked yet | 2026-10-23 |
+| TRIP-021-R3 | Checklist gone through on the live site before the fixes, per page below; the four failures found are fixed and tested (`TRIP-021-R3 …` tests), and the fixed items were checked again locally. Again on the live site after the deploy (2026-10-23): the fixed items by the `TRIP-021-R3 …` and `TRIP-021-R4 …` tests in "Live tests" (104 passed, 13 skipped), and the accessibility tree of all three pages read again (landmarks, headings, named fields and buttons, states; nothing changed) | live, local | Pass | 2026-10-23 |
 | TRIP-021-R4 | Tests `TRIP-021-R4 the review form takes at most 20 characters of name and 25 of title`, `… spaces before and after the name, title and text are not saved`, `… a review of the longest allowed length fits the card, also with larger text spacing` (12 rem with 20/25/145 characters and the whole text; nothing clipped with WCAG 1.4.12 spacing), and `TRIP-006-R3 form has name, stars, title and text with a counter` (text at most 145, "0/145") | local | Pass | 2026-10-23 |
 | All | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:time` 117 passed (also after both review runs' fixes) | local | Pass | 2026-10-23 |
-| Accessibility | The tests above with `expectNoA11yViolations`, and the checklist below | local, live | Pass (live after deploy not checked yet) | 2026-10-23 |
+| Accessibility | The tests above with `expectNoA11yViolations`, and the checklist below | local, live | Pass | 2026-10-23 |
+| Deployed | "Live tests" on `main` after the merge of pull request #44: `npm test` 104 passed, 13 skipped (`runsLocally`) | live | Pass | 2026-10-23 |
 
 ## The checklist, per page (R3)
 
@@ -47,8 +48,8 @@ Gone through on <https://gurrasflyg.vercel.app> on 2026-10-23 before the fixes, 
 
 - [x] Tests: every requirement is tested or has a recorded manual check; `npm run test:local` passes (2026-10-23)
 - [x] Test suite: within the time budgets, 19 % slower (nine new tests), the new tests follow the quality rules
-- [ ] Deployed, and `npm test` passes against the live site
-- [ ] Accessibility: the changed pages and states pass `expectNoA11yViolations`; the checklist is recorded above, again on the live site after the deploy: not checked yet
+- [x] Deployed, and `npm test` passes against the live site ("Live tests", 2026-10-23)
+- [x] Accessibility: the changed pages and states pass `expectNoA11yViolations`; the checklist is recorded above, and the fixed items checked again on the live site after the deploy
 - [x] Requirements in the card match what was built (R4 added on 2026-10-23), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/admin-omdomen.md`, `omdomen.md`), system docs (`wiki/system/accessibility.md`, `DESIGN.md`) and `wiki/log.md` updated
 - [x] No leftovers: `line-clamp`, `outline-none` on the carousel, the old overlay `div` of `Dialog` and the admin fields' `aria-label`s are gone; no debug output

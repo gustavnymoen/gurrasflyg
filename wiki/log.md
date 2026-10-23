@@ -9,6 +9,7 @@ timestamp: 2026-10-23
 
 ## 2026-10-23
 
+- TECH-003: the rule for which dates can be booked, and its two messages, moved from the search form to `lib/dates.ts`, so the return date, the search results and charter booking can use the same rule. The site behaves as before.
 - TRIP-021: the site is checked against WCAG 2.2 AA. `wiki/system/accessibility.md` has the manual checklist and which states axe checks; two missing states got axe tests. Going through the list on the live site found and fixed: no focus ring on the review carousel, the aircraft table widening the admin page at 320 px, dialogs that let Tab reach the page behind (now the browser's `<dialog>`, which gives focus back), admin fields without visible labels (now `LabeledField`), and review texts clipped with larger text spacing. Reviews now have a name of at most 20 characters, a title of at most 25 and a text of at most 145, and the card grows only when the text needs it.
 - TECH-010: the old project folder in OneDrive is deleted, after checking that nothing in it was missing from this repo, GitHub or the local database. The course's starter (`travel-workshop`) and a Node download next to it were removed too.
 

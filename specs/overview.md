@@ -104,6 +104,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-011 | Faster and healthier test suite: test jobs in the Playwright image, version check, `npm run test:time`, time budgets and quality rules | Shared | Done |
 | TECH-010 | The old project folder in OneDrive deleted, after checking that nothing was only there | Shared | Done |
 | TRIP-021 | Accessibility: WCAG 2.2 AA checklist, missing axe states, and the fixes it found (carousel focus, admin labels, dialogs, 320 px, review limits) | Shared | Done |
+| TECH-003 | The bookable-date rule and its messages in a shared module, `lib/dates.ts` | Shared | Done |
 
 ## Decisions for charter
 
