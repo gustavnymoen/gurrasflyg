@@ -4,6 +4,7 @@
 # Next.js och de andra paketen uppdateras när vi själva väljer det.
 # TECH-012: GitHub Actions är låsta till en commit, så Dependabot föreslår nya
 # versioner av dem (commit och versionskommentar) en gång i månaden, samlat.
+# Därför har de ingen open-pull-requests-limit: 0, som skulle stänga av det.
 version: 2
 updates:
   - package-ecosystem: npm

@@ -120,6 +120,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-022 | One border colour for cards and buttons: cards, review cards and buttons have the fields' border, the brass edge is removed, primary buttons have a faint wine red tone | Shared | Done |
 | TECH-016 | SDD and the test strategy: "How we work" in this overview, `wiki/system/testing.md`, a test plan in every card | Shared | Done |
 | TECH-013 | Security: security points and `/security-review` in the code review, a CI job with `npm audit`, Semgrep and Gitleaks, Dependabot, hardening from a review of the whole code base, the repo public | Shared | Done |
+| TECH-012 | GitHub Actions v7 on Node.js 24, pinned to commits, monthly updates by Dependabot | Shared | Done |
 
 ## Decisions for charter
 
