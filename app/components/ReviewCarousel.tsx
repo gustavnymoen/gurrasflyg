@@ -85,8 +85,8 @@ export default function ReviewCarousel({ reviews }: { reviews: Review[] }) {
               opacity: hidden ? 0 : look.opacity,
               zIndex: 10 - distance,
             }}
-            className={`col-start-1 row-start-1 flex min-h-48 w-60 self-start flex-col gap-1 rounded-card border bg-surface px-4 py-3.5 shadow-card transition-[transform,opacity] duration-500 ease-out ${
-              focused ? "border-accent-strong" : "cursor-pointer border-edge blur-[1px]"
+            className={`col-start-1 row-start-1 flex min-h-48 w-60 self-start flex-col gap-1 rounded-card border border-line-strong bg-surface px-4 py-3.5 shadow-card transition-[transform,opacity] duration-500 ease-out ${
+              focused ? "" : "cursor-pointer blur-[1px]"
             } ${hidden ? "pointer-events-none" : ""}`}
           >
             <Stars rating={review.rating} />

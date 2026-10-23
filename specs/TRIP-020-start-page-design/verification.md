@@ -12,7 +12,7 @@ How each requirement was checked. Tests are in `tests/TRIP-020-start-page-design
 | TRIP-020-R1 | Tests `TRIP-020-R1 the header with the wordmark is on the start page and the sign-in page`, `… is on the admin page`, `TRIP-020-R1 the plane takes off into the ring when the page loads` (take-off, contrail and hop start), `TRIP-020-R1 the wordmark follows --font-display`, `TRIP-020-R1 and R5 the wordmark doesn't move` (reduced motion) | local | Pass | 2026-10-22 |
 | TRIP-020-R2 | Tests `TRIP-020-R2 the start page shows the heading, the text, the search form and the reviews in that order` and `TRIP-001-R1 start page shows the search form` (updated heading and text) | local | Pass | 2026-10-22 |
 | TRIP-020-R3 | Tests `TRIP-020-R3 the photo is behind the heading, and the credit with both links is in the footer`, `… the credit is only on the start page`, `… the photo file is at most 300 kB and in public/brand` (254 kB). Manual: contrast measured on screenshots of the dev server, with the text made transparent, against the lightest pixel behind it: heading 8.6–10.5:1, text under it 4.8–5.3:1, wordmark 11.4–14.4:1 at 390, 768, 1024, 1440 and 1920 px | local | Pass | 2026-10-22 |
-| TRIP-020-R4 | Test `TRIP-020-R4 the card in focus is at most 15 × 12 rem, with the card shadow, the accent border and the name in brass`; the TRIP-006 tests pass unchanged | local | Pass | 2026-10-22 |
+| TRIP-020-R4 | Test `TRIP-020-R4 the card in focus is at most 15 × 12 rem, with the card shadow, the accent border and the name in brass` (renamed `… with the card shadow and the name in brass` by TRIP-022, which checks the border); the TRIP-006 tests pass unchanged | local | Pass | 2026-10-22 |
 | TRIP-020-R5 | Tests `TRIP-020-R5 without reduced motion the carousel slides`, `TRIP-020-R5 the carousel changes card without sliding` and `TRIP-020-R1 and R5 the wordmark doesn't move` (both with reduced motion). Code review: the only animations are the wordmark's (`transform`, `opacity`, `ease-out`); buttons 160 ms | local | Pass | 2026-10-22 |
 | TRIP-020-R6 | Tests `TRIP-020-R6 the start page and the sign-in page don't scroll sideways`, `… the admin page doesn't scroll sideways`, `… Från and Till are full width, Datum and Resenärer side by side` (390 × 844); the heading size on a phone by `TRIP-008-R3` | local | Pass | 2026-10-22 |
 | TRIP-020-R7 | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:local` 108 passed. Changed tests: `TRIP-001-R1` (heading and text) and `TRIP-008-R9` (tabs past the wordmark first) | local | Pass | 2026-10-22 |
@@ -66,6 +66,8 @@ Acceptance criteria:
 - **Then** the heading and the text over the photo have a contrast of at least 4.5:1, against the lightest pixel behind them, at 390, 768, 1024, 1440 and 1920 px. (Manual check: measured on screenshots.)
 
 ### TRIP-020-R4 A smaller review carousel
+
+*Changed by TRIP-022-R2 (2026-10-23): every review card, also the one in focus, has the fields' border colour; the review in focus is told apart by its size and full visibility, no longer by the accent border.*
 
 *Changed by TRIP-021-R4 (2026-10-23): the card is 12 rem high as before but grows when its text needs it (`min-h-48`, `self-start` in a grid instead of absolute positioning), `line-clamp` is removed and the padding is `py-3.5`; reviews have at most 20/25/145 characters.*
 

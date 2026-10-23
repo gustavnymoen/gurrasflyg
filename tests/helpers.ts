@@ -125,12 +125,57 @@ export async function fillAircraftForm(
   }
 }
 
+// A translucent colour, "rgba(…)" or "color(srgb …)", laid over an opaque
+// background, as "rgb(…)"
+export function layer(color: string, background: string) {
+  const [br, bg, bb] = background.match(/[\d.]+/g)!.map(Number);
+  const [r, g, b, alpha = 1] = color.match(/[\d.]+/g)!.map(Number);
+  // color(srgb …) gives the channels from 0 to 1
+  const scale = color.startsWith("color(srgb") ? 255 : 1;
+  const mix = (f: number, k: number) => Math.round(f * scale * alpha + k * (1 - alpha));
+  return `rgb(${mix(r, br)}, ${mix(g, bg)}, ${mix(b, bb)})`;
+}
+
+// WCAG contrast ratio between a foreground ("rgb(…)", "rgba(…)" or "color(srgb …)")
+// and an opaque "rgb(…)" background. A translucent foreground is first laid over it.
+export function contrast(foreground: string, background: string) {
+  const luminance = (color: string) => {
+    const [r, g, b] = color.match(/[\d.]+/g)!.map(Number).map((v) => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const l1 = luminance(layer(foreground, background));
+  const l2 = luminance(background);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+// The first non-transparent background behind an element (the surfaces are opaque)
+export function backgroundOf(locator: Locator) {
+  return locator.evaluate((el) => {
+    for (let e: Element | null = el; e; e = e.parentElement) {
+      const bg = getComputedStyle(e).backgroundColor;
+      if (bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
+    }
+    return getComputedStyle(document.body).backgroundColor;
+  });
+}
+
+// A collapsible admin card, found by the button in its heading ("Plan (3)")
+export const adminCard = (page: Page, title: string) =>
+  page.locator("section").filter({ has: page.getByRole("button", { name: new RegExp(`^${title}`), expanded: true }) });
+
 // The token values from app/globals.css, as the browser reports them
 export const ACCENT = "rgb(139, 30, 63)";
 export const ACCENT_STRONG = "rgb(200, 53, 96)";
+// The accent at 30 %, mixed with color-mix(), which the browser reports as color(srgb …)
+export const ACCENT_SOFT = "color(srgb 0.545098 0.117647 0.247059 / 0.3)";
+export const INK = "rgb(236, 230, 220)";
 export const DANGER = "rgb(240, 122, 122)";
 export const SUCCESS = "rgb(127, 201, 160)";
-export const EDGE = "rgba(201, 164, 106, 0.22)";
+export const LINE = "rgba(236, 230, 220, 0.14)";
+export const LINE_STRONG = "rgba(236, 230, 220, 0.4)";
 export const BRASS = "rgb(201, 164, 106)";
 // The start of --shadow-card and --shadow-float, enough to tell them apart
 export const CARD_SHADOW = "0px 30px 60px -24px";

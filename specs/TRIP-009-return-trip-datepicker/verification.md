@@ -20,15 +20,29 @@ How each requirement was checked. Tests are in `tests/TRIP-009-return-trip-datep
 | TRIP-009-R9 | Test `TRIP-009-R9 a typed date that can't be used gives a message under the group` ("31/2", "2026-10-20", "12/11" and "14/1" in Hemresa, then a valid date removes the message). "Du kan boka max 6 månader framåt." by `TECH-003-R3 bookableRange and dateError …`, which `readDate` uses | local | Pass | 2026-10-23 |
 | TRIP-009-R10 | Test `TRIP-009-R10 the summary shows the days with weekday and the number of nights` ("… · 7 nätter", "… · Dagstur"); no summary for one-way in `TRIP-009-R5 turning Tur och retur off …` | local | Pass | 2026-10-23 |
 | TRIP-009-R11 | Tests `TRIP-009-R11 Escape closes the calendar and gives focus to the active field` and `… a click outside closes the calendar and keeps the choice` | local | Pass | 2026-10-23 |
-| TRIP-009-R12 | Tests `TRIP-009-R12 the keyboard moves between days and months and chooses a day` (Page Down into a month not shown, Home, End, Arrow up stops at today, Arrow right + Enter), `… the month buttons work with the keyboard, and focus stays in the calendar` and `TRIP-009-R12 axe finds no violations with the calendar open, a range chosen and a message`; every test finds days by their full names. Tab order (fields, month buttons, switch, days, out) checked with a temporary script. The checklist on the live site with VoiceOver: not checked yet | local | Pass locally; live not checked yet | 2026-10-23 |
+| TRIP-009-R12 | Tests `TRIP-009-R12 the keyboard moves between days and months and chooses a day` (Page Down into a month not shown, Home, End, Arrow up stops at today, Arrow right + Enter), `… the month buttons work with the keyboard, and focus stays in the calendar` and `TRIP-009-R12 axe finds no violations with the calendar open, a range chosen and a message`; every test finds days by their full names. Tab order (fields, month buttons, switch, days, out) checked with a temporary script. The checklist on the live site: see below (screen reader checked by the accessibility tree, not VoiceOver) | local, live | Pass | 2026-10-23 |
 | TRIP-009-R13 | Tests `TRIP-009-R13 returnRange …` and `TRIP-009-R13 parseDate …`, without a browser; the messages come only from `dateError`/`readDate` in `lib/dates.ts` (code review) | local | Pass | 2026-10-23 |
 | TRIP-009-R14 | Code review: `SearchForm.tsx` has no `type="date"` and no checkbox, `Checkbox.tsx` is deleted; TRIP-001 R6, R7 and R9 are marked replaced in its spec and verification, and their tests are removed | local | Pass | 2026-10-23 |
-| All | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:time` 139 passed (also after the review's fixes and the product owner's changes to R3 and R10). Against the live site after the deploy: not checked yet | local | Pass locally | 2026-10-23 |
-| Accessibility | `expectNoA11yViolations` with the calendar open, a range chosen and a message (R12); the checklist on the live site: not checked yet | local | Pass locally | 2026-10-23 |
+| All | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:time` 139 passed (also after the review's fixes and the product owner's changes to R3 and R10). Against the live site after the deploy: Live tests run 39944177663 on `main`, 126 passed, 13 skipped (`runsLocally`) | local, live | Pass | 2026-10-23 |
+| Accessibility | `expectNoA11yViolations` with the calendar open, a range chosen and a message (R12); the checklist on the live site, below | local, live | Pass | 2026-10-23 |
 
 ## The checklist (R12)
 
-Items of `wiki/system/accessibility.md` that concern the date fields and the calendar, to go through on <https://gurrasflyg.vercel.app> after the deploy: 1 (keyboard), 2 (focus visible), 3 (VoiceOver), 4 (zoom and 320 px), 5 (text spacing), 6 (contrast), 7 (targets), 8 (Escape and pointer over the calendar), 9 (errors and labels), 11 (reduced motion). Not checked yet.
+The items of `wiki/system/accessibility.md` that concern the date fields and the calendar, gone through on <https://gurrasflyg.vercel.app> on 2026-10-23 with a throw-away Playwright script and the browser's clock fixed at 21 October 2026. The screen reader item was checked by the accessibility tree, not with VoiceOver (the user's choice, as in TRIP-021). Recorded on TRIP-022's branch, the next one after the merge.
+
+| Item | Result |
+|---|---|
+| 1 Keyboard | Tab from Till goes to Utresa, Hemresa, Nästa månad (Föregående disabled), Tur och retur, a day, and out to Fler resenärer, where the calendar closes. Pass |
+| 2 Focus visible | Fields by the accent border and ring; buttons, the switch and days by a 2 px outline `#c83560`. Pass |
+| 3 Screen reader (accessibility tree) | Group "Datum"; comboboxes Utresa and Hemresa with `expanded`; dialog "Välj datum"; switch `checked`; grid named by the month; days named like "fredag 13 november 2026", unavailable days `disabled`; the message is an alert, and the field has `aria-invalid` and `aria-describedby` to it. Pass |
+| 4 320 px | No sideways scroll. Pass |
+| 5 Text spacing | Nothing visible clipped (only the visually hidden weekday names). Pass |
+| 6 Contrast | Chosen day against the calendar 3.13:1, white on it 5.08:1, the range's lines 3.13:1. Pass |
+| 7 Targets | Smallest 34 × 24 px (the switch). Pass |
+| 8 Pointer and Escape | The calendar stays open on hover; Escape closes it and gives focus to Utresa. Pass |
+| 9 Errors and labels | Messages in text, saying what to do; labels visible. Pass |
+| 10 Images, title, language | Not affected (no new images, title or language). |
+| 11 Reduced motion | `animation: none`. Pass |
 
 ## Test suite
 
@@ -45,8 +59,8 @@ Items of `wiki/system/accessibility.md` that concern the date fields and the cal
 
 - [x] Tests: every requirement is tested or has a recorded check; `npm run test:local` passes (2026-10-23)
 - [x] Test suite: within the time budgets, 12 % slower, the new tests follow the quality rules (no fixed waits; the clock is fixed so the days are the same on any date)
-- [ ] Deployed, and `npm test` passes against the live site
-- [ ] Accessibility: the changed states pass `expectNoA11yViolations`; the checklist on the live site: not checked yet
+- [x] Deployed, and `npm test` passes against the live site
+- [x] Accessibility: the changed states pass `expectNoA11yViolations`; the checklist on the live site passes (recorded 2026-10-23)
 - [x] Requirements in the card match what was built (R3 and R8 clarified on 2026-10-23, and R3 and R10 again after the product owner tried it: one month and no summary for one-way), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/soka-flyg.md`), system docs (`wiki/system/date-picker.md`, `architecture.md`, `accessibility.md`, `index.md`, `DESIGN.md`) and `wiki/log.md` updated
 - [x] No leftovers: `DateInput`, `Checkbox.tsx`, the `Suspense`/`io()` around the date field, `bookableDates()` in the test helpers and the replaced TRIP-001 tests are gone

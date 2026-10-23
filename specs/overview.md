@@ -106,6 +106,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-021 | Accessibility: WCAG 2.2 AA checklist, missing axe states, and the fixes it found (carousel focus, admin labels, dialogs, 320 px, review limits) | Shared | Done |
 | TECH-003 | The bookable-date rule and its messages in a shared module, `lib/dates.ts` | Shared | Done |
 | TRIP-009 | Return trip date picker: Utresa and Hemresa typed or chosen in the site's own calendar, the switch "Tur och retur" | Flight booking | Done |
+| TRIP-022 | One border colour for cards and buttons: cards, review cards and buttons have the fields' border, the brass edge is removed, primary buttons have a faint wine red tone | Shared | Done |
 
 ## Decisions for charter
 

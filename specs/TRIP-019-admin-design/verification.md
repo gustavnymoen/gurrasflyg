@@ -11,7 +11,7 @@ How each requirement was checked.
 |---|---|---|---|---|
 | TRIP-019-R1 | Code review: every text button on `/admin` is a `<Button size="compact">`, cards are `Card` (via `CollapsibleCard`), fields use `fieldClass("compact", …)` / `textAreaClass("compact")`, messages `Message`; the remaining `<button>`s are `IconButton`, the collapsible card's heading and the star picker, all on tokens. `grep -rn "buttonClass\|cardClass\|compactCardClass" app` finds nothing: `buttonClass` is removed, `cardClass` and `compactCardClass` are no longer exported, nor `ButtonVariant`, `ButtonSize` and `FieldSize` | local | Pass | 2026-10-22 |
 | TRIP-019-R2 | Code review: `grep -rnE '#[0-9a-fA-F]{3,8}\b\|rgba?\(\|(bg\|text\|border\|ring\|…)-(neutral\|red\|emerald\|…)\b\|-\[#' app` finds nothing outside `app/globals.css` | local | Pass | 2026-10-22 |
-| TRIP-019-R3 | Tests `TRIP-019-R3 the admin cards have the card border and the card shadow` and `TRIP-019-R3 a dialog floats with the floating shadow` in `tests/TRIP-019-admin-design.spec.ts` | local | Pass | 2026-10-22 |
+| TRIP-019-R3 | Tests `TRIP-019-R3 the admin cards have the card border and the card shadow` (renamed `… have the card shadow` by TRIP-022, which checks the border) and `TRIP-019-R3 a dialog floats with the floating shadow` in `tests/TRIP-019-admin-design.spec.ts` | local | Pass | 2026-10-22 |
 | TRIP-019-R4 | Tests `TRIP-019-R4 a saved review gives green text without a box` and `TRIP-019-R4 an add-on without a name gives red text without a box` | local | Pass | 2026-10-22 |
 | TRIP-019-R5 | Test `TRIP-019-R5 Spara and Avbryt are compact pill buttons of the same shape` | local | Pass | 2026-10-22 |
 | TRIP-019-R6 | `npm run lint`, `npm run typecheck`, `npm run build` without errors or warnings; `npm run test:local` 91 passed. The admin tests TRIP-002 to TRIP-006 are unchanged, except that `reviewForm` and `writeReview` moved from the TRIP-006 test file to `tests/helpers.ts` unchanged | local | Pass | 2026-10-22 |
@@ -56,6 +56,8 @@ Acceptance criteria:
 
 ### TRIP-019-R3 Cards and dialogs
 
+*Changed by TRIP-022 (2026-10-23): the admin cards and the aircraft form have the fields' border colour (`--color-line-strong`); dialogs keep `--color-line`.*
+
 The admin cards (classes, add-ons, aircraft, reviews) shall have the card border and the card shadow of TRIP-008-R5; dialogs float above with the floating shadow.
 
 Acceptance criteria:
@@ -73,6 +75,8 @@ Acceptance criteria:
 - **When** an add-on is saved without a name, **then** "Addon måste ha ett namn." is shown as red text without a background or border.
 
 ### TRIP-019-R5 Compact buttons
+
+*Changed by TRIP-022-R4 (2026-10-23): Spara has the toned-down primary look, and Avbryt the fields' border, wine red on hover.*
 
 The admin buttons shall be the pill buttons of TRIP-008-R8 in compact size.
 

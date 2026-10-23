@@ -4,10 +4,12 @@ const base =
   "inline-flex items-center justify-center gap-2 rounded-pill border-[1.5px] font-bold transition-[transform,background-color,border-color,color] duration-160 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-45 disabled:active:scale-100";
 
 const variants = {
-  // Fylld med accenten: det viktigaste besökaren kan göra
-  primary: "border-transparent bg-accent text-on-accent hover:bg-accent-strong disabled:hover:bg-accent",
-  // Accentkant: ett alternativ, t.ex. Avbryt
-  secondary: "border-accent-strong bg-transparent hover:bg-accent/25 disabled:hover:bg-transparent",
+  // Tonad accent med fältens kant: det viktigaste besökaren kan göra.
+  // Inte fylld vinröd, som kändes som en varning eller Avbryt.
+  primary: "border-line-strong bg-accent-soft text-ink hover:border-accent-strong disabled:hover:border-line-strong",
+  // Fältens kant, vinröd vid hover: ett alternativ, t.ex. Avbryt
+  secondary:
+    "border-line-strong bg-transparent hover:border-accent-strong hover:bg-accent/25 disabled:hover:border-line-strong disabled:hover:bg-transparent",
   // Bara text: något mindre viktigt
   quiet: "border-transparent bg-transparent text-ink-muted hover:text-ink",
 };

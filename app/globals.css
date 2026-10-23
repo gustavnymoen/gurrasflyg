@@ -18,11 +18,11 @@
   --color-ink-muted: #a9a196; /* sekundär text, fältetiketter */
   --color-ink-faint: #958d83; /* platshållare */
   --color-line: rgb(236 230 220 / 0.14); /* avdelare */
-  --color-line-strong: rgb(236 230 220 / 0.4); /* kanter på fält och kryssrutor (3:1) */
-  --color-edge: rgb(201 164 106 / 0.22); /* kortens mässingstonade kant */
+  --color-line-strong: rgb(236 230 220 / 0.4); /* kanter på fält, kryssrutor och kort (3:1) */
 
   /* Vinrött är bara för det besökaren gör: knappar, fokus och valt läge */
   --color-accent: #8b1e3f;
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 30%, transparent); /* primärknappar: tonad vinröd */
   --color-accent-strong: #c83560; /* hover, fokusring, fokuserat fält */
   --color-accent-glow: rgb(176 40 79 / 0.4);
   --color-on-accent: #fff;
