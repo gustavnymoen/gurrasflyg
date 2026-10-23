@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   ACCENT,
+  animationsDone,
   ACCENT_STRONG,
   CARD_SHADOW,
   css,
@@ -45,9 +46,18 @@ function backgroundOf(locator: Locator) {
 const fieldBox = (input: Locator) => input.locator("xpath=..");
 
 async function showDateError(page: Page) {
-  await page.getByLabel("Datum").fill("2020-01-01");
+  const outbound = page.getByRole("combobox", { name: "Utresa" });
+  await outbound.fill("2020-01-01");
+  await outbound.press("Enter");
   await expect(page.getByText("Datumet har redan passerat.")).toBeVisible();
 }
+
+// The switch "Tur och retur" is in the calendar; its track is the span inside
+const roundTripSwitch = async (page: Page) => {
+  await page.getByRole("combobox", { name: "Utresa" }).click();
+  const button = page.getByRole("switch", { name: "Tur och retur" });
+  return { button, track: button.locator("span").first() };
+};
 
 async function signInWrong(page: Page) {
   await page.goto("/admin/login");
@@ -72,7 +82,7 @@ test("TRIP-008-R1 changing --font-display changes every heading", async ({ page 
   }
 });
 
-test("TRIP-008-R1 changing the accent changes buttons, focus ring, checkbox and suggestions", async ({ page }) => {
+test("TRIP-008-R1 changing the accent changes buttons, focus ring, switch and suggestions", async ({ page }) => {
   const green = "rgb(0, 128, 0)";
   await page.goto("/admin/login");
   await setToken(page, "--color-accent", green);
@@ -83,20 +93,22 @@ test("TRIP-008-R1 changing the accent changes buttons, focus ring, checkbox and 
   await page.getByRole("combobox", { name: "Från" }).fill("lon");
   const suggestion = page.getByRole("option", { selected: true });
   const before = await css(suggestion, "background-color");
-  // The accent is two tokens: the fill (buttons, checkbox, suggestion) and the
+  // The accent is two tokens: the fill (buttons, switch, suggestion) and the
   // strong accent (focus ring, focused field), so both are changed
   await setToken(page, "--color-accent", green);
   await setToken(page, "--color-accent-strong", green);
   await expect(suggestion).not.toHaveCSS("background-color", before);
   await page.keyboard.press("Escape");
 
-  const checkbox = page.getByRole("checkbox", { name: "Boka returresa" });
-  await checkbox.check();
-  await expect(checkbox).toHaveCSS("background-color", green);
+  const { track } = await roundTripSwitch(page);
+  await expect(track).toHaveCSS("background-color", green);
 
+  // Back from Hemresa (which opens the calendar) with Escape and Tab, so that
+  // the button gets focus from the keyboard and shows the ring
   const more = page.getByRole("button", { name: "Fler resenärer" });
   await more.focus();
   await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Escape");
   await page.keyboard.press("Tab");
   await expect(more).toHaveCSS("outline-color", green);
 });
@@ -147,8 +159,6 @@ test("TRIP-008-R4 text and placeholders have a contrast of at least 4.5:1", asyn
   expect(contrast(await css(body, "color"), await backgroundOf(body))).toBeGreaterThanOrEqual(4.5);
   expect(contrast(await css(muted, "color"), await backgroundOf(muted))).toBeGreaterThanOrEqual(4.5);
   expect(contrast(placeholder, await backgroundOf(from))).toBeGreaterThanOrEqual(4.5);
-  const datePlaceholder = page.getByText("Välj datum");
-  expect(contrast(await css(datePlaceholder, "color"), await backgroundOf(datePlaceholder))).toBeGreaterThanOrEqual(4.5);
 });
 
 test("TRIP-008-R4 field borders and the focus ring have a contrast of at least 3:1", async ({ page }) => {
@@ -160,12 +170,17 @@ test("TRIP-008-R4 field borders and the focus ring have a contrast of at least 3
   expect(contrast(border, card)).toBeGreaterThanOrEqual(3);
   expect(contrast(border, await backgroundOf(box))).toBeGreaterThanOrEqual(3);
 
-  const checkbox = page.getByRole("checkbox", { name: "Boka returresa" });
-  expect(contrast(await css(checkbox, "border-top-color"), card)).toBeGreaterThanOrEqual(3);
-
   const more = page.getByRole("button", { name: "Fler resenärer" });
   await more.focus();
   expect(contrast(await css(more, "outline-color"), card)).toBeGreaterThanOrEqual(3);
+
+  // The switch turned off shows only its border, against the calendar
+  const { button, track } = await roundTripSwitch(page);
+  await button.click();
+  await expect(button).not.toBeChecked();
+  const calendar = page.getByRole("dialog", { name: "Välj datum" });
+  await animationsDone(calendar);
+  expect(contrast(await css(track, "border-top-color"), await backgroundOf(calendar))).toBeGreaterThanOrEqual(3);
 });
 
 test("TRIP-008-R5 the search form and the sign-in form are cards that stand out", async ({ page }) => {
@@ -186,13 +201,11 @@ test("TRIP-008-R5 the search form and the sign-in form are cards that stand out"
 test("TRIP-008-R6 each field shows its label and placeholder and keeps its accessible name", async ({ page }) => {
   await page.goto("/");
   const form = page.locator("form");
-  for (const label of ["Från", "Till", "Datum", "Resenärer"]) {
+  for (const label of ["Från", "Till", "Utresa", "Hemresa", "Resenärer"]) {
     await expect(form.getByText(label, { exact: true })).toBeVisible();
   }
   await expect(page.getByRole("combobox", { name: "Från" })).toHaveAttribute("placeholder", "Varifrån?");
   await expect(page.getByRole("combobox", { name: "Till" })).toHaveAttribute("placeholder", "Vart vill du?");
-  await expect(page.getByText("Välj datum")).toBeVisible();
-  await expect(page.getByLabel("Datum")).toBeVisible();
   await expect(page.getByRole("group", { name: "Antal resenärer" })).toBeVisible();
 });
 
@@ -206,19 +219,17 @@ test("TRIP-008-R6 a focused field has the accent border", async ({ page }) => {
 test("TRIP-008-R6 an invalid date gives a red border and red text under the field", async ({ page }) => {
   await page.goto("/");
   await showDateError(page);
-  const date = page.getByLabel("Datum");
+  const date = page.getByRole("combobox", { name: "Utresa" });
   await date.blur();
-  // The date input sits in a wrapper for its placeholder, inside the field's box
-  await expect(date.locator("xpath=../..")).toHaveCSS("border-color", DANGER);
+  await expect(fieldBox(date)).toHaveCSS("border-color", DANGER);
   await expect(page.getByText("Datumet har redan passerat.")).toHaveCSS("color", DANGER);
 });
 
-test("TRIP-008-R6 the checkbox is drawn with the accent when chosen", async ({ page }) => {
+test("TRIP-008-R6 the switch is drawn with the accent when on", async ({ page }) => {
   await page.goto("/");
-  const checkbox = page.getByRole("checkbox", { name: "Boka returresa" });
-  await checkbox.check();
-  await expect(checkbox).toBeChecked();
-  await expect(checkbox).toHaveCSS("background-color", ACCENT);
+  const { button, track } = await roundTripSwitch(page);
+  await expect(button).toBeChecked();
+  await expect(track).toHaveCSS("background-color", ACCENT);
 });
 
 test("TRIP-008-R7 a date error is red text without a box", async ({ page }) => {

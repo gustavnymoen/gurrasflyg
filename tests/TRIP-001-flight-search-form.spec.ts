@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { bookableDates } from "./helpers";
 
 // Types in an airport field and waits for the suggestion list
 async function typeAirport(page: Page, field: "Från" | "Till", text: string) {
@@ -24,10 +23,9 @@ test("TRIP-001-R1 start page shows the search form", async ({ page }) => {
   await expect(page.getByText("Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort.")).toBeVisible();
   await expect(page.getByPlaceholder("Varifrån?")).toBeVisible();
   await expect(page.getByPlaceholder("Vart vill du?")).toBeVisible();
-  await expect(page.getByLabel("Datum")).toBeVisible();
-  await expect(page.locator("#date + span")).toHaveText("Välj datum"); // the date field's placeholder
+  // The date group (Utresa and Hemresa) is checked by TRIP-009-R1
+  await expect(page.getByRole("group", { name: "Datum" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Fler resenärer" })).toBeVisible();
-  await expect(page.getByRole("checkbox", { name: "Boka returresa" })).toBeVisible();
 });
 
 test("TRIP-001-R2 suggests at most 5 airports matching name or IATA code", async ({ page }) => {
@@ -91,30 +89,6 @@ test("TRIP-001-R5 same airport in both fields shows an error under the last chos
   await expect(page.locator("#to-error")).toBeHidden();
 });
 
-test("TRIP-001-R6 date can be chosen from today to six months ahead", async ({ page }) => {
-  const { min, max } = bookableDates();
-  const date = page.getByLabel("Datum");
-  await expect(date).toBeEnabled();
-  await expect(date).toHaveAttribute("min", min);
-  await expect(date).toHaveAttribute("max", max);
-});
-
-test("TRIP-001-R7 dates outside the bookable range show a message", async ({ page }) => {
-  const { min, max } = bookableDates();
-  const date = page.getByLabel("Datum");
-  await expect(date).toBeEnabled();
-
-  await date.fill("2020-01-01");
-  await expect(page.locator("#date-error")).toHaveText("Datumet har redan passerat.");
-
-  const year = Number(max.slice(0, 4)) + 1;
-  await date.fill(`${year}${max.slice(4)}`);
-  await expect(page.locator("#date-error")).toHaveText("Du kan boka max 6 månader framåt.");
-
-  await date.fill(min);
-  await expect(page.locator("#date-error")).toBeHidden();
-});
-
 test("TRIP-001-R8 number of travellers is between 1 and 10", async ({ page }) => {
   const fewer = page.getByRole("button", { name: "Färre resenärer" });
   const more = page.getByRole("button", { name: "Fler resenärer" });
@@ -129,13 +103,6 @@ test("TRIP-001-R8 number of travellers is between 1 and 10", async ({ page }) =>
 
   await fewer.click();
   await expect(more).toBeEnabled();
-});
-
-test("TRIP-001-R9 return trip checkbox starts unchecked", async ({ page }) => {
-  const checkbox = page.getByRole("checkbox", { name: "Boka returresa" });
-  await expect(checkbox).not.toBeChecked();
-  await checkbox.click();
-  await expect(checkbox).toBeChecked();
 });
 
 test("TRIP-001-R10 airport endpoint returns at most 5 matches", async ({ request }) => {

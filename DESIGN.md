@@ -50,9 +50,10 @@ Faint ink, the strong accent and the strong line differ from the design board, w
 | `--shadow-card` | `shadow-card` | Cards: deep shadow with a faint wine red glow. |
 | `--shadow-float` | `shadow-float` | What floats above: suggestion lists, dialogs. |
 | `--ease-out` | `ease-out` | All motion. |
+| `--animate-float-in` | `animate-float-in` | What floats in when it opens (the calendar): faded and 4 px higher to start with, 160 ms. |
 | `--animate-takeoff`, `--animate-trail`, `--animate-hop` | `motion-safe:animate-takeoff` … | The wordmark's take-off with its contrail when the page loads (1.4 s, once), and its hop on hover. Keyframes in `@theme`. |
 
-Tailwind's own small radii (`rounded-md`, `rounded-lg`, `rounded-full`) are kept for small details such as the checkbox and icon buttons.
+Tailwind's own small radii (`rounded-md`, `rounded-lg`, `rounded-full`) are kept for small details such as the switch and icon buttons.
 
 The font is loaded with `next/font` in `app/layout.tsx` as `--font-bricolage`, which the two font tokens use.
 
@@ -65,12 +66,14 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | `Button` | `Button.tsx` | `primary`, `secondary`, `quiet`; sizes `default`, `compact` (admin) | Every button with text. Shrinks slightly when pressed; faded and `not-allowed` when disabled. |
 | `RoundButton` | `RoundButton.tsx` | default, `compact` | + and −, the carousel's arrows. Needs a `label` (read aloud and shown on hover). |
 | `Field` | `Field.tsx` | error state | A field with its label small inside the box, above the value, and the error message under it. The input inside uses `fieldInputClass`. |
+| `FieldBox` | `Field.tsx` | `invalid`, `active` | Only the box of a `Field`, for fields whose message is shown elsewhere (the date group). `active` gives it the focus look while focus is somewhere else, in the calendar. |
 | `fieldClass()`, `textAreaClass()` | `Field.tsx` | sizes `large`, `small`, `compact`; error state | A field without a label inside, for example in admin tables. |
-| `Checkbox` | `Checkbox.tsx` | | A checkbox drawn in the design, still a real `<input>`. |
+| `Switch` | `Switch.tsx` | | An on/off choice ("Tur och retur"): a `button` with `role="switch"`, the track filled with the accent when on. |
 | `Card` | `Card.tsx` | sizes `default`, `compact` (admin) | Cards. |
 | `floatClass`, `floatingCardClass` | `Card.tsx` | | What floats above the page (floating surface and shadow): suggestion lists, and dialogs with a card's shape (`floatingCardClass`). |
 | `Message` | `Message.tsx` | `error`, `success` | Errors (`role="alert"`) and confirmations (`role="status"`) as coloured text, without a box. |
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |
+| `DatePicker`, `Calendar` | `DatePicker.tsx`, `Calendar.tsx` | | The date group Utresa/Hemresa and the calendar that floats under it (TRIP-009, see [the date picker](wiki/system/date-picker.md)). Chosen days in the strong accent, the days between as a band with accent lines, today with a brass ring. |
 | `Wordmark` | `Wordmark.tsx` | | The plane in a brass ring and "Gurras Flyg", linking to the start page, in the header of every page (`app/layout.tsx`). The plane takes off into the ring once when the page loads and hops on hover; the take-off is removed when it has played, so the page stands still afterwards. |
 
 ### Admin pieces
@@ -104,7 +107,7 @@ The site's own images are in `public/brand/`; `public/images/` is the course's s
 - **Messages are coloured text**, never boxes.
 - **Cards** have the brass-tinted edge and the card shadow; menus and dialogs float with the floating shadow.
 - **Contrast:** text and placeholders at least 4.5:1, borders that show a control and the focus ring at least 3:1. Check a new colour with the tests in `tests/TRIP-008-visual-design.spec.ts`.
-- **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours. Motion has a purpose: a button responds to a press, the carousel slides, the wordmark takes off once. The wordmark's take-off (1.4 s) and hop (0.9 s) are decoration, not a control's response, so the 300 ms limit doesn't apply to them.
+- **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours. Motion has a purpose: a button responds to a press, the carousel slides, the calendar floats in, the wordmark takes off once. The wordmark's take-off (1.4 s) and hop (0.9 s) are decoration, not a control's response, so the 300 ms limit doesn't apply to them.
 - **Reduced motion:** when the visitor prefers reduced motion, a rule in `globals.css` turns off every animation and limits transitions to colours and opacity, so nothing moves. New motion needs nothing extra; animations that should only run otherwise are also written `motion-safe:`.
 - **Tailwind only finds whole class names.** Write `focus:ring-3`, never `` `${state}:ring-3` ``. To vary a class, choose between whole strings (see `borders` in `Field.tsx`).
 

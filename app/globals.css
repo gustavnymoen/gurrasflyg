@@ -65,6 +65,15 @@
   --animate-takeoff: takeoff 1.4s var(--ease-out) 0.3s backwards;
   --animate-trail: trail 1.4s var(--ease-out) 0.3s backwards;
   --animate-hop: hop 0.9s var(--ease-out);
+  /* Det som svävar glider fram en aning när det öppnas (kalendern) */
+  --animate-float-in: float-in 0.16s var(--ease-out);
+
+  @keyframes float-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
 
   @keyframes takeoff {
     from {

@@ -7,7 +7,8 @@ flowchart TD
     C -- type and Enter / leave field --> E{Valid and allowed?<br/>R8}
     E -- no --> F[Field red, message under the group<br/>R9]
     F --> C
-    E -- yes --> D
+    E -- yes, Enter --> D
+    E -- yes, left the field --> L[Date set,<br/>focus stays where the traveller moved it<br/>R8]
     D --> G{Tur och retur on and<br/>Utresa was active?<br/>R5}
     G -- yes --> H[Hemresa becomes active,<br/>days outside the return limits disabled<br/>R7]
     H --> C

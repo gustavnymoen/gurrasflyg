@@ -180,19 +180,14 @@ test.describe("on a phone", () => {
     expect(await scrollsSideways(page)).toBe(false);
   });
 
-  test("TRIP-020-R6 Från and Till are full width, Datum and Resenärer side by side", async ({ page }) => {
+  // The date group and Resenärer on a phone changed with TRIP-009 and are checked by TRIP-009-R1
+  test("TRIP-020-R6 Från and Till are full width, one above the other", async ({ page }) => {
     await page.goto("/");
-    // The date field is streamed in after the page (Suspense); until then a
-    // disabled placeholder field with the same label is shown
-    await expect(page.locator("#date:enabled")).toBeVisible();
-    const box = async (label: string) =>
-      (await page.getByText(label, { exact: true }).filter({ visible: true }).locator("xpath=..").boundingBox())!;
-    const [from, to, date, travellers] = [await box("Från"), await box("Till"), await box("Datum"), await box("Resenärer")];
+    const box = async (label: string) => (await page.getByText(label, { exact: true }).locator("xpath=..").boundingBox())!;
+    const [from, to] = [await box("Från"), await box("Till")];
     expect(to.width).toBeCloseTo(from.width, 0);
+    expect(to.x).toBeCloseTo(from.x, 0);
     expect(to.y).toBeGreaterThan(from.y);
-    expect(date.y).toBeCloseTo(travellers.y, 0);
-    expect(travellers.x).toBeGreaterThan(date.x);
-    expect(date.width + travellers.width).toBeLessThan(from.width);
   });
 
   test("TRIP-020 accessibility: axe finds no violations on the start page on a phone", async ({ page }) => {

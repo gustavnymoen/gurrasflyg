@@ -31,7 +31,8 @@ test("TRIP-021-R3 the review carousel shows the focus ring when it gets keyboard
   // The reviews are streamed in after the form; Tab before that skips them
   const carousel = page.getByRole("region", { name: "Omdömen" });
   await expect(carousel).toBeVisible();
-  await page.getByRole("checkbox", { name: "Boka returresa" }).focus();
+  // The last control in the search form
+  await page.getByRole("button", { name: "Fler resenärer" }).focus();
   await page.keyboard.press("Tab");
   await expect(carousel).toBeFocused();
   await expect(carousel).toHaveCSS("outline-style", "solid");

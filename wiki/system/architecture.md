@@ -27,7 +27,7 @@ flowchart LR
 | `app/layout.tsx` | Every page: the header with the wordmark, and the footer (with the photo credit on the start page). |
 | `app/page.tsx` | Start page: background photo, heading, search form and review carousel. The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
-| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `ReviewCarousel` and icons. |
+| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Switch`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, dialog, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. `login/` is the sign-in page. |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
@@ -39,7 +39,7 @@ flowchart LR
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database. |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr"). |
-| `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time) and their messages, for both the search form and the server. |
+| `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
 | `lib/numbers.ts` | `parseWholeNumber`: reads a whole number typed in an admin form ("1 290"), for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 

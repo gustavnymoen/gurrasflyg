@@ -17,6 +17,11 @@ const borders = {
     normal: "border-line-strong focus-within:border-accent-strong focus-within:ring-3 focus-within:ring-accent-glow",
     error: "border-danger focus-within:ring-3 focus-within:ring-accent-glow",
   },
+  // Rutan ser fokuserad ut fast fokus är någon annanstans, t.ex. i kalendern
+  active: {
+    normal: "border-accent-strong ring-3 ring-accent-glow",
+    error: "border-danger ring-3 ring-accent-glow",
+  },
 };
 
 function borderLook(error: boolean, focus: keyof typeof borders) {
@@ -49,8 +54,7 @@ export function textAreaClass(size: FieldSize, error = false) {
 export const fieldInputClass = "w-full bg-transparent outline-none placeholder:text-ink-faint";
 
 // Fält med etiketten liten inne i rutan, ovanför värdet, och ett eventuellt
-// fel under. Innehållet är ett eller flera fält med fieldInputClass. Rutan är
-// positionerad, så att en förslagslista kan läggas precis under den.
+// fel under. Innehållet är ett eller flera fält med fieldInputClass.
 export default function Field({
   label,
   htmlFor,
@@ -67,25 +71,49 @@ export default function Field({
 }) {
   return (
     <div className={className}>
-      <div
-        className={`relative flex h-14.5 flex-col justify-center px-4 text-[17px] ${look} ${borderLook(error !== null, "within")}`}
-      >
-        {htmlFor ? (
-          <label htmlFor={htmlFor} className="text-xs leading-tight text-ink-muted">
-            {label}
-          </label>
-        ) : (
-          <span aria-hidden="true" className="text-xs leading-tight text-ink-muted">
-            {label}
-          </span>
-        )}
+      <FieldBox label={label} htmlFor={htmlFor} invalid={error !== null}>
         {children}
-      </div>
+      </FieldBox>
       {error && htmlFor && (
         <Message kind="error" id={`${htmlFor}-error`} className="mt-1.5">
           {error}
         </Message>
       )}
+    </div>
+  );
+}
+
+// Själva rutan i en <Field>, för fält vars fel visas någon annanstans (datumgruppen).
+// Rutan är positionerad, så att en förslagslista kan läggas precis under den.
+export function FieldBox({
+  label,
+  htmlFor,
+  invalid = false,
+  active = false,
+  className = "",
+  children,
+}: {
+  label: string;
+  htmlFor?: string;
+  invalid?: boolean;
+  active?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`relative flex h-14.5 flex-col justify-center px-4 text-[17px] ${look} ${borderLook(invalid, active ? "active" : "within")} ${className}`}
+    >
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className="text-xs leading-tight text-ink-muted">
+          {label}
+        </label>
+      ) : (
+        <span aria-hidden="true" className="text-xs leading-tight text-ink-muted">
+          {label}
+        </span>
+      )}
+      {children}
     </div>
   );
 }

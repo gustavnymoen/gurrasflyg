@@ -24,7 +24,7 @@ None. The photo is a new file, `public/brand/skymning.jpg`: the design board's `
   - `@utility photo-shade` and `photo-shade-wide`: gradients of the ground colour over the photo (R3).
   - A `prefers-reduced-motion: reduce` rule in `@layer base`: no animations, transitions only for colours and opacity (R5).
 - `app/components/ReviewCarousel.tsx` (R4): cards 15 × 12 rem (`w-60 h-48`), all with the card shadow, the focused one with the accent border; body text clamped to 4 lines; arrows on the edges at ±7.5 rem; the carousel 13 rem high. `motion-reduce:transition-none` is removed, since the global rule covers it. *Changed by TRIP-021-R4 (2026-10-23): the card is 12 rem high as before but grows when its text needs it (`min-h-48`, `self-start` in a grid instead of absolute positioning), `line-clamp` is removed and the padding is `py-3.5`; reviews have at most 20/25/145 characters.*
-- `app/components/SearchForm.tsx` (R6): the form is a two-column grid on phones (Från and Till span both columns, Datum and Resenärer side by side) and a row from `md`.
+- `app/components/SearchForm.tsx` (R6): the form is a two-column grid on phones (Från and Till span both columns, Datum and Resenärer side by side) and a row from `md`. *Changed by TRIP-009: one field or group per row on phones (a column), still a row from `md`.*
 - `tests/TRIP-001-flight-search-form.spec.ts`: TRIP-001-R1 checks the new heading and text (R2). `specs/TRIP-001-flight-search-form/spec.md` notes the change under R1.
 - `tests/TRIP-008-visual-design.spec.ts`: TRIP-008-R9 tabs to the wordmark first, then to Från (R7).
 - `tests/helpers.ts`: `BRASS`.
