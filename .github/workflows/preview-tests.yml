@@ -19,10 +19,12 @@ concurrency:
 
 jobs:
   preview:
-    # Bara lyckade förhandsversioner; produktionen testas av Live tests
+    # Förhandsversioner i ett slutligt läge; produktionen testas av Live tests.
+    # Även en misslyckad deploy kör jobbet, som då faller: ett överhoppat jobb
+    # räknas som godkänt av branch protection.
     if: >-
-      github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment.environment, 'Preview')
+      startsWith(github.event.deployment.environment, 'Preview') &&
+      contains(fromJSON('["success", "failure", "error"]'), github.event.deployment_status.state)
     runs-on: ubuntu-latest
     timeout-minutes: 8
     # TECH-011: Playwrights image, samma version som @playwright/test
@@ -30,6 +32,14 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
       options: --user 1001
     steps:
+      - name: Förhandsversionen byggdes
+        if: github.event.deployment_status.state != 'success'
+        env:
+          STATE: ${{ github.event.deployment_status.state }}
+        run: |
+          echo "::error::Vercel kunde inte bygga förhandsversionen ($STATE), så den kan inte testas"
+          exit 1
+
       # Samma commit som förhandsversionen byggdes från
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

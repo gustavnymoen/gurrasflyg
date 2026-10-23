@@ -69,13 +69,6 @@ The course data is imported into tables of its own in the database by a generate
 
 ## Pipeline
 
-```
-branch ──push──▶ pull request ──▶ CI: lint → type check → build → all tests (test:local); security scans
-   │                          └─▶ Vercel preview ──▶ Preview tests: smoke tests against the preview
-   │                                     all green and up to date with main?
-   └──────────────▶ merge to main ──▶ Vercel publishes ──▶ Live tests: smoke tests against the live site
-```
-
 The whole test suite runs once, in CI; the preview and the live site get read-only smoke tests (`npm run test:smoke`). `main` is protected: GitHub merges only a pull request whose checks are green and whose branch is up to date. The workflows, their events, secrets and the branch protection are described in [Pipeline](wiki/system/pipeline.md).
 
 ## Local database and backups
@@ -91,7 +84,7 @@ The whole test suite runs once, in CI; the preview and the live site get read-on
 Which kind of test checks what, how tests are named, the rules for test data and the time budgets are in [Testing](wiki/system/testing.md). How to run them:
 
 - `npm run test:local` (`scripts/test-server.mjs`) builds the site in `.next-test/`, rebuilds the test database `~/Ai Projekt/gurrasflyg-data/test.db` from scratch and starts the site on port 3100. Your own local database is never touched, and a running `npm run dev` isn't disturbed.
-- `npm test` runs against <https://gurrasflyg.vercel.app>. Admin tests sign in with `ADMIN_PASSWORD` from `.env.local` and are skipped without it.
+- `npm test` runs every test against <https://gurrasflyg.vercel.app>, by hand only (the pipeline runs the smoke tests there). Admin tests sign in with `ADMIN_PASSWORD` from `.env.local` and are skipped without it; they create and delete their own "E2E" data in production.
 - `tests/global-teardown.ts` removes any leftover "E2E" test data after every run.
 - Run both before a feature is done: locally before pushing, against the live site after the deploy.
 - `npm run test:time` runs `npm run test:local` and prints the number of tests, their total time and the five slowest, marking what is over the time budgets in `wiki/system/testing.md`.

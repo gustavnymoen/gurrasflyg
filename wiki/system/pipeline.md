@@ -44,18 +44,17 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 - **Actions** are pinned to commits, and Dependabot proposes new versions once a month (TECH-012).
 - **When tests fail,** the run saves Playwright's report with screenshots as an artifact. Traces are saved only for local runs, since a trace holds typed values and headers.
 - **A newer push** to the same branch cancels the older CI run, and a newer preview cancels the older Preview tests run.
+- **A skipped `live` check on pull requests** is expected: Vercel sends `deployment_status` for previews too, and Live tests skips everything that isn't production.
 
 ## Branch protection
 
 `main` is protected (TECH-014-R6), which GitHub offers for free on a public repository:
 
 - A change reaches `main` only through a pull request; direct pushes and force pushes are refused, and `main` can't be deleted.
-- The checks `check` and `security` (CI) and `preview` (Preview tests) must pass.
+- The checks `check` and `security` (CI), `preview` (Preview tests) and `Vercel` (Vercel's own status, which fails when the preview can't be built) must pass. Preview tests also fails when Vercel reports a failed deploy, since GitHub counts a skipped job as passed.
 - The branch must be up to date with `main`. If it isn't, use "Update branch" on the pull request (or merge `main` into the branch) and wait for the checks again.
 - No approving review is required, since the project has one developer who merges their own pull requests; the code review is done by the reviewer agent and posted on the pull request.
 
-## Time budgets
-
-A whole job takes at most 8 minutes (CI) and 2 minutes (Preview tests and Live tests), including preparation; the budgets for the tests themselves are in [Testing](testing.md#time-budgets).
+The time budgets for the jobs and the tests are in [Testing](testing.md#time-budgets).
 
 [System documentation](index.md)
