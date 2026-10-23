@@ -9,10 +9,10 @@ How each requirement was checked. The smoke tests are in `tests/TECH-014-smoke-t
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TECH-014-R1 | CI on pull request #56 runs the whole suite (`npm run test:local`); `ci.yml` has only `pull_request` and `workflow_dispatch`. That no CI run starts after the merge: not checked yet | CI | Pass on the pull request; after merge not checked yet | 2026-10-23 |
+| TECH-014-R1 | CI on pull request #56 runs the whole suite (`npm run test:local`); `ci.yml` has only `pull_request` and `workflow_dispatch`. After the merge (9454f80) no CI run started on `main`; only Live tests and Preview tests (skipped) ran | CI | Pass | 2026-10-23 |
 | TECH-014-R2 | The five tests `TECH-014-R2 @smoke …` pass with `npm run test:smoke` against the live site (5.7 s) and locally, without any secret; code review: none signs in or writes. The repository secret `ADMIN_PASSWORD` is deleted (`gh secret list` shows only `VERCEL_AUTOMATION_BYPASS_SECRET`) | live, local | Pass | 2026-10-23 |
 | TECH-014-R3 | Preview tests run 39974586619 started from Vercel's `deployment_status` for the preview of #56, ran `npm run test:smoke` against its address (5 passed, 5.6 s; the whole job 1 min) and shows on the pull request as the check `preview` | CI | Pass | 2026-10-23 |
-| TECH-014-R4 | Code review: `live-tests.yml` runs `npm run test:smoke` and has no `ADMIN_PASSWORD`. On #56's preview, Live tests started and was skipped, as it should for a preview. The run after the merge: not checked yet | CI | Pass so far; after merge not checked yet | 2026-10-23 |
+| TECH-014-R4 | Code review: `live-tests.yml` runs `npm run test:smoke` and has no `ADMIN_PASSWORD`. On #56's preview, Live tests started and was skipped, as it should for a preview. After the merge, Live tests (run 39976556787) ran `npm run test:smoke` via `deployment_status` against production, without `ADMIN_PASSWORD`: 5 passed in 5.2 s | CI, live | Pass | 2026-10-23 |
 | TECH-014-R5 | Both workflows start from `deployment_status`; the polling job and the address built from the branch name are gone; the preview's address came from the event (`gurrasflyg-6r05mactp-aqc-lab.vercel.app`, not built from the branch). A failed Vercel deploy: not shown (no failing deploy was made). Code review: Preview tests runs for `success`, `failure` and `error` and fails unless `success`, and Vercel's own status `Vercel` is a required check, so a failed preview stops the merge (fixed after the review) | CI | Pass; the failed deploy not shown | 2026-10-23 |
 | TECH-014-R6 | Branch protection set on 2026-10-23 and read back with `gh api …/branches/main/protection`: required checks `check`, `security`, `preview` and `Vercel`, `strict` (up to date with `main`), pull request required with 0 approvals, enforced for admins, no force pushes, no deletion. A merge refused by GitHub: see below. A direct push to `main` was not tried (it would only be refused, but a test push to `main` was not worth the risk) | GitHub | Pass | 2026-10-23 |
 | TECH-014-R7 | Code review: `wiki/system/pipeline.md` (with the Mermaid diagram), `testing.md`, `README.md`, `architecture.md` and `CLAUDE.md` match the workflows | local | Pass | 2026-10-23 |
@@ -42,7 +42,7 @@ In the pipeline, Preview tests went from about 4.5 minutes (the whole suite) to 
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [x] Test suite: within the time budgets
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests, run 39976556787: 5 passed; recorded on TRIP-010's branch)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (no manual change)

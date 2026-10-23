@@ -27,10 +27,10 @@ async function openNewForm(page: Page) {
   await expect(form(page).getByRole("heading", { name: "Nytt plan" })).toBeVisible();
 }
 
-test("TRIP-004-R1 table shows classes, seats and routes per aircraft", async ({ page }) => {
+test("TRIP-004-R1 table shows classes and seats per aircraft", async ({ page }) => {
   const name = uniqueName("Plan");
   await expect(page.getByRole("button", { name: /^Plan/ })).toBeVisible();
-  for (const column of ["Namn", "Klasser", "Platser", "Rutter"]) {
+  for (const column of ["Namn", "Klasser", "Platser"]) {
     await expect(page.getByRole("columnheader", { name: column, exact: true }).first()).toBeVisible();
   }
 
@@ -42,7 +42,6 @@ test("TRIP-004-R1 table shows classes, seats and routes per aircraft", async ({ 
   await expect(cells.nth(1)).toHaveText(name);
   await expect(cells.nth(2)).toHaveText("2");
   await expect(cells.nth(3)).toHaveText("120");
-  await expect(cells.nth(4)).toHaveText("0");
 
   await deleteWithConfirmation(page, `Ta bort ${name}`);
 });

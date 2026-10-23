@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getRouteStats, listAddons, listAircraft, listClasses } from "@/lib/admin";
+import { listAddons, listAircraft, listClasses } from "@/lib/admin";
 import { requireAdminPage } from "@/lib/auth";
 import { listReviews } from "@/lib/reviews";
 import Button from "../components/Button";
 import AddonTable from "./AddonTable";
 import AircraftTable from "./AircraftTable";
-import AssignAircraftButton from "./AssignAircraftButton";
 import { CollapsibleCard } from "./admin-ui";
 import ClassTable from "./ClassTable";
 import ReviewSection from "./ReviewSection";
@@ -26,16 +25,11 @@ export default function AdminPage() {
             Plan, klasser, addons och omdömen
           </p>
         </div>
-        <div className="flex items-start gap-3">
-          <Suspense>
-            <AssignAircraft />
-          </Suspense>
-          <form action={logoutAction}>
-            <Button type="submit" variant="secondary" size="compact">
-              Logga ut
-            </Button>
-          </form>
-        </div>
+        <form action={logoutAction}>
+          <Button type="submit" variant="secondary" size="compact">
+            Logga ut
+          </Button>
+        </form>
       </header>
       {/* Datan läses från databasen när sidan efterfrågas, så den visas via Suspense */}
       <Suspense fallback={<p className="text-ink-muted">Laddar…</p>}>
@@ -43,13 +37,6 @@ export default function AdminPage() {
       </Suspense>
     </main>
   );
-}
-
-// Inloggningen kontrolleras här också, inte bara i proxy.ts
-async function AssignAircraft() {
-  await requireAdminPage();
-  const { total, assigned } = await getRouteStats();
-  return <AssignAircraftButton total={total} assigned={assigned} />;
 }
 
 async function AdminContent() {

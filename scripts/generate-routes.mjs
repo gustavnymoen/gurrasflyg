@@ -5,6 +5,10 @@
 //
 // Slumpen har ett fast frö, så samma körning ger alltid samma resultat.
 // Ändra SEED (eller antal) för att få andra rutter.
+//
+// Flygplatserna, avståndet och flygtiden exporteras också, och rutterna med
+// generateRoutes(), så att scripts/generate-all-routes.mjs kan bygga vidare på
+// samma data (TRIP-010).
 
 const SEED = 42;
 const ROUTE_PAIRS = 100; // varje par blir två rutter, en åt varje håll
@@ -12,7 +16,7 @@ const MIN_DISTANCE_KM = 150; // kortare än så flyger ingen
 const LONG_HAUL_KM = 4000; // långdistans bara till/från stora flygplatser
 
 // [IATA, namn, land, tidszon, latitud, longitud]
-const airports = [
+export const airports = [
   ["ARN", "Stockholm Arlanda", "Sverige", "Europe/Stockholm", 59.65, 17.92],
   ["BMA", "Stockholm Bromma", "Sverige", "Europe/Stockholm", 59.35, 17.94],
   ["GOT", "Göteborg Landvetter", "Sverige", "Europe/Stockholm", 57.67, 12.29],
@@ -69,18 +73,21 @@ const airports = [
 // Stora flygplatser som får ha långdistans
 const hubs = new Set(["ARN", "CPH", "OSL", "HEL", "LHR", "CDG", "AMS", "FRA", "MUC", "MAD", "IST", "DXB", "JFK"]);
 
-// ---- Slump med fast frö (mulberry32)
-let state = SEED;
-function random() {
-  state = (state + 0x6d2b79f5) | 0;
-  let t = Math.imul(state ^ (state >>> 15), 1 | state);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+// ---- Slump med fast frö (mulberry32). Ger random() och randomInt(min, max).
+export function seededRandom(seed) {
+  let state = seed;
+  const random = () => {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const randomInt = (min, max) => min + Math.floor(random() * (max - min + 1));
+  return { random, randomInt };
 }
-const randomInt = (min, max) => min + Math.floor(random() * (max - min + 1));
 
 // ---- Avstånd och flygtid
-function distanceKm(a, b) {
+export function distanceKm(a, b) {
   const rad = (d) => (d * Math.PI) / 180;
   const [lat1, lon1, lat2, lon2] = [a[4], a[5], b[4], b[5]].map(rad);
   const h =
@@ -89,105 +96,113 @@ function distanceKm(a, b) {
 }
 
 // Ca 800 km/h plus 30 minuter för taxning, start och landning, avrundat till 5 min
-const flightMinutes = (km) => Math.round((km / 800) * 60 / 5) * 5 + 30;
+export const flightMinutes = (km) => Math.round((km / 800) * 60 / 5) * 5 + 30;
 
-// ---- Välj flygplatspar
-const isSwedish = (a) => a[2] === "Sverige";
-const candidates = [];
-for (let i = 0; i < airports.length; i++) {
-  for (let j = i + 1; j < airports.length; j++) {
-    const [a, b] = [airports[i], airports[j]];
-    const km = distanceKm(a, b);
-    if (km < MIN_DISTANCE_KM) continue;
-    if (km > LONG_HAUL_KM && !hubs.has(a[0]) && !hubs.has(b[0])) continue;
-    // Gurras Flyg är svenskt: rutter till/från Sverige och stora flygplatser är vanligare
-    const weight = 1 + (isSwedish(a) || isSwedish(b) ? 4 : 0) + (hubs.has(a[0]) || hubs.has(b[0]) ? 2 : 0);
-    candidates.push({ a, b, km, weight });
+// Minuter efter midnatt -> "HH:MM"
+export const formatTime = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+
+// Rutterna i 002_routes_data.sql: { id, from, to, km, minutes, times }, sorterade
+// på från och till. Samma frö ger alltid samma rutter.
+export function generateRoutes() {
+  const { random, randomInt } = seededRandom(SEED);
+
+  // ---- Välj flygplatspar
+  const isSwedish = (a) => a[2] === "Sverige";
+  const candidates = [];
+  for (let i = 0; i < airports.length; i++) {
+    for (let j = i + 1; j < airports.length; j++) {
+      const [a, b] = [airports[i], airports[j]];
+      const km = distanceKm(a, b);
+      if (km < MIN_DISTANCE_KM) continue;
+      if (km > LONG_HAUL_KM && !hubs.has(a[0]) && !hubs.has(b[0])) continue;
+      // Gurras Flyg är svenskt: rutter till/från Sverige och stora flygplatser är vanligare
+      const weight = 1 + (isSwedish(a) || isSwedish(b) ? 4 : 0) + (hubs.has(a[0]) || hubs.has(b[0]) ? 2 : 0);
+      candidates.push({ a, b, km, weight });
+    }
   }
-}
 
-const chosen = [];
-const pick = (c) => {
-  chosen.push(c);
-  candidates.splice(candidates.indexOf(c), 1);
-};
+  const chosen = [];
+  const pick = (c) => {
+    chosen.push(c);
+    candidates.splice(candidates.indexOf(c), 1);
+  };
 
-// Först: självklara rutter för ett svenskt flygbolag
-const mustHave = [
-  ["ARN", "GOT"], ["ARN", "MMX"], ["ARN", "LLA"], ["ARN", "UME"], ["BMA", "VBY"], ["ARN", "CPH"],
-  ["ARN", "OSL"], ["ARN", "HEL"], ["ARN", "LHR"], ["ARN", "CDG"], ["ARN", "AMS"], ["ARN", "FRA"],
-  ["ARN", "BCN"], ["ARN", "FCO"], ["ARN", "JFK"], ["ARN", "BKK"], ["GOT", "LHR"], ["GOT", "AMS"],
-];
-for (const [x, y] of mustHave) {
-  const c = candidates.find((c) => (c.a[0] === x && c.b[0] === y) || (c.a[0] === y && c.b[0] === x));
-  if (!c) throw new Error(`Rutten ${x}-${y} går inte att välja`);
-  pick(c);
-}
-
-// Sedan: varje flygplats får minst en rutt, till närmaste stora flygplats
-for (const airport of airports) {
-  if (chosen.some((c) => c.a === airport || c.b === airport)) continue;
-  const nearest = candidates
-    .filter((c) => (c.a === airport && hubs.has(c.b[0])) || (c.b === airport && hubs.has(c.a[0])))
-    .sort((x, y) => x.km - y.km)[0];
-  if (nearest) pick(nearest);
-}
-
-// Sist: fyll på med slumpade par, viktat
-while (chosen.length < ROUTE_PAIRS && candidates.length > 0) {
-  const total = candidates.reduce((sum, c) => sum + c.weight, 0);
-  let r = random() * total;
-  const c = candidates.find((c) => (r -= c.weight) < 0) ?? candidates.at(-1);
-  pick(c);
-}
-
-// ---- Avgångstider: 2–3 per dag mellan 06:00 och 21:30, minst 3 timmar isär
-function departureTimes() {
-  const count = randomInt(2, 3);
-  const times = [];
-  while (times.length < count) {
-    const minutes = randomInt(6 * 12, 21 * 12 + 6) * 5; // var 5:e minut
-    if (times.every((t) => Math.abs(t - minutes) >= 180)) times.push(minutes);
+  // Först: självklara rutter för ett svenskt flygbolag
+  const mustHave = [
+    ["ARN", "GOT"], ["ARN", "MMX"], ["ARN", "LLA"], ["ARN", "UME"], ["BMA", "VBY"], ["ARN", "CPH"],
+    ["ARN", "OSL"], ["ARN", "HEL"], ["ARN", "LHR"], ["ARN", "CDG"], ["ARN", "AMS"], ["ARN", "FRA"],
+    ["ARN", "BCN"], ["ARN", "FCO"], ["ARN", "JFK"], ["ARN", "BKK"], ["GOT", "LHR"], ["GOT", "AMS"],
+  ];
+  for (const [x, y] of mustHave) {
+    const c = candidates.find((c) => (c.a[0] === x && c.b[0] === y) || (c.a[0] === y && c.b[0] === x));
+    if (!c) throw new Error(`Rutten ${x}-${y} går inte att välja`);
+    pick(c);
   }
-  return times
-    .sort((x, y) => x - y)
-    .map((m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+
+  // Sedan: varje flygplats får minst en rutt, till närmaste stora flygplats
+  for (const airport of airports) {
+    if (chosen.some((c) => c.a === airport || c.b === airport)) continue;
+    const nearest = candidates
+      .filter((c) => (c.a === airport && hubs.has(c.b[0])) || (c.b === airport && hubs.has(c.a[0])))
+      .sort((x, y) => x.km - y.km)[0];
+    if (nearest) pick(nearest);
+  }
+
+  // Sist: fyll på med slumpade par, viktat
+  while (chosen.length < ROUTE_PAIRS && candidates.length > 0) {
+    const total = candidates.reduce((sum, c) => sum + c.weight, 0);
+    let r = random() * total;
+    const c = candidates.find((c) => (r -= c.weight) < 0) ?? candidates.at(-1);
+    pick(c);
+  }
+
+  // ---- Avgångstider: 2–3 per dag mellan 06:00 och 21:30, minst 3 timmar isär
+  function departureTimes() {
+    const count = randomInt(2, 3);
+    const times = [];
+    while (times.length < count) {
+      const minutes = randomInt(6 * 12, 21 * 12 + 6) * 5; // var 5:e minut
+      if (times.every((t) => Math.abs(t - minutes) >= 180)) times.push(minutes);
+    }
+    return times.sort((x, y) => x - y).map(formatTime);
+  }
+
+  const routes = chosen
+    .flatMap(({ a, b, km }) => [
+      { from: a[0], to: b[0], km },
+      { from: b[0], to: a[0], km },
+    ])
+    .sort((x, y) => x.from.localeCompare(y.from) || x.to.localeCompare(y.to));
+  // Avgångstiderna slumpas i rutternas ordning, efter paren
+  return routes.map((r, i) => ({ ...r, id: i + 1, minutes: flightMinutes(r.km), times: departureTimes() }));
 }
 
-// ---- Skriv ut SQL
-const q = (s) => `'${s.replace(/'/g, "''")}'`;
-const lines = [
-  "-- GENERERAD av scripts/generate-routes.mjs, ändra inte för hand.",
-  `-- ${airports.length} flygplatser, ${chosen.length * 2} rutter.`,
-  "",
-  "-- Flygplatser (de som redan finns hoppas över)",
-  "INSERT OR IGNORE INTO airports (iata, name, country, timezone) VALUES",
-  airports.map((a) => `  (${q(a[0])}, ${q(a[1])}, ${q(a[2])}, ${q(a[3])})`).join(",\n") + ";",
-  "",
-  "-- Rutter: från, till, flygtid (min) och avstånd (km, bara som kommentar)",
-];
+// ---- Skriv ut SQL, när skriptet körs (inte när det importeras)
+export const q = (s) => `'${s.replace(/'/g, "''")}'`;
 
-const routes = chosen
-  .flatMap(({ a, b, km }) => [
-    { from: a[0], to: b[0], km },
-    { from: b[0], to: a[0], km },
-  ])
-  .sort((x, y) => x.from.localeCompare(y.from) || x.to.localeCompare(y.to));
-
-routes.forEach((r, i) => {
-  const id = i + 1;
-  lines.push(
-    `INSERT INTO routes (id, from_airport_id, to_airport_id, duration_minutes) ` +
-      `SELECT ${id}, f.id, t.id, ${flightMinutes(r.km)} FROM airports f, airports t ` +
-      `WHERE f.iata = ${q(r.from)} AND t.iata = ${q(r.to)}; -- ${Math.round(r.km)} km`,
-  );
-  lines.push(
-    `INSERT INTO route_departures (route_id, departure_time) VALUES ` +
-      departureTimes()
-        .map((t) => `(${id}, ${q(t)})`)
-        .join(", ") +
-      ";",
-  );
-});
-
-console.log(lines.join("\n"));
+if (import.meta.main) {
+  const routes = generateRoutes();
+  const lines = [
+    "-- GENERERAD av scripts/generate-routes.mjs, ändra inte för hand.",
+    `-- ${airports.length} flygplatser, ${routes.length} rutter.`,
+    "",
+    "-- Flygplatser (de som redan finns hoppas över)",
+    "INSERT OR IGNORE INTO airports (iata, name, country, timezone) VALUES",
+    airports.map((a) => `  (${q(a[0])}, ${q(a[1])}, ${q(a[2])}, ${q(a[3])})`).join(",\n") + ";",
+    "",
+    "-- Rutter: från, till, flygtid (min) och avstånd (km, bara som kommentar)",
+  ];
+  for (const r of routes) {
+    lines.push(
+      `INSERT INTO routes (id, from_airport_id, to_airport_id, duration_minutes) ` +
+        `SELECT ${r.id}, f.id, t.id, ${r.minutes} FROM airports f, airports t ` +
+        `WHERE f.iata = ${q(r.from)} AND t.iata = ${q(r.to)}; -- ${Math.round(r.km)} km`,
+    );
+    lines.push(
+      `INSERT INTO route_departures (route_id, departure_time) VALUES ` +
+        r.times.map((t) => `(${r.id}, ${q(t)})`).join(", ") +
+        ";",
+    );
+  }
+  console.log(lines.join("\n"));
+}

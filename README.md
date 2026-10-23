@@ -16,7 +16,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
 - **Pipeline:** GitHub Actions checks every pull request, tests its preview deployment before merge, and tests the live site after every deploy. See [Pipeline](#pipeline).
 - **Tests:** Playwright, one file per feature. `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
-- **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews, and assign aircraft to routes.
+- **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews.
 
 `wiki/system/architecture.md` describes the parts in more detail.
 
@@ -48,7 +48,7 @@ The site is built one feature at a time, and the requirements decide what is bui
 - `app/`: pages, and API routes under `app/api/`. Admin pages under `app/admin/`, shared interface parts under `app/components/`.
 - `lib/`: shared backend code: database access, admin logic, bookings, reviews, sign-in.
 - `db/`: `schema.sql` and `seed.sql` for a new database, and `migrations/` with numbered changes.
-- `scripts/`: database setup, generating the route and charter data migrations, copying data to production and the Playwright install.
+- `scripts/`: database setup, generating the route, departure and charter data migrations, copying data to production and the Playwright install.
 - `data/` and `knowledge/`: the course's sample data, see below.
 - `specs/`: product overview, and each feature's solution, flow, verification and review.
 - `tests/`: Playwright tests.

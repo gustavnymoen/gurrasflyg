@@ -41,7 +41,7 @@ The browser time hardly changed: the moved tests were already fast without a pag
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded manual check; `npm run test:local` passes
 - [x] Test suite: within the time budgets, total time grown by at most 25 %
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests after the merge 884acd7, run 39988777447: 5 passed; recorded on TRIP-010's branch)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`) and `wiki/log.md` updated (no manual change)

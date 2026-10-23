@@ -1,0 +1,22 @@
+%% TRIP-010 Flight search results
+%% From the search form to the chosen trip. Steps are labelled with requirement IDs.
+flowchart TD
+    A[Search form: Från, Till, Utresa, Hemresa, Resenärer] -->|Sök| B{All filled in, different airports? R1}
+    B -- no --> C[Red field and message, no search R1]
+    C --> A
+    B -- yes --> D["/flyg?fran=…&till=…&utresa=…&hemresa=…&resenarer=… R2"]
+    D --> E{Valid search, airports exist?}
+    E -- no --> F[Empty form: Sökningen saknar något]
+    E -- yes --> G[Server: departures of the route, minus those that have left R4, R10, R11]
+    G --> H[Skeleton cards, status Söker flyg… R3]
+    H -->|1–4 s| I[Flight cards and number, status N flyg hittades R3–R5]
+    I -->|click card| J[Details: flight number, airports, date, total, Välj R6]
+    I -->|Sortera på Pris / Avgångstid| I
+    J -->|Välj| K{Return trip? R8}
+    K -- no --> M[Din resa: flight and total R9]
+    K -- yes --> L[Return flights, chosen outbound above R8]
+    L -->|Ändra utresa: clears the return| I
+    L -->|Välj| M
+    M -->|Ändra utresa| I
+    M -->|Ändra hemresa| L
+    I -->|change the form, Sök| D

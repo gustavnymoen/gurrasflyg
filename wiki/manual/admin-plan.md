@@ -14,7 +14,7 @@ I kortet **Plan** på adminsidan bygger du flygbolagets flotta. Varje plan har e
 
 ## Tabellen
 
-Tabellen visar varje plans namn, antal **Klasser**, totalt antal **Platser** och hur många **Rutter** planet flyger.
+Tabellen visar varje plans namn, antal **Klasser** och totalt antal **Platser**. Planen hör inte till några rutter: resenären väljer plan själv (kommer snart).
 
 - Klicka på pilen framför ett plan för att se dess klasser och antal platser.
 - Klicka på pilen framför en klass för att se klassens addons och deras pris.
@@ -42,7 +42,7 @@ Klicka på pennan på planets rad. Formuläret öppnas med planets namn, klasser
 
 ## Ta bort ett plan
 
-Klicka på papperskorgen och svara **Ja**. Rutter som planet flög blir utan plan; tilldela planen igen med [Tilldela plan](admin-tilldela-plan.md).
+Klicka på papperskorgen och svara **Ja**.
 
 ## Felmeddelanden
 

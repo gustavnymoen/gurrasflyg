@@ -11,7 +11,6 @@ export type Aircraft = {
   id: number;
   name: string;
   inUse: boolean;
-  routeCount: number; // antal rutter som flygs med planet
   classes: {
     classId: number;
     className: string;
@@ -67,10 +66,8 @@ export async function listAddons(): Promise<Addon[]> {
 export async function listAircraft(): Promise<Aircraft[]> {
   await connection();
   const [aircraft, classes, addons] = await Promise.all([
-    all<{ id: number; name: string; inUse: number; routeCount: number }>(
-      `SELECT a.id, a.name,
-         EXISTS (SELECT 1 FROM flights WHERE aircraft_id = a.id) AS inUse,
-         (SELECT COUNT(*) FROM routes WHERE aircraft_id = a.id) AS routeCount
+    all<{ id: number; name: string; inUse: number }>(
+      `SELECT a.id, a.name, EXISTS (SELECT 1 FROM flights WHERE aircraft_id = a.id) AS inUse
        FROM aircraft a ORDER BY a.name`,
     ),
     all<{ aircraftId: number; classId: number; className: string; capacity: number }>(
@@ -89,7 +86,6 @@ export async function listAircraft(): Promise<Aircraft[]> {
     id: a.id,
     name: a.name,
     inUse: a.inUse === 1,
-    routeCount: a.routeCount,
     classes: classes
       .filter((c) => c.aircraftId === a.id)
       .map(({ classId, className, capacity }) => ({
@@ -282,41 +278,9 @@ export async function deleteAircraft(id: number) {
     if (await get("SELECT 1 FROM flights WHERE aircraft_id = ?", [id], tx)) {
       throw new AdminError("Du kan ej ta bort planet, det används av flighter.");
     }
-    // Rutterna blir utan plan (gör vi själva i stället för att lita på ON DELETE SET NULL)
-    await run("UPDATE routes SET aircraft_id = NULL WHERE aircraft_id = ?", [id], tx);
     await run("DELETE FROM aircraft_class_addons WHERE aircraft_id = ?", [id], tx);
     await run("DELETE FROM aircraft_capacity WHERE aircraft_id = ?", [id], tx);
     await run("DELETE FROM aircraft WHERE id = ?", [id], tx);
-  });
-}
-
-// ---------------------------------------------------------------- Rutter
-
-export async function getRouteStats() {
-  await connection();
-  const row = await get<{ total: number; assigned: number }>(
-    "SELECT COUNT(*) AS total, COUNT(aircraft_id) AS assigned FROM routes",
-  );
-  return row ?? { total: 0, assigned: 0 };
-}
-
-// Ger varje rutt ett slumpat plan. Tidigare tilldelningar skrivs över.
-export async function assignAircraftToRoutes() {
-  await withTransaction(async (tx) => {
-    const aircraftIds = (await all<{ id: number }>("SELECT id FROM aircraft", [], tx)).map(
-      (r) => r.id,
-    );
-    if (aircraftIds.length === 0) {
-      throw new AdminError("Det finns inga plan att tilldela. Lägg till ett plan först.");
-    }
-    const routeIds = (await all<{ id: number }>("SELECT id FROM routes", [], tx)).map((r) => r.id);
-    // Alla uppdateringar i ett anrop (snabbare mot Turso än 200 separata anrop)
-    await tx.batch(
-      routeIds.map((routeId) => ({
-        sql: "UPDATE routes SET aircraft_id = ? WHERE id = ?",
-        args: [aircraftIds[Math.floor(Math.random() * aircraftIds.length)], routeId],
-      })),
-    );
   });
 }
 

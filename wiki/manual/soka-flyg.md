@@ -1,22 +1,20 @@
 ---
 type: Guide
 title: Söka flyg
-description: Så fyller du i sökformuläret på startsidan – flygplatser, utresa och hemresa, antal resenärer.
+description: Så fyller du i sökformuläret på startsidan – flygplatser, utresa och hemresa, antal resenärer – och söker.
 resource: app/components/SearchForm.tsx
-feature: TRIP-001, TRIP-009
+feature: TRIP-001, TRIP-009, TRIP-010
 tags: [resenär, sök, flygplats, datum, kalender, startsida]
 timestamp: 2026-10-23
 ---
 
 # Söka flyg
 
-Sökformuläret finns på startsidan, under rubriken "Vi ordnar det ingen annan kan". Där anger du var du vill resa från och till, när du reser dit och hem, och hur många ni är.
+Sökformuläret finns på startsidan, under rubriken "Vi ordnar det ingen annan kan". Där anger du var du vill resa från och till, när du reser dit och hem, och hur många ni är, och trycker **Sök**.
 
 Överst på varje sida står **Gurras Flyg** med ett plan i en ring. Klicka på det för att komma tillbaka till startsidan.
 
-På mobilen ligger fälten under varandra i full bredd: **Från**, **Till**, **Utresa** och **Hemresa** bredvid varandra, och sist **Resenärer**.
-
-> Själva sökningen och listan med flyg är inte byggda än. Formuläret kontrollerar redan det du fyller i.
+På mobilen ligger fälten under varandra i full bredd: **Från**, **Till**, **Utresa** och **Hemresa** bredvid varandra, **Resenärer**, och sist knappen **Sök**.
 
 Varje fält har sitt namn i liten text överst i rutan: **Från**, **Till**, **Utresa**, **Hemresa** och **Resenärer**. Är fältet tomt står en ledtråd i det, till exempel "Varifrån?" eller "dd/mm". Fältet du skriver i får en vinröd kant.
 
@@ -24,7 +22,7 @@ Varje fält har sitt namn i liten text överst i rutan: **Från**, **Till**, **U
 
 1. Skriv några bokstäver i **Från**, till exempel "sto" eller "arn".
 2. En lista med upp till fem flygplatser visas. Du kan söka på flygplatsens namn eller dess tre bokstäver långa kod (IATA-kod). Flygplatser vars namn börjar med det du skrivit visas först.
-3. Klicka på flygplatsen, eller välj med piltangenterna och tryck **Enter**. **Esc** stänger listan.
+3. Klicka på flygplatsen, eller välj med piltangenterna och tryck **Enter** eller **Tab**. Den markerade flygplatsen väljs, och med **Tab** går du samtidigt vidare till nästa fält. Är det bara en träff är den redan markerad, så det räcker att trycka **Tab**. **Esc** stänger listan.
 4. Gör likadant i **Till**.
 
 Står det "Inga flygplatser matchar" finns ingen flygplats med det namnet eller den koden. Prova en annan stavning eller en del av namnet.
@@ -69,12 +67,22 @@ I ett datumfält tar **pil ned** dig in i kalendern. Där flyttar piltangenterna
 
 Använd **−** och **+**. Ni kan vara mellan 1 och 10 resenärer.
 
+## Söka
+
+Tryck på **Sök** när allt är ifyllt. Du kommer till sidan med flygen för din sökning, se [Välja flyg](valja-flyg.md).
+
+**Från**, **Till** och **Utresa** måste vara ifyllda, och **Hemresa** när **Tur och retur** är på. Saknas något blir fältet rött med ett meddelande under, och ingen sökning görs.
+
 ## Felmeddelanden
 
 Är något fel blir texten i fältet röd och en kort förklaring visas i röd text under fältet eller datumfälten.
 
 | Meddelande | Vad det betyder | Gör så här |
 |---|---|---|
+| Välj var du vill flyga från. | Från är tomt när du tryckte Sök. | Välj en flygplats i Från. |
+| Välj vart du vill flyga. | Till är tomt när du tryckte Sök. | Välj en flygplats i Till. |
+| Välj datum för utresan. | Utresa är tomt när du tryckte Sök. | Välj eller skriv ett datum. |
+| Välj datum för hemresan. | Hemresa är tomt, och Tur och retur är på. | Välj ett datum, eller slå av Tur och retur. |
 | Ajja bajja, du måste flyga någonstans! | Från och Till är samma flygplats. | Välj en annan flygplats i ett av fälten. |
 | Skriv datumet som 13/11 eller 2026-11-13. | Det du skrev är inte ett datum, eller dagen finns inte (till exempel 31/2). | Skriv dag och månad, eller hela datumet. |
 | Datumet har redan passerat. | Datumet är före i dag. | Välj i dag eller ett senare datum. |
