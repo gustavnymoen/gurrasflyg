@@ -121,6 +121,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-016 | SDD and the test strategy: "How we work" in this overview, `wiki/system/testing.md`, a test plan in every card | Shared | Done |
 | TECH-013 | Security: security points and `/security-review` in the code review, a CI job with `npm audit`, Semgrep and Gitleaks, Dependabot, hardening from a review of the whole code base, the repo public | Shared | Done |
 | TECH-012 | GitHub Actions v7 on Node.js 24, pinned to commits, monthly updates by Dependabot | Shared | Done |
+| TECH-014 | Whole suite once in CI, read-only smoke tests against the preview and production via `deployment_status`, branch protection on `main` | Shared | Done |
 
 ## Decisions for charter
 
