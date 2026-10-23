@@ -138,7 +138,8 @@ for (const file of pending) {
   console.log(`Migrering körd: ${file}`);
 }
 
-const count = async (table) => (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0];
+// Tabellnamnen kommer bara från raderna nedan i det här skriptet
+const count = async (table) => (await db.execute(`SELECT COUNT(*) FROM ${table}`)).rows[0][0]; // nosemgrep
 console.log(
   `Databas ${isNew ? "skapad" : pending.length > 0 ? "uppdaterad" : "oförändrad"}: ` +
     `${where.replace(/^(Turso \(libsql:\/\/[^.]+).*$/, "$1…)")} ` +

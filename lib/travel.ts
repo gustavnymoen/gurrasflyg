@@ -34,9 +34,10 @@ type DestinationRow = Omit<Destination, "aliases" | "nearest_airport" | "gateway
 type ListRow = { destination_id: string; value: string };
 type PhotoRow = NonNullable<Destination["image"]> & { destination_id: string };
 
-// Ett resmåls lista (alias, taggar eller transport) i den ordning den har i kursdatan
+// Ett resmåls lista (alias, taggar eller transport) i den ordning den har i kursdatan.
+// Tabell och kolumn kommer bara från anropen här i filen, aldrig från en besökare.
 const listQuery = (table: string, column: string) =>
-  all<ListRow>(`SELECT destination_id, ${column} AS value FROM ${table} ORDER BY destination_id, position`);
+  all<ListRow>(`SELECT destination_id, ${column} AS value FROM ${table} ORDER BY destination_id, position`); // nosemgrep
 
 // Alla resmål, sorterade på id
 export async function getDestinations(): Promise<Destination[]> {

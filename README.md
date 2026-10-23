@@ -57,7 +57,7 @@ The site is built one feature at a time, and the requirements decide what is bui
 
 ## Course sample data
 
-Ready-made sample data from the course. It is read-only: features read or import it but don't change it, and specifications and tests refer to its IDs. Descriptions are written from general knowledge, and airports, travel times, flight times and prices are approximate or invented.
+Ready-made sample data from the course. It is read-only: features read or import it but don't change it, and specifications and tests refer to its IDs. The destination texts are summaries of the places' articles on [Wikipedia](https://www.wikipedia.org/) (confirmed by the course leader on 2026-10-23), so Wikipedia is credited as their source wherever they are shown; airports, travel times, flight times and prices are approximate or invented. The photos are from Wikimedia Commons, each with its own credit and licence (see below).
 
 - `knowledge/`: one page per destination (96), with its description, nearest airport, how to get there and visiting notes. Start at `knowledge/index.md`.
 - `data/destinations.json`: the facts from the destination pages, in one file.

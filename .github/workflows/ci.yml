@@ -72,16 +72,21 @@ jobs:
 
       # Semgreps fria regler för JavaScript, TypeScript, React, Next.js och SQL.
       # Ett fel som inte är ett fel markeras i koden med nosemgrep och varför.
+      # Varje skanning körs även om en tidigare föll, så att alla fynd syns.
+      # Plus vår egen regel i .semgrep/ för SQL med vår databashjälp. .claude/ är
+      # verktyg för utvecklingen, inte sajten, och skannas inte.
       - name: Osäker kod
+        if: ${{ !cancelled() }}
         run: |
           docker run --rm -v "$PWD:/src" -w /src semgrep/semgrep:1.182.0 \
-            semgrep scan --error --metrics=off \
+            semgrep scan --error --metrics=off --exclude .claude \
               --config p/javascript --config p/typescript --config p/react \
-              --config p/nextjs --config p/sql-injection
+              --config p/nextjs --config p/sql-injection --config .semgrep/
 
       # Hela historiken varje gång: den är liten, och en hemlighet som kommit in
       # tidigare ska också hittas. Värdena skrivs aldrig ut (--redact).
       - name: Läckta hemligheter
+        if: ${{ !cancelled() }}
         run: |
           docker run --rm -v "$PWD:/repo" --entrypoint sh ghcr.io/gitleaks/gitleaks:v8.30.1 -c \
             'git config --global --add safe.directory /repo && gitleaks git /repo --redact --verbose'
