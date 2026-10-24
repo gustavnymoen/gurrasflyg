@@ -3,7 +3,7 @@ type: Guide
 title: Välja plan och klass
 description: Så väljer du, ett flyg i taget, plan och hur många resenärer som sitter i varje klass, och ser vad resan kostar och hur lång tid den tar.
 resource: app/flyg/plan/
-feature: TRIP-011, TRIP-024, TRIP-026
+feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012
 tags: [resenär, plan, klass, pris, flygtid, ankomst]
 timestamp: 2026-10-24
 ---
@@ -12,7 +12,7 @@ timestamp: 2026-10-24
 
 När du valt flyg och tryckt **Fortsätt** under **Din resa** kommer du till sidan **Välj plan och klass**. Här väljer du vilket plan du vill flyga med och var resenärerna ska sitta, ett flyg i taget.
 
-Överst ser du stegen i bokningen: **Flyg**, **Plan och klass** och **Resenärer** (att fylla i resenärerna och boka kommer snart). Under dem står **Din resa**: flygen du valt, hur många ni är och, när du valt plan, planet, flygtiden och när du landar.
+Överst ser du stegen i bokningen: **Flyg**, **Plan och klass**, **Resenärer** och **Betala**. Under dem står **Din resa**: flygen du valt, hur många ni är och, när du valt plan, planet, flygtiden och när du landar.
 
 Varje flyg har ett eget kort, **Utresa** och, om du reser tur och retur, **Hemresa**. Du börjar med utresan; kortet för hemresan visas när utresan är klar.
 
@@ -43,7 +43,7 @@ Priset räknas om direkt: **Totalt för utresan** (och hemresan) är varje klass
 
 Tryck **Klar** när alla har en klass. Kortet fälls då ihop till en sammanfattning med planet, hur många som sitter i varje klass och vad flyget kostar, och kortet för hemresan öppnas. Saknar någon en klass står det till exempel "2 resenärer har ingen klass. Lägg till dem i en klass.", och kortet stannar öppet.
 
-Du kan gå vidare först när alla resenärer har en klass på varje flyg.
+När alla resenärer har en klass på varje flyg och du tryckt **Klar** på varje kort kommer knappen **Fortsätt** under **Totalt för resan**. Den tar dig till resenärerna, se [Boka resan](boka-resan.md). Innan dess står det vad som saknas.
 
 ## Ändra ett val
 

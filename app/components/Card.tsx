@@ -11,14 +11,22 @@ export const floatClass = "border border-line bg-surface-float shadow-float";
 // Ett kort som svävar, t.ex. en dialog
 export const floatingCardClass = `${sizes.default} ${floatClass}`;
 
+// labelledBy: id för kortets rubrik, så att kortet blir ett namngivet område
+// (t.ex. "Passagerare 1") som skärmläsare kan hoppa till
 export default function Card({
   size = "default",
+  labelledBy,
   className = "",
   children,
 }: {
   size?: keyof typeof sizes;
+  labelledBy?: string;
   className?: string;
   children: React.ReactNode;
 }) {
-  return <section className={`${sizes[size]} ${look} ${className}`}>{children}</section>;
+  return (
+    <section aria-labelledby={labelledBy} className={`${sizes[size]} ${look} ${className}`}>
+      {children}
+    </section>
+  );
 }

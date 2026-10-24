@@ -31,7 +31,7 @@ const overviewItem = (page: Page, leg: "Utresa" | "Hemresa") =>
 const timeAndArrival = async (page: Page, name: string) =>
   (await aircraftCard(page, "utresan", name).getByText(/landar/).textContent()) ?? "";
 const message = (page: Page, leg: "utresan" | "hemresan") => classList(page, leg).getByRole("alert");
-const tripNote = (page: Page) => page.getByText(/för att gå vidare|Snart fyller du i/);
+const tripNote = (page: Page) => page.getByText(/för att gå vidare/);
 
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
@@ -78,6 +78,8 @@ test.describe("with the tests' own aircraft", () => {
 
     // Back to the flights and on, without a change
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
+    // The plan page has a Fortsätt of its own now (TRIP-012-R1): wait for the results
+    await expect(page).toHaveURL(/\/flyg\?/);
     await page.getByRole("link", { name: "Fortsätt" }).click();
     await folded(page, "utresan").click();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
@@ -122,9 +124,10 @@ test.describe("with the tests' own aircraft", () => {
     await expect(tripNote(page)).toHaveText("Lägg alla resenärer i en klass på varje flyg för att gå vidare.");
     await noWayOn();
 
-    // Everyone placed: the way on comes with TRIP-012
+    // Everyone placed: Klar on the open card leads on (TRIP-012-R1)
     await place(page, "hemresan", fleet.base, 2);
-    await expect(tripNote(page)).toHaveText("Snart fyller du i resenärerna och bokar här.");
+    await expect(tripNote(page)).toHaveText("Tryck Klar på varje flyg för att gå vidare.");
+    await noWayOn();
   });
 
   test("TRIP-024-R5 focus stays on Fler and Färre when they become unavailable", async ({ page, fleet }) => {

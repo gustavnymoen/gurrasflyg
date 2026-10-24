@@ -8,6 +8,9 @@ import { canSeat, type FleetAircraft, placed, type Seating, validSeating } from 
 import { type Params, RESULTS_PATH, type Search, searchParams } from "./search";
 
 export const PLAN_PATH = "/flyg/plan";
+// Resenärerna och betalningen (TRIP-012)
+export const BOOKING_PATH = "/flyg/boka";
+export const PAYMENT_PATH = "/flyg/boka/betala";
 
 // Ett valt flyg (avgångstiden; rutten följer av sökningen) och planet och
 // antalen per klass för det. null = inte valt än.
@@ -20,6 +23,12 @@ export type LegView = "hidden" | "aircraft" | "classes" | "folded";
 
 // Utresan först, sedan hemresan
 const LEGS = ["ut", "hem"] as const;
+
+// Utresan och hemresan: namnet i adressen och i rubrikerna, med och utan stor bokstav
+export const LEG_NAMES = [
+  { key: "ut", title: "Utresa", of: "utresan" },
+  { key: "hem", title: "Hemresa", of: "hemresan" },
+];
 
 function tripParams(search: Search, legs: LegChoice[]) {
   const params = searchParams(search);
@@ -37,6 +46,18 @@ export const planUrl = (search: Search, legs: LegChoice[]) => `${PLAN_PATH}?${tr
 
 // Tillbaka till flygen, med allt som valts efter dem
 export const resultsUrl = (search: Search, legs: LegChoice[]) => `${RESULTS_PATH}?${tripParams(search, legs)}`;
+
+// Resenärerna och betalningen för resan (TRIP-012-R1, R10)
+export const bookingUrl = (search: Search, legs: LegChoice[]) => `${BOOKING_PATH}?${tripParams(search, legs)}`;
+export const paymentUrl = (search: Search, legs: LegChoice[]) => `${PAYMENT_PATH}?${tripParams(search, legs)}`;
+
+// Det som passagerarnas klasser och tillägg på ett flyg bygger på: flyget
+// (rutt, datum och avgång), planet och antalen per klass. Ändras det börjar
+// flygets klasser om (TRIP-012-R10). i är 0 för utresan och 1 för hemresan.
+export function legKey(search: Search, i: number, leg: LegChoice) {
+  const route = i === 0 ? `${search.from}-${search.to} ${search.outbound}` : `${search.to}-${search.from} ${search.return}`;
+  return `${route} ${leg.time} ${leg.aircraftId ?? "-"} ${leg.seating ? writeSeating(leg.seating) : "-"}`;
+}
 
 // De valda flygen i adressen: ett för en enkel resa, två för tur och retur.
 // null om något flyg saknas eller är fel. Ett fel plan eller fel antal blir

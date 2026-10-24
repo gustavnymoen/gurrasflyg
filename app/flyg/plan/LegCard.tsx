@@ -1,4 +1,4 @@
-import { aircraftFare, classOptions, type FleetAircraft, legTotal, type Seating } from "@/lib/fare-rules";
+import { aircraftFare, type FleetAircraft, legTotal, type Seating, seatingText } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { formatPrice } from "@/lib/format";
 import type { LegView } from "@/lib/trip";
@@ -113,10 +113,7 @@ export default function LegCard({
             <AircraftTime flight={flight} aircraft={aircraft} />
           </span>
           <span className="block text-small">
-            {classOptions(aircraft, flight.price)
-              .filter((o) => (seating[o.cabinClass.id] ?? 0) > 0)
-              .map((o) => `${o.cabinClass.name}: ${seating[o.cabinClass.id]}`)
-              .join(" · ")}
+            {seatingText(aircraft, seating)}
           </span>
           <span className="block text-small">
             Totalt <span className="font-bold">{formatPrice(legTotal(aircraft, flight.price, seating))}</span>

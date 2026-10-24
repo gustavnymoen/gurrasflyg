@@ -1,8 +1,11 @@
 import "server-only";
 import { connection } from "next/server";
-import { type Airport, all } from "./db";
+import { type AddonRow, type BookingLeg, bookingLegs } from "./booking-rules";
+import { type Airport, all, type Executor } from "./db";
 import { cheapestFare, type FleetAircraft } from "./fare-rules";
 import { type Flight, flightNumber, hasLeft, localNow } from "./flight-rules";
+import { type Params, parseSearch, type Search } from "./search";
+import { type LegChoice, parseLegs } from "./trip";
 
 type Row = {
   routeId: number;
@@ -82,16 +85,24 @@ export async function findFlights(
 // klasser (TRIP-011). Ett plan utan klasser går inte att flyga med och tas inte med.
 export async function listFleet(): Promise<FleetAircraft[]> {
   await connection();
-  const [aircraft, classes] = await Promise.all([
-    all<Omit<FleetAircraft, "classes">>(
-      "SELECT id, name, price_percent AS pricePercent, time_percent AS timePercent FROM aircraft ORDER BY name",
-    ),
-    all<{ aircraftId: number; id: number; name: string; capacity: number; pricePercent: number }>(
-      `SELECT ac.aircraft_id AS aircraftId, c.id, c.name, ac.capacity, c.price_percent AS pricePercent
-       FROM aircraft_capacity ac JOIN classes c ON c.id = ac.class_id
-       ORDER BY c.price_percent, c.id`,
-    ),
-  ]);
+  return readFleet();
+}
+
+// Som listFleet, och också i en transaktion (bokningen, TRIP-012-R8)
+export async function readFleet(ex?: Executor): Promise<FleetAircraft[]> {
+  // Efter varandra, inte samtidigt: en transaktion kör en fråga i taget
+  const aircraft = await all<Omit<FleetAircraft, "classes">>(
+    "SELECT id, name, price_percent AS pricePercent, time_percent AS timePercent FROM aircraft ORDER BY name",
+    [],
+    ex,
+  );
+  const classes = await all<{ aircraftId: number; id: number; name: string; capacity: number; pricePercent: number }>(
+    `SELECT ac.aircraft_id AS aircraftId, c.id, c.name, ac.capacity, c.price_percent AS pricePercent
+     FROM aircraft_capacity ac JOIN classes c ON c.id = ac.class_id
+     ORDER BY c.price_percent, c.id`,
+    [],
+    ex,
+  );
   return aircraft
     .map((a) => ({
       ...a,
@@ -100,4 +111,61 @@ export async function listFleet(): Promise<FleetAircraft[]> {
         .map(({ id, name, capacity, pricePercent }) => ({ id, name, capacity, pricePercent })),
     }))
     .filter((a) => a.classes.length > 0);
+}
+
+// Tilläggen som går att köpa i varje klass på planen, för bokningen (TRIP-012-R3)
+export async function readAddons(aircraftIds: number[], ex?: Executor): Promise<AddonRow[]> {
+  return all<AddonRow>(
+    `SELECT aca.aircraft_id AS aircraftId, aca.class_id AS classId, a.id, a.name, a.description, a.price
+     FROM aircraft_class_addons aca JOIN addons a ON a.id = aca.addon_id
+     WHERE aca.aircraft_id IN (SELECT value FROM json_each(?))
+     ORDER BY a.name`,
+    [JSON.stringify(aircraftIds)],
+    ex,
+  );
+}
+
+// Resan i adressen efter sökningen (TRIP-011, TRIP-012): sökningen, valen och
+// de valda avgångarna och planen från databasen. Priserna och tiderna räknas
+// alltid från databasen, aldrig från adressen.
+export type Trip = { search: Search; legs: LegChoice[]; flights: Flight[]; fleet: FleetAircraft[] };
+
+// Vad som är fel med resan i adressen: "address" när något saknas i den,
+// "flight" när ett flyg inte finns eller redan har gått
+export type TripProblem = { problem: "address" } | { problem: "flight"; search: Search };
+
+export async function loadTrip(params: Params): Promise<Trip | TripProblem> {
+  const search = parseSearch(params);
+  const legs = search && parseLegs(params, search);
+  const [airports, fleet] = search ? await Promise.all([getAirportPair(search.from, search.to), listFleet()]) : [];
+  if (!search || !legs || !airports || !fleet) return { problem: "address" };
+
+  // Utresan och hemresan
+  const routes = [
+    { from: search.from, to: search.to, date: search.outbound },
+    { from: search.to, to: search.from, date: search.return },
+  ];
+  const flights = await Promise.all(
+    legs.map(async (leg, i) => {
+      const { from, to, date } = routes[i];
+      const found = date ? await findFlights(from, to, date, search.travellers, fleet) : [];
+      return found.find((f) => f.time === leg.time);
+    }),
+  );
+  if (flights.some((f) => f === undefined)) return { problem: "flight", search };
+  return { search, legs, flights: flights.filter((f) => f !== undefined), fleet };
+}
+
+// Resan för resenärerna och betalningen (TRIP-012): som loadTrip, och flygen
+// med tilläggen som går att köpa i varje klass. "plan" när något flyg inte
+// har ett plan eller alla inte har en klass.
+export async function loadBookingTrip(
+  params: Params,
+): Promise<(Trip & { booking: BookingLeg[] }) | TripProblem | { problem: "plan"; trip: Trip }> {
+  const trip = await loadTrip(params);
+  if ("problem" in trip) return trip;
+  const ids = trip.legs.flatMap((leg) => (leg.aircraftId === null ? [] : [leg.aircraftId]));
+  const legs = bookingLegs(trip.search, trip.legs, trip.flights.map((f) => f.price), trip.fleet, await readAddons(ids));
+  if (!legs) return { problem: "plan", trip };
+  return { ...trip, booking: legs };
 }

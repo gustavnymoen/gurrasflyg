@@ -2,7 +2,7 @@
 type: Index
 title: Användarmanual
 description: Hur man använder Gurras Flyg, för resenärer och administratörer.
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Användarmanual
@@ -16,6 +16,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 - [Söka flyg](soka-flyg.md): sökformuläret på startsidan.
 - [Välja flyg](valja-flyg.md): flygen för din sökning, sortering och att välja utresa och hemresa.
 - [Välja plan och klass](valja-plan-och-klass.md): plan för varje flyg, resenärer per klass, priser, flygtider och ankomst.
+- [Boka resan](boka-resan.md): resenärer, tillägg, kontaktperson, betalning och bokningsnumret.
 - [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
 
 ## För administratörer

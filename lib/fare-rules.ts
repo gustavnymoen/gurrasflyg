@@ -117,6 +117,13 @@ export function classOptions(aircraft: FleetAircraft, price: number) {
 export const firstSeating = (aircraft: FleetAircraft): Seating =>
   Object.fromEntries(aircraft.classes.map((c) => [c.id, 0]));
 
+// Antalen per klass som text, billigaste klassen först: "Ekonomi: 2 · Business: 1" (TRIP-026-R4)
+export const seatingText = (aircraft: FleetAircraft, seating: Seating) =>
+  aircraft.classes
+    .filter((c) => (seating[c.id] ?? 0) > 0)
+    .map((c) => `${c.name}: ${seating[c.id]}`)
+    .join(" · ");
+
 export const placed = (seating: Seating) => Object.values(seating).reduce((sum, n) => sum + n, 0);
 
 // Hur många resenärer som är kvar att placera på ett flyg, eller att alla har en klass (TRIP-026-R3)

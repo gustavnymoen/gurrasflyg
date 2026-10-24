@@ -1,9 +1,19 @@
 import Link from "next/link";
+import type { Search } from "@/lib/search";
+import { bookingUrl, type LegChoice, planUrl, resultsUrl } from "@/lib/trip";
 
 // Ett steg: ett tidigare steg kan ha en länk tillbaka dit
 export type StepItem = { label: string; href?: string };
 
-// Stegen i en bokning, med det aktuella markerat (TRIP-010-R8, TRIP-011-R10, TRIP-026-R5).
+// Stegen efter sökningen, med länkar tillbaka med allt som valts (TRIP-026-R5, TRIP-012-R10)
+export const tripSteps = (search: Search, legs: LegChoice[]): StepItem[] => [
+  { label: "Flyg", href: resultsUrl(search, legs) },
+  { label: "Plan och klass", href: planUrl(search, legs) },
+  { label: "Resenärer", href: bookingUrl(search, legs) },
+  { label: "Betala" },
+];
+
+// Stegen i en bokning, med det aktuella markerat (TRIP-010-R8, TRIP-011-R10, TRIP-026-R5, TRIP-012-R10).
 // current är det aktuella stegets plats i listan, från 0.
 export default function Steps({ steps, current }: { steps: StepItem[]; current: number }) {
   return (

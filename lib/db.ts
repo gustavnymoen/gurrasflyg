@@ -18,7 +18,7 @@ if (url.startsWith("file:")) {
 }
 
 // Både db och en pågående transaktion kan köra frågor
-type Executor = { execute: (stmt: { sql: string; args: InArgs }) => Promise<ResultSet> };
+export type Executor = { execute: (stmt: { sql: string; args: InArgs }) => Promise<ResultSet> };
 
 // Gör om svaret till vanliga objekt, { kolumn: värde }, som går att skicka till sidan
 function toObjects<T>(result: ResultSet): T[] {
@@ -112,14 +112,4 @@ export async function searchAirports(query: string, limit = 5): Promise<Airport[
      LIMIT :limit`,
     { contains: `%${escaped}%`, startsWith: `${escaped}%`, limit },
   );
-}
-
-export async function getAvailableSeats(flightId: number, classId: number) {
-  await connection();
-  const row = await get<{ available: number }>(
-    "SELECT available FROM available_seats WHERE flight_id = ? AND class_id = ?",
-    [flightId, classId],
-  );
-  // Ingen rad = planet har inte den klassen
-  return row?.available ?? 0;
 }

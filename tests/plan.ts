@@ -1,16 +1,36 @@
 import { test as base, expect, type Locator, type Page } from "@playwright/test";
-import { createAircraft, createClass, daysFromToday, deleteWithConfirmation, openResults, signIn, uniqueName } from "./helpers";
+import {
+  createAddon,
+  createAircraft,
+  createClass,
+  daysFromToday,
+  deleteWithConfirmation,
+  openResults,
+  signIn,
+  uniqueName,
+} from "./helpers";
 
-// Shared by the tests of /flyg/plan (TRIP-011, TRIP-024, TRIP-026): the tests'
-// own aircraft and the parts of the page.
+// Shared by the tests of /flyg/plan (TRIP-011, TRIP-024, TRIP-026) and the
+// booking after it (TRIP-012): the tests' own aircraft and the parts of the page.
 
 // The tests' own classes and aircraft, created once in admin with unique
 // names and deleted afterwards, so that they also run against a deployed site:
 // a class at 1,00 and one at 2,00, and three aircraft (price and time factors):
 // Stor (1,00 and 1,00, 12 seats), Liten (1,50 and 2,00, 4 seats) and
-// Snabb (3,00 and 0,30, 5 seats). Only the tests that need them create them,
+// Snabb (3,00 and 0,30, 5 seats). Stor has three add-ons (TRIP-012): Måltid
+// (120 kr) in both classes, Bagage (300 kr) in the 1,00 class and Lounge
+// (500 kr) only in the 2,00 class. Only the tests that need them create them,
 // so the smoke test writes nothing.
-export type Fleet = { base: string; luxury: string; large: string; small: string; fast: string };
+export type Fleet = {
+  base: string;
+  luxury: string;
+  large: string;
+  small: string;
+  fast: string;
+  meal: string;
+  bag: string;
+  lounge: string;
+};
 
 export const test = base.extend<object, { fleet: Fleet }>({
   fleet: [
@@ -23,23 +43,36 @@ export const test = base.extend<object, { fleet: Fleet }>({
         large: uniqueName("Plan Stor"),
         small: uniqueName("Plan Liten"),
         fast: uniqueName("Plan Snabb"),
+        meal: uniqueName("Måltid"),
+        bag: uniqueName("Bagage"),
+        lounge: uniqueName("Lounge"),
       };
       await signIn(page);
       await createClass(page, fleet.base, "1,00");
       await createClass(page, fleet.luxury, "2,00");
+      await createAddon(page, fleet.meal, "120", "Varm mat");
+      await createAddon(page, fleet.bag, "300", "En väska till");
+      await createAddon(page, fleet.lounge, "500", "Soffor och tystnad");
       const classes = (base: number, luxury: number) => [
         { name: fleet.base, seats: base },
         ...(luxury > 0 ? [{ name: fleet.luxury, seats: luxury }] : []),
       ];
-      await createAircraft(page, fleet.large, classes(10, 2), [], { price: "1,00", time: "1,00" });
+      const addons = [
+        { name: fleet.meal, className: fleet.base },
+        { name: fleet.meal, className: fleet.luxury },
+        { name: fleet.bag, className: fleet.base },
+        { name: fleet.lounge, className: fleet.luxury },
+      ];
+      await createAircraft(page, fleet.large, classes(10, 2), addons, { price: "1,00", time: "1,00" });
       await createAircraft(page, fleet.small, classes(4, 0), [], { price: "1,50", time: "2,00" });
       await createAircraft(page, fleet.fast, classes(3, 2), [], { price: "3,00", time: "0,30" });
 
       await use(fleet);
 
-      // Aircraft first, since they use the classes
+      // Aircraft first, since they use the classes and add-ons
       await page.goto("/admin");
-      for (const name of [fleet.large, fleet.small, fleet.fast, fleet.base, fleet.luxury]) {
+      const names = [fleet.large, fleet.small, fleet.fast, fleet.base, fleet.luxury, fleet.meal, fleet.bag, fleet.lounge];
+      for (const name of names) {
         await deleteWithConfirmation(page, `Ta bort ${name}`);
       }
       await page.close();
@@ -138,4 +171,18 @@ export async function place(page: Page, leg: LegName, name: string, n: number) {
     await row.getByRole("button", { name: `Fler i ${name}` }).click();
     await expect(count(row)).toHaveText(`${before + i} i ${name}`);
   }
+}
+
+// Every flight done the same way: the aircraft, the travellers per class
+// ({ class: number }) and Klar. Then Fortsätt to the booking page (TRIP-012).
+export async function openBooking(page: Page, aircraft: string, seating: Record<string, number>, roundTrip = false) {
+  const travellers = Object.values(seating).reduce((sum, n) => sum + n, 0);
+  await openPlan(page, travellers, roundTrip);
+  for (const leg of roundTrip ? (["utresan", "hemresan"] as const) : (["utresan"] as const)) {
+    await chooseAircraft(page, leg, aircraft);
+    for (const [name, n] of Object.entries(seating)) await place(page, leg, name, n);
+    await done(page, leg);
+  }
+  await page.getByRole("link", { name: "Fortsätt" }).click();
+  await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
 }

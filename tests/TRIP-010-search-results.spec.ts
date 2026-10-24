@@ -40,10 +40,14 @@ async function pricesShown(page: Page) {
 
 // axe waits on the browser's timers. With the clock stopped during the search,
 // move it on in small steps while axe runs, well under the search's 1 second.
+// At the end axe opens and closes a blank page of its own; a step that is
+// under way just then fails with "Target page … has been closed", although
+// the page under test is still open. Such a step is skipped: if something is
+// really wrong, axe's own result below says so.
 async function axeWhileSearching(page: Page) {
   let done = false;
   const check = expectNoA11yViolations(page).finally(() => (done = true));
-  for (let ms = 0; !done && ms < 800; ms += 20) await page.clock.runFor(20);
+  for (let ms = 0; !done && ms < 800; ms += 20) await page.clock.runFor(20).catch(() => {});
   await check;
 }
 
