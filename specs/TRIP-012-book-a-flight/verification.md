@@ -154,3 +154,4 @@ Acceptance criteria:
 
 - Admin's "in use" texts changed with the new tables: an aircraft in a booking gives "… används av en eller flera bokningar." (before "flighter"), and the class and capacity checks on an aircraft read the bookings.
 - Next.js keeps an earlier page hidden in the document after a client-side navigation; tests that look for something on the new page wait for its address first (`TRIP-024-R2`), or look only at visible elements (`total()` in the TRIP-012 tests).
+- CI on the pull request failed once in `TRIP-010-R3`: near its end axe opens and closes a blank page of its own, and a `clock.runFor` step of `axeWhileSearching` that was running just then failed with "Target page … has been closed". The race was in the helper before this change. The helper now skips such a step, and axe's own result still decides the test. Run 10 times in a row locally: all passed.
