@@ -1,8 +1,8 @@
 import { test as base, expect, type Locator, type Page } from "@playwright/test";
 import { createAircraft, createClass, daysFromToday, deleteWithConfirmation, openResults, signIn, uniqueName } from "./helpers";
 
-// Shared by the tests of /flyg/plan (TRIP-011, TRIP-024): the tests' own
-// aircraft and the steps on the page.
+// Shared by the tests of /flyg/plan (TRIP-011, TRIP-024, TRIP-026): the tests'
+// own aircraft and the parts of the page.
 
 // The tests' own classes and aircraft, created once in admin with unique
 // names and deleted afterwards, so that they also run against a deployed site:
@@ -76,14 +76,29 @@ export async function openPlan(page: Page, travellers: number, roundTrip = false
   return times;
 }
 
-export const aircraftList = (page: Page, leg: "utresan" | "hemresan") => page.getByRole("group", { name: `Plan för ${leg}` });
-export const aircraftCard = (page: Page, leg: "utresan" | "hemresan", name: string) =>
-  aircraftList(page, leg).getByRole("listitem").filter({ hasText: name });
-export const classList = (page: Page, leg: "utresan" | "hemresan") =>
-  page.getByRole("region", { name: `Klasser på ${leg}` });
-export const classRow = (page: Page, leg: "utresan" | "hemresan", name: string) =>
+type LegName = "utresan" | "hemresan";
+
+// A flight's card, by its heading "Utresa" or "Hemresa"
+export const legCard = (page: Page, leg: LegName) =>
+  page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: leg === "utresan" ? "Utresa" : "Hemresa", exact: true, level: 2 }) });
+export const aircraftList = (page: Page, leg: LegName) => page.getByRole("region", { name: `Plan för ${leg}` });
+// The aircraft cards in the list (each has a button that opens it)
+export const aircraftCards = (page: Page, leg: LegName) =>
+  aircraftList(page, leg).getByRole("listitem").filter({ has: page.locator("button[aria-expanded]") });
+export const aircraftCard = (page: Page, leg: LegName, name: string) =>
+  aircraftCards(page, leg).filter({ hasText: name });
+export const classList = (page: Page, leg: LegName) => page.getByRole("region", { name: `Klasser på ${leg}` });
+export const classRow = (page: Page, leg: LegName, name: string) =>
   classList(page, leg).getByRole("listitem").filter({ hasText: name });
 export const count = (row: Locator) => row.locator("[aria-live]");
+// "Placera ut 3 resenärer" or "Alla resenärer har en klass"
+export const counter = (page: Page, leg: LegName) => classList(page, leg).getByText(/^Placera ut|^Alla resenärer/);
+// The chosen aircraft at the top of an open card, and a folded card's summary
+export const chosenAircraft = (page: Page, leg: LegName) => legCard(page, leg).getByRole("button", { name: /^Valt plan/ });
+export const folded = (page: Page, leg: LegName) => legCard(page, leg).getByRole("button", { name: /^Klart för/ });
+
 // A message on the page (Next.js has an alert of its own, outside main, that announces new pages)
 export const alert = (page: Page) => page.getByRole("main").getByRole("alert");
 
@@ -103,21 +118,20 @@ export async function cardMinutes(card: Locator) {
   return minutes((await card.getByText(/landar/).textContent()) ?? "");
 }
 
-// A click, not check(): the choice is kept in the address, and the radio shows it once the page has read it back
-export async function chooseAircraft(page: Page, leg: "utresan" | "hemresan", name: string) {
-  const radio = aircraftList(page, leg).getByRole("radio", { name });
-  await radio.click();
-  await expect(radio).toBeChecked();
+// Opens an aircraft and presses Välj: its classes appear with focus on their heading
+export async function chooseAircraft(page: Page, leg: LegName, name: string) {
+  const card = aircraftCard(page, leg, name);
+  await card.getByRole("button", { name: new RegExp(name) }).click();
+  await card.getByRole("button", { name: "Välj" }).click();
+  await expect(page.getByRole("heading", { name: `Klasser på ${leg}` })).toBeFocused();
 }
 
-export async function toClasses(page: Page) {
-  await page.getByRole("button", { name: "Fortsätt" }).click();
-  await expect(page.getByRole("heading", { name: "Klasser på utresan" })).toBeFocused();
-}
+// Klar on a flight
+export const done = (page: Page, leg: LegName) => classList(page, leg).getByRole("button", { name: "Klar" }).click();
 
 // Puts n more travellers in a class with Fler, one at a time: each click
 // waits until the page shows the new number, which it reads back from the address
-export async function place(page: Page, leg: "utresan" | "hemresan", name: string, n: number) {
+export async function place(page: Page, leg: LegName, name: string, n: number) {
   const row = classRow(page, leg, name);
   const before = Number(((await count(row).textContent()) ?? "").split(" ")[0]);
   for (let i = 1; i <= n; i++) {

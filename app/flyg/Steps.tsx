@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-// Ett steg: ett tidigare steg kan ha en länk eller en knapp tillbaka dit
-export type StepItem = { label: string; href?: string; onClick?: () => void };
+// Ett steg: ett tidigare steg kan ha en länk tillbaka dit
+export type StepItem = { label: string; href?: string };
 
-// Stegen i en bokning, med det aktuella markerat (TRIP-010-R8, TRIP-011-R10).
+// Stegen i en bokning, med det aktuella markerat (TRIP-010-R8, TRIP-011-R10, TRIP-026-R5).
 // current är det aktuella stegets plats i listan, från 0.
 export default function Steps({ steps, current }: { steps: StepItem[]; current: number }) {
   return (
@@ -34,10 +34,6 @@ export default function Steps({ steps, current }: { steps: StepItem[]; current: 
               <Link href={s.href} className={`${look} ${back}`}>
                 {content}
               </Link>
-            ) : i < current && s.onClick ? (
-              <button type="button" onClick={s.onClick} className={`${look} ${back}`}>
-                {content}
-              </button>
             ) : (
               <span className={look}>{content}</span>
             )}

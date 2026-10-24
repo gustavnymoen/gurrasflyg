@@ -126,6 +126,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-010 | Flight search results: the Sök button, the results page with a simulated search, flight cards, sorting and choosing outbound and return flights; routes between every pair of airports with a price per departure | Flight booking | Done |
 | TRIP-011 | Choose aircraft and classes: `/flyg/plan` with an aircraft per flight (price, flight time, arrival, compared) and travellers per class, prices that follow every change, everything in the address; price and time factors in admin; the "från" price from the cheapest aircraft | Flight booking | Done |
 | TRIP-024 | Aircraft in the summary, classes from zero: the chosen aircraft with flight time and arrival in Din resa, every class starting at 0, totals so far, no going on until everyone is placed, focus kept on Fler and Färre | Flight booking | Done |
+| TRIP-026 | One choice at a time on the plan page: one card per flight, flight by flight; only aircraft with room, chosen with Välj; the classes under the chosen aircraft with a counter of travellers left; Klar folds the card; steps Flyg, Plan och klass, Resenärer | Flight booking | Done |
 
 ## Decisions for charter
 

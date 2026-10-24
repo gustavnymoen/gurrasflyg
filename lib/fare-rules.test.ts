@@ -5,13 +5,13 @@ import {
   canAdd,
   cheapestFare,
   classOptions,
-  everyoneSeated,
   fare,
   firstSeating,
   type FleetAircraft,
   flightMinutes,
   type Leg,
   legTotal,
+  seatingCounter,
   seatingProblem,
   validSeating,
 } from "./fare-rules";
@@ -77,12 +77,11 @@ test("TRIP-011-R7 the arrival follows summer time", () => {
   expect(arrival({ ...leg, date: "2027-03-28", time: "07:00" }, 60)).toEqual({ time: "07:00", days: 0 });
 });
 
-test("TRIP-011-R2 an aircraft with fewer seats than travellers cannot be chosen", () => {
-  const options = aircraftOptions([ZEPPELIN, JET], leg, 2);
-  expect(options.map((o) => [o.aircraft.name, o.selectable])).toEqual([
-    ["Hindenburg", true],
-    ["F35", false],
-  ]);
+test("TRIP-026-R1 only the aircraft with room for every traveller are shown", () => {
+  // F35 has one seat
+  expect(aircraftOptions([ZEPPELIN, JET], leg, 2).map((o) => o.aircraft.name)).toEqual(["Hindenburg"]);
+  expect(aircraftOptions([ZEPPELIN, JET], leg, 1).map((o) => o.aircraft.name)).toEqual(["Hindenburg", "F35"]);
+  expect(aircraftOptions([JET], leg, 2)).toEqual([]);
 });
 
 test("TRIP-011-R2 each aircraft shows its price, time and the difference to the cheapest and the fastest", () => {
@@ -106,13 +105,10 @@ test("TRIP-011-R2 each aircraft shows its price, time and the difference to the 
   expect(options[0].arrival).toEqual({ time: "15:40", days: 0 });
 });
 
-test("TRIP-011-R2 the comparison is only with aircraft that can be chosen", () => {
-  // F35 is the fastest, but has one seat
+test("TRIP-026-R1 the aircraft shown are compared with each other", () => {
+  // F35 is the fastest, but has one seat and is not shown
   const options = aircraftOptions([ZEPPELIN, FALCON, JET], leg, 2);
   expect(options.find((o) => o.aircraft.name === "Millenium Falcon")?.fastest).toBe(true);
-  expect(options.find((o) => o.aircraft.name === "F35")).toMatchObject({ fastest: false, priceDiff: 0, timeDiff: 0 });
-  // With nothing to choose, nothing is compared
-  expect(aircraftOptions([JET], leg, 2)[0]).toMatchObject({ cheapest: false, priceDiff: 0, timeDiff: 0 });
 });
 
 test("TRIP-011-R3 each class shows its price and the difference to the cheapest class", () => {
@@ -135,14 +131,6 @@ test("TRIP-024-R3 the totals are the sum for the travellers placed so far", () =
   expect(legTotal(ZEPPELIN, 1000, { [ECONOMY.id]: 1 })).toBe(1200);
 });
 
-test("TRIP-024-R4 the traveller goes on only when everyone has a class on every flight", () => {
-  expect(everyoneSeated([{ [ECONOMY.id]: 1 }], 2)).toBe(false);
-  expect(everyoneSeated([{ [ECONOMY.id]: 1, [FIRST.id]: 1 }], 2)).toBe(true);
-  // Everyone placed on the outbound flight only
-  expect(everyoneSeated([{ [ECONOMY.id]: 2 }, firstSeating(ZEPPELIN)], 2)).toBe(false);
-  expect(everyoneSeated([{ [ECONOMY.id]: 2 }, { [BUSINESS.id]: 2 }], 2)).toBe(true);
-});
-
 test("TRIP-011-R3 a class takes at most its seats, and the classes at most the travellers", () => {
   expect(canAdd(FIRST, { [FIRST.id]: 1 }, 3)).toBe(true);
   expect(canAdd(FIRST, { [FIRST.id]: 2 }, 3)).toBe(false);
@@ -154,6 +142,12 @@ test("TRIP-011-R3 a message says how many travellers have no class", () => {
   expect(seatingProblem({}, 3)).toBe("3 resenärer har ingen klass. Lägg till dem i en klass.");
   expect(seatingProblem({ [ECONOMY.id]: 2, [BUSINESS.id]: 1 }, 3)).toBeNull();
   expect(seatingProblem({ [ECONOMY.id]: 4 }, 3)).toMatch(/fler resenärer/);
+});
+
+test("TRIP-026-R3 the counter says how many travellers are left to place", () => {
+  expect(seatingCounter(firstSeating(ZEPPELIN), 3)).toBe("Placera ut 3 resenärer");
+  expect(seatingCounter({ [ECONOMY.id]: 2 }, 3)).toBe("Placera ut 1 resenär");
+  expect(seatingCounter({ [ECONOMY.id]: 2, [FIRST.id]: 1 }, 3)).toBe("Alla resenärer har en klass");
 });
 
 test("TRIP-011-R3 numbers that are impossible on the aircraft are not accepted", () => {

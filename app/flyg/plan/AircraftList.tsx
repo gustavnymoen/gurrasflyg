@@ -1,136 +1,106 @@
-import { useId } from "react";
-import { type AircraftOption, aircraftOptions, type FleetAircraft, totalSeats } from "@/lib/fare-rules";
+import Link from "next/link";
+import { useId, useState } from "react";
+import { type AircraftOption, aircraftOptions, type FleetAircraft } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { formatDuration, formatPrice } from "@/lib/format";
-import Card from "../../components/Card";
-import Message from "../../components/Message";
-import FlightLine from "../FlightLine";
+import Button, { buttonClass } from "../../components/Button";
+import { ChevronIcon } from "../../components/icons";
 import { FlightTime } from "./FlightTime";
 import Comparison from "./Comparison";
 
 // Planen att välja bland för ett flyg (R2): pris per person i billigaste
 // klassen, flygtid och ankomst (R7), och skillnaden mot det billigaste och det
-// snabbaste. Ett plan med för få platser går inte att välja och jämförs inte. Planen är
-// radioknappar, så att tangentbord och skärmläsare fungerar som vanligt.
+// snabbaste. Bara planen med plats för alla visas (TRIP-026-R1). Ett plan
+// öppnas med ett klick och väljs med Välj, som ett flyg på /flyg (TRIP-026-R2).
 export default function AircraftList({
-  headingRef,
+  headingId,
   title,
   flight,
   fleet,
   travellers,
-  chosenId,
-  missing,
+  flightsHref,
   onChoose,
 }: {
-  headingRef?: React.Ref<HTMLHeadingElement>;
+  headingId: string;
   title: string;
   flight: Flight;
   fleet: FleetAircraft[];
   travellers: number;
-  chosenId: number | null;
-  missing: string | null;
+  flightsHref: string;
   onChoose: (aircraftId: number) => void;
 }) {
-  const headingId = useId();
   const options = aircraftOptions(fleet, flight, travellers);
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <div>
-        <h2 id={headingId} ref={headingRef} tabIndex={-1} className="text-section font-bold outline-none">
-          {title}
-        </h2>
-        <FlightLine flight={flight} />
-      </div>
+      <h3 id={headingId} tabIndex={-1} className="text-lg font-bold outline-none">
+        {title}
+      </h3>
       {options.length === 0 ? (
-        <p>Det finns inga plan att välja just nu.</p>
+        <div className="flex flex-col items-start gap-4">
+          <p>
+            Inget plan har plats för {travellers} {travellers === 1 ? "resenär" : "resenärer"}.
+          </p>
+          <Link href={flightsHref} className={buttonClass("secondary")}>
+            Till flygen
+          </Link>
+        </div>
       ) : (
-        <fieldset>
-          <legend className="sr-only">{title}</legend>
-          <ul className="flex flex-col gap-3">
-            {options.map((option) => (
-              <AircraftCard
-                key={option.aircraft.id}
-                name={`plan-${headingId}`}
-                option={option}
-                travellers={travellers}
-                checked={option.aircraft.id === chosenId}
-                onChoose={() => onChoose(option.aircraft.id)}
-              />
-            ))}
-          </ul>
-        </fieldset>
+        <ul className="flex flex-col gap-3">
+          {options.map((option) => (
+            <AircraftCard key={option.aircraft.id} option={option} onChoose={() => onChoose(option.aircraft.id)} />
+          ))}
+        </ul>
       )}
-      {missing && <Message kind="error">{missing}</Message>}
     </section>
   );
 }
 
-function AircraftCard({
-  name,
-  option,
-  travellers,
-  checked,
-  onChoose,
-}: {
-  name: string;
-  option: AircraftOption;
-  travellers: number;
-  checked: boolean;
-  onChoose: () => void;
-}) {
-  const { aircraft, selectable } = option;
-  const seats = totalSeats(aircraft);
-  // Planets namn är radioknappens namn, resten dess beskrivning
-  const id = useId();
+// Ett plan i listan. Hela kortet är en knapp som fäller ut klasserna och Välj.
+function AircraftCard({ option, onChoose }: { option: AircraftOption; onChoose: () => void }) {
+  const [open, setOpen] = useState(false);
+  const detailsId = useId();
+  const { aircraft } = option;
+
   return (
-    <li>
-      <Card size="flush">
-        <label
-          className={`grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-1 rounded-card-compact px-5 py-4 transition-colors duration-160 has-focus-visible:ring-3 has-focus-visible:ring-accent-glow sm:grid-cols-[auto_1fr_auto] ${
-            selectable ? "cursor-pointer hover:bg-surface-float" : "cursor-not-allowed"
-          } ${checked ? "bg-accent-soft" : ""}`}
-        >
-          <input
-            type="radio"
-            name={name}
-            checked={checked}
-            disabled={!selectable}
-            onChange={onChoose}
-            aria-labelledby={`${id}-name`}
-            aria-describedby={`${id}-time ${id}-price`}
-            className="mt-1 h-5 w-5 accent-accent-strong"
-          />
-          <span className="min-w-0">
-            <span id={`${id}-name`} className="block font-bold">
-              {aircraft.name}
-            </span>
-            <span id={`${id}-time`} className="block text-small text-ink-muted">
-              <FlightTime minutes={option.minutes} arrival={option.arrival} />
-              {!selectable && (
-                <span className="block">
-                  För få platser: {seats} {seats === 1 ? "plats" : "platser"} för {travellers} resenärer
-                </span>
-              )}
-            </span>
+    <li className="rounded-card-compact border border-line-strong">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={detailsId}
+        onClick={() => setOpen(!open)}
+        className="grid w-full grid-cols-[1fr_auto] items-start gap-x-4 gap-y-1 rounded-card-compact px-5 py-4 text-left transition-colors duration-160 hover:bg-surface-float sm:grid-cols-[1fr_auto_auto]"
+      >
+        <span className="col-start-1 row-start-1 min-w-0">
+          <span className="block font-bold">{aircraft.name}</span>
+          <span className="block text-small text-ink-muted">
+            <FlightTime minutes={option.minutes} arrival={option.arrival} />
           </span>
-          <span
-            id={`${id}-price`}
-            className="col-start-2 flex flex-col gap-1 text-small sm:col-start-auto sm:items-end sm:text-right"
-          >
-            <span>
-              <span className="text-base font-bold">{formatPrice(option.price)}</span> / person
-            </span>
-            {/* Jämförelsen gäller bara plan som går att välja */}
-            {selectable && (
-              <>
-                <Comparison best={option.cheapest} bestLabel="Billigast" diff={`+${formatPrice(option.priceDiff)} / person`} />
-                <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
-              </>
-            )}
+        </span>
+        <span className="col-start-1 row-start-2 flex flex-col gap-1 text-small sm:col-start-2 sm:row-start-1 sm:items-end sm:text-right">
+          <span>
+            <span className="text-base font-bold">{formatPrice(option.price)}</span> / person
           </span>
-        </label>
-      </Card>
+          <Comparison best={option.cheapest} bestLabel="Billigast" diff={`+${formatPrice(option.priceDiff)} / person`} />
+          <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
+        </span>
+        <ChevronIcon open={open} className="col-start-2 row-start-1 mt-1 h-5 w-5 text-ink-muted sm:col-start-3" />
+      </button>
+
+      {open && (
+        <div id={detailsId} className="flex flex-col gap-4 border-t border-line px-5 py-4">
+          <ul className="flex flex-col gap-1 text-sm">
+            {aircraft.classes.map((c) => (
+              <li key={c.id}>
+                {c.name}: {c.capacity} {c.capacity === 1 ? "plats" : "platser"}
+              </li>
+            ))}
+          </ul>
+          <Button onClick={onChoose} className="self-start">
+            Välj
+          </Button>
+        </div>
+      )}
     </li>
   );
 }

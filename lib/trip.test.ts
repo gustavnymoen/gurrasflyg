@@ -1,5 +1,15 @@
 import { expect, test } from "vitest";
-import { checkChoice, chooseAircraft, keepChoice, type LegChoice, parseLegs, parseStep, planUrl, resultsUrl } from "./trip";
+import {
+  checkChoice,
+  chooseAircraft,
+  firstViews,
+  keepChoice,
+  type LegChoice,
+  legDone,
+  parseLegs,
+  planUrl,
+  resultsUrl,
+} from "./trip";
 
 const search = { from: "ARN", to: "LHR", outbound: "2026-11-13", return: "2026-11-20", travellers: 3 };
 const oneWay = { ...search, return: null };
@@ -16,8 +26,6 @@ test("TRIP-011-R1 the chosen flights are written into the address and read back"
       "&ut=07%3A20&ut-plan=3&ut-klasser=1%3A2%2C2%3A1&hem=18%3A45",
   );
   expect(parseLegs(params(url), search)).toEqual(chosen);
-  expect(parseStep(params(url))).toBe("aircraft");
-  expect(parseStep(params(planUrl(search, chosen, "classes")))).toBe("classes");
 });
 
 test("TRIP-011-R1 a missing or invalid flight in the address is refused", () => {
@@ -64,4 +72,36 @@ test("TRIP-011-R2 a chosen aircraft that is missing or too small counts as not c
   expect(checkChoice({ ...leg, aircraftId: 9 }, fleet, 2)).toEqual(nothing);
   // Numbers that don't fit the aircraft are dropped, the aircraft is kept
   expect(checkChoice({ ...leg, seating: { 2: 1 } }, fleet, 2)).toEqual({ ...leg, seating: null });
+});
+
+test("TRIP-026-R3 a flight is done when it has an aircraft and everyone has a class", () => {
+  expect(legDone(chosen[0], 3)).toBe(true);
+  expect(legDone(chosen[0], 4)).toBe(false);
+  expect(legDone({ ...chosen[0], seating: null }, 3)).toBe(false);
+  expect(legDone(chosen[1], 3)).toBe(false);
+});
+
+test("TRIP-024-R4 the traveller goes on only when everyone has a class on every flight", () => {
+  const done = (seatings: (Record<number, number> | null)[]) =>
+    seatings.every((seating) => legDone({ time: "07:20", aircraftId: 3, seating }, 2));
+  expect(done([{ 1: 1 }])).toBe(false);
+  expect(done([{ 1: 1, 2: 1 }])).toBe(true);
+  // Everyone placed on the outbound flight only
+  expect(done([{ 1: 2 }, { 1: 0, 2: 0 }])).toBe(false);
+  expect(done([{ 1: 2 }, null])).toBe(false);
+  expect(done([{ 1: 2 }, { 2: 2 }])).toBe(true);
+});
+
+test("TRIP-026-R5 after a reload the done cards are folded and the first one not done is open", () => {
+  const none = { time: "07:20", aircraftId: null, seating: null };
+  const aircraft = { ...none, aircraftId: 3 };
+  const done = chosen[0];
+  // Nothing chosen: the outbound aircraft, the return card not yet
+  expect(firstViews([none, { ...none, time: "18:45" }], 3)).toEqual(["aircraft", "hidden"]);
+  // An aircraft without everyone placed: its classes
+  expect(firstViews([{ ...aircraft, seating: { 1: 1 } }, none], 3)).toEqual(["classes", "hidden"]);
+  expect(firstViews([done, aircraft], 3)).toEqual(["folded", "classes"]);
+  expect(firstViews([done, done], 3)).toEqual(["folded", "folded"]);
+  // The outbound flight changed after both were done
+  expect(firstViews([aircraft, done], 3)).toEqual(["classes", "folded"]);
 });

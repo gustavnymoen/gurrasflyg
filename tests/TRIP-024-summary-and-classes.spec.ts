@@ -6,17 +6,19 @@ import {
   amount,
   cardPrice,
   chooseAircraft,
+  chosenAircraft,
   classList,
   classRow,
   count,
+  done,
+  folded,
   openPlan,
   place,
   test,
-  toClasses,
 } from "./plan";
 
 // The first seating, the totals and when the traveller may go on are also unit
-// tests in lib/fare-rules.test.ts. Here the page is shown to use them.
+// tests in lib/fare-rules.test.ts and lib/trip.test.ts. Here the page is shown to use them.
 
 // A flight in the summary card Din resa
 const overviewItem = (page: Page, leg: "Utresa" | "Hemresa") =>
@@ -42,14 +44,16 @@ test.describe("with the tests' own aircraft", () => {
     const outbound = overviewItem(page, "Utresa");
     await expect(outbound).not.toContainText("landar");
 
+    const large = `${fleet.large} · ${await timeAndArrival(page, fleet.large)}`;
     await chooseAircraft(page, "utresan", fleet.large);
-    await expect(outbound).toContainText(`${fleet.large} · ${await timeAndArrival(page, fleet.large)}`);
+    await expect(outbound).toContainText(large);
     // Only the outbound flight has an aircraft
     await expect(overviewItem(page, "Hemresa")).not.toContainText("landar");
     await expectNoA11yViolations(page);
 
-    await chooseAircraft(page, "utresan", fleet.fast);
+    await chosenAircraft(page, "utresan").click();
     const fast = `${fleet.fast} · ${await timeAndArrival(page, fleet.fast)}`;
+    await chooseAircraft(page, "utresan", fleet.fast);
     await expect(outbound).toContainText(fast);
     await expect(outbound).not.toContainText(fleet.large);
 
@@ -57,26 +61,25 @@ test.describe("with the tests' own aircraft", () => {
     await expect(outbound).toContainText(fast);
   });
 
-  test("TRIP-024-R2 every class starts at 0 with a message, and the numbers are kept going back and on", async ({
-    page,
-    fleet,
-  }) => {
+  // The message comes at Klar (TRIP-026-R3)
+  test("TRIP-024-R2 every class starts at 0, and the numbers are kept going back and on", async ({ page, fleet }) => {
     await openPlan(page, 2);
     await chooseAircraft(page, "utresan", fleet.fast);
-    await toClasses(page);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`0 i ${fleet.luxury}`);
+    await done(page, "utresan");
     await expect(message(page, "utresan")).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
-    await expectNoA11yViolations(page);
 
     await place(page, "utresan", fleet.base, 1);
     await expect(message(page, "utresan")).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
     await place(page, "utresan", fleet.luxury, 1);
     await expect(message(page, "utresan")).toHaveCount(0);
+    await done(page, "utresan");
 
-    // Back to the aircraft and on, without a change
-    await page.getByRole("button", { name: "Plan", exact: true }).click();
-    await toClasses(page);
+    // Back to the flights and on, without a change
+    await page.getByRole("link", { name: "Flyg", exact: true }).click();
+    await page.getByRole("link", { name: "Fortsätt" }).click();
+    await folded(page, "utresan").click();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`1 i ${fleet.luxury}`);
   });
@@ -84,7 +87,6 @@ test.describe("with the tests' own aircraft", () => {
   test("TRIP-024-R3 the totals are 0 kr at first and then the sum so far", async ({ page, fleet }) => {
     await openPlan(page, 2);
     await chooseAircraft(page, "utresan", fleet.large);
-    await toClasses(page);
     const legTotal = classList(page, "utresan").getByText(/^\d[\d\s]*\skr$/);
     const tripTotal = page.getByText(/^\d[\d\s]*\skr$/).last();
     await expect(legTotal).toHaveText(formatPrice(0));
@@ -99,22 +101,23 @@ test.describe("with the tests' own aircraft", () => {
 
   test("TRIP-024-R4 nothing leads on until everyone on every flight has a class", async ({ page, fleet }) => {
     await openPlan(page, 2, true);
-    await chooseAircraft(page, "utresan", fleet.large);
-    await chooseAircraft(page, "hemresan", fleet.fast);
-    await toClasses(page);
     const noWayOn = async () => {
       await expect(page.getByRole("main").getByRole("link", { name: /Fortsätt|Resenärer/ })).toHaveCount(0);
       await expect(page.getByRole("main").getByRole("button", { name: /Fortsätt|Resenärer/ })).toHaveCount(0);
     };
 
+    await chooseAircraft(page, "utresan", fleet.large);
     await place(page, "utresan", fleet.base, 1);
+    await done(page, "utresan");
     await expect(message(page, "utresan")).toBeVisible();
     await expect(tripNote(page)).toHaveText("Lägg alla resenärer i en klass på varje flyg för att gå vidare.");
     await noWayOn();
 
     // Everyone placed on the outbound flight only
     await place(page, "utresan", fleet.base, 1);
-    await expect(message(page, "utresan")).toHaveCount(0);
+    await done(page, "utresan");
+    await chooseAircraft(page, "hemresan", fleet.fast);
+    await done(page, "hemresan");
     await expect(message(page, "hemresan")).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
     await expect(tripNote(page)).toHaveText("Lägg alla resenärer i en klass på varje flyg för att gå vidare.");
     await noWayOn();
@@ -127,7 +130,6 @@ test.describe("with the tests' own aircraft", () => {
   test("TRIP-024-R5 focus stays on Fler and Färre when they become unavailable", async ({ page, fleet }) => {
     await openPlan(page, 2);
     await chooseAircraft(page, "utresan", fleet.fast);
-    await toClasses(page);
     const row = classRow(page, "utresan", fleet.base);
     const more = row.getByRole("button", { name: `Fler i ${fleet.base}` });
     const fewer = row.getByRole("button", { name: `Färre i ${fleet.base}` });
