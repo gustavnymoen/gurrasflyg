@@ -115,15 +115,15 @@ export function classOptions(aircraft: FleetAircraft, price: number) {
   return aircraft.classes.map((c, i) => ({ cabinClass: c, price: prices[i], priceDiff: prices[i] - lowest }));
 }
 
-// Från början sitter alla i den billigaste klassen som har plats för alla,
-// eller ingen om ingen klass har det (R3)
-export function defaultSeating(aircraft: FleetAircraft, travellers: number): Seating {
-  const fits = aircraft.classes.filter((c) => c.capacity >= travellers);
-  if (fits.length === 0) return {};
-  return { [cheapestClass({ ...aircraft, classes: fits }).id]: travellers };
-}
+// Från början har varje klass 0 resenärer; besökaren lägger själv alla i en klass (TRIP-024-R2)
+export const firstSeating = (aircraft: FleetAircraft): Seating =>
+  Object.fromEntries(aircraft.classes.map((c) => [c.id, 0]));
 
 export const placed = (seating: Seating) => Object.values(seating).reduce((sum, n) => sum + n, 0);
+
+// Har alla resenärer en klass på varje flyg? Först då går det vidare (TRIP-024-R4).
+export const everyoneSeated = (seatings: Seating[], travellers: number) =>
+  seatings.every((seating) => placed(seating) === travellers);
 
 // Går det att lägga till en resenär i klassen? Inte fler än platserna, och
 // inte fler än resenärerna sammanlagt (R3)

@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-24
 
+- TRIP-024: Din resa on `/flyg/plan` shows the chosen aircraft with its flight time and arrival under each flight. In step Klasser every class starts at 0 with "2 resenärer har ingen klass. Lägg till dem i en klass.", the totals are the sum so far (0 kr at first), and nothing leads on until everyone on every flight has a class. Fler and Färre stay focused when they become unavailable (`aria-disabled`, `RoundButton keepFocus`). The browser tests of `/flyg/plan` share their aircraft and steps in `tests/plan.ts`.
 - TRIP-010 and TRIP-011: the accessibility checklist gone through on the live site and recorded in their `verification.md`. Fixed: the sort choice on `/flyg` shows the 2 px focus ring in `accent-strong` instead of a faint glow, and in admin the aircraft form fits a 320 px screen (it no longer gets as wide as the table that scrolls sideways), with space between the table's column headings. Focus lost when the last traveller is placed in step Klasser goes to TRIP-024.
 
 ## 2026-10-23

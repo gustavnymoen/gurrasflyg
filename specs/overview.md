@@ -125,6 +125,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-015 | Unit tests with Vitest next to the code, with their own test database; the tests without a browser moved there, fewer repeated browser cases | Shared | Done |
 | TRIP-010 | Flight search results: the Sök button, the results page with a simulated search, flight cards, sorting and choosing outbound and return flights; routes between every pair of airports with a price per departure | Flight booking | Done |
 | TRIP-011 | Choose aircraft and classes: `/flyg/plan` with an aircraft per flight (price, flight time, arrival, compared) and travellers per class, prices that follow every change, everything in the address; price and time factors in admin; the "från" price from the cheapest aircraft | Flight booking | Done |
+| TRIP-024 | Aircraft in the summary, classes from zero: the chosen aircraft with flight time and arrival in Din resa, every class starting at 0, totals so far, no going on until everyone is placed, focus kept on Fler and Färre | Flight booking | Done |
 
 ## Decisions for charter
 

@@ -5,7 +5,7 @@ import { formatDuration, formatPrice } from "@/lib/format";
 import Card from "../../components/Card";
 import Message from "../../components/Message";
 import FlightLine from "../FlightLine";
-import { ArrivalTime } from "./Arrival";
+import { FlightTime } from "./FlightTime";
 import Comparison from "./Comparison";
 
 // Planen att välja bland för ett flyg (R2): pris per person i billigaste
@@ -106,7 +106,7 @@ function AircraftCard({
               {aircraft.name}
             </span>
             <span id={`${id}-time`} className="block text-small text-ink-muted">
-              {formatDuration(option.minutes)} · landar <ArrivalTime {...option.arrival} />
+              <FlightTime minutes={option.minutes} arrival={option.arrival} />
               {!selectable && (
                 <span className="block">
                   För få platser: {seats} {seats === 1 ? "plats" : "platser"} för {travellers} resenärer

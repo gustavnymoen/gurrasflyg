@@ -1,0 +1,13 @@
+%% TRIP-024 Aircraft in the summary, classes from zero
+%% Step Plan and step Klasser on /flyg/plan, as changed by this card.
+flowchart TD
+    A[Step Plan: choose an aircraft per flight] --> B[Din resa shows aircraft, flight time and arrival R1]
+    B --> C{An aircraft for every flight?}
+    C -- no --> A
+    C -- yes --> D[Step Klasser: every class at 0 R2]
+    D --> E[Fler / Färre: totals = sum so far R3]
+    E --> F{Everyone on every flight placed?}
+    F -- no --> G[Message per flight, no way on R4]
+    G --> E
+    F -- yes --> H[Ready for Resenärer, TRIP-012]
+    E -. button becomes unavailable .-> I[Focus stays, aria-disabled R5]
