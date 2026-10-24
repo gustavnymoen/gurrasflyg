@@ -10,7 +10,8 @@ import Comparison from "./Comparison";
 
 // Klasserna på det valda planet för ett flyg (R3): pris per person, skillnaden
 // mot den billigaste klassen och hur många resenärer som sitter i varje.
-// Priset för flyget räknas om direkt när ett antal ändras (R4).
+// Priset för flyget räknas om direkt när ett antal ändras (R4) och är summan
+// för de resenärer som har en klass hittills (TRIP-024-R3).
 export default function ClassList({
   headingRef,
   title,
@@ -67,6 +68,7 @@ export default function ClassList({
                   <RoundButton
                     label={`Färre i ${cabinClass.name}`}
                     disabled={count === 0}
+                    keepFocus
                     onClick={() => change(cabinClass.id, -1)}
                   >
                     −
@@ -79,6 +81,7 @@ export default function ClassList({
                   <RoundButton
                     label={`Fler i ${cabinClass.name}`}
                     disabled={!canAdd(cabinClass, seating, travellers)}
+                    keepFocus
                     onClick={() => change(cabinClass.id, 1)}
                   >
                     +

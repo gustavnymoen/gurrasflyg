@@ -51,5 +51,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-021 Accessibility: WCAG 2.2 AA | Shared | `specs/TRIP-021-wcag/` |
 | TRIP-010 Search results | Flight booking | `specs/TRIP-010-search-results/` |
 | TRIP-011 Choose aircraft and classes | Flight booking | `specs/TRIP-011-aircraft-and-classes/` |
+| TRIP-024 Aircraft in the summary, classes from zero | Flight booking | `specs/TRIP-024-summary-and-classes/` |
 
 [Wiki](../index.md)

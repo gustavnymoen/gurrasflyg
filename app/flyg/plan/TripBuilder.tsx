@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { defaultSeating, type FleetAircraft, legTotal } from "@/lib/fare-rules";
+import { everyoneSeated, type FleetAircraft, firstSeating, legTotal } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { formatPrice } from "@/lib/format";
 import type { Search } from "@/lib/search";
@@ -22,7 +22,7 @@ import Card from "../../components/Card";
 import FlightLine from "../FlightLine";
 import Steps from "../Steps";
 import AircraftList from "./AircraftList";
-import Arrival from "./Arrival";
+import AircraftTime from "./FlightTime";
 import ClassList from "./ClassList";
 
 // Utresan och hemresan, med och utan stor bokstav
@@ -52,11 +52,12 @@ export default function TripBuilder({
   const aircraftOf = (leg: LegChoice) => fleet.find((a) => a.id === leg.aircraftId);
 
   // Planet och antalen per klass för varje flyg, när alla flyg har ett plan.
-  // Saknas antalen (första gången, eller i en ändrad adress) gäller de från början (R3).
+  // Saknas antalen (första gången, efter ett annat plan eller i en ändrad
+  // adress) har varje klass 0 (TRIP-024-R2).
   const seated = allChosen
     ? legs.map((leg) => {
         const aircraft = aircraftOf(leg)!;
-        return { aircraft, seating: leg.seating ?? defaultSeating(aircraft, search.travellers) };
+        return { aircraft, seating: leg.seating ?? firstSeating(aircraft) };
       })
     : [];
 
@@ -139,6 +140,7 @@ export default function TripBuilder({
           <TripTotal
             total={flights.reduce((sum, f, i) => sum + legTotal(seated[i].aircraft, f.price, seated[i].seating), 0)}
             travellers={search.travellers}
+            done={everyoneSeated(seated.map((s) => s.seating), search.travellers)}
           />
         </>
       )}
@@ -146,7 +148,8 @@ export default function TripBuilder({
   );
 }
 
-// De valda flygen och antalet resenärer (R1). Ankomsten visas när ett plan är valt (R7).
+// De valda flygen och antalet resenärer (R1). Under ett flyg med valt plan
+// står planet, flygtiden och ankomsten, samma som i listan med plan (R7, TRIP-024-R1).
 function Overview({
   flights,
   legs,
@@ -170,7 +173,7 @@ function Overview({
               <FlightLine flight={flight} />
               {aircraft && (
                 <p className="text-small text-ink-muted">
-                  {aircraft.name} · landar <Arrival flight={flight} aircraft={aircraft} />
+                  {aircraft.name} · <AircraftTime flight={flight} aircraft={aircraft} />
                 </p>
               )}
             </li>
@@ -184,8 +187,9 @@ function Overview({
   );
 }
 
-// Priset för hela resan, summan av flygens (R4)
-function TripTotal({ total, travellers }: { total: number; travellers: number }) {
+// Priset för hela resan, summan av flygens (R4). Vidare till resenärerna går
+// det först när alla har en klass på varje flyg (TRIP-024-R4).
+function TripTotal({ total, travellers, done }: { total: number; travellers: number; done: boolean }) {
   return (
     <Card className="flex flex-col gap-3">
       <p className="flex flex-wrap items-baseline justify-between gap-2">
@@ -194,7 +198,11 @@ function TripTotal({ total, travellers }: { total: number; travellers: number })
         </span>
         <span className="text-xl font-bold">{formatPrice(total)}</span>
       </p>
-      <p className="text-small text-ink-muted">Snart fyller du i resenärerna och bokar här.</p>
+      <p className="text-small text-ink-muted">
+        {done
+          ? "Snart fyller du i resenärerna och bokar här."
+          : "Lägg alla resenärer i en klass på varje flyg för att gå vidare."}
+      </p>
     </Card>
   );
 }

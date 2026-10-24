@@ -5,8 +5,9 @@ import {
   canAdd,
   cheapestFare,
   classOptions,
-  defaultSeating,
+  everyoneSeated,
   fare,
+  firstSeating,
   type FleetAircraft,
   flightMinutes,
   type Leg,
@@ -122,12 +123,24 @@ test("TRIP-011-R3 each class shows its price and the difference to the cheapest 
   ]);
 });
 
-test("TRIP-011-R3 at first all travellers are in the cheapest class with room for them all", () => {
-  expect(defaultSeating(ZEPPELIN, 3)).toEqual({ [ECONOMY.id]: 3 });
-  // Business has 10 seats, Första klass 2
-  expect(defaultSeating(FALCON, 3)).toEqual({ [BUSINESS.id]: 3 });
-  // No class has room for 11: no one is placed
-  expect(defaultSeating(FALCON, 11)).toEqual({});
+test("TRIP-024-R2 at first every class has 0 travellers", () => {
+  const seating = firstSeating(ZEPPELIN);
+  expect(seating).toEqual({ [ECONOMY.id]: 0, [BUSINESS.id]: 0, [FIRST.id]: 0 });
+  expect(seatingProblem(seating, 2)).toBe("2 resenärer har ingen klass. Lägg till dem i en klass.");
+});
+
+test("TRIP-024-R3 the totals are the sum for the travellers placed so far", () => {
+  expect(legTotal(ZEPPELIN, 1000, firstSeating(ZEPPELIN))).toBe(0);
+  // 1 of 2 in Ekonomi at 1 200 kr
+  expect(legTotal(ZEPPELIN, 1000, { [ECONOMY.id]: 1 })).toBe(1200);
+});
+
+test("TRIP-024-R4 the traveller goes on only when everyone has a class on every flight", () => {
+  expect(everyoneSeated([{ [ECONOMY.id]: 1 }], 2)).toBe(false);
+  expect(everyoneSeated([{ [ECONOMY.id]: 1, [FIRST.id]: 1 }], 2)).toBe(true);
+  // Everyone placed on the outbound flight only
+  expect(everyoneSeated([{ [ECONOMY.id]: 2 }, firstSeating(ZEPPELIN)], 2)).toBe(false);
+  expect(everyoneSeated([{ [ECONOMY.id]: 2 }, { [BUSINESS.id]: 2 }], 2)).toBe(true);
 });
 
 test("TRIP-011-R3 a class takes at most its seats, and the classes at most the travellers", () => {
