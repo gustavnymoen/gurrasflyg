@@ -226,7 +226,7 @@ function SortChoice({ value, onChange }: { value: SortBy; onChange: (sortBy: Sor
         {options.map((o) => (
           <label
             key={o.value}
-            className={`cursor-pointer rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors duration-160 has-focus-visible:ring-3 has-focus-visible:ring-accent-glow ${
+            className={`cursor-pointer rounded-pill px-3.5 py-1.5 text-sm font-bold transition-colors duration-160 has-focus-visible:outline-2 has-focus-visible:outline-offset-1 has-focus-visible:outline-accent-strong ${
               value === o.value ? "bg-accent text-on-accent" : "text-ink-muted hover:text-ink"
             }`}
           >

@@ -408,6 +408,22 @@ test.describe("with the tests' own aircraft", () => {
         await expect(page.getByRole("row").filter({ hasText: fleet.small })).toContainText("2,00");
       }
     });
+
+    test.describe("on a narrow phone", () => {
+      test.use({ viewport: { width: 320, height: 640 } });
+
+      // Tabellen rullar i sidled, men formuläret i den ska synas helt utan att man rullar
+      test("TRIP-011-R8 at 320 px the aircraft form and its factor fields fit in view", async ({ page, fleet }) => {
+        await signIn(page);
+        await page.getByRole("button", { name: `Ändra ${fleet.small}`, exact: true }).click();
+        for (const field of [page.getByLabel("Planets namn"), page.getByLabel("Prisfaktor"), page.getByLabel("Tidsfaktor")]) {
+          const box = await field.boundingBox();
+          expect(box && box.x + box.width).toBeLessThanOrEqual(320);
+        }
+        const save = await page.getByRole("button", { name: "Spara", exact: true }).boundingBox();
+        expect(save && save.x + save.width).toBeLessThanOrEqual(320);
+      });
+    });
   });
 });
 

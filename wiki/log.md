@@ -2,10 +2,14 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Log
+
+## 2026-10-24
+
+- TRIP-010 and TRIP-011: the accessibility checklist gone through on the live site and recorded in their `verification.md`. Fixed: the sort choice on `/flyg` shows the 2 px focus ring in `accent-strong` instead of a faint glow, and in admin the aircraft form fits a 320 px screen (it no longer gets as wide as the table that scrolls sideways), with space between the table's column headings. Focus lost when the last traveller is placed in step Klasser goes to TRIP-024.
 
 ## 2026-10-23
 

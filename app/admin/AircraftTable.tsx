@@ -39,17 +39,18 @@ export default function AircraftTable({
         )}
 
         {/* På en smal skärm rullar tabellen i sidled i kortet, inte hela sidan (WCAG 1.4.10).
-            relative: annars hamnar tabellens sr-only-text utanför och gör sidan bredare */}
-        <div className="relative overflow-x-auto">
+            relative: annars hamnar tabellens sr-only-text utanför och gör sidan bredare.
+            @container: formuläret i en rad kan bli lika brett som rutan (100cqw) i stället för tabellen */}
+        <div className="@container relative overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr>
                 <th className="w-8" />
                 <th className={thClass}>Namn</th>
-                <th className={`${thClass} text-right`}>Prisfaktor</th>
-                <th className={`${thClass} text-right`}>Tidsfaktor</th>
-                <th className={`${thClass} text-right`}>Klasser</th>
-                <th className={`${thClass} text-right`}>Platser</th>
+                <th className={`${thClass} pl-4 text-right`}>Prisfaktor</th>
+                <th className={`${thClass} pl-4 text-right`}>Tidsfaktor</th>
+                <th className={`${thClass} pl-4 text-right`}>Klasser</th>
+                <th className={`${thClass} pl-4 text-right`}>Platser</th>
                 <th className="w-20">
                   <span className="sr-only">Åtgärder</span>
                 </th>
@@ -85,14 +86,18 @@ function AircraftRow({
     return (
       <tr className={rowClass}>
         <td colSpan={7} className="py-3">
-          <AircraftForm
-            title={`Ändra ${aircraft.name}`}
-            classes={classes}
-            addons={addons}
-            initial={aircraft}
-            onSave={(input) => updateAircraftAction(aircraft.id, input)}
-            onDone={() => setEditing(false)}
-          />
+          {/* Lika brett som den synliga rutan och kvar till vänster, så att hela formuläret
+              syns på en smal skärm fast tabellen är bredare och rullar i sidled */}
+          <div className="sticky left-0 w-[100cqw]">
+            <AircraftForm
+              title={`Ändra ${aircraft.name}`}
+              classes={classes}
+              addons={addons}
+              initial={aircraft}
+              onSave={(input) => updateAircraftAction(aircraft.id, input)}
+              onDone={() => setEditing(false)}
+            />
+          </div>
         </td>
       </tr>
     );
