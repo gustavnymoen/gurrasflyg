@@ -1,10 +1,10 @@
 // Resan som besökaren sätter ihop steg för steg (TRIP-011-R1, R10): de valda
 // flygen och planet och klasserna för varje flyg. Allt står i adressen efter
 // sökningen, så att sidan går att ladda om och besökaren kan gå tillbaka till
-// ett tidigare steg utan att något försvinner, t.ex.
+// flygen utan att något försvinner, t.ex.
 // /flyg/plan?fran=ARN&till=LHR&utresa=2026-11-13&resenarer=2&ut=07:20&ut-plan=3&ut-klasser=1:2
 
-import { canSeat, type FleetAircraft, type Seating, validSeating } from "./fare-rules";
+import { canSeat, type FleetAircraft, placed, type Seating, validSeating } from "./fare-rules";
 import { type Params, RESULTS_PATH, type Search, searchParams } from "./search";
 
 export const PLAN_PATH = "/flyg/plan";
@@ -13,8 +13,10 @@ export const PLAN_PATH = "/flyg/plan";
 // antalen per klass för det. null = inte valt än.
 export type LegChoice = { time: string; aircraftId: number | null; seating: Seating | null };
 
-// Stegen på sidan /flyg/plan. Flygen väljs på /flyg, resenärerna i TRIP-012.
-export type TripStep = "aircraft" | "classes";
+// Hur ett flygs kort på /flyg/plan visas (TRIP-026): inte än (ett tidigare
+// flyg är inte klart), öppet med planen, öppet med det valda planet och
+// klasserna, eller hopfällt till en sammanfattning
+export type LegView = "hidden" | "aircraft" | "classes" | "folded";
 
 // Utresan först, sedan hemresan
 const LEGS = ["ut", "hem"] as const;
@@ -31,11 +33,7 @@ function tripParams(search: Search, legs: LegChoice[]) {
 }
 
 // Sidan för plan och klasser
-export function planUrl(search: Search, legs: LegChoice[], step: TripStep = "aircraft") {
-  const params = tripParams(search, legs);
-  if (step === "classes") params.set("steg", "klasser");
-  return `${PLAN_PATH}?${params}`;
-}
+export const planUrl = (search: Search, legs: LegChoice[]) => `${PLAN_PATH}?${tripParams(search, legs)}`;
 
 // Tillbaka till flygen, med allt som valts efter dem
 export const resultsUrl = (search: Search, legs: LegChoice[]) => `${RESULTS_PATH}?${tripParams(search, legs)}`;
@@ -60,8 +58,6 @@ export function parseLegs(params: Params, search: Search): LegChoice[] | null {
   return legs.every((leg) => leg !== null) ? legs : null;
 }
 
-export const parseStep = (params: Params): TripStep => (params.steg === "klasser" ? "classes" : "aircraft");
-
 // Valen för ett flyg, kontrollerade mot planen: ett plan som inte finns eller
 // inte har plats för alla blir "inget plan", antal som inte går på planet
 // blir "inga antal" (t.ex. efter en ändrad adress eller ett ändrat plan)
@@ -81,6 +77,22 @@ export function chooseAircraft(leg: LegChoice, aircraftId: number): LegChoice {
 // flyg börjar om utan plan och klasser (R10)
 export function keepChoice(previous: LegChoice | undefined, time: string): LegChoice {
   return previous?.time === time ? previous : { time, aircraftId: null, seating: null };
+}
+
+// Ett flyg är klart när det har ett plan och alla resenärer har en klass (TRIP-026-R3)
+export const legDone = (leg: LegChoice, travellers: number) =>
+  leg.aircraftId !== null && leg.seating !== null && placed(leg.seating) === travellers;
+
+// Korten när sidan öppnas (TRIP-026-R5): de klara är hopfällda, det första
+// som inte är klart är öppet, med planen eller, om ett plan är valt, med
+// klasserna, och korten efter det visas inte än
+export function firstViews(legs: LegChoice[], travellers: number): LegView[] {
+  const open = legs.findIndex((leg) => !legDone(leg, travellers));
+  return legs.map((leg, i) => {
+    if (legDone(leg, travellers)) return "folded";
+    if (i > open) return "hidden";
+    return leg.aircraftId === null ? "aircraft" : "classes";
+  });
 }
 
 // { 1: 2, 2: 1 } <-> "1:2,2:1". Klasser utan resenärer skrivs inte ut.

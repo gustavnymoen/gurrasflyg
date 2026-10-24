@@ -3,14 +3,14 @@ type: Feature
 title: Aircraft and classes
 description: The page /flyg/plan, where the traveller chooses an aircraft and the travellers per class for each chosen flight, and the price and time factors behind its prices, flight times and the "från" price.
 resource: app/flyg/plan/
-feature: TRIP-011
+feature: TRIP-011, TRIP-024, TRIP-026
 tags: [aircraft, classes, prices, flight-time, factors, flight-booking, admin, accessibility]
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Aircraft and classes
 
-After choosing flights on [the results page](search-results.md), the traveller presses **Fortsätt** in **Din resa** and comes to `/flyg/plan`, "Välj plan och klass". There they choose an aircraft for each flight (step **Plan**) and how many travellers sit in each of its classes (step **Klasser**), and see what it costs and how long it takes. Booking comes in TRIP-012.
+After choosing flights on [the results page](search-results.md), the traveller presses **Fortsätt** in **Din resa** and comes to `/flyg/plan`, "Välj plan och klass". There they choose, one flight at a time, an aircraft and how many travellers sit in each of its classes (step **Plan och klass**), and see what it costs and how long it takes. Booking comes in TRIP-012.
 
 ## Factors
 
@@ -31,16 +31,17 @@ Everything chosen after the search is in the address (`lib/trip.ts`), so the pag
 
 ```
 /flyg/plan?fran=ARN&till=LHR&utresa=2026-11-13&hemresa=2026-11-20&resenarer=3
-  &ut=08:20&ut-plan=3&ut-klasser=1:2,2:1&hem=15:35&hem-plan=2&hem-klasser=2:3&steg=klasser
+  &ut=08:20&ut-plan=3&ut-klasser=1:2,2:1&hem=15:35&hem-plan=2&hem-klasser=2:3
 ```
 
 - `ut`, `hem`: the departure times of the chosen flights; the route follows from the search.
 - `ut-plan`, `hem-plan`: the chosen aircraft's id. `ut-klasser`, `hem-klasser`: the number per class, as class id and number.
-- `steg=klasser`: step Klasser; without it, step Plan.
 
-`planUrl()` writes it and `parseLegs()` and `parseStep()` read it. The results page `/flyg` takes the same parameters (`resultsUrl()`), starts at **Din resa** with those flights, and its **Fortsätt** carries the choices on (`keepChoice()`).
+Which card is open is not in the address (TRIP-026): after a reload it follows from the choices (see the page below). An old address with `steg=klasser` (TRIP-011's step Klasser) still works; the parameter is ignored.
 
-On `/flyg/plan` a changed choice replaces the address with `history.replaceState`, and a new step adds one with `history.pushState`, so the browser's Back goes back a step. Next.js gives both back through `useSearchParams`, without a new request to the server.
+`planUrl()` writes it and `parseLegs()` reads it. The results page `/flyg` takes the same parameters (`resultsUrl()`), starts at **Din resa** with those flights, and its **Fortsätt** carries the choices on (`keepChoice()`).
+
+On `/flyg/plan` every changed choice replaces the address with `history.replaceState`, so the browser's Back goes back to the flights. Next.js gives it back through `useSearchParams`, without a new request to the server.
 
 The address is never trusted. The server (`app/flyg/plan/page.tsx`) finds the chosen departures with `findFlights()`; an incomplete address gives "Adressen saknar något. Börja med att söka efter ett flyg.", a departure that doesn't exist or has left "Flyget finns inte eller har redan gått. Välj ett annat flyg.". `checkChoice()` drops an aircraft that doesn't exist or is too small, and numbers that don't fit the aircraft. Prices and times are calculated from the database's prices, flight times and factors (`listFleet()` in `lib/flights.ts`), never taken from the address.
 
@@ -48,15 +49,22 @@ The address is never trusted. The server (`app/flyg/plan/page.tsx`) finds the ch
 
 `TripBuilder` (`app/flyg/plan/TripBuilder.tsx`) shows:
 
-- **The steps** (`Steps`, shared with the results page): Flyg, Plan, Klasser, Resenärer, with `aria-current="step"`. Flyg is a link back to the results with everything chosen; Plan is a button back from Klasser. Resenärer comes in TRIP-012. When the step changes, focus goes to the first heading of the new step.
+- **The steps** (`Steps`, shared with the results page): Flyg, Plan och klass, Resenärer, with `aria-current="step"` on Plan och klass. Flyg is a link back to the results with everything chosen. Resenärer comes in TRIP-012.
 - **Din resa**: each flight's date, departure time and airports, and once an aircraft is chosen its name, flight time and arrival ("Hindenburg · 9 h 20 min · landar 15:40", the same values as in the aircraft list; TRIP-024-R1), and the number of travellers.
-- **Step Plan** (`AircraftList`): for each flight, a fieldset "Plan för utresan" / "Plan för hemresan" with one radio card per aircraft: name, flight time, "landar 15:40" (with "+1"; screen readers hear "nästa dag"), the price per person in its cheapest class, and **Billigast** or "+4 500 kr / person", **Snabbast** or "+3 h 10 min". The comparison is with the aircraft that can be chosen (`aircraftOptions()`). An aircraft with fewer seats than travellers is disabled, with its time, arrival and price and "För få platser: 4 platser för 5 resenärer", and is not compared. Seats taken by other bookings don't count: each booking gets its own aircraft. **Fortsätt** goes to Klasser; a flight without an aircraft gets "Välj ett plan för utresan.".
-- **Step Klasser** (`ClassList`): for each flight, the aircraft's classes, cheapest first, each with its price per person, its seats, **Billigast** or "+1 200 kr / person" (`classOptions()`), and − / + around the number, which is read out when it changes. The first time, and after another aircraft, every class has 0 (`firstSeating()`, TRIP-024-R2), and the traveller places everyone. + is unavailable when the class is full or every traveller is placed (`canAdd()`), − when the class has 0. They use `RoundButton keepFocus`: `aria-disabled` instead of `disabled`, so a focused button stays focused when it becomes unavailable and does nothing (TRIP-024-R5, WCAG 2.4.3). Too few placed gives "2 resenärer har ingen klass. Lägg till dem i en klass." (`seatingProblem()`). "Totalt för utresan" is each class's price times its number so far (`legTotal()`, 0 kr when no one is placed), and "Totalt för resan" the sum of the flights. Until everyone on every flight is placed (`everyoneSeated()`, TRIP-024-R4) nothing leads on, and the trip total says "Lägg alla resenärer i en klass på varje flyg för att gå vidare."; TRIP-012 adds Fortsätt.
+- **One card per flight** (`LegCard`, TRIP-026): "Utresa", then "Hemresa". The page goes flight by flight: a card after one that is not done is not shown until it is done. A card shows one of three things:
+  - **The aircraft** (`AircraftList`, "Plan för utresan"): one card per aircraft with room for every traveller (`aircraftOptions()` keeps only those, TRIP-026-R1): name, flight time, "landar 15:40" (with "+1"; screen readers hear "nästa dag"), the price per person in its cheapest class (`aircraftFare()`), and **Billigast** or "+4 500 kr / person", **Snabbast** or "+3 h 10 min", compared with the others shown. Seats taken by other bookings don't count: each booking gets its own aircraft. The card is a button with `aria-expanded`, as a departure on `/flyg`; opened, it lists the aircraft's classes and seats and **Välj**. Opening chooses nothing. With no aircraft with room: "Inget plan har plats för 5 resenärer." and **Till flygen**.
+  - **The chosen aircraft and its classes**: at the top "Valt plan" with the name, time, arrival and price per person, no comparison, as a button that shows the list again; below it `ClassList`, "Klasser på utresan". Each class, cheapest first, has its price per person, its seats, **Billigast** or "+1 200 kr / person" (`classOptions()`), and − / + around the number, which is read out when it changes. The first time, and after another aircraft, every class has 0 (`firstSeating()`, TRIP-024-R2). + is unavailable when the class is full or every traveller is placed (`canAdd()`), − when the class has 0; they use `RoundButton keepFocus` (`aria-disabled`, so a focused button stays focused; TRIP-024-R5). Next to the heading a counter says "Placera ut 3 resenärer" ("1 resenär") and, with everyone placed, a check and "Alla resenärer har en klass" (`seatingCounter()`, `aria-live="polite"`). "Totalt för utresan" is each class's price times its number so far (`legTotal()`). **Klar** with someone not placed shows "2 resenärer har ingen klass. Lägg till dem i en klass." (`seatingProblem()`, an alert that follows the numbers) and keeps the card open; with everyone placed it folds the card and opens the next card that isn't folded.
+  - **Folded**: "Klart för utresan" with the aircraft, its time and arrival, the number per class ("Ekonomi: 2 · Business: 1") and the flight's total. A click opens the card again with its classes.
+- **Totalt för resan**, the sum of the flights with an aircraft. Until every flight is done (`legDone()`: an aircraft and everyone placed; TRIP-024-R4) it says "Lägg alla resenärer i en klass på varje flyg för att gå vidare."; TRIP-012 adds Fortsätt.
 
-Changing an earlier step clears what depends on it: another aircraft clears its classes (`chooseAircraft()`), so they start over at 0; another flight on the results page clears its aircraft and classes (`keepChoice()`). Going back and on without a change keeps everything.
+Which card shows what is page state (`views`, a `LegView` per flight). When the page opens, `firstViews()` (`lib/trip.ts`) works it out from the choices: done flights folded, the first one not done open (with its list, or with its classes if it has an aircraft), the ones after it hidden (TRIP-026-R5).
+
+**Focus** moves to the heading of the part that opened, and is never lost: to "Klasser på utresan" after Välj and when a folded card opens, to "Plan för utresan" after a click on the chosen aircraft, to the next card's heading ("Hemresa") after Klar, and to the folded card itself when no card is left to open. `TripBuilder` keeps the id to focus until the element exists, since the address with a new aircraft can come back a render later.
+
+Changing an earlier choice clears only what depends on it: Välj on another aircraft clears that flight's classes (`chooseAircraft()`), so they start over at 0, while the same aircraft keeps them; another flight on the results page clears its aircraft and classes (`keepChoice()`). The other flight is not affected. Going back to the flights and on without a change keeps everything.
 
 ## Tests
 
-Unit tests: `lib/fare-rules.test.ts` (prices, totals, times, arrivals across midnight, time zones and summer time, which aircraft can be chosen, the comparisons, the classes, the "från" price), `lib/trip.test.ts` (the address and what a change clears), `lib/numbers.test.ts` and `lib/format.test.ts` (factors and durations), and `db/migrations/008_factors.test.ts` (the starting factors and the `CHECK`s). Browser tests: `tests/TRIP-011-aircraft-and-classes.spec.ts`, with their own classes and aircraft created in admin once by a worker-scoped fixture and deleted afterwards. The smoke test opens the page for a chosen flight and checks that it lists aircraft, without writing anything.
+Unit tests: `lib/fare-rules.test.ts` (prices, totals, times, arrivals across midnight, time zones and summer time, which aircraft are shown, the comparisons, the counter, the classes, the "från" price), `lib/trip.test.ts` (the address, what a change clears, when a flight is done and which card is open after a reload), `lib/numbers.test.ts` and `lib/format.test.ts` (factors and durations), and `db/migrations/008_factors.test.ts` (the starting factors and the `CHECK`s). Browser tests: `tests/TRIP-011-aircraft-and-classes.spec.ts`, `tests/TRIP-024-summary-and-classes.spec.ts` and `tests/TRIP-026-one-choice-at-a-time.spec.ts`, with their own classes and aircraft created in admin once by a worker-scoped fixture and deleted afterwards, and the page's parts and steps (`chooseAircraft()`, `place()`, `done()`, `folded()`, …) in `tests/plan.ts`. The smoke test opens the page for a chosen flight and checks that it lists aircraft, without writing anything.
 
 [System documentation](index.md)

@@ -2,7 +2,7 @@
 type: Index
 title: System documentation
 description: How Gurras Flyg is built: architecture, data, API endpoints and features.
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # System documentation
@@ -52,5 +52,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-010 Search results | Flight booking | `specs/TRIP-010-search-results/` |
 | TRIP-011 Choose aircraft and classes | Flight booking | `specs/TRIP-011-aircraft-and-classes/` |
 | TRIP-024 Aircraft in the summary, classes from zero | Flight booking | `specs/TRIP-024-summary-and-classes/` |
+| TRIP-026 One choice at a time on the plan page | Flight booking | `specs/TRIP-026-one-choice-at-a-time/` |
 
 [Wiki](../index.md)

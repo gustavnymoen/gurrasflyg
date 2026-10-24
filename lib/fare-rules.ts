@@ -27,11 +27,15 @@ export const flightMinutes = (routeMinutes: number, timePercent: number) =>
 
 export const totalSeats = (aircraft: FleetAircraft) => aircraft.classes.reduce((sum, c) => sum + c.capacity, 0);
 
-// Planet går att välja om alla resenärer får plats; andra bokningar spelar ingen roll (R2)
+// Planet går att välja om alla resenärer får plats; andra bokningar spelar ingen roll (R2, TRIP-026-R1)
 export const canSeat = (aircraft: FleetAircraft, travellers: number) => totalSeats(aircraft) >= travellers;
 
 const cheapestClass = (aircraft: FleetAircraft) =>
   aircraft.classes.reduce((a, b) => (b.pricePercent < a.pricePercent ? b : a));
+
+// Priset per person i planets billigaste klass (R2, R9)
+export const aircraftFare = (aircraft: FleetAircraft, price: number) =>
+  fare(price, aircraft.pricePercent, cheapestClass(aircraft).pricePercent);
 
 // Det som behövs av ett flyg för att räkna pris och tid med ett plan: avgången
 // (lokal tid på avgångsflygplatsen), avgångens pris per person och ruttens
@@ -64,48 +68,42 @@ function instant(date: string, time: string, timeZone: string) {
 
 export type AircraftOption = {
   aircraft: FleetAircraft;
-  selectable: boolean;
   // Per person i planets billigaste klass
   price: number;
   minutes: number;
   arrival: { time: string; days: number };
-  // Skillnaden mot det billigaste och det snabbaste planet som går att välja
+  // Skillnaden mot det billigaste och det snabbaste planet
   priceDiff: number;
   timeDiff: number;
   cheapest: boolean;
   fastest: boolean;
 };
 
-// Planen för ett flyg (R2, R7): de som går att välja först, billigast först
+// Planen för ett flyg (R2, R7), billigast först. Bara planen med plats för
+// alla resenärer visas och jämförs med varandra (TRIP-026-R1).
 export function aircraftOptions(fleet: FleetAircraft[], leg: Leg, travellers: number): AircraftOption[] {
-  const options = fleet.map((aircraft) => {
-    const minutes = flightMinutes(leg.routeMinutes, aircraft.timePercent);
-    return {
-      aircraft,
-      selectable: canSeat(aircraft, travellers),
-      price: fare(leg.price, aircraft.pricePercent, cheapestClass(aircraft).pricePercent),
-      minutes,
-      arrival: arrival(leg, minutes),
-    };
-  });
-  const selectable = options.filter((o) => o.selectable);
-  const lowestPrice = Math.min(...selectable.map((o) => o.price));
-  const shortest = Math.min(...selectable.map((o) => o.minutes));
+  const options = fleet
+    .filter((aircraft) => canSeat(aircraft, travellers))
+    .map((aircraft) => {
+      const minutes = flightMinutes(leg.routeMinutes, aircraft.timePercent);
+      return {
+        aircraft,
+        price: aircraftFare(aircraft, leg.price),
+        minutes,
+        arrival: arrival(leg, minutes),
+      };
+    });
+  const lowestPrice = Math.min(...options.map((o) => o.price));
+  const shortest = Math.min(...options.map((o) => o.minutes));
   return options
     .map((o) => ({
       ...o,
-      // Ett plan som inte går att välja jämförs inte (och finns inget att välja är minimum Infinity)
-      priceDiff: o.selectable ? o.price - lowestPrice : 0,
-      timeDiff: o.selectable ? o.minutes - shortest : 0,
-      cheapest: o.selectable && o.price === lowestPrice,
-      fastest: o.selectable && o.minutes === shortest,
+      priceDiff: o.price - lowestPrice,
+      timeDiff: o.minutes - shortest,
+      cheapest: o.price === lowestPrice,
+      fastest: o.minutes === shortest,
     }))
-    .toSorted(
-      (a, b) =>
-        Number(b.selectable) - Number(a.selectable) ||
-        a.price - b.price ||
-        a.aircraft.name.localeCompare(b.aircraft.name, "sv"),
-    );
+    .toSorted((a, b) => a.price - b.price || a.aircraft.name.localeCompare(b.aircraft.name, "sv"));
 }
 
 // Klasserna på ett plan med pris per person och skillnaden mot den billigaste (R3)
@@ -121,9 +119,12 @@ export const firstSeating = (aircraft: FleetAircraft): Seating =>
 
 export const placed = (seating: Seating) => Object.values(seating).reduce((sum, n) => sum + n, 0);
 
-// Har alla resenärer en klass på varje flyg? Först då går det vidare (TRIP-024-R4).
-export const everyoneSeated = (seatings: Seating[], travellers: number) =>
-  seatings.every((seating) => placed(seating) === travellers);
+// Hur många resenärer som är kvar att placera på ett flyg, eller att alla har en klass (TRIP-026-R3)
+export function seatingCounter(seating: Seating, travellers: number) {
+  const left = travellers - placed(seating);
+  if (left <= 0) return "Alla resenärer har en klass";
+  return `Placera ut ${left} ${left === 1 ? "resenär" : "resenärer"}`;
+}
 
 // Går det att lägga till en resenär i klassen? Inte fler än platserna, och
 // inte fler än resenärerna sammanlagt (R3)
@@ -166,6 +167,6 @@ export function legTotal(aircraft: FleetAircraft, price: number, seating: Seatin
 export function cheapestFare(fleet: FleetAircraft[], travellers: number, price: number): number | null {
   const fares = fleet
     .filter((a) => canSeat(a, travellers))
-    .map((a) => fare(price, a.pricePercent, cheapestClass(a).pricePercent));
+    .map((a) => aircraftFare(a, price));
   return fares.length > 0 ? Math.min(...fares) : null;
 }

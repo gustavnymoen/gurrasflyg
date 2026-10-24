@@ -1,0 +1,20 @@
+%% TRIP-026 One choice at a time on the plan page
+%% One card per flight, flight by flight. Labels give the requirement.
+flowchart TD
+    A["/flyg/plan opens"] --> B{Which flights are done? R5}
+    B --> C[Done flights folded, the first not done open, later ones hidden]
+    C --> D[Aircraft list: only aircraft with room R1]
+    D -- no aircraft has room --> D0[Inget plan har plats för N resenärer, link Till flygen R1]
+    D -- click an aircraft --> E[Aircraft opens with its classes and Välj R2]
+    E -- Välj --> F[Chosen aircraft at the top, classes below, focus on Klasser R2]
+    F -- "Fler and Färre" --> G[Counter: Placera ut N resenärer / Alla resenärer har en klass R3]
+    G -- Klar, someone missing --> H[N resenärer har ingen klass. Card stays open R3]
+    H --> G
+    G -- Klar, everyone placed --> I[Card folds into a summary R3]
+    I -- another flight not folded --> J[Next card opens, focus on its heading R3]
+    J --> D
+    I -- click the folded card --> F
+    F -- click the chosen aircraft --> D
+    E -- Välj on the same aircraft --> F
+    E -- Välj on another aircraft --> K[Classes start from 0 R4]
+    K --> F

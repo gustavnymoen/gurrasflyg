@@ -2,39 +2,39 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { everyoneSeated, type FleetAircraft, firstSeating, legTotal } from "@/lib/fare-rules";
+import { type FleetAircraft, firstSeating, legTotal, type Seating } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { formatPrice } from "@/lib/format";
 import type { Search } from "@/lib/search";
 import {
   checkChoice,
   chooseAircraft,
+  firstViews,
   keepChoice,
   type LegChoice,
+  legDone,
+  type LegView,
   parseLegs,
-  parseStep,
   planUrl,
   resultsUrl,
-  type TripStep,
 } from "@/lib/trip";
-import Button from "../../components/Button";
 import Card from "../../components/Card";
 import FlightLine from "../FlightLine";
 import Steps from "../Steps";
-import AircraftList from "./AircraftList";
 import AircraftTime from "./FlightTime";
-import ClassList from "./ClassList";
+import LegCard, { legIds } from "./LegCard";
 
-// Utresan och hemresan, med och utan stor bokstav
+// Utresan och hemresan: namnet i adressen och i rubrikerna, med och utan stor bokstav
 const LEG_NAMES = [
-  { title: "Utresa", of: "utresan" },
-  { title: "Hemresa", of: "hemresan" },
+  { key: "ut", title: "Utresa", of: "utresan" },
+  { key: "hem", title: "Hemresa", of: "hemresan" },
 ];
 
-// Stegen Plan och Klasser för de valda flygen (R2, R3, R10). Valen läses från
-// adressen och skrivs tillbaka dit, så att sidan går att ladda om och
-// besökaren kan gå tillbaka till flygen och hit igen utan att något försvinner.
-// Ett nytt steg blir en ny rad i webbläsarens historik, ett ändrat val inte.
+// Plan och klasser för de valda flygen, ett flyg i taget (R2, R3, R10,
+// TRIP-026). Valen läses från adressen och skrivs tillbaka dit, så att sidan
+// går att ladda om och besökaren kan gå tillbaka till flygen och hit igen
+// utan att något försvinner. Vilket kort som är öppet hålls på sidan; efter
+// en omladdning räknas det fram från valen (firstViews, TRIP-026-R5).
 export default function TripBuilder({
   search,
   flights,
@@ -44,106 +44,107 @@ export default function TripBuilder({
   flights: Flight[];
   fleet: FleetAircraft[];
 }) {
+  const { travellers } = search;
   const params = Object.fromEntries(useSearchParams());
   const parsed = parseLegs(params, search);
-  const legs = flights.map((f, i) => checkChoice(keepChoice(parsed?.[i], f.time), fleet, search.travellers));
-  const allChosen = legs.every((leg) => leg.aircraftId !== null);
-  const step: TripStep = parseStep(params) === "classes" && allChosen ? "classes" : "aircraft";
+  const legs = flights.map((f, i) => checkChoice(keepChoice(parsed?.[i], f.time), fleet, travellers));
   const aircraftOf = (leg: LegChoice) => fleet.find((a) => a.id === leg.aircraftId);
-
-  // Planet och antalen per klass för varje flyg, när alla flyg har ett plan.
   // Saknas antalen (första gången, efter ett annat plan eller i en ändrad
-  // adress) har varje klass 0 (TRIP-024-R2).
-  const seated = allChosen
-    ? legs.map((leg) => {
-        const aircraft = aircraftOf(leg)!;
-        return { aircraft, seating: leg.seating ?? firstSeating(aircraft) };
-      })
-    : [];
+  // adress) har varje klass 0 (TRIP-024-R2)
+  const seatingOf = (leg: LegChoice): Seating => {
+    const aircraft = aircraftOf(leg);
+    return leg.seating ?? (aircraft ? firstSeating(aircraft) : {});
+  };
 
-  // Har besökaren försökt gå vidare utan att välja plan för alla flyg?
-  const [tried, setTried] = useState(false);
+  const [views, setViews] = useState<LegView[]>(() => firstViews(legs, travellers));
+  // Har besökaren tryckt Klar på flyget utan att alla har en klass?
+  const [tried, setTried] = useState<boolean[]>(() => legs.map(() => false));
 
-  // Rubriken för steget får fokus när besökaren byter steg, inte när sidan öppnas
-  const heading = useRef<HTMLHeadingElement>(null);
-  const moveFocus = useRef(false);
+  // Rubriken (eller sammanfattningen) som ska få fokus när en del öppnas
+  // eller fälls ihop, så att fokus aldrig försvinner. Den väntar tills delen
+  // finns på sidan, eftersom adressen kan läsas tillbaka en rendering senare.
+  const focusId = useRef<string | null>(null);
   useEffect(() => {
-    if (!moveFocus.current) return;
-    moveFocus.current = false;
-    heading.current?.focus();
-  }, [step]);
+    const target = focusId.current && document.getElementById(focusId.current);
+    if (!target) return;
+    focusId.current = null;
+    target.focus();
+  });
 
-  function save(next: LegChoice[], nextStep: TripStep) {
-    const url = planUrl(search, next, nextStep);
-    if (nextStep === step) window.history.replaceState(null, "", url);
-    else {
-      moveFocus.current = true;
-      window.history.pushState(null, "", url);
+  const setView = (i: number, view: LegView, focus: string) => {
+    focusId.current = focus;
+    setViews((current) => current.with(i, view));
+  };
+  const setTriedAt = (i: number, value: boolean) => setTried((current) => current.with(i, value));
+  const save = (i: number, leg: LegChoice) =>
+    window.history.replaceState(null, "", planUrl(search, legs.with(i, leg)));
+
+  // Välj: planet överst och klasserna under. Ett annat plan tar bort antalen (R10).
+  function choose(i: number, aircraftId: number) {
+    const leg = chooseAircraft(legs[i], aircraftId);
+    if (leg !== legs[i]) setTriedAt(i, false);
+    save(i, leg);
+    setView(i, "classes", legIds(LEG_NAMES[i].key).classes);
+  }
+
+  // Klar: saknar någon en klass står det vad som saknas, annars fälls kortet
+  // ihop och nästa flyg som inte är klart öppnas (TRIP-026-R3)
+  function done(i: number) {
+    if (!legDone(legs[i], travellers)) {
+      setTriedAt(i, true);
+      return;
+    }
+    setTriedAt(i, false);
+    const next = views.findIndex((view, j) => j > i && view !== "folded");
+    // Fokus till nästa korts rubrik, eller till det hopfällda kortet om inget är kvar
+    const focus = next === -1 ? legIds(LEG_NAMES[i].key).folded : legIds(LEG_NAMES[next].key).card;
+    setView(i, "folded", focus);
+    if (next !== -1 && views[next] === "hidden") {
+      setViews((current) => current.with(next, legs[next].aircraftId === null ? "aircraft" : "classes"));
     }
   }
 
-  const update = (i: number, leg: LegChoice) => save(legs.with(i, leg), step);
+  const tripTotal = flights.reduce((sum, f, i) => {
+    const aircraft = aircraftOf(legs[i]);
+    return sum + (aircraft ? legTotal(aircraft, f.price, seatingOf(legs[i])) : 0);
+  }, 0);
 
-  function toClasses() {
-    setTried(true);
-    if (!allChosen) return;
-    save(legs.map((leg, i) => ({ ...leg, seating: seated[i].seating })), "classes");
-  }
-
-  const steps = [
-    { label: "Flyg", href: resultsUrl(search, legs) },
-    { label: "Plan", onClick: () => save(legs, "aircraft") },
-    { label: "Klasser" },
-    { label: "Resenärer" },
-  ];
+  const steps = [{ label: "Flyg", href: resultsUrl(search, legs) }, { label: "Plan och klass" }, { label: "Resenärer" }];
 
   return (
     <div className="flex flex-col gap-8">
-      <Steps steps={steps} current={step === "aircraft" ? 1 : 2} />
+      <Steps steps={steps} current={1} />
 
-      <Overview flights={flights} legs={legs} fleet={fleet} travellers={search.travellers} />
+      <Overview flights={flights} legs={legs} fleet={fleet} travellers={travellers} />
 
-      {step === "aircraft" ? (
-        <>
-          {flights.map((flight, i) => (
-            <AircraftList
-              key={flight.id}
-              headingRef={i === 0 ? heading : undefined}
-              title={`Plan för ${LEG_NAMES[i].of}`}
-              flight={flight}
-              fleet={fleet}
-              travellers={search.travellers}
-              chosenId={legs[i].aircraftId}
-              missing={tried && legs[i].aircraftId === null ? `Välj ett plan för ${LEG_NAMES[i].of}.` : null}
-              onChoose={(id) => update(i, chooseAircraft(legs[i], id))}
-            />
-          ))}
-          <Button onClick={toClasses} className="self-start">
-            Fortsätt
-          </Button>
-        </>
-      ) : (
-        <>
-          {flights.map((flight, i) => (
-            <ClassList
-              key={flight.id}
-              headingRef={i === 0 ? heading : undefined}
-              title={`Klasser på ${LEG_NAMES[i].of}`}
-              totalLabel={`Totalt för ${LEG_NAMES[i].of}`}
-              flight={flight}
-              aircraft={seated[i].aircraft}
-              travellers={search.travellers}
-              seating={seated[i].seating}
-              onChange={(seating) => update(i, { ...legs[i], seating })}
-            />
-          ))}
-          <TripTotal
-            total={flights.reduce((sum, f, i) => sum + legTotal(seated[i].aircraft, f.price, seated[i].seating), 0)}
-            travellers={search.travellers}
-            done={everyoneSeated(seated.map((s) => s.seating), search.travellers)}
+      {flights.map((flight, i) => {
+        const view = views[i];
+        if (view === "hidden") return null;
+        const ids = legIds(LEG_NAMES[i].key);
+        return (
+          <LegCard
+            key={flight.id}
+            legKey={LEG_NAMES[i].key}
+            title={LEG_NAMES[i].title}
+            of={LEG_NAMES[i].of}
+            view={view}
+            flight={flight}
+            fleet={fleet}
+            aircraft={aircraftOf(legs[i])}
+            seating={seatingOf(legs[i])}
+            travellers={travellers}
+            tried={tried[i]}
+            flightsHref={resultsUrl(search, legs)}
+            onChoose={(id) => choose(i, id)}
+            onShowAircraft={() => setView(i, "aircraft", ids.aircraft)}
+            onChangeSeating={(seating) => save(i, { ...legs[i], seating })}
+            onDone={() => done(i)}
+            onOpen={() => setView(i, "classes", ids.classes)}
           />
-        </>
-      )}
+        );
+      })}
+
+      <TripTotal total={tripTotal} travellers={travellers} done={legs.every((leg) => legDone(leg, travellers))} />
     </div>
   );
 }

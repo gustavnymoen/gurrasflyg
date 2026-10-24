@@ -3,6 +3,7 @@ import { formatDuration, formatPrice } from "../lib/format";
 import { expectNoA11yViolations, kronor, openResults, signIn } from "./helpers";
 import {
   aircraftCard,
+  aircraftCards,
   aircraftList,
   alert,
   amount,
@@ -10,16 +11,18 @@ import {
   cardPrice,
   chooseAircraft,
   chooseFlights,
+  chosenAircraft,
   classList,
   classRow,
   count,
+  done,
   flightButtons,
+  folded,
   openPlan,
   place,
   searchUrl,
   TOMORROW,
   test,
-  toClasses,
 } from "./plan";
 
 // The prices, times, rules and the address are also unit tests: lib/fare-rules.test.ts,
@@ -45,7 +48,7 @@ test("TRIP-011-R1 Fortsätt opens the chosen flights and the travellers, and a r
   };
   await check();
   const steps = page.getByRole("list", { name: "Steg" }).getByRole("listitem");
-  await expect(steps.filter({ hasText: "Plan" })).toHaveAttribute("aria-current", "step");
+  await expect(steps.filter({ hasText: "Plan och klass" })).toHaveAttribute("aria-current", "step");
   await page.reload();
   await check();
 });
@@ -60,15 +63,9 @@ test("TRIP-011-R1 an address without a chosen flight says what to do", async ({ 
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 
-  test("TRIP-011-R2 each aircraft shows its price, time, arrival and how it compares; one too small can't be chosen", async ({
-    page,
-    fleet,
-  }) => {
+  // That an aircraft without room is not shown is TRIP-026-R1
+  test("TRIP-011-R2 each aircraft shows its price, time, arrival and how it compares", async ({ page, fleet }) => {
     const [departure] = await openPlan(page, 5);
-    const small = aircraftCard(page, "utresan", fleet.small);
-    await expect(aircraftList(page, "utresan").getByRole("radio", { name: fleet.small })).toBeDisabled();
-    await expect(small).toContainText("För få platser: 4 platser för 5 resenärer");
-
     // Stor has the factors 1,00: its time is the route's, and London is an hour behind Stockholm
     const large = aircraftCard(page, "utresan", fleet.large);
     const route = await cardMinutes(large);
@@ -76,10 +73,9 @@ test.describe("with the tests' own aircraft", () => {
     expect(await cardMinutes(aircraftCard(page, "utresan", fleet.fast))).toBe(Math.round(route * 0.3));
     expect(await cardPrice(aircraftCard(page, "utresan", fleet.fast))).toBe(Math.round((await cardPrice(large)) * 3));
 
-    // Every aircraft that can be chosen is compared with the cheapest and the fastest of them
-    const cards = aircraftList(page, "utresan").getByRole("listitem").filter({ has: page.locator("input:enabled") });
+    // Every aircraft is compared with the cheapest and the fastest of them
     const shown = [];
-    for (const card of await cards.all()) shown.push({ card, price: await cardPrice(card), time: await cardMinutes(card) });
+    for (const card of await aircraftCards(page, "utresan").all()) shown.push({ card, price: await cardPrice(card), time: await cardMinutes(card) });
     const cheapest = Math.min(...shown.map((s) => s.price));
     const fastest = Math.min(...shown.map((s) => s.time));
     for (const { card, price, time } of shown) {
@@ -97,7 +93,6 @@ test.describe("with the tests' own aircraft", () => {
   }) => {
     await openPlan(page, 3);
     await chooseAircraft(page, "utresan", fleet.fast);
-    await toClasses(page);
     const basic = classRow(page, "utresan", fleet.base);
     const luxury = classRow(page, "utresan", fleet.luxury);
     await expect(basic).toContainText("Billigast");
@@ -109,6 +104,8 @@ test.describe("with the tests' own aircraft", () => {
     // The class has two seats: a third traveller can't be put there
     await expect(more(luxury, fleet.luxury)).toBeDisabled();
 
+    // The message comes at Klar (TRIP-026-R3)
+    await done(page, "utresan");
     const message = classList(page, "utresan").getByRole("alert");
     await expect(message).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
     await expectNoA11yViolations(page);
@@ -123,24 +120,25 @@ test.describe("with the tests' own aircraft", () => {
     fleet,
   }) => {
     await openPlan(page, 3, true);
-    await chooseAircraft(page, "utresan", fleet.large);
-    await chooseAircraft(page, "hemresan", fleet.fast);
-    await toClasses(page);
-
     const legTotal = (leg: "utresan" | "hemresan") => classList(page, leg).getByText(/^\d[\d\s]*\skr$/);
     const tripTotal = page.getByText(/^\d[\d\s]*\skr$/).last();
     const total = async (locator: Locator) => amount(await locator.textContent());
     const priceOf = async (leg: "utresan" | "hemresan", name: string) => cardPrice(classRow(page, leg, name));
 
     // Everyone in the cheapest class on the outbound flight
+    await chooseAircraft(page, "utresan", fleet.large);
     await place(page, "utresan", fleet.base, 3);
-    expect(await total(legTotal("utresan"))).toBe(3 * (await priceOf("utresan", fleet.base)));
+    const outboundTotal = await total(legTotal("utresan"));
+    expect(outboundTotal).toBe(3 * (await priceOf("utresan", fleet.base)));
+    expect(await total(tripTotal)).toBe(outboundTotal);
+    await done(page, "utresan");
     // One in the luxury class on the return flight
+    await chooseAircraft(page, "hemresan", fleet.fast);
     await place(page, "hemresan", fleet.base, 2);
     await place(page, "hemresan", fleet.luxury, 1);
     const returnTotal = 2 * (await priceOf("hemresan", fleet.base)) + (await priceOf("hemresan", fleet.luxury));
     await expect(legTotal("hemresan")).toHaveText(formatPrice(returnTotal));
-    expect(await total(tripTotal)).toBe((await total(legTotal("utresan"))) + returnTotal);
+    expect(await total(tripTotal)).toBe(outboundTotal + returnTotal);
   });
 
   test("TRIP-011-R9 the från price in the results is the cheapest aircraft with room for everyone", async ({
@@ -152,9 +150,9 @@ test.describe("with the tests' own aircraft", () => {
     await chooseFlights(page, false);
     await page.getByRole("link", { name: "Fortsätt" }).click();
     // Liten has room for 4 and doesn't count
-    await expect(aircraftCard(page, "utresan", fleet.small)).toContainText("För få platser");
-    const cards = aircraftList(page, "utresan").getByRole("listitem").filter({ has: page.locator("input:enabled") });
-    const prices = await Promise.all((await cards.all()).map(cardPrice));
+    await expect(aircraftCards(page, "utresan").first()).toBeVisible();
+    await expect(aircraftCard(page, "utresan", fleet.small)).toHaveCount(0);
+    const prices = await Promise.all((await aircraftCards(page, "utresan").all()).map(cardPrice));
     expect(Math.min(...prices)).toBe(from);
   });
 
@@ -164,33 +162,22 @@ test.describe("with the tests' own aircraft", () => {
   }) => {
     await openPlan(page, 3, true);
     await chooseAircraft(page, "utresan", fleet.large);
-    await chooseAircraft(page, "hemresan", fleet.fast);
-    await toClasses(page);
-    const basic = classRow(page, "utresan", fleet.base);
     await place(page, "utresan", fleet.base, 2);
     await place(page, "utresan", fleet.luxury, 1);
-    await expect(count(basic)).toHaveText(`2 i ${fleet.base}`);
-
-    // Back to the aircraft and on, without a change
-    await page.getByRole("button", { name: "Plan", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeFocused();
-    await expect(aircraftList(page, "utresan").getByRole("radio", { name: fleet.large })).toBeChecked();
-    await expect(aircraftList(page, "hemresan").getByRole("radio", { name: fleet.fast })).toBeChecked();
-    await toClasses(page);
-    await expect(count(basic)).toHaveText(`2 i ${fleet.base}`);
+    await done(page, "utresan");
+    await chooseAircraft(page, "hemresan", fleet.fast);
 
     // Back to the flights and on, without a change
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
     await page.getByRole("link", { name: "Fortsätt" }).click();
-    await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeVisible();
-    await expect(aircraftList(page, "utresan").getByRole("radio", { name: fleet.large })).toBeChecked();
-    await toClasses(page);
-    await expect(count(basic)).toHaveText(`2 i ${fleet.base}`);
+    await expect(folded(page, "utresan")).toContainText(`${fleet.base}: 2`);
+    await expect(chosenAircraft(page, "hemresan")).toContainText(fleet.fast);
+    await folded(page, "utresan").click();
+    await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`2 i ${fleet.base}`);
 
     // Another aircraft: every class starts at 0 again (TRIP-024-R2)
-    await page.getByRole("button", { name: "Plan", exact: true }).click();
+    await chosenAircraft(page, "utresan").click();
     await chooseAircraft(page, "utresan", fleet.fast);
-    await toClasses(page);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`0 i ${fleet.luxury}`);
   });
@@ -198,19 +185,17 @@ test.describe("with the tests' own aircraft", () => {
   test("TRIP-011-R10 another flight clears its aircraft and classes", async ({ page, fleet }) => {
     await openPlan(page, 2, true);
     await chooseAircraft(page, "utresan", fleet.large);
+    await place(page, "utresan", fleet.base, 2);
+    await done(page, "utresan");
     await chooseAircraft(page, "hemresan", fleet.fast);
 
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
     await page.getByRole("button", { name: "Ändra hemresa" }).click();
     await chooseFlights(page, false, [1]);
     await page.getByRole("link", { name: "Fortsätt" }).click();
-    await expect(aircraftList(page, "utresan").getByRole("radio", { name: fleet.large })).toBeChecked();
-    await expect(aircraftList(page, "hemresan").getByRole("radio", { checked: true })).toHaveCount(0);
-
-    // Going on without an aircraft for every flight says what is missing
-    await page.getByRole("button", { name: "Fortsätt" }).click();
-    await expect(alert(page)).toHaveText("Välj ett plan för hemresan.");
-    await expectNoA11yViolations(page);
+    await expect(folded(page, "utresan")).toContainText(fleet.large);
+    await expect(aircraftList(page, "hemresan")).toBeVisible();
+    await expect(chosenAircraft(page, "hemresan")).toHaveCount(0);
   });
 
   test.describe("on a narrow phone", () => {
@@ -224,7 +209,10 @@ test.describe("with the tests' own aircraft", () => {
       await openPlan(page, 2);
       expect(await overflow()).toBeLessThanOrEqual(0);
       await chooseAircraft(page, "utresan", fleet.fast);
-      await toClasses(page);
+      expect(await overflow()).toBeLessThanOrEqual(0);
+      await place(page, "utresan", fleet.base, 2);
+      await done(page, "utresan");
+      await expect(folded(page, "utresan")).toBeVisible();
       expect(await overflow()).toBeLessThanOrEqual(0);
     });
   });
@@ -251,7 +239,6 @@ test.describe("with the tests' own aircraft", () => {
       try {
         await openPlan(page, 1);
         await chooseAircraft(page, "utresan", fleet.large);
-        await toClasses(page);
         const basic = await cardPrice(classRow(page, "utresan", fleet.base));
         expect(await cardPrice(classRow(page, "utresan", fleet.luxury))).toBe(Math.round(basic * 2.5));
       } finally {
@@ -322,5 +309,5 @@ test.describe("with the tests' own aircraft", () => {
 
 test("TRIP-011-R1 @smoke the page for a chosen flight loads and lists aircraft", async ({ page }) => {
   await openPlan(page, 1);
-  await expect(aircraftList(page, "utresan").getByRole("radio").first()).toBeVisible();
+  await expect(aircraftList(page, "utresan").getByRole("button", { expanded: false }).first()).toBeVisible();
 });

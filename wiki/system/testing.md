@@ -4,7 +4,7 @@ title: Testing
 description: How Gurras Flyg is tested: which kind of check verifies what, when it is written, where it runs, and the rules and time budgets for the tests.
 feature: TECH-016
 tags: [workflow, testing, quality, sdd]
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Testing
@@ -35,7 +35,7 @@ The project follows specification-driven development (see "How we work" in `spec
 ## Browser tests
 
 - **Tool:** Playwright, one file per feature: `tests/<ID>-<name>.spec.ts`, each test named after its requirement, for example `test("TRIP-007-R2 shows only departures on the chosen date", …)`.
-- **Helpers:** `tests/helpers.ts` (sign-in, unique names, creating classes, add-ons and aircraft, colours, contrast, axe). Use them instead of copying. The tests of `/flyg/plan` (TRIP-011, TRIP-024, and the booking after them) share `tests/plan.ts`: a worker fixture with the tests' own classes and aircraft, and the steps on the page (`openPlan()`, `chooseAircraft()`, `toClasses()`, `place()`, …).
+- **Helpers:** `tests/helpers.ts` (sign-in, unique names, creating classes, add-ons and aircraft, colours, contrast, axe). Use them instead of copying. The tests of `/flyg/plan` (TRIP-011, TRIP-024, TRIP-026, and the booking after them) share `tests/plan.ts`: a worker fixture with the tests' own classes and aircraft, and the parts of the page (`openPlan()`, `chooseAircraft()`, `place()`, `done()`, `folded()`, …).
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
 - **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
 - **A failing test** is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the requirement). Never weaken a test to make it pass.
