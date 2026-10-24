@@ -52,11 +52,10 @@ export class AdminError extends Error {}
 // kontrollerar REFERENCES.
 const CLASS_IN_USE = `
   EXISTS (SELECT 1 FROM aircraft_capacity WHERE class_id = c.id)
-  OR EXISTS (SELECT 1 FROM flight_prices WHERE class_id = c.id)
-  OR EXISTS (SELECT 1 FROM booking_flights WHERE class_id = c.id)`;
+  OR EXISTS (SELECT 1 FROM booking_seats WHERE class_id = c.id)`;
 const ADDON_IN_USE = `
   EXISTS (SELECT 1 FROM aircraft_class_addons WHERE addon_id = a.id)
-  OR EXISTS (SELECT 1 FROM booking_flight_addons WHERE addon_id = a.id)`;
+  OR EXISTS (SELECT 1 FROM booking_addons WHERE addon_id = a.id)`;
 
 // ---------------------------------------------------------------- Läsa
 
@@ -83,7 +82,7 @@ export async function listAircraft(): Promise<Aircraft[]> {
   const [aircraft, classes, addons] = await Promise.all([
     all<{ id: number; name: string; pricePercent: number; timePercent: number; inUse: number }>(
       `SELECT a.id, a.name, a.price_percent AS pricePercent, a.time_percent AS timePercent,
-              EXISTS (SELECT 1 FROM flights WHERE aircraft_id = a.id) AS inUse
+              EXISTS (SELECT 1 FROM booking_flights WHERE aircraft_id = a.id) AS inUse
        FROM aircraft a ORDER BY a.name`,
     ),
     all<{ aircraftId: number; classId: number; className: string; capacity: number }>(
@@ -254,8 +253,8 @@ export async function updateAircraft(id: number, input: AircraftInput) {
     );
     if (result.changes === 0) throw new AdminError("Planet finns inte längre.");
 
-    // Klasser som tas bort får inte användas av planets flighter, och
-    // kapaciteten får inte bli lägre än antalet redan bokade platser
+    // Klasser som tas bort får inte användas av bokningar med planet, och
+    // kapaciteten får inte bli lägre än antalet bokade platser i en bokning (TRIP-012)
     const existing = await all<{ classId: number; name: string }>(
       `SELECT ac.class_id AS classId, c.name FROM aircraft_capacity ac
        JOIN classes c ON c.id = ac.class_id WHERE ac.aircraft_id = ?`,
@@ -266,27 +265,27 @@ export async function updateAircraft(id: number, input: AircraftInput) {
       const kept = clean.classes.find((c) => c.classId === old.classId);
       if (!kept) {
         const used = await get(
-          `SELECT 1 FROM flight_prices fp JOIN flights f ON f.id = fp.flight_id
-           WHERE f.aircraft_id = ? AND fp.class_id = ?`,
+          `SELECT 1 FROM booking_seats s JOIN booking_flights f ON f.id = s.booking_flight_id
+           WHERE f.aircraft_id = ? AND s.class_id = ?`,
           [id, old.classId],
           tx,
         );
         if (used) {
-          throw new AdminError(`${old.name} används av planets flighter och kan inte tas bort.`);
+          throw new AdminError(`${old.name} används av bokningar med planet och kan inte tas bort.`);
         }
         continue;
       }
       const row = await get<{ booked: number }>(
         `SELECT COALESCE(MAX(n), 0) AS booked FROM (
-           SELECT COUNT(*) AS n FROM booking_flights bf JOIN flights f ON f.id = bf.flight_id
-           WHERE f.aircraft_id = ? AND bf.class_id = ? GROUP BY bf.flight_id
+           SELECT COUNT(*) AS n FROM booking_seats s JOIN booking_flights f ON f.id = s.booking_flight_id
+           WHERE f.aircraft_id = ? AND s.class_id = ? GROUP BY s.booking_flight_id
          )`,
         [id, old.classId],
         tx,
       );
       const booked = row?.booked ?? 0;
       if (kept.capacity < booked) {
-        throw new AdminError(`${old.name} har redan ${booked} bokade platser på en flight.`);
+        throw new AdminError(`${old.name} har redan ${booked} bokade platser i en bokning.`);
       }
     }
 
@@ -304,8 +303,8 @@ export async function updateAircraft(id: number, input: AircraftInput) {
 
 export async function deleteAircraft(id: number) {
   await withTransaction(async (tx) => {
-    if (await get("SELECT 1 FROM flights WHERE aircraft_id = ?", [id], tx)) {
-      throw new AdminError("Du kan ej ta bort planet, det används av flighter.");
+    if (await get("SELECT 1 FROM booking_flights WHERE aircraft_id = ?", [id], tx)) {
+      throw new AdminError("Du kan ej ta bort planet, det används av bokningar.");
     }
     await run("DELETE FROM aircraft_class_addons WHERE aircraft_id = ?", [id], tx);
     await run("DELETE FROM aircraft_capacity WHERE aircraft_id = ?", [id], tx);

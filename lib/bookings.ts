@@ -1,130 +1,165 @@
 import "server-only";
 import { randomInt } from "node:crypto";
 import type { Transaction } from "@libsql/client";
+import {
+  type BookingForm,
+  type BookingLeg,
+  bookingLegs,
+  bookingTotal,
+  chosenAddons,
+  fitsTrip,
+  NERVES,
+  NERVES_PRICE,
+  paymentProblems,
+  seatPrice,
+  travellerProblems,
+} from "./booking-rules";
 import { get, run, withTransaction } from "./db";
+import { hasLeft, localNow } from "./flight-rules";
+import { readAddons, readFleet } from "./flights";
+import type { Search } from "./search";
+import type { LegChoice } from "./trip";
 
-export type NewBooking = {
-  contact: { name: string; address: string; phone: string; email: string };
-  // Alla passagerare åker på samma flighter i samma klass
-  flights: { flightId: number; classId: number }[];
-  passengers: {
-    name: string;
-    addons?: { flightId: number; addonId: number }[];
-  }[];
-};
+// Det som skickas när besökaren trycker Betala: sökningen och valen från
+// adressen och formuläret. Inget av det är kontrollerat än.
+export type BookingRequest = { search: Search; legs: LegChoice[]; form: BookingForm };
 
-// Fel som beror på vad kunden valt (fullbokat, ogiltigt tillägg osv)
-// och som kan visas för användaren.
+// Fel som beror på vad besökaren valt eller på att något ändrats sedan dess,
+// och som kan visas för besökaren
 export class BookingError extends Error {}
 
-/** Skapar en bokning och returnerar bokningsnumret. Kastar BookingError vid ogiltigt val. */
-export async function createBooking(booking: NewBooking): Promise<string> {
-  if (booking.passengers.length === 0) {
-    throw new BookingError("Bokningen måste ha minst en passagerare.");
-  }
-  if (booking.flights.length === 0) {
-    throw new BookingError("Bokningen måste ha minst en flight.");
-  }
+export const CHANGED =
+  "Något i resan har ändrats sedan du valde den. Gå tillbaka till Plan och klass och välj igen.";
+const INVALID = "Bokningen gick inte att spara. Gå tillbaka till Resenärer och kontrollera uppgifterna.";
 
-  // Allt i transaktionen lyckas eller inget alls sparas. Transaktionen låser
-  // databasen för skrivning direkt, så två samtidiga bokningar inte båda kan
-  // se samma lediga plats och därmed överboka.
+// Sparar bokningen och returnerar bokningsnumret och flygen den gäller (R8).
+// Allt kontrolleras och alla priser räknas här, i transaktionen, från
+// databasen: ändrar admin något samtidigt sparas antingen hela bokningen med
+// det som gällde, eller inget. Samma request_id igen (två tryck på Betala)
+// ger den bokning som redan finns.
+export async function createBooking(request: BookingRequest, now = new Date()) {
+  const { search, legs, form } = request;
   return withTransaction(async (tx) => {
-    // 1. Kontrollera alla flighter och lediga platser innan något sparas
-    const flights = [];
-    for (const { flightId, classId } of booking.flights) {
-      const flight = await get<{ aircraft_id: number }>(
-        "SELECT aircraft_id FROM flights WHERE id = ?",
-        [flightId],
-        tx,
-      );
-      if (!flight) {
-        throw new BookingError(`Flight ${flightId} finns inte.`);
-      }
-      const price = await get<{ price: number }>(
-        "SELECT price FROM flight_prices WHERE flight_id = ? AND class_id = ?",
-        [flightId, classId],
-        tx,
-      );
-      if (!price) {
-        throw new BookingError(`Flight ${flightId} har ingen sådan klass.`);
-      }
-      const seats = await get<{ available: number }>(
-        "SELECT available FROM available_seats WHERE flight_id = ? AND class_id = ?",
-        [flightId, classId],
-        tx,
-      );
-      if ((seats?.available ?? 0) < booking.passengers.length) {
-        throw new BookingError(
-          `Det finns bara ${seats?.available ?? 0} lediga platser kvar i vald klass på flight ${flightId}.`,
-        );
-      }
-      flights.push({ flightId, classId, aircraftId: flight.aircraft_id, price: price.price });
-    }
-
-    // 2. Spara kontakt och bokning
-    const { contact } = booking;
-    const { lastId: contactId } = await run(
-      "INSERT INTO contacts (name, address, phone, email) VALUES (?, ?, ?, ?)",
-      [contact.name, contact.address, contact.phone, contact.email],
+    const existing = await get<{ bookingNumber: string }>(
+      "SELECT booking_number AS bookingNumber FROM bookings WHERE request_id = ?",
+      [typeof form?.requestId === "string" ? form.requestId : ""],
       tx,
     );
+
+    const departures = [];
+    for (const [i, leg] of legs.entries()) departures.push(await readDeparture(search, i, leg.time, now, tx));
+    const fleet = await readFleet(tx);
+    const addons = await readAddons(
+      legs.flatMap((leg) => (leg.aircraftId === null ? [] : [leg.aircraftId])),
+      tx,
+    );
+    const booked =
+      departures.every((d) => d !== undefined) &&
+      bookingLegs(
+        search,
+        legs,
+        departures.map((d) => d!.price),
+        fleet,
+        addons,
+      );
+    if (!booked) throw new BookingError(CHANGED);
+    const valid =
+      fitsTrip(form, booked, search.travellers) &&
+      Object.keys({ ...travellerProblems(form, booked), ...paymentProblems(form) }).length === 0;
+    if (!valid) throw new BookingError(INVALID);
+    if (existing) return { bookingNumber: existing.bookingNumber, legs: booked };
+
     const bookingNumber = await newBookingNumber(tx);
+    const { contact } = form;
     const { lastId: bookingId } = await run(
-      "INSERT INTO bookings (booking_number, contact_id) VALUES (?, ?)",
-      [bookingNumber, contactId],
+      `INSERT INTO bookings (booking_number, request_id, first_name, last_name, email, phone, address, payment, total)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        bookingNumber,
+        form.requestId,
+        contact.firstName.trim(),
+        contact.lastName.trim(),
+        contact.email.trim(),
+        contact.phone.trim(),
+        contact.address.trim(),
+        form.payment,
+        bookingTotal(form, booked),
+      ],
       tx,
     );
-
-    // 3. En rad per passagerare och flight, plus valda tillägg
-    for (const passenger of booking.passengers) {
-      for (const addon of passenger.addons ?? []) {
-        if (!flights.some((f) => f.flightId === addon.flightId)) {
-          throw new BookingError(`Tillägg valt för flight ${addon.flightId} som inte ingår i bokningen.`);
-        }
-      }
-      const { lastId: passengerId } = await run(
-        "INSERT INTO passengers (name) VALUES (?)",
-        [passenger.name],
+    const passengerIds = [];
+    for (const [position, p] of form.passengers.entries()) {
+      const { lastId } = await run(
+        "INSERT INTO booking_passengers (booking_id, position, first_name, last_name, age) VALUES (?, ?, ?, ?, ?)",
+        [bookingId, position, p.firstName.trim(), p.lastName.trim(), Number(p.age)],
         tx,
       );
-
-      for (const flight of flights) {
-        const { lastId: bookingFlightId } = await run(
-          `INSERT INTO booking_flights (booking_id, flight_id, passenger_id, class_id, price)
-           VALUES (?, ?, ?, ?, ?)`,
-          [bookingId, flight.flightId, passengerId, flight.classId, flight.price],
-          tx,
-        );
-
-        const addonIds = (passenger.addons ?? [])
-          .filter((a) => a.flightId === flight.flightId)
-          .map((a) => a.addonId);
-        for (const addonId of new Set(addonIds)) {
-          // Addonen måste finnas i den klassen på flightens plan
-          const addon = await get<{ price: number }>(
-            `SELECT a.price FROM addons a
-             JOIN aircraft_class_addons aca ON aca.addon_id = a.id
-             WHERE a.id = ? AND aca.aircraft_id = ? AND aca.class_id = ?`,
-            [addonId, flight.aircraftId, flight.classId],
-            tx,
-          );
-          if (!addon) {
-            throw new BookingError(
-              `Tillägg ${addonId} går inte att välja i vald klass på flight ${flight.flightId}.`,
-            );
-          }
-          await run(
-            "INSERT INTO booking_flight_addons (booking_flight_id, addon_id, price) VALUES (?, ?, ?)",
-            [bookingFlightId, addonId, addon.price],
-            tx,
-          );
-        }
-      }
+      passengerIds.push(lastId);
     }
-
-    return bookingNumber;
+    for (const [i, leg] of booked.entries()) {
+      await saveLeg(tx, bookingId, i, leg, departures[i]!.routeId, legDate(search, i), legs[i].time, form, passengerIds);
+    }
+    return { bookingNumber, legs: booked };
   });
+}
+
+async function saveLeg(
+  tx: Transaction,
+  bookingId: number,
+  position: number,
+  leg: BookingLeg,
+  routeId: number,
+  date: string,
+  time: string,
+  form: BookingForm,
+  passengerIds: number[],
+) {
+  const { lastId: flightId } = await run(
+    `INSERT INTO booking_flights (booking_id, position, route_id, date, departure_time, aircraft_id, price)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [bookingId, position, routeId, date, time, leg.aircraft.id, leg.price],
+    tx,
+  );
+  for (const [p, passenger] of form.passengers.entries()) {
+    const passengerLeg = passenger.legs[position];
+    const { lastId: seatId } = await run(
+      "INSERT INTO booking_seats (booking_flight_id, passenger_id, class_id, price) VALUES (?, ?, ?, ?)",
+      [flightId, passengerIds[p], passengerLeg.classId, seatPrice(leg, passengerLeg.classId)],
+      tx,
+    );
+    // [addon_id, name, count, price]; Dåliga nerver har inget addon_id
+    const addons: [number | null, string, number, number][] = chosenAddons(leg, passengerLeg).map(
+      ({ addon, count }) => [addon.id, addon.name, count, addon.price],
+    );
+    if (passenger.nerves) addons.push([null, NERVES, 1, NERVES_PRICE]);
+    for (const addon of addons) {
+      await run(
+        "INSERT INTO booking_addons (booking_seat_id, addon_id, name, count, price) VALUES (?, ?, ?, ?, ?)",
+        [seatId, ...addon],
+        tx,
+      );
+    }
+  }
+}
+
+// Utresan går från sökningens flygplats på utresedagen, hemresan tillbaka på hemresedagen
+const legDate = (search: Search, i: number) => (i === 0 ? search.outbound : search.return!);
+
+// En avgång på rutten för ett flyg i sökningen, om den finns och inte har gått
+async function readDeparture(search: Search, i: number, time: string, now: Date, tx: Transaction) {
+  const [from, to] = i === 0 ? [search.from, search.to] : [search.to, search.from];
+  const departure = await get<{ routeId: number; price: number; timezone: string }>(
+    `SELECT r.id AS routeId, d.price, f.timezone
+     FROM routes r
+     JOIN airports f ON f.id = r.from_airport_id
+     JOIN airports t ON t.id = r.to_airport_id
+     JOIN route_departures d ON d.route_id = r.id
+     WHERE f.iata = ? AND t.iata = ? AND d.departure_time = ?`,
+    [from, to, time],
+    tx,
+  );
+  if (!departure || (i === 1 && !search.return)) return undefined;
+  return hasLeft({ date: legDate(search, i), time }, localNow(departure.timezone, now)) ? undefined : departure;
 }
 
 // Sex tecken, utan lätt förväxlade tecken som 0/O och 1/I

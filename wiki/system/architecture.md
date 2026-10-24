@@ -4,7 +4,7 @@ title: Architecture
 description: The parts of Gurras Flyg, how they fit together, the database, environments and deploys.
 resource: app/
 tags: [architecture, database, deploy, admin]
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Architecture
@@ -25,20 +25,21 @@ flowchart LR
 | Folder | Content |
 |---|---|
 | `app/layout.tsx` | Every page: the header with the wordmark, and the footer (with the photo credit on the start page). |
-| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)). `Steps` and `FlightLine` are shared by both. |
+| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)); `app/flyg/boka/` the booking's steps Resenärer and Betala with the server action `bookAction`, and `app/flyg/bokad/` the summary ([booking](booking.md)). `Steps`, `FlightLine`, `TripOverview` and `Problem` are shared. |
 | `app/page.tsx` | Start page: background photo, heading, search form and review carousel. The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
-| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Switch`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
+| `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Switch`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, dialog, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. `login/` is the sign-in page. |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
 | `proxy.ts` | Runs before every `/admin` request and sends visitors without a valid sign-in to `/admin/login`. |
-| `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`), airport search and seat availability. |
+| `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`) and airport search. |
 | `lib/admin.ts` | Cabin classes, add-ons and aircraft, with their factors: validation and database changes. |
-| `lib/flights.ts` | The flights between two airports on a date with their "från" price, the search's airports, and the aircraft with their classes and factors (`listFleet`). |
+| `lib/flights.ts` | The flights between two airports on a date with their "från" price, the search's airports, the aircraft with their classes and factors (`listFleet`, `readFleet`), their add-ons (`readAddons`), and the trip in the address read from the database (`loadTrip`, `loadBookingTrip`). |
 | `lib/search.ts`, `lib/flight-rules.ts` | The search and its address; flight numbers, prices, sorting and which departures have left. Without `server-only`, for both the page and the browser. |
 | `lib/trip.ts`, `lib/fare-rules.ts` | The trip's address after the search (chosen flights, aircraft and classes); prices with factors, flight times, arrivals, which aircraft and numbers per class are possible. Without `server-only`. |
-| `lib/bookings.ts` | Creating a booking in one transaction, without overbooking. Not yet used by any page. |
+| `lib/booking-rules.ts` | The booking's rules for both the page and the server: the form, the checks, the prices, what a change clears, the summary. Without `server-only`. |
+| `lib/bookings.ts` | Saving a booking in one write transaction, with everything checked and priced from the database (`createBooking`). |
 | `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database. |
@@ -47,7 +48,7 @@ flowchart LR
 | `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
-Pages read data in server components. Changes go through server actions in `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.
+Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, and `app/flyg/boka/actions.ts`, which saves a booking. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.
 
 This Next.js version has `cacheComponents` turned on: data that depends on the request (database reads, the clock, cookies) is read after `await connection()` or inside `<Suspense>`. See `AGENTS.md`.
 
@@ -67,11 +68,11 @@ On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't 
 
 - **Airports and routes:** `airports` (with `city`), `routes` (from, to, flight time; one for every ordered pair of airports) and `route_departures` (times of day, each with its price per person).
 - **Fleet:** `aircraft`, `classes`, `aircraft_capacity` (seats per class on an aircraft), `addons` and `aircraft_class_addons` (which add-ons can be bought in which class on which aircraft).
-- **Flights and bookings:** `flights`, `flight_prices`, `contacts`, `passengers`, `bookings`, `booking_flights` and `booking_flight_addons`. The view `available_seats` calculates free seats; they are never stored.
+- **Bookings:** `bookings` (the booking number, the contact, the payment method and the total), `booking_passengers`, `booking_flights` (route, date, departure, aircraft and price per flight), `booking_seats` (a passenger's class and price on a flight) and `booking_addons`. See [Booking](booking.md).
 - **Reviews:** `reviews`.
 - **Charter** (the course data): `charter_airports`, `destinations` with their aliases, tags, ways of getting there, pages and photos, and `charter_timetables` with their days, flights and stops. Separate from the airline's tables. See [Charter data](data-charter.md).
 
-Rules in the database: foreign keys are on, prices are whole kronor, names of aircraft, classes and add-ons are unique regardless of case, and a booking can only include add-ons allowed for its aircraft and class.
+Rules in the database: foreign keys are on, prices are whole kronor, and names of aircraft, classes and add-ons are unique regardless of case. That a booking only has add-ons allowed for its aircraft and class is checked by `createBooking`.
 
 ### Schema changes
 
@@ -86,6 +87,8 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 | `005_charter.sql` | Tables for the course's charter data. |
 | `006_charter_data.sql` | The course's airports, destinations, pages, photo credits and timetables, generated by `scripts/generate-charter-data.mjs`. |
 | `007_all_routes.sql` | Routes between every pair of airports with at least 5 departures a day, a price per departure, the airports' cities, and no aircraft on routes (TRIP-010), generated by `scripts/generate-all-routes.mjs`. |
+| `008_factors.sql` | Price factors for classes and aircraft and time factors for aircraft (TRIP-011). |
+| `009_bookings.sql` | The old flight and booking tables replaced by the booking tables (TRIP-012); stops if the old ones have any rows. |
 
 ## Admin sign-in
 

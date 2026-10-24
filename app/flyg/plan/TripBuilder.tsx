@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { type FleetAircraft, firstSeating, legTotal, type Seating } from "@/lib/fare-rules";
@@ -7,10 +8,12 @@ import type { Flight } from "@/lib/flight-rules";
 import { formatPrice } from "@/lib/format";
 import type { Search } from "@/lib/search";
 import {
+  bookingUrl,
   checkChoice,
   chooseAircraft,
   firstViews,
   keepChoice,
+  LEG_NAMES,
   type LegChoice,
   legDone,
   type LegView,
@@ -18,17 +21,11 @@ import {
   planUrl,
   resultsUrl,
 } from "@/lib/trip";
+import { buttonClass } from "../../components/Button";
 import Card from "../../components/Card";
-import FlightLine from "../FlightLine";
-import Steps from "../Steps";
-import AircraftTime from "./FlightTime";
+import Steps, { tripSteps } from "../Steps";
+import TripOverview from "../TripOverview";
 import LegCard, { legIds } from "./LegCard";
-
-// Utresan och hemresan: namnet i adressen och i rubrikerna, med och utan stor bokstav
-const LEG_NAMES = [
-  { key: "ut", title: "Utresa", of: "utresan" },
-  { key: "hem", title: "Hemresa", of: "hemresan" },
-];
 
 // Plan och klasser för de valda flygen, ett flyg i taget (R2, R3, R10,
 // TRIP-026). Valen läses från adressen och skrivs tillbaka dit, så att sidan
@@ -109,13 +106,11 @@ export default function TripBuilder({
     return sum + (aircraft ? legTotal(aircraft, f.price, seatingOf(legs[i])) : 0);
   }, 0);
 
-  const steps = [{ label: "Flyg", href: resultsUrl(search, legs) }, { label: "Plan och klass" }, { label: "Resenärer" }];
-
   return (
     <div className="flex flex-col gap-8">
-      <Steps steps={steps} current={1} />
+      <Steps steps={tripSteps(search, legs)} current={1} />
 
-      <Overview flights={flights} legs={legs} fleet={fleet} travellers={travellers} />
+      <TripOverview flights={flights} legs={legs} fleet={fleet} travellers={travellers} />
 
       {flights.map((flight, i) => {
         const view = views[i];
@@ -144,53 +139,30 @@ export default function TripBuilder({
         );
       })}
 
-      <TripTotal total={tripTotal} travellers={travellers} done={legs.every((leg) => legDone(leg, travellers))} />
+      <TripTotal
+        total={tripTotal}
+        travellers={travellers}
+        seated={legs.every((leg) => legDone(leg, travellers))}
+        nextHref={views.every((view) => view === "folded") ? bookingUrl(search, legs) : null}
+      />
     </div>
   );
 }
 
-// De valda flygen och antalet resenärer (R1). Under ett flyg med valt plan
-// står planet, flygtiden och ankomsten, samma som i listan med plan (R7, TRIP-024-R1).
-function Overview({
-  flights,
-  legs,
-  fleet,
-  travellers,
-}: {
-  flights: Flight[];
-  legs: LegChoice[];
-  fleet: FleetAircraft[];
-  travellers: number;
-}) {
-  return (
-    <Card size="compact" className="flex flex-col gap-3">
-      <h2 className="text-lg font-bold">Din resa</h2>
-      <ul className="flex flex-col divide-y divide-line">
-        {flights.map((flight, i) => {
-          const aircraft = fleet.find((a) => a.id === legs[i].aircraftId);
-          return (
-            <li key={flight.id} className="py-2 first:pt-0 last:pb-0">
-              <p className="text-small text-ink-muted">{LEG_NAMES[i].title}</p>
-              <FlightLine flight={flight} />
-              {aircraft && (
-                <p className="text-small text-ink-muted">
-                  {aircraft.name} · <AircraftTime flight={flight} aircraft={aircraft} />
-                </p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      <p className="text-small text-ink-muted">
-        {travellers} {travellers === 1 ? "resenär" : "resenärer"}
-      </p>
-    </Card>
-  );
-}
-
 // Priset för hela resan, summan av flygens (R4). Vidare till resenärerna går
-// det först när alla har en klass på varje flyg (TRIP-024-R4).
-function TripTotal({ total, travellers, done }: { total: number; travellers: number; done: boolean }) {
+// det först när alla har en klass på varje flyg (TRIP-024-R4) och varje kort
+// är hopfällt med Klar; då kommer Fortsätt (TRIP-012-R1).
+function TripTotal({
+  total,
+  travellers,
+  seated,
+  nextHref,
+}: {
+  total: number;
+  travellers: number;
+  seated: boolean;
+  nextHref: string | null;
+}) {
   return (
     <Card className="flex flex-col gap-3">
       <p className="flex flex-wrap items-baseline justify-between gap-2">
@@ -199,11 +171,17 @@ function TripTotal({ total, travellers, done }: { total: number; travellers: num
         </span>
         <span className="text-xl font-bold">{formatPrice(total)}</span>
       </p>
-      <p className="text-small text-ink-muted">
-        {done
-          ? "Snart fyller du i resenärerna och bokar här."
-          : "Lägg alla resenärer i en klass på varje flyg för att gå vidare."}
-      </p>
+      {nextHref && seated ? (
+        <Link href={nextHref} className={`${buttonClass()} self-start`}>
+          Fortsätt
+        </Link>
+      ) : (
+        <p className="text-small text-ink-muted">
+          {seated
+            ? "Tryck Klar på varje flyg för att gå vidare."
+            : "Lägg alla resenärer i en klass på varje flyg för att gå vidare."}
+        </p>
+      )}
     </Card>
   );
 }

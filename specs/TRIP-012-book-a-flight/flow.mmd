@@ -1,0 +1,20 @@
+%% TRIP-012 Book a flight
+%% From the folded cards on /flyg/plan to the summary. Labels give the requirement.
+flowchart TD
+    A["/flyg/plan: every card folded"] -- Fortsätt R1 --> B["/flyg/boka (Resenärer)"]
+    B --> C[Saved form from the tab, fitted to the trip: a changed flight starts its classes over without add-ons R10]
+    C --> D[Passengers, classes, add-ons, Dåliga nerver, contact, three questions; total at once R1–R6]
+    D -- Till betalning, something wrong --> E[Fields red with messages, focus on the first R2 R5 R6]
+    E --> D
+    D -- Till betalning, all valid --> F["/flyg/boka/betala (Betala)"]
+    F -- no method chosen, Betala --> G[Välj hur du vill betala. R7]
+    G --> F
+    F -- Tillbaka / step Resenärer --> C
+    D -- step Plan och klass or Flyg --> A
+    F -- Betala --> H[Server action: departures, aircraft, add-ons and prices read in one transaction R8]
+    H -- something changed or invalid --> I[Message on the payment page, nothing saved R8]
+    H -- same request id again --> J[The booking already saved R8]
+    H -- valid --> K[Booking saved with a new booking number R8]
+    J --> L["/flyg/bokad: summary from the tab R9"]
+    K --> L
+    M[Another visitor opens /flyg/bokad] --> N[Ingen bokning R9]

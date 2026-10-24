@@ -183,10 +183,10 @@ test.describe("with the tests' own aircraft", () => {
   });
 });
 
-test("TRIP-026-R5 the steps are Flyg, Plan och klass and Resenärer", async ({ page }) => {
+test("TRIP-026-R5 the steps are Flyg, Plan och klass, Resenärer and Betala (TRIP-012-R10)", async ({ page }) => {
   await openPlan(page, 1);
   const steps = page.getByRole("list", { name: "Steg" }).getByRole("listitem");
-  await expect(steps).toHaveText([/Flyg/, /Plan och klass/, /Resenärer/]);
+  await expect(steps).toHaveText([/Flyg/, /Plan och klass/, /Resenärer/, /Betala/]);
   await expect(steps.nth(1)).toHaveAttribute("aria-current", "step");
   await expect(steps.nth(0).getByRole("link", { name: "Flyg" })).toBeVisible();
 });

@@ -120,7 +120,7 @@ function AircraftRow({
             <DeleteButton
               label={`Ta bort ${aircraft.name}`}
               inUse={aircraft.inUse}
-              inUseReason={`${aircraft.name} används av en eller flera flighter.`}
+              inUseReason={`${aircraft.name} används av en eller flera bokningar.`}
               onDelete={() => deleteAircraftAction(aircraft.id)}
             />
           </div>

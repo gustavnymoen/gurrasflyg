@@ -5,7 +5,7 @@ description: Så lägger du till, ändrar och tar bort plan med klasser, antal p
 resource: app/admin/AircraftForm.tsx
 feature: TRIP-004
 tags: [admin, plan, klasser, platser, addons]
-timestamp: 2026-10-23
+timestamp: 2026-10-24
 ---
 
 # Plan
@@ -52,6 +52,8 @@ Klicka på pennan på planets rad. Formuläret öppnas med planets namn, klasser
 ## Ta bort ett plan
 
 Klicka på papperskorgen och svara **Ja**.
+
+Ett plan som finns i en bokning går inte att ta bort: då visas **Du kan ej ta bort** och "… används av en eller flera bokningar.". Av samma skäl går det inte att ta bort en klass från planet om en bokning med planet använder den, eller ge klassen färre platser än någon bokning har i den.
 
 ## Felmeddelanden
 
