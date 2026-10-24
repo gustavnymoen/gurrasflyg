@@ -25,7 +25,7 @@ flowchart LR
 | Folder | Content |
 |---|---|
 | `app/layout.tsx` | Every page: the header with the wordmark, and the footer (with the photo credit on the start page). |
-| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). |
+| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)). `Steps` and `FlightLine` are shared by both. |
 | `app/page.tsx` | Start page: background photo, heading, search form and review carousel. The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
 | `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Switch`, `Card`, `Message`, `Stars`, `Wordmark`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
@@ -34,16 +34,17 @@ flowchart LR
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
 | `proxy.ts` | Runs before every `/admin` request and sends visitors without a valid sign-in to `/admin/login`. |
 | `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`), airport search and seat availability. |
-| `lib/admin.ts` | Cabin classes, add-ons and aircraft: validation and database changes. |
-| `lib/flights.ts` | The flights between two airports on a date, and the search's airports, for the results page. |
+| `lib/admin.ts` | Cabin classes, add-ons and aircraft, with their factors: validation and database changes. |
+| `lib/flights.ts` | The flights between two airports on a date with their "från" price, the search's airports, and the aircraft with their classes and factors (`listFleet`). |
 | `lib/search.ts`, `lib/flight-rules.ts` | The search and its address; flight numbers, prices, sorting and which departures have left. Without `server-only`, for both the page and the browser. |
+| `lib/trip.ts`, `lib/fare-rules.ts` | The trip's address after the search (chosen flights, aircraft and classes); prices with factors, flight times, arrivals, which aircraft and numbers per class are possible. Without `server-only`. |
 | `lib/bookings.ts` | Creating a booking in one transaction, without overbooking. Not yet used by any page. |
 | `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database. |
-| `lib/format.ts` | Price formatting (whole kronor to "1 290 kr"). |
+| `lib/format.ts` | Price formatting (whole kronor to "1 290 kr") and durations ("9 h 20 min"). |
 | `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
-| `lib/numbers.ts` | `parseWholeNumber`: reads a whole number typed in an admin form ("1 290"), for both the forms and the server. |
+| `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
 Pages read data in server components. Changes go through server actions in `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.

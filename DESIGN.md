@@ -64,12 +64,13 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | Component | File | Variants | Use |
 |---|---|---|---|
 | `Button` | `Button.tsx` | `primary`, `secondary`, `quiet`; sizes `default`, `compact` (admin) | Every button with text. Shrinks slightly when pressed; faded and `not-allowed` when disabled. |
+| `buttonClass()` | `Button.tsx` | the same variants and sizes | A link that looks like a button, because it goes to another page: **Fortsätt** from the search results, the links back on `/flyg/plan`. |
 | `RoundButton` | `RoundButton.tsx` | default, `compact` | + and −, the carousel's arrows. Needs a `label` (read aloud and shown on hover). |
 | `Field` | `Field.tsx` | error state | A field with its label small inside the box, above the value, and the error message under it. The input inside uses `fieldInputClass`. |
 | `FieldBox` | `Field.tsx` | `invalid`, `active` | Only the box of a `Field`, for fields whose message is shown elsewhere (the date group). `active` gives it the focus look while focus is somewhere else, in the calendar. |
 | `fieldClass()`, `textAreaClass()` | `Field.tsx` | sizes `large`, `small`, `compact`; error state | A field without a label inside, for example in admin tables. |
 | `Switch` | `Switch.tsx` | | An on/off choice ("Tur och retur"): a `button` with `role="switch"`, the track filled with the accent when on. |
-| `Card` | `Card.tsx` | sizes `default`, `compact` (admin) | Cards. |
+| `Card` | `Card.tsx` | sizes `default`, `compact` (admin), `flush` (no padding, for a card filled by a button or a label) | Cards. |
 | `floatClass`, `floatingCardClass` | `Card.tsx` | | What floats above the page (floating surface and shadow): suggestion lists, and dialogs with a card's shape (`floatingCardClass`). |
 | `Message` | `Message.tsx` | `error`, `success` | Errors (`role="alert"`) and confirmations (`role="status"`) as coloured text, without a box. |
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |

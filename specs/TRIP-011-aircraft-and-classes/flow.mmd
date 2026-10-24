@@ -1,0 +1,18 @@
+%% TRIP-011 Choose aircraft and classes
+%% From the chosen flights to the prices. Everything chosen is in the address (R1, R10).
+flowchart TD
+    A["/flyg: Din resa"] -- Fortsätt --> B{"/flyg/plan: flights in the address exist and haven't left?"}
+    B -- no --> X["Message and a link back"]
+    B -- yes --> C["Step Plan: aircraft per flight<br/>price, time, arrival, compared (R2, R7)"]
+    C -- "aircraft with too few seats" --> C
+    C -- "Fortsätt without an aircraft for every flight" --> M1["Välj ett plan för …"] --> C
+    C -- "Fortsätt" --> D["Step Klasser: everyone in the cheapest class with room (R3)"]
+    D -- "− / +" --> E{"All travellers placed?"}
+    E -- no --> M2["N resenärer har ingen klass"] --> D
+    E -- yes --> F["Prices per class, flight and trip (R4)<br/>Fortsätt to booking in TRIP-012 (R5)"]
+    D -- "step Plan, same aircraft" --> C
+    C -- "another aircraft" --> G["Its classes cleared (R10)"] --> C
+    D -- "step Flyg" --> A
+    A -- "another flight" --> H["Its aircraft and classes cleared (R10)"] --> A
+    I["Admin: class factor (R6), aircraft factors (R8)"] -. "prices and times" .-> C
+    I -. "från price (R9)" .-> A

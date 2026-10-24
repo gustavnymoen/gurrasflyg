@@ -3,6 +3,7 @@
 import { Fragment, useState } from "react";
 import type { Addon, Aircraft, CabinClass } from "@/lib/admin";
 import { formatPrice } from "@/lib/format";
+import { formatFactor } from "@/lib/numbers";
 import { ChevronIcon } from "../components/icons";
 import Button from "../components/Button";
 import { createAircraftAction, deleteAircraftAction, updateAircraftAction } from "./actions";
@@ -45,6 +46,8 @@ export default function AircraftTable({
               <tr>
                 <th className="w-8" />
                 <th className={thClass}>Namn</th>
+                <th className={`${thClass} text-right`}>Prisfaktor</th>
+                <th className={`${thClass} text-right`}>Tidsfaktor</th>
                 <th className={`${thClass} text-right`}>Klasser</th>
                 <th className={`${thClass} text-right`}>Platser</th>
                 <th className="w-20">
@@ -81,7 +84,7 @@ function AircraftRow({
   if (editing) {
     return (
       <tr className={rowClass}>
-        <td colSpan={5} className="py-3">
+        <td colSpan={7} className="py-3">
           <AircraftForm
             title={`Ändra ${aircraft.name}`}
             classes={classes}
@@ -102,6 +105,8 @@ function AircraftRow({
           <ExpandButton open={open} label={aircraft.name} onClick={() => setOpen(!open)} />
         </td>
         <td className="py-1.5 font-medium">{aircraft.name}</td>
+        <td className="py-1.5 text-right tabular-nums text-ink">{formatFactor(aircraft.pricePercent)}</td>
+        <td className="py-1.5 text-right tabular-nums text-ink">{formatFactor(aircraft.timePercent)}</td>
         <td className="py-1.5 text-right text-ink">{aircraft.classes.length}</td>
         <td className="py-1.5 text-right text-ink">{seats}</td>
         <td className="py-1.5">
@@ -135,6 +140,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
             {cabinClass.className}
           </div>
         </td>
+        <td colSpan={2} />
         <td className="py-1.5 text-right text-ink-muted">
           {cabinClass.addons.length} {cabinClass.addons.length === 1 ? "addon" : "addons"}
         </td>
@@ -144,7 +150,7 @@ function ClassSubRow({ cabinClass }: { cabinClass: Aircraft["classes"][number] }
       {open && (
         <tr className="bg-surface-sunk text-xs">
           <td />
-          <td colSpan={4} className="pb-3 pl-12">
+          <td colSpan={6} className="pb-3 pl-12">
             {cabinClass.addons.length === 0 ? (
               <span className="text-ink-muted">Inga addons i den här klassen.</span>
             ) : (

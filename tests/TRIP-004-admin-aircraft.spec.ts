@@ -39,9 +39,10 @@ test("TRIP-004-R1 table shows classes and seats per aircraft", async ({ page }) 
     { name: "Business", seats: 20 },
   ]);
   const cells = aircraftRow(page, name).getByRole("cell");
+  // Namn, Prisfaktor, Tidsfaktor (TRIP-011-R8), Klasser, Platser
   await expect(cells.nth(1)).toHaveText(name);
-  await expect(cells.nth(2)).toHaveText("2");
-  await expect(cells.nth(3)).toHaveText("120");
+  await expect(cells.nth(4)).toHaveText("2");
+  await expect(cells.nth(5)).toHaveText("120");
 
   await deleteWithConfirmation(page, `Ta bort ${name}`);
 });
@@ -201,8 +202,8 @@ test("TRIP-004-R8 change an aircraft", async ({ page }) => {
   await f.getByRole("button", { name: "Spara", exact: true }).click();
 
   const cells = aircraftRow(page, renamed).getByRole("cell");
-  await expect(cells.nth(2)).toHaveText("2");
-  await expect(cells.nth(3)).toHaveText("15");
+  await expect(cells.nth(4)).toHaveText("2");
+  await expect(cells.nth(5)).toHaveText("15");
 
   await deleteWithConfirmation(page, `Ta bort ${renamed}`);
 });

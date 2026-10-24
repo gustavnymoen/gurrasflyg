@@ -29,7 +29,7 @@ How each requirement was checked. "local" is `npm run test:unit` and `npm run te
 |---|---|---|---|---|
 | Unit tests | `lib/search.test.ts`, `lib/flight-rules.test.ts`, `db/migrations/007_all_routes.test.ts` (15 new); TRIP-005's R2 and R4 data checks replaced by TRIP-010-R10's | local | Pass (39) | 2026-10-23 |
 | Browser tests | 20 tests in `tests/TRIP-010-search-results.spec.ts`; TRIP-005's browser tests deleted (they tested "Tilldela plan"); TRIP-004-R1 without the column Rutter; TRIP-021-R3's carousel focus test starts from Sök | local | Pass | 2026-10-23 |
-| Smoke test | `TRIP-010-R4 @smoke a search ARN → LHR for tomorrow shows at least 5 flights` | local | Pass locally; preview and live not checked yet | 2026-10-23 |
+| Smoke test | `TRIP-010-R4 @smoke a search ARN → LHR for tomorrow shows at least 5 flights` | local, preview, live | Pass; Live tests after the merge (run 39999944608, commit efba442): 6 smoke tests passed in 6.0 s, this one in 0.7 s | 2026-10-23 |
 | Accessibility | axe on: missing values in the form, searching (skeleton cards), results, expanded card, step 2, summary, no flights; 320 px without sideways scrolling. The checklist in `wiki/system/accessibility.md` on the live site: not checked yet (after the deploy) | local | Pass (axe); checklist not checked yet | 2026-10-23 |
 | Security | Security points in the review: passed. `/security-review`: no findings | local | Pass | 2026-10-23 |
 | Code review | [review.md](review.md), run 2 | local | Passed | 2026-10-23 |
@@ -49,7 +49,7 @@ Within every budget. The new browser tests take at most about 1 s each: they nev
 
 - [x] Tests: every check in the card's test plan is done locally; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time +6 %, and the new tests follow the quality rules (no fixed waits: the clock is moved instead)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 39999944608 after the merge of #60, 6 passed (recorded on TRIP-011's branch)
 - [ ] Accessibility: axe passes on every new state; the checklist on the live site: not checked yet
 - [x] Requirements in the card match what was built (R13 was added with the user during the work), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/valja-flyg.md`, `soka-flyg.md`, `admin-plan.md`; `admin-tilldela-plan.md` deleted), system docs (`wiki/system/search-results.md`, architecture, index) and `wiki/log.md` updated

@@ -39,7 +39,7 @@ export default function FlightCard({
             <span className="sr-only">till</span> <AirportName airport={flight.to} />
           </span>
           <span className="col-span-2 row-start-2 sm:col-span-1 sm:row-start-auto sm:text-right">
-            från <span className="font-bold">{formatPrice(flight.price)}</span> / person
+            från <span className="font-bold">{formatPrice(flight.fromPrice)}</span> / person
           </span>
           <ChevronIcon
             open={open}
@@ -59,7 +59,7 @@ export default function FlightCard({
               </Detail>
               <Detail term="Datum">{formatLong(flight.date)}</Detail>
               <Detail term={`Totalt för ${travellers} ${travellers === 1 ? "resenär" : "resenärer"}`}>
-                från {formatPrice(totalPrice(flight.price, travellers))}
+                från {formatPrice(totalPrice(flight.fromPrice, travellers))}
               </Detail>
             </dl>
             <Button onClick={onChoose} className="self-start">

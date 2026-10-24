@@ -5,7 +5,7 @@ description: Så skapar, ändrar och tar du bort kabinklasser och addons på adm
 resource: app/admin/ClassTable.tsx
 feature: TRIP-003
 tags: [admin, klasser, addons, pris]
-timestamp: 2026-10-21
+timestamp: 2026-10-23
 ---
 
 # Klasser och addons
@@ -16,11 +16,13 @@ Klicka på kortets rubrik för att fälla ihop eller fälla ut det.
 
 ## Klasser
 
-- **Lägg till:** klicka på **Lägg till** under Klasser, skriv namnet och klicka på **Spara**. **Avbryt** stänger utan att spara.
-- **Ändra namn:** klicka på pennan, ändra och klicka på **Spara**.
+- **Lägg till:** klicka på **Lägg till** under Klasser, skriv namnet och prisfaktorn och klicka på **Spara**. **Avbryt** stänger utan att spara.
+- **Ändra namn eller prisfaktor:** klicka på pennan, ändra och klicka på **Spara**.
 - **Ta bort:** klicka på papperskorgen och svara **Ja** på frågan "Är du säker?".
 
 Två klasser kan inte heta likadant, inte heller med olika stora och små bokstäver.
+
+**Prisfaktorn** (kolumnen **Prisfaktor**) avgör hur mycket dyrare klassen är: resenärens pris per person är avgångens pris gånger planets prisfaktor gånger klassens. Business med 1,50 kostar 50 % mer än en klass med 1,00. En ny klass börjar på 1,00. Skriv faktorn med decimalkomma och högst två decimaler, från 1,00 till 10,00.
 
 ## Addons
 
@@ -40,6 +42,7 @@ Används en klass eller addon av ett plan visas **Du kan ej ta bort** och varfö
 |---|---|
 | Klassen måste ha ett namn. | Skriv ett namn. |
 | Klassen "…" finns redan. | Välj ett annat namn. |
+| Prisfaktorn måste vara ett tal från 1 till 10 med högst två decimaler, t.ex. 1,50. | Skriv en faktor från 1,00 till 10,00, med decimalkomma. |
 | Ange ett pris. | Skriv ett pris i kronor. |
 | Addon måste ha ett namn. / Addon måste ha en beskrivning. | Fyll i fältet. |
 | Addon "…" finns redan. | Välj ett annat namn. |

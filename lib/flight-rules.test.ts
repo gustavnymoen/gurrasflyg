@@ -1,13 +1,15 @@
 import { expect, test } from "vitest";
 import { type Flight, flightNumber, hasLeft, localNow, searchDelay, sortFlights, totalPrice } from "./flight-rules";
 
-const airport = { iata: "ARN", name: "Stockholm Arlanda", city: "Stockholm", country: "Sverige" };
-const flight = (time: string, price: number): Flight => ({
+const airport = { iata: "ARN", name: "Stockholm Arlanda", city: "Stockholm", country: "Sverige", timezone: "Europe/Stockholm" };
+const flight = (time: string, fromPrice: number): Flight => ({
   id: time,
   number: "GF 11",
   date: "2026-11-13",
   time,
-  price,
+  price: 100,
+  fromPrice,
+  routeMinutes: 140,
   from: airport,
   to: { ...airport, iata: "LHR" },
 });

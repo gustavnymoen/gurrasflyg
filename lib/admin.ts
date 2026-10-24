@@ -2,14 +2,23 @@ import "server-only";
 import type { Transaction } from "@libsql/client";
 import { connection } from "next/server";
 import { all, constraintKind, get, run, withTransaction } from "./db";
-import { parseWholeNumber } from "./numbers";
+import {
+  parsePriceFactor,
+  parseTimeFactor,
+  parseWholeNumber,
+  PRICE_FACTOR_ERROR,
+  TIME_FACTOR_ERROR,
+} from "./numbers";
 
-// inUse = något annat i databasen pekar på raden, så den kan inte tas bort
-export type CabinClass = { id: number; name: string; inUse: boolean };
+// inUse = något annat i databasen pekar på raden, så den kan inte tas bort.
+// Faktorerna är procent som heltal: 150 = 1,50 (TRIP-011).
+export type CabinClass = { id: number; name: string; pricePercent: number; inUse: boolean };
 export type Addon = { id: number; name: string; description: string; price: number; inUse: boolean };
 export type Aircraft = {
   id: number;
   name: string;
+  pricePercent: number;
+  timePercent: number;
   inUse: boolean;
   classes: {
     classId: number;
@@ -19,12 +28,18 @@ export type Aircraft = {
   }[];
 };
 
-// Det som skickas från formuläret när ett plan skapas eller ändras
+// Det som skickas från formuläret när ett plan skapas eller ändras. Faktorerna
+// är texten från formuläret, t.ex. "1,20"; servern avgör om de går att läsa.
 export type AircraftInput = {
   name: string;
+  priceFactor: string;
+  timeFactor: string;
   classes: { classId: number; capacity: number }[];
   addons: { addonId: number; classId: number }[];
 };
+
+// Det som sparas för ett plan: faktorerna i procent
+type CleanAircraft = Omit<AircraftInput, "priceFactor" | "timeFactor"> & { pricePercent: number; timePercent: number };
 
 // Priset är texten från formuläret; servern avgör om det är hela kronor
 export type AddonInput = { name: string; description: string; price: string };
@@ -48,7 +63,7 @@ const ADDON_IN_USE = `
 export async function listClasses(): Promise<CabinClass[]> {
   await connection();
   const rows = await all<Omit<CabinClass, "inUse"> & { inUse: number }>(
-    `SELECT c.id, c.name, ${CLASS_IN_USE} AS inUse FROM classes c ORDER BY c.id`,
+    `SELECT c.id, c.name, c.price_percent AS pricePercent, ${CLASS_IN_USE} AS inUse FROM classes c ORDER BY c.id`,
   );
   return rows.map((r) => ({ ...r, inUse: r.inUse === 1 }));
 }
@@ -66,8 +81,9 @@ export async function listAddons(): Promise<Addon[]> {
 export async function listAircraft(): Promise<Aircraft[]> {
   await connection();
   const [aircraft, classes, addons] = await Promise.all([
-    all<{ id: number; name: string; inUse: number }>(
-      `SELECT a.id, a.name, EXISTS (SELECT 1 FROM flights WHERE aircraft_id = a.id) AS inUse
+    all<{ id: number; name: string; pricePercent: number; timePercent: number; inUse: number }>(
+      `SELECT a.id, a.name, a.price_percent AS pricePercent, a.time_percent AS timePercent,
+              EXISTS (SELECT 1 FROM flights WHERE aircraft_id = a.id) AS inUse
        FROM aircraft a ORDER BY a.name`,
     ),
     all<{ aircraftId: number; classId: number; className: string; capacity: number }>(
@@ -85,6 +101,8 @@ export async function listAircraft(): Promise<Aircraft[]> {
   return aircraft.map((a) => ({
     id: a.id,
     name: a.name,
+    pricePercent: a.pricePercent,
+    timePercent: a.timePercent,
     inUse: a.inUse === 1,
     classes: classes
       .filter((c) => c.aircraftId === a.id)
@@ -101,17 +119,20 @@ export async function listAircraft(): Promise<Aircraft[]> {
 
 // ---------------------------------------------------------------- Klasser
 
-export async function createClass(name: string) {
+// factor är prisfaktorn som text från formuläret, t.ex. "1,50" (TRIP-011-R6)
+export async function createClass(name: string, factor: string) {
   const clean = requireText(name, "Klassen måste ha ett namn.");
-  await translateErrors(run("INSERT INTO classes (name) VALUES (?)", [clean]), {
+  const percent = requireFactor(factor, parsePriceFactor, PRICE_FACTOR_ERROR);
+  await translateErrors(run("INSERT INTO classes (name, price_percent) VALUES (?, ?)", [clean, percent]), {
     unique: `Klassen "${clean}" finns redan.`,
   });
 }
 
-export async function updateClass(id: number, name: string) {
+export async function updateClass(id: number, name: string, factor: string) {
   const clean = requireText(name, "Klassen måste ha ett namn.");
+  const percent = requireFactor(factor, parsePriceFactor, PRICE_FACTOR_ERROR);
   const result = await translateErrors(
-    run("UPDATE classes SET name = ? WHERE id = ?", [clean, id]),
+    run("UPDATE classes SET name = ?, price_percent = ? WHERE id = ?", [clean, percent, id]),
     { unique: `Klassen "${clean}" finns redan.` },
   );
   if (result.changes === 0) throw new AdminError("Klassen finns inte längre.");
@@ -172,7 +193,7 @@ export async function deleteAddon(id: number) {
 // ---------------------------------------------------------------- Plan
 
 // Sparar planets klasser och addons. Används både när planet skapas och ändras.
-async function saveAircraftContents(tx: Transaction, aircraftId: number, input: AircraftInput) {
+async function saveAircraftContents(tx: Transaction, aircraftId: number, input: CleanAircraft) {
   // Kontrollera att valda klasser och addons finns (i stället för att lita på REFERENCES)
   const classIds = new Set(
     (await all<{ id: number }>("SELECT id FROM classes", [], tx)).map((r) => r.id),
@@ -209,7 +230,11 @@ export async function createAircraft(input: AircraftInput) {
   const clean = validateAircraft(input);
   await withTransaction(async (tx) => {
     const { lastId } = await translateErrors(
-      run("INSERT INTO aircraft (name) VALUES (?)", [clean.name], tx),
+      run(
+        "INSERT INTO aircraft (name, price_percent, time_percent) VALUES (?, ?, ?)",
+        [clean.name, clean.pricePercent, clean.timePercent],
+        tx,
+      ),
       { unique: `Det finns redan ett plan som heter "${clean.name}".` },
     );
     await saveAircraftContents(tx, lastId, clean);
@@ -220,7 +245,11 @@ export async function updateAircraft(id: number, input: AircraftInput) {
   const clean = validateAircraft(input);
   await withTransaction(async (tx) => {
     const result = await translateErrors(
-      run("UPDATE aircraft SET name = ? WHERE id = ?", [clean.name, id], tx),
+      run(
+        "UPDATE aircraft SET name = ?, price_percent = ?, time_percent = ? WHERE id = ?",
+        [clean.name, clean.pricePercent, clean.timePercent, id],
+        tx,
+      ),
       { unique: `Det finns redan ett plan som heter "${clean.name}".` },
     );
     if (result.changes === 0) throw new AdminError("Planet finns inte längre.");
@@ -286,8 +315,10 @@ export async function deleteAircraft(id: number) {
 
 // ---------------------------------------------------------------- Kontroller
 
-function validateAircraft(input: AircraftInput): AircraftInput {
+function validateAircraft(input: AircraftInput): CleanAircraft {
   const name = requireText(input.name, "Planet måste ha ett namn.");
+  const pricePercent = requireFactor(input.priceFactor, parsePriceFactor, PRICE_FACTOR_ERROR);
+  const timePercent = requireFactor(input.timeFactor, parseTimeFactor, TIME_FACTOR_ERROR);
   if (!Array.isArray(input.classes) || !Array.isArray(input.addons)) {
     throw new AdminError("Något gick fel, ladda om sidan.");
   }
@@ -314,7 +345,7 @@ function validateAircraft(input: AircraftInput): AircraftInput {
   if (new Set(addonKeys).size !== addonKeys.length) {
     throw new AdminError("Samma addon finns flera gånger i samma klass.");
   }
-  return { ...input, name };
+  return { name, classes: input.classes, addons: input.addons, pricePercent, timePercent };
 }
 
 function validateAddon(addon: AddonInput) {
@@ -330,6 +361,13 @@ function parseKronor(text: unknown) {
   const kronor = parseWholeNumber(text);
   if (kronor === null) throw new AdminError("Ange priset i hela kronor.");
   return kronor;
+}
+
+// En faktor som text, i procent (TRIP-011-R6, R8)
+function requireFactor(text: unknown, parse: (text: string) => number | null, message: string) {
+  const percent = typeof text === "string" ? parse(text) : null;
+  if (percent === null) throw new AdminError(message);
+  return percent;
 }
 
 // Namn och beskrivningar: text, inte tom, och inte orimligt lång. Typerna

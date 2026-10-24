@@ -37,16 +37,17 @@ Flygen står i avgångsordning, tidigast först. Välj **Pris** vid **Sortera p�
 1. Fäll ut kortet för det flyg du vill ha och klicka på **Välj**.
 2. Reser du tur och retur visas sedan hemresorna, och din valda utresa står överst. Välj en hemresa på samma sätt.
 3. Till sist visas **Din resa**: flygen du valt och vad resan kostar totalt för alla resenärer.
+4. Klicka på **Fortsätt** för att [välja plan och klass](valja-plan-och-klass.md).
 
 Överst ser du vilket steg du är på: **Utresa**, **Hemresa** och **Din resa**.
 
 Vill du byta flyg klickar du på **Ändra utresa** eller **Ändra hemresa**. Byter du utresa får du välja hemresa igen.
 
-Att välja plan och klass kommer snart.
+Kommer du tillbaka hit från sidan för plan och klass står flygen du valt redan under **Din resa**. Byter du ett flyg får du välja plan och klasser för det igen.
 
 ## Vanliga frågor
 
-**Varför står det "från" före priset?** Priset kan bli högre beroende på vilket plan och vilken klass du väljer.
+**Varför står det "från" före priset?** Det är det billigaste du kan flyga flyget för: med det billigaste planet som har plats för er alla, i dess billigaste klass. Priset blir högre med ett dyrare plan eller en finare klass.
 
 **Varför kostar vissa flyg flera hundra tusen kronor?** Vissa avgångar är exklusiva. Ta en annan avgång om plånboken protesterar.
 
