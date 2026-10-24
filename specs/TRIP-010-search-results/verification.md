@@ -30,9 +30,27 @@ How each requirement was checked. "local" is `npm run test:unit` and `npm run te
 | Unit tests | `lib/search.test.ts`, `lib/flight-rules.test.ts`, `db/migrations/007_all_routes.test.ts` (15 new); TRIP-005's R2 and R4 data checks replaced by TRIP-010-R10's | local | Pass (39) | 2026-10-23 |
 | Browser tests | 20 tests in `tests/TRIP-010-search-results.spec.ts`; TRIP-005's browser tests deleted (they tested "Tilldela plan"); TRIP-004-R1 without the column Rutter; TRIP-021-R3's carousel focus test starts from Sök | local | Pass | 2026-10-23 |
 | Smoke test | `TRIP-010-R4 @smoke a search ARN → LHR for tomorrow shows at least 5 flights` | local, preview, live | Pass; Live tests after the merge (run 39999944608, commit efba442): 6 smoke tests passed in 6.0 s, this one in 0.7 s | 2026-10-23 |
-| Accessibility | axe on: missing values in the form, searching (skeleton cards), results, expanded card, step 2, summary, no flights; 320 px without sideways scrolling. The checklist in `wiki/system/accessibility.md` on the live site: not checked yet (after the deploy) | local | Pass (axe); checklist not checked yet | 2026-10-23 |
+| Accessibility | axe on: missing values in the form, searching (skeleton cards), results, expanded card, step 2, summary, no flights; 320 px without sideways scrolling. The checklist in `wiki/system/accessibility.md` on the live site: see [the checklist](#the-accessibility-checklist-on-the-live-site) | local, live | Pass (axe); checklist: one failure (item 6, the sort choice's focus ring), fixed on branch `TRIP-011-live-checks`; VoiceOver not checked | 2026-10-23, 2026-10-24 |
 | Security | Security points in the review: passed. `/security-review`: no findings | local | Pass | 2026-10-23 |
 | Code review | [review.md](review.md), run 2 | local | Passed | 2026-10-23 |
+
+## The accessibility checklist on the live site
+
+Gone through on https://gurrasflyg.vercel.app on 2026-10-24, in the built-in browser of the Claude desktop app (Chromium), on `/flyg?fran=ARN&till=LHR&utresa=2026-10-25&resenarer=2`: the results, an expanded card, the summary after Välj. The keyboard was used through real key presses; names, states and sizes were read from the page.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Keyboard | Pass. Tab goes Från, Till, Utresa (the calendar opens and is passed through), the two Resenärer buttons, Sök, the sort choice (one stop; the arrow keys switch to Pris and the list is re-sorted at once), the five flight cards, the footer. Enter expands a card, Tab reaches Välj, and Enter on Välj shows the summary with focus on "Din resa". Focus never got stuck |
+| 2 | Visible focus | **Failed, fixed.** Every control shows the 2 px ring in `accent-strong`, except the sort choice: its radio buttons are visually hidden and the label only got a ring in `accent-glow` (40 % opacity), about 1.4:1 against the card, which was hard to see. Changed to the same 2 px outline in `accent-strong` (`has-focus-visible:outline-*` in `SortChoice`, `app/flyg/FlightResults.tsx`); not yet checked on a deploy. Nothing is hidden behind the header |
+| 3 | Screen reader | Not checked with VoiceOver (needs the user). Read from the page instead: `lang="sv"`, one `h1` "Välj ditt flyg", `h2` "Utresa Stockholm – London", landmarks header, main, nav, footer; the cards are buttons with `aria-expanded`; the sort choice is a fieldset with the legend "Sortera på"; the status "5 flyg hittades" (`role="status"`) replaces "Söker flyg…" |
+| 4 | Zoom and 320 px | Pass. At 320 px and at 640 px (1280 px at 200 %) the page is exactly as wide as the window, with an expanded card |
+| 5 | Text spacing | Pass. With the bookmarklet's values applied as a style, no text is cut off and nothing overlaps (only the search fields scroll their own long airport names, as before) |
+| 6 | Contrast | Text: axe. The sort choice's focus ring failed (see 2) and is fixed; the cards' focus ring (`ink`) and the field borders (`line-strong`) are as on the start page |
+| 7 | Target size | Pass. Sort buttons about 105 × 32 px, cards full width × 64 px, Välj and Sök larger. The footer links (20 px high) have more than 24 px between their centres |
+| 8 | Content on hover or focus | Not affected: the results page shows nothing on hover or focus; the form's lists and calendar are TRIP-001's and TRIP-009's |
+| 9 | Errors and labels | Pass (tested in R1 with axe): missing values are shown in text under the field, and every field has a visible label |
+| 10 | Title, language, images | Pass. Title "Välj flyg – Gurras Flyg", `lang="sv"`, no images |
+| 11 | Reduced motion | Pass by code review: the skeleton cards pulse only with `motion-safe:animate-pulse`, and the global reduced-motion rule turns animations off |
 
 ## Test suite
 
@@ -50,7 +68,7 @@ Within every budget. The new browser tests take at most about 1 s each: they nev
 - [x] Tests: every check in the card's test plan is done locally; every requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time +6 %, and the new tests follow the quality rules (no fixed waits: the clock is moved instead)
 - [x] Deployed, and the smoke tests pass against production (Live tests): run 39999944608 after the merge of #60, 6 passed (recorded on TRIP-011's branch)
-- [ ] Accessibility: axe passes on every new state; the checklist on the live site: not checked yet
+- [x] Accessibility: axe passes on every new state; the checklist on the live site on 2026-10-24: one failure (the sort choice's focus ring) fixed on branch `TRIP-011-live-checks`; VoiceOver not checked
 - [x] Requirements in the card match what was built (R13 was added with the user during the work), no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/valja-flyg.md`, `soka-flyg.md`, `admin-plan.md`; `admin-tilldela-plan.md` deleted), system docs (`wiki/system/search-results.md`, architecture, index) and `wiki/log.md` updated
 - [x] No leftovers: "Tilldela plan" (button, action, functions, column Rutter, manual page, tests) deleted; no debug output
