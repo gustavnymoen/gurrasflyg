@@ -19,3 +19,8 @@ export function formatDuration(minutes: number) {
   if (hours === 0) return `${rest} min`;
   return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 }
+
+// Antal -> "1 resenär", "2 resenärer", "0 resenärer"
+export function travellersText(count: number) {
+  return `${count} ${count === 1 ? "resenär" : "resenärer"}`;
+}

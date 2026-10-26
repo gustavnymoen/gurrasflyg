@@ -2,6 +2,7 @@
 // Faktorerna är procent som heltal: 120 = 1,20 (db/migrations/008_factors.sql).
 
 import { type Flight, localNow } from "./flight-rules";
+import { travellersText } from "./format";
 
 export type FleetClass = { id: number; name: string; capacity: number; pricePercent: number };
 
@@ -130,7 +131,7 @@ export const placed = (seating: Seating) => Object.values(seating).reduce((sum, 
 export function seatingCounter(seating: Seating, travellers: number) {
   const left = travellers - placed(seating);
   if (left <= 0) return "Alla resenärer har en klass";
-  return `Placera ut ${left} ${left === 1 ? "resenär" : "resenärer"}`;
+  return `Placera ut ${travellersText(left)}`;
 }
 
 // Går det att lägga till en resenär i klassen? Inte fler än platserna, och

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { formatDay } from "@/lib/dates";
 import { type Flight, searchDelay, type SortBy, sortFlights, totalPrice } from "@/lib/flight-rules";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, travellersText } from "@/lib/format";
 import type { Search } from "@/lib/search";
 import { keepChoice, type LegChoice, planUrl } from "@/lib/trip";
 import Button, { buttonClass } from "../components/Button";
@@ -308,7 +308,7 @@ function Summary({
       </ul>
       <p className="flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-4">
         <span className="text-ink-muted">
-          Totalt för {travellers} {travellers === 1 ? "resenär" : "resenärer"}
+          Totalt för {travellersText(travellers)}
         </span>
         <span className="text-xl font-bold">från {formatPrice(total)}</span>
       </p>

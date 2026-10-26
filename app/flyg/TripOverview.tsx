@@ -1,5 +1,6 @@
 import { type FleetAircraft, seatingText } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
+import { travellersText } from "@/lib/format";
 import { LEG_NAMES, type LegChoice } from "@/lib/trip";
 import Card from "../components/Card";
 import FlightLine from "./FlightLine";
@@ -49,7 +50,7 @@ export default function TripOverview({
         })}
       </ul>
       <p className="text-small text-ink-muted">
-        {travellers} {travellers === 1 ? "resenär" : "resenärer"}
+        {travellersText(travellers)}
       </p>
     </Card>
   );
