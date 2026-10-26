@@ -116,7 +116,7 @@ Changes reach `main` through pull requests, which branch protection merges only 
 
 ## Tests
 
-Playwright browser tests in `tests/`, one file per feature, and Vitest unit tests in `*.test.ts` next to the code they test (`vitest.config.mts`); each test named after a requirement ID. See [Testing](testing.md).
+Playwright browser tests in `tests/`, one file per feature (the look is checked in `tests/TECH-018-design.spec.ts`), and Vitest unit tests in `*.test.ts` next to the code they test (`vitest.config.mts`); each test named after a requirement ID. See [Testing](testing.md).
 
 | Command | Site | Database |
 |---|---|---|

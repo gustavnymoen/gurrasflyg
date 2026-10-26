@@ -15,7 +15,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 - **Database:** SQLite through `@libsql/client`. Locally a file, `~/Ai Projekt/gurrasflyg-data/gurrasflyg.db`, kept outside the project folder so it survives a fresh clone. Backups are saved in the project's `db/backups/` (see [Local database and backups](#local-database-and-backups)). In production **Turso**, a hosted SQLite.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
 - **Pipeline:** GitHub Actions checks every pull request, tests its preview deployment before merge, and tests the live site after every deploy. See [Pipeline](#pipeline).
-- **Tests:** Playwright, one file per feature. `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
+- **Tests:** Playwright, one file per feature (design checks are in one shared file). `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
 - **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews.
 
 `wiki/system/architecture.md` describes the parts in more detail.
@@ -35,7 +35,7 @@ The site is built one feature at a time, and the requirements decide what is bui
 - **The card** holds what is built and why: a short explanation, then the goal, scope and requirements, worked out together. New cards start from `.github/ISSUE_TEMPLATE/card.md`. A merged pull request with "Closes #<card>" moves the card to Done.
 - **The solution:** a folder `specs/<feature ID>-<name>/`, created when the work starts from `specs/_template/`, with `solution.md` (how it is built), `flow.mmd` (a Mermaid flow diagram), `verification.md` (how it was checked, and the requirements as built) and `review.md` (the code review). Features finished before the board also keep their `spec.md` as history.
 - **Requirements** have IDs within their feature: `TRIP-001-R1`, `TRIP-001-R2` and so on.
-- **Tests:** one file per feature, `tests/<feature ID>-<name>.spec.ts`, with each test named after the requirement it checks.
+- **Tests:** one file per feature, `tests/<feature ID>-<name>.spec.ts` (design checks go in `tests/TECH-018-design.spec.ts`, one test per page and state), with each test named after the requirement it checks.
 - **Product overview:** `specs/overview.md` describes the product's purpose, shared terms, scope, the list of features and rules that apply across features.
 - **Wiki:** `wiki/system/` documents how the site works (English) and `wiki/manual/` how to use it (Swedish). Every page starts with frontmatter (`type`, `title`, `description`, `resource`, `feature` when the page belongs to one, `tags`, `timestamp`), so the wiki can later feed a chatbot. The `index.md` pages, `wiki/system/architecture.md` and `wiki/log.md` grow as features are finished.
 - **Code review:** before a feature is done, a reviewer agent reviews the change and its report is posted on the pull request. See [wiki/system/code-review.md](wiki/system/code-review.md).
