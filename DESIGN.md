@@ -77,6 +77,9 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |
 | `DatePicker`, `Calendar` | `DatePicker.tsx`, `Calendar.tsx` | | The date group Utresa/Hemresa and the calendar that floats under it (TRIP-009, see [the date picker](wiki/system/date-picker.md)). Chosen days in the strong accent, the days between as a band with accent lines, today with a brass ring. |
 | `Wordmark` | `Wordmark.tsx` | | The plane in a brass ring and "Gurras Flyg", linking to the start page, in the header of every page (`app/layout.tsx`). The plane takes off into the ring once when the page loads and hops on hover; the take-off is removed when it has played, so the page stands still afterwards. |
+| `Dialog` | `Dialog.tsx` | `role` `alertdialog` (default) or `dialog` | A question over the page, shared by the admin and the abort question (TRIP-018) ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. The browser's `<dialog>` with `showModal()`: Tab cycles between its buttons, Escape closes it, and focus goes back to the button that opened it. The button to focus first has `data-autofocus`. |
+| `Tabs` | `Tabs.tsx` | | Tabs above a card (WAI-ARIA tabs: arrows, Home and End move and select). The start page's **Flyg** and **Charter** (TRIP-018). |
+| `AbortButton`, `StartLink` | `AbortFlow.tsx` | | **Avbryt** in the header and the wordmark and the footer's Start, which inside the flight or charter flow ask "Är du säker?" before going to the start page (TRIP-018). |
 
 ### Admin pieces
 
@@ -85,7 +88,6 @@ The admin page's own pieces are in `app/admin/admin-ui.tsx`, built on the compon
 | Piece | Built on | Use |
 |---|---|---|
 | `CollapsibleCard` | `Card` (compact) | Each part of the admin page (Klasser & addons, Plan, Omdömen), with a heading that folds it in and out. |
-| `Dialog` | `floatingCardClass` | A question over the page ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. The browser's `<dialog>` with `showModal()`: Tab stays in it, Escape closes it, and focus goes back to the button that opened it. The button to focus first has `data-autofocus`. |
 | `LabeledField` | tokens | A visible label above an admin field (`label` with `htmlFor`, WCAG 3.3.2). The width goes on `LabeledField`, the field inside fills it. |
 | `IconButton` | tokens | A small button with only an icon: pencil, trash can, check, cross, the arrow that unfolds a row. Needs a `label` (read aloud and shown on hover). |
 | `EditButton`, `RemoveButton`, `DeleteButton` | `IconButton`, `Dialog` | Pencil; trash can without a question (rows in an unsaved form); trash can with "Är du säker?". |

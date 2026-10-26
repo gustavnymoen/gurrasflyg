@@ -1,0 +1,11 @@
+%% TRIP-018 Switch between flight booking and charter
+flowchart TD
+    A[Start page: tabs Flyg and Charter R1] -- Flyg: Sök --> B[Flight flow: /flyg, /flyg/plan, /flyg/boka, /flyg/boka/betala]
+    A -- Charter: Utforska charterresor --> C[/charter]
+    B -- Avbryt, wordmark or Start R3 --> D{Är du säker? R4}
+    C -- Avbryt, wordmark or Start R3 --> D
+    D -- Ja, avbryt --> E[Booking removed from sessionStorage] --> A
+    D -- Nej, fortsätt, Escape, click outside --> B
+    D -. back to the page you were on .-> C
+    B --> F[/flyg/bokad: a plain link to the start page]
+    F --> A

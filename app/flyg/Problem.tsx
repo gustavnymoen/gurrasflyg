@@ -1,16 +1,22 @@
 import Link from "next/link";
 import type { TripProblem as Trouble } from "@/lib/flights";
 import { searchUrl } from "@/lib/search";
+import { StartLink } from "../components/AbortFlow";
 import { buttonClass } from "../components/Button";
 
-// Vad som är fel och en länk dit besökaren kan gå vidare
+// Vad som är fel och en länk dit besökaren kan gå vidare. Länken till
+// startsidan frågar först när besökaren är i ett flöde (TRIP-018-R2).
 export default function Problem({ text, href, link }: { text: string; href: string; link: string }) {
   return (
     <div className="flex flex-col items-start gap-4">
       <p>{text}</p>
-      <Link href={href} className={buttonClass("secondary")}>
-        {link}
-      </Link>
+      {href === "/" ? (
+        <StartLink className={buttonClass("secondary")}>{link}</StartLink>
+      ) : (
+        <Link href={href} className={buttonClass("secondary")}>
+          {link}
+        </Link>
+      )}
     </div>
   );
 }

@@ -1,15 +1,16 @@
 "use client";
 
-// Byggstenar för adminsidans tabeller: ihopfällbart kort, dialogruta,
+// Byggstenar för adminsidans tabeller: ihopfällbart kort,
 // fält med etikett, penna/papperskorg-knappar och en hjälpare för att anropa
 // server actions.
 // De bygger på de delade komponenterna i app/components/ (DESIGN.md).
 
-import { cloneElement, useEffect, useId, useRef, useState, useTransition } from "react";
+import { cloneElement, useId, useState, useTransition } from "react";
 import type { ActionResult } from "./actions";
 import { ChevronIcon, PencilIcon, TrashIcon } from "../components/icons";
 import Button from "../components/Button";
-import Card, { floatingCardClass } from "../components/Card";
+import Card from "../components/Card";
+import Dialog from "../components/Dialog";
 import { fieldClass } from "../components/Field";
 
 // ---- Kort som går att fälla ihop
@@ -95,69 +96,6 @@ export function FactorField({
         className={fieldClass("compact", "w-full text-right", invalid)}
       />
     </LabeledField>
-  );
-}
-
-// ---- Dialogruta som svävar ovanpå sidan
-
-// Webbläsarens egen <dialog> med showModal(): sidan bakom går inte att nå med
-// Tab och Escape stänger (WCAG 2.1.2). När dialogen stängs får knappen som
-// öppnade den fokus igen (WCAG 2.4.3). Klick utanför rutan stänger också.
-// Själva <dialog> är det svävande kortet.
-export function Dialog({
-  title,
-  detail,
-  onClose,
-  children,
-}: {
-  title: string;
-  detail?: string;
-  onClose: () => void;
-  children: React.ReactNode; // knapparna
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  useEffect(() => {
-    const dialog = ref.current!;
-    const opener = document.activeElement as HTMLElement | null;
-    dialog.showModal();
-    // Reacts autoFocus körs medan dialogen ännu är stängd, så knappen som ska
-    // ha fokus först märks med data-autofocus och får fokus här
-    dialog.querySelector<HTMLElement>("[data-autofocus]")?.focus();
-    // Webbläsaren lämnar inte tillbaka fokus själv: när den här städningen körs
-    // har React redan tagit bort dialogen från sidan
-    return () => {
-      dialog.close();
-      opener?.focus();
-    };
-  }, []);
-
-  return (
-    <dialog
-      ref={ref}
-      role="alertdialog"
-      aria-labelledby={titleId}
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
-      onClick={(e) => {
-        // Klick på bakgrunden landar på själva <dialog>, utanför rutan. Klick på
-        // knapparna (också med Enter, som ger ett klick i punkten 0, 0) räknas inte.
-        if (e.target !== e.currentTarget) return;
-        const box = e.currentTarget.getBoundingClientRect();
-        const outside =
-          e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom;
-        if (outside) onClose();
-      }}
-      className={`${floatingCardClass} m-auto w-[calc(100%-2rem)] max-w-sm text-center text-ink backdrop:bg-ground/80`}
-    >
-      <h2 id={titleId} className="text-lg font-semibold">
-        {title}
-      </h2>
-      {detail && <p className="mt-2 text-sm text-ink-muted">{detail}</p>}
-      <div className="mt-6 flex justify-center gap-3">{children}</div>
-    </dialog>
   );
 }
 

@@ -20,6 +20,7 @@ How the site works, for developers. Start with the architecture.
 - [Date picker](date-picker.md): the date fields Utresa and Hemresa, the calendar, and the date rules in `lib/dates.ts`.
 - [Search results](search-results.md): the Sök button, the results page `/flyg`, choosing flights, and the routes, departures and prices behind it.
 - [Aircraft and classes](aircraft-and-classes.md): the page `/flyg/plan`, choosing an aircraft and the travellers per class for each flight, and the price and time factors.
+- [Flows](flows.md): the tabs Flyg and Charter on the start page, one area at a time, and Avbryt.
 - [Booking](booking.md): the steps Resenärer and Betala, the summary, how the booking is checked and saved, and the booking tables.
 
 ## Data
@@ -56,5 +57,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-024 Aircraft in the summary, classes from zero | Flight booking | `specs/TRIP-024-summary-and-classes/` |
 | TRIP-026 One choice at a time on the plan page | Flight booking | `specs/TRIP-026-one-choice-at-a-time/` |
 | TRIP-012 Book a flight | Flight booking | `specs/TRIP-012-book-a-flight/` |
+| TRIP-018 Switch between flight booking and charter | Shared | `specs/TRIP-018-start-tabs/` |
 
 [Wiki](../index.md)

@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-26
 
+- TRIP-018: the start page has the tabs Flyg and Charter (Flyg selected); Charter links to the new page `/charter`. Inside the flight booking and charter there is no way to the other area: **Avbryt** in the header, the wordmark and the footer's Start ask "Är du säker?" and, on Ja, avbryt, remove the booking from `sessionStorage` and go to the start page. New shared components `Tabs`, `Dialog` (moved from admin) and `AbortFlow`.
 - TRIP-025: the departure cards on `/flyg` fade in and slide 8 px down one after another from the top, 60 ms apart (the first ten delayed), for the outbound and the return list; not when the sorting changes, and not with reduced motion.
 - TRIP-016: in Admin the trash on a class, add-on or aircraft always asks "Är du säker?", and only the server decides whether the row is in use (`inUse` is gone from the lists). A class or add-on can be deleted at once after the only aircraft using it.
 - TECH-020: the expandable choice card (button with `aria-expanded`/`aria-controls`, details panel and **Välj**) is one component, `ChoiceCard`, used by `FlightCard` and `AircraftCard`; the text "1 resenär" / "N resenärer" is written by `travellersText(n)` in `lib/format.ts`. The site behaves as before.

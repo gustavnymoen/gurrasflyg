@@ -22,7 +22,8 @@ Every page or state that a feature adds or changes gets one call, in that featur
 
 | Page | States | Tests |
 |---|---|---|
-| `/` | Loaded, with the photo, on a phone, with a date error, with the airport suggestions open, with the calendar open, with a range of dates chosen and a message under the date group | TRIP-008-R12, TRIP-020, TRIP-021-R1, TRIP-009-R12 |
+| `/` | Loaded, with the photo, with the Charter tab, on a phone, with a date error, with the airport suggestions open, with the calendar open, with a range of dates chosen and a message under the date group | TRIP-008-R12, TRIP-018-R1, TRIP-020, TRIP-021-R1, TRIP-009-R12 |
+| `/charter`, `/flyg/plan` | With the abort question open | TRIP-018-R4 |
 | `/admin/login` | With a wrong password message | TRIP-008-R12 |
 | `/admin` | Loaded with the cards open, with the aircraft form open, with a delete dialog, with an error message, with an aircraft and its class unfolded | TRIP-019, TRIP-021-R1 |
 

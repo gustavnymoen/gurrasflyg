@@ -12,7 +12,7 @@ timestamp: 2026-10-23
 
 Sökformuläret finns på startsidan, under rubriken "Vi ordnar det ingen annan kan". Där anger du var du vill resa från och till, när du reser dit och hem, och hur många ni är, och trycker **Sök**.
 
-Överst på varje sida står **Gurras Flyg** med ett plan i en ring. Klicka på det för att komma tillbaka till startsidan.
+Överst på varje sida står **Gurras Flyg** med ett plan i en ring. Klicka på det för att komma tillbaka till startsidan. Har du börjat boka frågar sidan först om du vill avbryta, se [Flyg eller charter](flyg-eller-charter.md).
 
 På mobilen ligger fälten under varandra i full bredd: **Från**, **Till**, **Utresa** och **Hemresa** bredvid varandra, **Resenärer**, och sist knappen **Sök**.
 
