@@ -33,7 +33,7 @@ Unit tests: 160, 0.7 s. "Before" is from TECH-021's verification after the merge
 
 - [x] Tests: the check in the card's test plan is done; the requirement is tested; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: 156.5 s of 180 s, no test over 5 s, no new test
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests): run on merge commit b5650ca passed, 2026-10-26
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions; copied below; `solution.md` describes how it was built
 - [x] Manual (not applicable, no change for visitors), system docs (`wiki/system/search-results.md`) and `wiki/log.md` updated
