@@ -179,6 +179,14 @@ function FlightList({
   onSort: (sortBy: SortBy) => void;
   onChoose: (flight: Flight) => void;
 }) {
+  // Korten tonar in när listan visas, men inte när sorteringen ändras (TRIP-025-R3):
+  // då byter de plats direkt. Listan monteras om när besökaren byter steg.
+  const [fillIn, setFillIn] = useState(true);
+  function sort(next: SortBy) {
+    setFillIn(false);
+    onSort(next);
+  }
+
   return (
     <section aria-labelledby="flight-list-heading" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
@@ -191,7 +199,7 @@ function FlightList({
             {ready && ` · ${flights.length} flyg`}
           </p>
         </div>
-        {ready && flights.length > 1 && <SortChoice value={sortBy} onChange={onSort} />}
+        {ready && flights.length > 1 && <SortChoice value={sortBy} onChange={sort} />}
       </div>
 
       {!ready ? (
@@ -204,8 +212,14 @@ function FlightList({
         <p>Inga flyg kvar den här dagen. Prova ett annat datum i sökningen ovan.</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {sortFlights(flights, sortBy).map((flight) => (
-            <FlightCard key={flight.id} flight={flight} travellers={travellers} onChoose={() => onChoose(flight)} />
+          {sortFlights(flights, sortBy).map((flight, index) => (
+            <FlightCard
+              key={flight.id}
+              flight={flight}
+              travellers={travellers}
+              fillInIndex={fillIn ? index : undefined}
+              onChoose={() => onChoose(flight)}
+            />
           ))}
         </ul>
       )}

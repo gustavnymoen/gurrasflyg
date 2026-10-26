@@ -5,7 +5,7 @@ description: Så ser du flygen för din sökning, sorterar dem och väljer utres
 resource: app/flyg/
 feature: TRIP-010
 tags: [resenär, sökresultat, flyg, pris, utresa, hemresa]
-timestamp: 2026-10-23
+timestamp: 2026-10-26
 ---
 
 # Välja flyg
@@ -16,7 +16,7 @@ Sökningen står också i sidans adress. Du kan ladda om sidan, spara adressen e
 
 ## Sökningen
 
-Först letar vi fram flygen, vilket tar några sekunder. Under tiden visas grå kort där flygen ska stå. Sedan visas flygen och hur många de är, till exempel "lör 24 okt · 7 flyg".
+Först letar vi fram flygen, vilket tar några sekunder. Under tiden visas grå kort där flygen ska stå. Sedan visas flygen och hur många de är, till exempel "lör 24 okt · 7 flyg". Korten fylls på uppifrån: de tonar in ett efter ett med en liten glidning nedåt. Har du ställt in att du vill ha mindre rörelse i datorn eller telefonen visas de direkt. Du kan klicka på ett kort redan medan de tonar in.
 
 Gurras Flyg flyger mellan alla sina flygplatser varje dag, minst fem gånger om dagen. Söker du på i dag visas bara de flyg som inte redan har gått. Står det "Inga flyg kvar den här dagen" har dagens sista flyg gått; välj ett annat datum i sökformuläret.
 

@@ -68,6 +68,17 @@
   /* Det som svävar glider fram en aning när det öppnas (kalendern) */
   --animate-float-in: float-in 0.16s var(--ease-out);
 
+  /* Avgångskorten fylls på uppifrån: tonar in och glider ner (FlightCard.tsx).
+     backwards gör att ett fördröjt kort är dolt tills det är dess tur. */
+  --animate-fill-in: fill-in 250ms var(--ease-out) backwards;
+
+  @keyframes fill-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
   @keyframes float-in {
     from {
       opacity: 0;

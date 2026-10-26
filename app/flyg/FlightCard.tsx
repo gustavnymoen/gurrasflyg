@@ -1,25 +1,32 @@
 "use client";
 
 import { formatLong } from "@/lib/dates";
-import { type Flight, totalPrice } from "@/lib/flight-rules";
+import { type Flight, fillInDelay, totalPrice } from "@/lib/flight-rules";
 import { formatPrice, travellersText } from "@/lib/format";
 import Card from "../components/Card";
 import ChoiceCard from "../components/ChoiceCard";
 
 // Ett flyg i resultatlistan (R5). Hela kortet är en knapp som fäller ut
 // detaljerna och Välj (R6). Flygtid och ankomsttid visas inte: de beror på
-// planet, som väljs i TRIP-011.
+// planet, som väljs i TRIP-011. fillInIndex är kortets plats i listan när det
+// ska tona in uppifrån (TRIP-025), annars ingen animation.
 export default function FlightCard({
   flight,
   travellers,
+  fillInIndex,
   onChoose,
 }: {
   flight: Flight;
   travellers: number;
+  fillInIndex?: number;
   onChoose: () => void;
 }) {
+  const animated = fillInIndex !== undefined;
   return (
-    <li>
+    <li
+      className={animated ? "animate-fill-in" : undefined}
+      style={animated ? { animationDelay: `${fillInDelay(fillInIndex)}ms` } : undefined}
+    >
       <Card size="flush">
         <ChoiceCard
           onChoose={onChoose}
