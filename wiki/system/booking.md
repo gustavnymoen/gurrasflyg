@@ -33,9 +33,13 @@ Till betalning runs `travellerProblems()`. Each problem marks its field (`aria-i
 
 ## Betala
 
-`PaymentForm`: Din resa, "Hur vill du betala?" with **Cash till piloten** and **Vi hämtar pengarna hos dig** (radio buttons), "Att betala", **Betala** and **Tillbaka till resenärerna**. Without a method, Betala gives "Välj hur du vill betala." and focus on the first method. Opened without filled-in travellers (directly, or after a booking) it says "Fyll i resenärerna först." with **Till resenärerna**.
+`PaymentForm`: Din resa, "Hur vill du betala?" with **Cash till piloten** and **Vi hämtar pengarna hos dig** (radio buttons), "Att betala" with the price list under it (below), **Betala** and **Tillbaka till resenärerna**. Without a method, Betala gives "Välj hur du vill betala." and focus on the first method. Opened without filled-in travellers (directly, or after a booking) it says "Fyll i resenärerna först." with **Till resenärerna**.
 
 Betala calls the server action `bookAction(query, form)` (`app/flyg/boka/actions.ts`), shows "Betalar…" meanwhile, and shows its message if it fails. On success the summary is saved in the tab under `gurrasflyg-bokad`, the form is removed, and the page is replaced by `/flyg/bokad`.
+
+## The price list
+
+Under "Att betala", and above "Totalt" in the summary, `PriceList` (`app/flyg/PriceList.tsx`, TRIP-027) shows the total split into Bränsle (40 %), Mutor (20 %), Alla möjliga avgifter (20 %), Stänga luftrummet vid avgång och ankomst (10 %), Försäkring (10 %) and Skatt (0 %, shown as "Skatt 0 %" and "0 kr"). Only the sums are shown. `priceList(total)` in `lib/booking-rules.ts` rounds each row down to whole kronor and adds the remainder to Bränsle, so the rows always add up to the total. The rows are calculated, not saved: nothing in the database changes.
 
 ## Saving
 
@@ -68,8 +72,8 @@ Everything below `bookings` is deleted with it (`ON DELETE CASCADE`). Admin (`li
 
 ## Tests
 
-Unit tests: `lib/booking-rules.test.ts` (the starting classes, the numbers per class, the field checks, e-mail and phone, the questions and the payment method, the total with factors, add-ons and Dåliga nerver, what a change clears, the server's shape check, the summary) and `lib/bookings.test.ts` (saving with the database's prices against the unit test database, a price sent from the browser ignored, two calls with one request id giving one booking, an add-on not allowed refused, nothing saved when the aircraft is gone, the departure has left or a field is missing). `vitest.config.mts` maps `server-only` to its empty module for them.
+Unit tests: `lib/booking-rules.test.ts` (the price list's shares and that it adds up, the starting classes, the numbers per class, the field checks, e-mail and phone, the questions and the payment method, the total with factors, add-ons and Dåliga nerver, what a change clears, the server's shape check, the summary) and `lib/bookings.test.ts` (saving with the database's prices against the unit test database, a price sent from the browser ignored, two calls with one request id giving one booking, an add-on not allowed refused, nothing saved when the aircraft is gone, the departure has left or a field is missing). `vitest.config.mts` maps `server-only` to its empty module for them.
 
-Browser tests: `tests/TRIP-012-book-a-flight.spec.ts`, with the add-ons on the tests' own aircraft in `tests/plan.ts` and `openBooking()`. The test that pays runs only locally (`runsLocally`), checks the booking in the test database and deletes it. The smoke test chooses the first aircraft for one traveller on a deployed site and checks that the booking page loads, without saving anything.
+Browser tests: `tests/TRIP-012-book-a-flight.spec.ts`, with the add-ons on the tests' own aircraft in `tests/plan.ts` and `openBooking()`. The test that pays runs only locally (`runsLocally`), checks the booking in the test database and deletes it. `tests/TRIP-027-price-list.spec.ts` checks the list on Betala and (locally only) in the summary. The smoke test chooses the first aircraft for one traveller on a deployed site and checks that the booking page loads, without saving anything.
 
 [System documentation](index.md)

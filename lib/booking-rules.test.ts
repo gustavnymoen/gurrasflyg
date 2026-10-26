@@ -15,6 +15,7 @@ import {
   isPhone,
   NERVES_PRICE,
   paymentProblems,
+  priceList,
   travellerProblems,
 } from "./booking-rules";
 import type { FleetAircraft } from "./fare-rules";
@@ -249,4 +250,27 @@ test("TRIP-012-R9 the summary has the flights, passengers with classes and add-o
     age: "34",
     legs: [{ className: "Ekonomi", addons: [{ name: "Måltid", count: 2 }, { name: "Dåliga nerver", count: 1 }] }],
   });
+});
+
+test("TRIP-027-R1 the total is split 40/20/20/10/10/0 in whole kronor", () => {
+  expect(priceList(10000).map((row) => row.amount)).toEqual([4000, 2000, 2000, 1000, 1000, 0]);
+  expect(priceList(10000).map((row) => row.label)).toEqual([
+    "Bränsle",
+    "Mutor",
+    "Alla möjliga avgifter",
+    "Stänga luftrummet vid avgång och ankomst",
+    "Försäkring",
+    "Skatt",
+  ]);
+  expect(priceList(0).every((row) => row.amount === 0)).toBe(true);
+});
+
+test("TRIP-027-R1 the rows always add up to the total, the remainder going to Bränsle", () => {
+  // 1 237 kr: 20 % = 247, 10 % = 123, så bränslet får resten (497 i stället för 494)
+  expect(priceList(1237).map((row) => row.amount)).toEqual([497, 247, 247, 123, 123, 0]);
+  for (const total of [1, 7, 99, 1237, 12345, 99999]) {
+    const rows = priceList(total);
+    expect(rows.reduce((sum, row) => sum + row.amount, 0)).toBe(total);
+    expect(rows.every((row) => Number.isInteger(row.amount))).toBe(true);
+  }
 });

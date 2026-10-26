@@ -42,11 +42,13 @@ Svara sedan på **Tre viktiga frågor** genom att kryssa i alla tre rutorna. Vil
 
 Välj hur du vill betala: **Cash till piloten** eller **Vi hämtar pengarna hos dig**. Ingen riktig betalning görs. Tryck **Betala**.
 
+Under **Att betala** ser du vart pengarna tar vägen: bränsle, mutor, alla möjliga avgifter, att stänga luftrummet vid avgång och ankomst, försäkring och skatt (0 %, förstås). Raderna blir alltid precis lika mycket som totalen.
+
 Vill du ändra något trycker du **Tillbaka till resenärerna**, eller på ett steg överst. Allt du fyllt i finns kvar.
 
 ## Bokningen är klar
 
-Efter Betala ser du ditt **bokningsnummer**, sex tecken, till exempel K7M2QX, och en sammanfattning: flygen, varje passagerare med klass och tillägg, kontaktpersonen, betalsättet och priset.
+Efter Betala ser du ditt **bokningsnummer**, sex tecken, till exempel K7M2QX, och en sammanfattning: flygen, varje passagerare med klass och tillägg, kontaktpersonen, betalsättet, prislistan och totalen.
 
 Sammanfattningen visas bara direkt efter bokningen, i samma flik. Spara bokningsnumret: bokningen går inte att öppna igen på sajten.
 

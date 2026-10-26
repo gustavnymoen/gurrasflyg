@@ -200,6 +200,30 @@ export const bookingTotal = (form: BookingForm, legs: BookingLeg[]) =>
     0,
   );
 
+// Prislistan som totalen delas upp i, för skojs skull (TRIP-027): raderna i
+// ordning och deras andel i procent. Skatten är 0 %, men visas ändå.
+const PRICE_LIST_SHARES = [
+  { label: "Bränsle", percent: 40 },
+  { label: "Mutor", percent: 20 },
+  { label: "Alla möjliga avgifter", percent: 20 },
+  { label: "Stänga luftrummet vid avgång och ankomst", percent: 10 },
+  { label: "Försäkring", percent: 10 },
+  { label: "Skatt", percent: 0 },
+];
+
+// Delar en total i prislistans rader, i hela kronor. Det som blir över vid
+// avrundningen läggs på första raden (bränslet), så att raderna alltid blir
+// exakt totalen (TRIP-027-R1).
+export function priceList(total: number) {
+  const rows = PRICE_LIST_SHARES.map(({ label, percent }) => ({
+    label,
+    percent,
+    amount: Math.floor((total * percent) / 100),
+  }));
+  rows[0].amount += total - rows.reduce((sum, row) => sum + row.amount, 0);
+  return rows;
+}
+
 // ---------------------------------------------------------------- Kontroller
 
 // Fel per fält: { fältets id: vad besökaren ska göra }. Id:t är också fältets id på sidan.

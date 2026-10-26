@@ -1,0 +1,8 @@
+%% TRIP-027 Detailed price list
+%% The total is split in the browser and nothing is saved.
+flowchart TD
+    A[Betala shows the total] --> B["priceList(total) R1"]
+    B --> C["Six rows under Att betala R2"]
+    C --> D[Betala saves the booking with its total]
+    D --> E["The summary shows the saved total"]
+    E --> F["priceList(total): the same six rows above Totalt R3"]
