@@ -7,6 +7,10 @@ timestamp: 2026-10-24
 
 # Log
 
+## 2026-10-26
+
+- TRIP-012: the accessibility checklist gone through on the live site for Resenärer, Betala and the summary, and recorded in its `verification.md`. Fixed: the summary's tab title is "Din bokning – Gurras Flyg", which also fits when there is no booking to show (it said "Bokningen är klar"). The booking test also reloads the page and checks that everything filled in is kept.
+
 ## 2026-10-24
 
 - TRIP-012: the trip can be booked. When every card on `/flyg/plan` is folded, Fortsätt leads to Resenärer (`/flyg/boka`): a card per passenger with name, age, Dåliga nerver (1 000 kr per flight, with a tip on hover and focus), and per flight the class and the add-ons of that class on that aircraft; the contact person; three required questions; and the total at once. Missing or wrong fields turn red with what to do, and focus moves to the first. Betala (`/flyg/boka/betala`) has Cash till piloten and Vi hämtar pengarna hos dig; Betala saves the booking in one transaction with everything checked and priced from the database, once per request id, and shows the summary with a six-character booking number at `/flyg/bokad`, only in that tab. The form is kept in the tab (`sessionStorage`), never in the address; another aircraft, flight or numbers per class start that flight's classes over and clear its add-ons. The steps are now Flyg, Plan och klass, Resenärer, Betala. Migration `009_bookings.sql` replaces the old, empty flight and booking tables with `bookings`, `booking_passengers`, `booking_flights`, `booking_seats` and `booking_addons`, and admin counts an aircraft, class or add-on in a booking as in use ("… används av en eller flera bokningar.").

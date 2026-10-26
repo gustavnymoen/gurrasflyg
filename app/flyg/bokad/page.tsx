@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import BookedSummary from "./BookedSummary";
 
 export const metadata: Metadata = {
-  title: "Bokningen är klar – Gurras Flyg",
+  title: "Din bokning – Gurras Flyg",
 };
 
 // Sammanfattningen direkt efter Betala (TRIP-012-R9). Den finns bara i fliken

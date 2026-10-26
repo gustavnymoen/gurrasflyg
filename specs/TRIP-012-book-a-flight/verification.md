@@ -26,10 +26,30 @@ How each requirement was checked. Browser tests ran with `npm run test:local` (a
 |---|---|---|---|---|
 | Unit tests | `lib/booking-rules.test.ts` (13) and `lib/bookings.test.ts` (4, against the unit test database, which they clean up) | local | Pass | 2026-10-24 |
 | Browser tests | `tests/TRIP-012-book-a-flight.spec.ts` (8); the test that pays runs only locally (`runsLocally`) and deletes its booking from the test database | local | Pass | 2026-10-24 |
-| Smoke test | `TRIP-012-R1 @smoke the booking page loads for a chosen trip`, read-only | local; preview and live not checked yet | Pass locally | 2026-10-24 |
-| Accessibility | axe on the booking page (empty, with messages, with the tip shown), the payment page with its message and the summary. The checklist in `wiki/system/accessibility.md` on the live site: not checked yet (not deployed). By hand locally: 320 px wide without sideways scrolling (booking page and summary) | local | Pass (axe, 320 px); live checklist not checked | 2026-10-24 |
+| Smoke test | `TRIP-012-R1 @smoke the booking page loads for a chosen trip`, read-only | local, preview, live | Pass: Preview tests on #71 (run 40120322141); Live tests after the merge (run 40120812596), 8 smoke tests passed in 10.1 s, this one included | 2026-10-24 |
+| Accessibility | axe on the booking page (empty, with messages, with the tip shown), the payment page with its message and the summary. The checklist on the live site: see [the checklist](#the-accessibility-checklist-on-the-live-site) | local, live | Pass (axe); checklist: one fault, the summary's title, fixed on branch `TRIP-012-live-checks`; VoiceOver not checked | 2026-10-24 |
 | Security | Security points in the review; `/security-review` (personal data, server action, database): no high-confidence findings, see [review.md](review.md) | local | Pass | 2026-10-24 |
 | Code review | [review.md](review.md): passed, the should-fix findings fixed | local | Passed | 2026-10-24 |
+
+## The accessibility checklist on the live site
+
+Gone through on https://gurrasflyg.vercel.app on 2026-10-24, in the built-in browser of the Claude desktop app (Chromium). The trip: ARN → LHR on 27 Oct, back on 3 Nov, 2 travellers, Hindenburg with both in Ekonomi (`/flyg/boka?…&ut-plan=3&ut-klasser=1:2&hem-plan=3&hem-klasser=1:2`), then `/flyg/boka/betala` and `/flyg/bokad`. Nothing was saved: Betala was pressed only without a payment method, which never reaches the server. The test data typed into the tab was removed afterwards. Keys were real key presses; names, states and sizes were read from the page.
+
+| # | Check | Resenärer | Betala | Summary |
+|---|---|---|---|---|
+| 1 | Keyboard | Pass. Enter on Fortsätt opens the page. Tab goes steps, then each passenger (Förnamn, Efternamn, Ålder, Dåliga nerver, Klass per flight, the add-ons' − and +), then Kontaktperson, the three questions and Till betalning, with nothing stuck. Enter and Space work on + and −, and focus stays on them. Enter on Till betalning with an empty form moves focus to Passagerare 1's Förnamn | Pass. Tab goes steps, the payment methods (one stop; Arrow down chooses the next), Betala, Tillbaka till resenärerna. Betala without a method moves focus to the first method | Pass. "Till sökningen" is the only control ("Ingen bokning") |
+| 2 | Visible focus | Pass. Buttons, links and checkboxes show the 2 px ring in `accent-strong`; fields and lists turn their box `accent-strong` with a ring (as every form on the site) | Pass. The radio buttons, Betala and the link show the ring | Pass |
+| 3 | Screen reader | Not checked with VoiceOver (needs the user). Read from the page instead: `h1` Resenärer, `h2`s Din resa, Passagerare 1, 2, Kontaktperson, Tre viktiga frågor; each passenger card and the contact card is a region named by its heading; each flight a group "Utresa"/"Hemresa"; every field has its label; an error sets `aria-invalid` and `aria-describedby` to its message, which is an alert; Dåliga nerver is described by its tip; the number of an add-on is a polite live region ("1 Öl"). Noted: an empty form gives 15 alerts at once; this is how all the site's forms show errors (`Field`) | Not checked with VoiceOver. Read from the page: the methods are a fieldset "Hur vill du betala?" with radio buttons named by their labels; the message is an alert and the methods' description | Not checked with VoiceOver. `h1` "Ingen bokning", the text and the link |
+| 4 | Zoom and 320 px | Pass. At 320 px (also with the tip shown) and at 640 px (200 %) the page is exactly as wide as the window | Pass at 320 px | Pass at 320 px |
+| 5 | Text spacing | Pass. With line height 1.5, paragraph spacing 2, letter spacing 0.12 and word spacing 0.16 nothing in the fields is cut off and nothing overlaps; the tip, when shown, covers the line below it until it is hidden (see 8) | Not affected beyond Resenärer's parts (same components) | Not affected |
+| 6 | Contrast | Text: axe. Field borders `line-strong` (3:1), focus `accent-strong`; the tip is `ink` on `surface-float`. The checkboxes are the browser's own (as TRIP-011's radio buttons) | Text: axe. The radio buttons are the browser's own | Text: axe |
+| 7 | Target size | Pass. − and + 34 × 34 px. The checkboxes are 20 × 20 px, but each has its label as part of the target and at least 24 px to the next control (spacing exception) | Pass. The radio buttons 20 × 20 px, with their labels and the same spacing; Betala 112 × 52 px | Pass. 173 × 52 px |
+| 8 | Content on hover or focus | Pass. The tip of Dåliga nerver shows on focus and on hover, stays while the pointer moves onto it, is hidden by Escape with focus kept on the checkbox, and goes when the pointer leaves | Not affected | Not affected |
+| 9 | Errors and labels | Pass. Every error the page can give is in text under its field and says what to do; the labels stay visible inside the fields while typing | Pass. "Välj hur du vill betala." under the methods | Not affected |
+| 10 | Title, language, images | Pass. "Resenärer – Gurras Flyg", `lang="sv"`, no images | Pass. "Betala – Gurras Flyg" | **Failed.** The title was "Bokningen är klar – Gurras Flyg" also when the page says "Ingen bokning". **Fixed** on branch `TRIP-012-live-checks`: "Din bokning – Gurras Flyg", which fits both; checked in the test `TRIP-012-R7 R8 R9 …` |
+| 11 | Reduced motion | Pass by code review: nothing moves; the tip appears and goes without animation | Not affected | Not affected |
+
+Also found while checking: right after a reload of `/flyg/boka` with a filled-in form, the form appeared only after about 25 seconds. The cause was the browser pane: it was hidden, so the page ran as a background tab, where the browser holds back the rendering that shows streamed content. It is not a fault of the site. To be sure, the test `TRIP-012-R10 …` now also reloads the page and checks that everything is still there; it passes locally.
 
 ## Test suite
 
@@ -46,8 +66,8 @@ Within the budgets. Measured after the review's fixes; all passed. The first run
 
 - [x] Tests: every check in the card's test plan is done locally; every requirement has tests; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 9.0 %, the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
-- [ ] Accessibility: axe passes for every new page and state; the checklist on the live site is not done yet (after the deploy)
+- [x] Deployed, and the smoke tests pass against production (Live tests): run 40120812596 after the merge of #71, 8 passed in 10.1 s
+- [x] Accessibility: axe passes for every new page and state; the checklist on the live site on 2026-10-24 found one fault, the summary's title, fixed on branch `TRIP-012-live-checks` (not yet checked on a deploy); VoiceOver not checked
 - [x] Requirements in the card match what was built (updated with the user on 2026-10-24), no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/boka-resan.md` and others), system docs (`wiki/system/booking.md` and others) and `wiki/log.md` updated
 - [x] No leftovers: the old booking tables, `getAvailableSeats` and the old `createBooking` are gone; the plan page's `Overview` and `Problem` moved to shared components

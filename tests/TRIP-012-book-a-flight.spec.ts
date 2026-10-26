@@ -229,6 +229,11 @@ test.describe("with the tests' own aircraft", () => {
     await expect(addonRow(card, "Hemresa", fleet.bag).locator("[aria-live]")).toHaveText(`1 ${fleet.bag}`);
     await expect(card.getByLabel("Förnamn")).toHaveValue("E2E Resenär 1");
     await expect(page.getByRole("region", { name: "Kontaktperson" }).getByLabel("E-post")).toHaveValue("anna@exempel.se");
+
+    // A reload keeps everything too
+    await page.reload();
+    await expect(card.getByLabel("Förnamn")).toHaveValue("E2E Resenär 1");
+    await expect(addonRow(card, "Hemresa", fleet.bag).locator("[aria-live]")).toHaveText(`1 ${fleet.bag}`);
   });
 });
 
@@ -289,6 +294,8 @@ test.describe("booking, which writes to the test database", () => {
       const other = await visitor.newPage();
       await other.goto(page.url());
       await expect(other.getByRole("heading", { name: "Ingen bokning" })).toBeVisible();
+      // The title fits both states (found on the live site)
+      await expect(other).toHaveTitle("Din bokning – Gurras Flyg");
       await expect(other.getByText(email)).toHaveCount(0);
       await expectNoA11yViolations(other);
       await visitor.close();
