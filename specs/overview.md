@@ -118,6 +118,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-003 | The bookable-date rule and its messages in a shared module, `lib/dates.ts` | Shared | Done |
 | TRIP-009 | Return trip date picker: Utresa and Hemresa typed or chosen in the site's own calendar, the switch "Tur och retur" | Flight booking | Done |
 | TRIP-022 | One border colour for cards and buttons: cards, review cards and buttons have the fields' border, the brass edge is removed, primary buttons have a faint wine red tone | Shared | Done |
+| TECH-019 | Keep focus on the other round buttons: every `RoundButton` is `aria-disabled` when unavailable, so keyboard focus stays on it; `keepFocus` is gone | Shared | Done |
 | TECH-017 | Limit admin sign-in attempts: 5 attempts per IP address in 15 minutes, counted in the database before the password is checked, with a message with the minutes left | Administration | Done |
 | TECH-016 | SDD and the test strategy: "How we work" in this overview, `wiki/system/testing.md`, a test plan in every card | Shared | Done |
 | TECH-013 | Security: security points and `/security-review` in the code review, a CI job with `npm audit`, Semgrep and Gitleaks, Dependabot, hardening from a review of the whole code base, the repo public | Shared | Done |

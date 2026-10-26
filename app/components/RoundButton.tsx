@@ -1,10 +1,9 @@
-// Rund knapp för + och − (och pilar). Med keepFocus blir en otillgänglig knapp
-// aria-disabled i stället för disabled, så att fokus stannar på den när den
-// blir otillgänglig medan den har fokus (TRIP-024-R5, WCAG 2.4.3).
+// Rund knapp för + och − (och pilar). En otillgänglig knapp är aria-disabled i
+// stället för disabled, så att fokus stannar på den när den blir otillgänglig
+// medan den har fokus (TECH-019-R1, WCAG 2.4.3).
 export default function RoundButton({
   label,
   disabled = false,
-  keepFocus = false,
   compact = false,
   onClick,
   className = "",
@@ -12,7 +11,6 @@ export default function RoundButton({
 }: {
   label: string;
   disabled?: boolean;
-  keepFocus?: boolean;
   compact?: boolean;
   onClick: () => void;
   className?: string;
@@ -24,10 +22,9 @@ export default function RoundButton({
       type="button"
       aria-label={label}
       title={label}
-      disabled={disabled && !keepFocus}
-      aria-disabled={disabled && keepFocus ? true : undefined}
+      aria-disabled={disabled ? true : undefined}
       onClick={disabled ? undefined : onClick}
-      className={`grid ${size} shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong leading-none transition-[transform,border-color] duration-160 ease-out hover:border-accent-strong active:scale-[0.92] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-line-strong disabled:active:scale-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-30 aria-disabled:hover:border-line-strong aria-disabled:active:scale-100 ${className}`}
+      className={`grid ${size} shrink-0 place-items-center rounded-full border-[1.5px] border-line-strong leading-none transition-[transform,border-color] duration-160 ease-out hover:border-accent-strong active:scale-[0.92] aria-disabled:cursor-not-allowed aria-disabled:opacity-30 aria-disabled:hover:border-line-strong aria-disabled:active:scale-100 ${className}`}
     >
       {children}
     </button>

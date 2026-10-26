@@ -1,0 +1,9 @@
+%% TECH-019 Keep focus on the other round buttons
+%% A round button never uses native disabled, so focus stays on it.
+flowchart TD
+    A[Round button pressed with the keyboard] --> B{Available?}
+    B -- no, aria-disabled --> C["Nothing happens, focus stays R1"]
+    B -- yes --> D[Action runs]
+    D --> E{Unavailable now?}
+    E -- yes --> F["aria-disabled=true, focus stays R1"]
+    E -- no --> G[Button as before]

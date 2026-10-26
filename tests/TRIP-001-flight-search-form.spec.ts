@@ -82,15 +82,15 @@ test("TRIP-001-R8 number of travellers is between 1 and 10", async ({ page }) =>
   const more = page.getByRole("button", { name: "Fler resenärer" });
   const count = page.locator(".tabular-nums");
   await expect(count).toHaveText("1");
-  await expect(fewer).toBeDisabled();
+  await expect(fewer).toHaveAttribute("aria-disabled", "true");
 
   for (let i = 0; i < 9; i++) await more.click();
-  await expect(more).toBeDisabled();
-  await expect(fewer).toBeEnabled();
+  await expect(more).toHaveAttribute("aria-disabled", "true");
+  await expect(fewer).not.toHaveAttribute("aria-disabled", "true");
   await expect(count).toHaveText("10");
 
   await fewer.click();
-  await expect(more).toBeEnabled();
+  await expect(more).not.toHaveAttribute("aria-disabled", "true");
 });
 
 test("TRIP-001-R10 airport endpoint returns at most 5 matches", async ({ request }) => {

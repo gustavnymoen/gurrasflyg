@@ -256,9 +256,6 @@ export default function DatePicker({
             onMonthChange={setMonth}
             onChoose={(day) => choose(active, day)}
             onFocusDay={focusDay}
-            onFocusGrid={() => {
-              pendingFocus.current = "day";
-            }}
             onClose={() => close(active)}
             className={`${PLACEMENT.one} ${count === 2 ? PLACEMENT.two : ""}`}
           />

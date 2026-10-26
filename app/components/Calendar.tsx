@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import {
   addDays,
   addMonths,
@@ -71,7 +70,6 @@ export default function Calendar({
   onMonthChange,
   onChoose,
   onFocusDay,
-  onFocusGrid,
   onClose,
   className = "",
 }: {
@@ -94,23 +92,12 @@ export default function Calendar({
   onChoose: (day: string) => void;
   // move: fokus ska flyttas dit (tangentbordet), inte bara noteras
   onFocusDay: (day: string, move: boolean) => void;
-  // Flyttar fokus till dagen som Tab går till i rutnätet
-  onFocusGrid: () => void;
   onClose: () => void;
   className?: string;
 }) {
   const months = Array.from({ length: count }, (_, i) => shiftMonth(month, i));
-  const dialog = useRef<HTMLDivElement>(null);
   const isFirst = (first: string) => first <= monthOf(range.min);
   const isLast = (first: string) => shiftMonth(first, count - 1) >= monthOf(range.max);
-
-  // En månadsknapp som blir inaktiv tappar fokus. Har den fokus från
-  // tangentbordet (ett klick lämnar fokus i fältet) flyttas det till rutnätet.
-  function changeMonth(next: string) {
-    onMonthChange(next);
-    const keyboard = dialog.current?.contains(document.activeElement);
-    if (keyboard && (isFirst(next) || isLast(next))) onFocusGrid();
-  }
 
   function handleGridKey(e: React.KeyboardEvent) {
     const next = dayAfterKey(focusedDay, e.key);
@@ -121,7 +108,6 @@ export default function Calendar({
 
   return (
     <div
-      ref={dialog}
       id={id}
       role="dialog"
       aria-label="Välj datum"
@@ -141,7 +127,7 @@ export default function Calendar({
           <RoundButton
             label="Föregående månad"
             disabled={isFirst(month)}
-            onClick={() => changeMonth(shiftMonth(month, -1))}
+            onClick={() => onMonthChange(shiftMonth(month, -1))}
           >
             ‹
           </RoundButton>
@@ -149,7 +135,7 @@ export default function Calendar({
           <RoundButton
             label="Nästa månad"
             disabled={isLast(month)}
-            onClick={() => changeMonth(shiftMonth(month, 1))}
+            onClick={() => onMonthChange(shiftMonth(month, 1))}
           >
             ›
           </RoundButton>

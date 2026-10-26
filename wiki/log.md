@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-26
 
+- TECH-019: every `RoundButton` is `aria-disabled` instead of `disabled` when unavailable, so keyboard focus stays on it (traveller picker, calendar month buttons, carousel arrows, "Lägg till klass"/"Lägg till addon"); the `keepFocus` prop and the calendar's move of focus to the grid are removed.
 - TECH-017: the admin sign-in refuses an IP address after 5 attempts within 15 minutes, for 15 minutes after the fifth, even with the right password: "För många försök. Försök igen om N minuter." The attempts are counted before the password is checked, in the new table `login_attempts` (migration `010_login_attempts.sql`, `lib/login-limit.ts`).
 - TRIP-027: Betala and the summary show the total split into Bränsle (40 %), Mutor (20 %), Alla möjliga avgifter (20 %), Stänga luftrummet (10 %), Försäkring (10 %) and Skatt (0 %), in whole kronor that add up to the total (`priceList()` in `lib/booking-rules.ts`, `PriceList`). Calculated, not saved. The booking page's test helpers moved to `tests/plan.ts`.
 - TRIP-012: the accessibility checklist gone through on the live site for Resenärer, Betala and the summary, and recorded in its `verification.md`. Fixed: the summary's tab title is "Din bokning – Gurras Flyg", which also fits when there is no booking to show (it said "Bokningen är klar"). The booking test also reloads the page and checks that everything filled in is kept.
