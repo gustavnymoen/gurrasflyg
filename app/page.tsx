@@ -1,8 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 import { listReviews } from "@/lib/reviews";
+import { buttonClass } from "./components/Button";
+import Card from "./components/Card";
 import ReviewCarousel from "./components/ReviewCarousel";
 import SearchForm from "./components/SearchForm";
+import Tabs from "./components/Tabs";
 
 export default function Home() {
   return (
@@ -15,7 +19,14 @@ export default function Home() {
         <p className="mt-4 mb-6 max-w-130 text-[17px] text-ink-muted md:mt-4.5 md:mb-8.5 md:text-xl">
           Ditt livs flygresa, till städer och till platser andra flygbolag glömt bort.
         </p>
-        <SearchForm />
+        {/* Flyg eller charter (TRIP-018-R1) */}
+        <Tabs
+          label="Vad vill du boka?"
+          tabs={[
+            { id: "flyg", label: "Flyg", content: <SearchForm /> },
+            { id: "charter", label: "Charter", content: <CharterTab /> },
+          ]}
+        />
 
         <section className="mt-14">
           <h2 className="mb-2 text-center text-section font-bold">Vad våra resenärer säger</h2>
@@ -26,6 +37,20 @@ export default function Home() {
         </section>
       </main>
     </>
+  );
+}
+
+function CharterTab() {
+  return (
+    <Card className="flex w-full max-w-5xl flex-col items-start gap-5">
+      <p className="max-w-130 text-[17px]">
+        Charterresor till övergivna städer, industriplatser och kalla krigets lämningar, från Stockholm Arlanda och
+        Köpenhamn.
+      </p>
+      <Link href="/charter" className={buttonClass()}>
+        Utforska charterresor
+      </Link>
+    </Card>
   );
 }
 

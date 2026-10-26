@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { StartLink } from "./AbortFlow";
 
 // Ordmärket i sidhuvudet: planet i en mässingsring följt av namnet, länk till
-// startsidan. Planet lyfter in i ringen när sidan laddas och hoppar till när
+// startsidan (i ett flöde frågar den först om besökaren vill avbryta,
+// TRIP-018-R3). Planet lyfter in i ringen när sidan laddas och hoppar till när
 // pekaren är över. Animationerna finns i globals.css och körs bara om
 // besökaren inte valt mindre rörelse (motion-safe).
 export default function Wordmark() {
@@ -15,8 +16,7 @@ export default function Wordmark() {
   const trail = landed ? "" : "motion-safe:animate-trail";
 
   return (
-    <Link
-      href="/"
+    <StartLink
       className="group inline-flex items-center gap-3.5 font-display text-[22px] leading-none font-bold tracking-[-0.02em] md:text-[27px]"
     >
       <span className="relative grid h-9.5 w-9.5 shrink-0 place-items-center overflow-hidden rounded-full border-[1.5px] border-brass md:h-11.5 md:w-11.5">
@@ -42,6 +42,6 @@ export default function Wordmark() {
         </span>
       </span>
       Gurras Flyg
-    </Link>
+    </StartLink>
   );
 }

@@ -134,6 +134,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-012 | Book a flight: Fortsätt when every flight is done; Resenärer with passengers, class and add-ons per flight, Dåliga nerver, the contact and three required questions; Betala with two payment methods; the booking saved with the database's prices, once per Betala; a summary with the booking number shown only in that tab; new booking tables | Flight booking | Done |
 | TRIP-025 | Departures fill in from the top: the flight cards on `/flyg` fade in and slide down one after another (60 ms apart, the first ten delayed), not when sorting changes, none with reduced motion | Flight booking | Done |
 | TRIP-027 | Detailed price list: the total on Betala and in the summary split into fuel, bribes, fees, closed airspace, insurance and 0 % tax, in whole kronor adding up to the total | Flight booking | Done |
+| TRIP-018 | Switch between flight booking and charter: the tabs Flyg and Charter on the start page, the page `/charter`, one area at a time, and Avbryt with a question that throws away the booking | Shared | Done |
 
 ## Decisions for charter
 

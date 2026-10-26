@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
 import Link from "next/link";
+import { AbortButton, StartLink } from "./components/AbortFlow";
 import PhotoCredit from "./components/PhotoCredit";
 import Wordmark from "./components/Wordmark";
 import "./globals.css";
@@ -23,8 +24,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="sv" className={`${bricolage.variable} h-full antialiased`}>
       {/* isolate: startsidans foto kan ligga bakom sidhuvudet (-z-10) men framför bakgrunden */}
       <body className="relative isolate flex min-h-full flex-col">
-        <header className="mx-auto w-full max-w-5xl px-4 pt-5 md:pt-7">
+        <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 pt-5 md:pt-7">
           <Wordmark />
+          <AbortButton />
         </header>
         {children}
         <footer className="mt-auto border-t border-line px-4 py-6">
@@ -32,9 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <span>© Gurras Flyg</span>
             <PhotoCredit />
             <nav className="flex gap-6">
-              <Link href="/" className="hover:text-ink">
-                Start
-              </Link>
+              <StartLink className="hover:text-ink">Start</StartLink>
               <Link href="/admin" className="hover:text-ink">
                 Admin
               </Link>

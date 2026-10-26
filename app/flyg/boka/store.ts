@@ -52,3 +52,10 @@ export function store(key: string, value: unknown) {
   }
   for (const listener of listeners) listener();
 }
+
+// Kastar bort den pågående bokningen och sammanfattningen när besökaren
+// avbryter (TRIP-018-R3)
+export function clearBooking() {
+  store(FORM_KEY, null);
+  store(BOOKED_KEY, null);
+}
