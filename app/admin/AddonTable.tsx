@@ -87,8 +87,6 @@ function AddonRow({ addon }: { addon: Addon }) {
           <EditButton label={`Ändra ${addon.name}`} onClick={() => setEditing(true)} />
           <DeleteButton
             label={`Ta bort ${addon.name}`}
-            inUse={addon.inUse}
-            inUseReason={`${addon.name} används av ett eller flera plan.`}
             onDelete={() => deleteAddonAction(addon.id)}
           />
         </div>

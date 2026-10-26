@@ -209,17 +209,15 @@ export function RemoveButton({ label, onClick }: { label: string; onClick: () =>
   );
 }
 
-// Papperskorg med varning. Används något (inUse) visas "Du kan ej ta bort",
-// annars "Är du säker?" med Ja/Nej.
+// Papperskorg med varning: "Är du säker?" med Ja/Nej. Om raden används avgör
+// servern vid borttagningen och felet visas som "Du kan ej ta bort". Sidans
+// egen uppgift om vad som används kan vara gammal precis efter en ändring
+// (TRIP-016), så knappen litar inte på den.
 export function DeleteButton({
   label,
-  inUse,
-  inUseReason,
   onDelete,
 }: {
   label: string;
-  inUse: boolean;
-  inUseReason: string;
   onDelete: () => Promise<ActionResult>;
 }) {
   const [dialog, setDialog] = useState<null | "confirm" | { blocked: string }>(null);
@@ -228,17 +226,14 @@ export function DeleteButton({
   function confirm() {
     startTransition(async () => {
       const result = await onDelete();
-      // Gick det inte (t.ex. om någon hann koppla raden) visas felet
+      // Används raden visas serverns förklaring
       setDialog(result.ok ? null : { blocked: result.error });
     });
   }
 
   return (
     <>
-      <IconButton
-        label={label}
-        onClick={() => setDialog(inUse ? { blocked: inUseReason } : "confirm")}
-      >
+      <IconButton label={label} onClick={() => setDialog("confirm")}>
         <TrashIcon />
       </IconButton>
       {dialog === "confirm" && (

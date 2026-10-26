@@ -53,7 +53,7 @@ Klicka på pennan på planets rad. Formuläret öppnas med planets namn, klasser
 
 Klicka på papperskorgen och svara **Ja**.
 
-Ett plan som finns i en bokning går inte att ta bort: då visas **Du kan ej ta bort** och "… används av en eller flera bokningar.". Av samma skäl går det inte att ta bort en klass från planet om en bokning med planet använder den, eller ge klassen färre platser än någon bokning har i den.
+Ett plan som finns i en bokning går inte att ta bort: efter **Ja** visas **Du kan ej ta bort** och "… det används av bokningar.". Av samma skäl går det inte att ta bort en klass från planet om en bokning med planet använder den, eller ge klassen färre platser än någon bokning har i den.
 
 ## Felmeddelanden
 

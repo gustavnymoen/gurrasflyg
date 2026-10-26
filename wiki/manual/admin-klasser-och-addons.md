@@ -34,7 +34,7 @@ Priset visas i kolumnen **Pris (SEK)**. Det är i hela kronor, 0 kr eller mer. D
 
 ## Det går inte att ta bort
 
-Används en klass eller addon av ett plan visas **Du kan ej ta bort** och varför, till exempel "Business används av ett eller flera plan." Ta först bort klassen eller addonen från planen, sedan går den att ta bort.
+Papperskorgen frågar alltid "Är du säker?". Används klassen eller addonen av ett plan, svarar sidan i stället **Du kan ej ta bort** och säger varför, till exempel "… den används av ett plan eller en flight." Ta först bort klassen eller addonen från planen, eller ta bort planet, så går den att ta bort direkt, utan att du behöver ladda om sidan.
 
 ## Felmeddelanden
 

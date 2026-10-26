@@ -85,8 +85,6 @@ function ClassRow({ cabinClass }: { cabinClass: CabinClass }) {
           <EditButton label={`Ändra ${cabinClass.name}`} onClick={() => setEditing(true)} />
           <DeleteButton
             label={`Ta bort ${cabinClass.name}`}
-            inUse={cabinClass.inUse}
-            inUseReason={`${cabinClass.name} används av ett eller flera plan.`}
             onDelete={() => deleteClassAction(cabinClass.id)}
           />
         </div>

@@ -1,0 +1,9 @@
+%% TRIP-016 Deleted aircraft still looks in use
+%% The page never decides whether a class or add-on is in use; the server does.
+flowchart TD
+    A[Administrator presses the trash] --> B["Är du säker? (R2)"]
+    B -- Nej --> A
+    B -- Ja --> C[Server action in a transaction]
+    C --> D{Used by an aircraft or a booking now? R1}
+    D -- no --> E[Row deleted, page refreshed]
+    D -- yes --> F["Du kan ej ta bort + the server's reason"]
