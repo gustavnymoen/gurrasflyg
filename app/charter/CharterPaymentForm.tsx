@@ -89,6 +89,7 @@ export default function CharterPaymentForm({ id, title, search, choice, outbound
             onChange={(payment) => saveCharterForm({ ...form, payment })}
           />
           <PayCard
+            area="charter"
             total={total}
             travellers={search.travellers}
             error={error}

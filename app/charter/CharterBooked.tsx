@@ -96,7 +96,7 @@ export default function CharterBooked() {
           <span className="text-ink-muted">Betalsätt</span>
           <span className="font-bold">{summary.payment}</span>
         </p>
-        <PriceList total={summary.total} />
+        <PriceList total={summary.total} area="charter" />
         <p className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="text-ink-muted">Totalt</span>
           <span className="text-xl font-bold">{formatPrice(summary.total)}</span>

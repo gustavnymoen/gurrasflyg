@@ -201,21 +201,35 @@ export const bookingTotal = (form: BookingForm, legs: BookingLeg[]) =>
   );
 
 // Prislistan som totalen delas upp i, för skojs skull (TRIP-027): raderna i
-// ordning och deras andel i procent. Skatten är 0 %, men visas ändå.
-const PRICE_LIST_SHARES = [
-  { label: "Bränsle", percent: 40 },
-  { label: "Mutor", percent: 20 },
-  { label: "Alla möjliga avgifter", percent: 20 },
-  { label: "Stänga luftrummet vid avgång och ankomst", percent: 10 },
-  { label: "Försäkring", percent: 10 },
-  { label: "Skatt", percent: 0 },
-];
+// ordning och deras andel i procent. Skatten är 0 %, men visas ändå. Att
+// stänga luftrummet passar bara flygbolagets egna plan; i charter går de
+// procenten till mutorna (TRIP-029-R1, R2).
+export type PriceListArea = "flight" | "charter";
+
+const FEES = { label: "Diverse ospecificerade avgifter", percent: 20 };
+const PRICE_LIST_SHARES: Record<PriceListArea, { label: string; percent: number }[]> = {
+  flight: [
+    { label: "Bränsle", percent: 40 },
+    { label: "Mutor", percent: 20 },
+    FEES,
+    { label: "Stänga luftrummet vid avgång och ankomst", percent: 10 },
+    { label: "Försäkring", percent: 10 },
+    { label: "Skatt", percent: 0 },
+  ],
+  charter: [
+    { label: "Bränsle", percent: 40 },
+    { label: "Mutor", percent: 30 },
+    FEES,
+    { label: "Försäkring", percent: 10 },
+    { label: "Skatt", percent: 0 },
+  ],
+};
 
 // Delar en total i prislistans rader, i hela kronor. Det som blir över vid
 // avrundningen läggs på första raden (bränslet), så att raderna alltid blir
 // exakt totalen (TRIP-027-R1).
-export function priceList(total: number) {
-  const rows = PRICE_LIST_SHARES.map(({ label, percent }) => ({
+export function priceList(total: number, area: PriceListArea) {
+  const rows = PRICE_LIST_SHARES[area].map(({ label, percent }) => ({
     label,
     percent,
     amount: Math.floor((total * percent) / 100),
@@ -307,6 +321,10 @@ export function collectProblems(check: (add: Add) => void): Problems {
 export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Problems {
   return collectProblems((add) => {
     passengerProblems(form.passengers, add);
+    // Formuläret tar bort ölen när åldern blir under 18; servern godtar den inte heller (TRIP-029-R3)
+    form.passengers.forEach((p, i) => {
+      if (hasBeer(p, legs) && !isAdult(p.age)) add(fieldIds.age(i), "Öl går bara att köpa från 18 år.");
+    });
     legs.forEach((leg, i) => add(fieldIds.classes(i), classProblem(form, leg, i)));
     contactProblems(form.contact, form.checks, add);
   });
@@ -318,6 +336,36 @@ export function paymentProblems(form: Pick<BookingForm, "payment">): Problems {
 }
 
 export const isAge = (age: string) => /^\d+$/.test(age) && Number(age) >= MIN_AGE && Number(age) <= MAX_AGE;
+
+// ---------------------------------------------------------------- Öl från 18 år
+
+// Vuxen från 18 år, också för charterns vuxentillägg (TRIP-014-R7). Tillägget
+// som heter Öl går bara att köpa för passagerare från 18 år
+// (TRIP-029-R3). Regeln gäller namnet, inte en inställning i admin.
+export const ADULT_AGE = 18;
+export const isBeer = (addon: Pick<AddonOption, "name">) => addon.name.trim().toLocaleLowerCase("sv") === "öl";
+export const isAdult = (age: string) => isAge(age) && Number(age) >= ADULT_AGE;
+
+// Id:na för ölen som går att köpa i passagerarens klass på ett flyg
+function beerIdsOn(passenger: Passenger, legs: BookingLeg[], legIndex: number) {
+  const passengerLeg = passenger.legs[legIndex];
+  return (legs[legIndex].addons[passengerLeg.classId] ?? []).filter(isBeer).map((addon) => addon.id);
+}
+
+const hasBeer = (passenger: Passenger, legs: BookingLeg[]) =>
+  legs.some((_, i) => beerIdsOn(passenger, legs, i).some((id) => (passenger.legs[i].addons[id] ?? 0) > 0));
+
+// Passageraren utan öl på alla flyg, när hen inte är 18 år eller äldre, och
+// om något togs bort (TRIP-029-R4)
+export function withoutBeerUnder18(passenger: Passenger, legs: BookingLeg[]) {
+  if (isAdult(passenger.age) || !hasBeer(passenger, legs)) return { passenger, removed: false };
+  const cleaned = passenger.legs.map((passengerLeg, i) => {
+    const addons = { ...passengerLeg.addons };
+    for (const id of beerIdsOn(passenger, legs, i)) delete addons[id];
+    return { ...passengerLeg, addons };
+  });
+  return { passenger: { ...passenger, legs: cleaned }, removed: true };
+}
 
 // Har formuläret rätt form för resan? Servern kontrollerar det innan något
 // annat, eftersom vad som helst kan skickas till den: rätt antal passagerare

@@ -11,12 +11,15 @@ import {
   emptyForm,
   fieldIds,
   fitForm,
+  isAdult,
+  isBeer,
   MAX_ADDONS,
   NERVES,
   NERVES_PRICE,
   type Passenger,
   seatPrice,
   travellerProblems,
+  withoutBeerUnder18,
 } from "@/lib/booking-rules";
 import type { FleetAircraft } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
@@ -153,7 +156,8 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
   );
 }
 
-// En passagerare: namn, ålder, Dåliga nerver och klass och tillägg på varje flyg (R2–R4)
+// En passagerare: namn, ålder, Dåliga nerver och klass och tillägg på varje flyg (R2–R4).
+// Blir åldern under 18 tas ölen bort, och kortet säger varför (TRIP-029-R4).
 function PassengerCard({
   index,
   passenger,
@@ -169,6 +173,7 @@ function PassengerCard({
 }) {
   const headingId = `p${index}`;
   const number = index + 1;
+  const [beerRemoved, setBeerRemoved] = useState(false);
   return (
     <Card labelledBy={headingId} className="flex flex-col gap-5">
       <h2 id={headingId} className="text-section font-bold">
@@ -178,8 +183,17 @@ function PassengerCard({
         index={index}
         person={passenger}
         error={error}
-        onChange={(person) => onChange({ ...passenger, ...person })}
+        onChange={(person) => {
+          const { passenger: changed, removed } = withoutBeerUnder18({ ...passenger, ...person }, booking);
+          if (removed) setBeerRemoved(true);
+          else if (isAdult(changed.age)) setBeerRemoved(false);
+          onChange(changed);
+        }}
       />
+      {/* Alltid på sidan, så att skärmläsare läser texten när den kommer; tom tar den ingen plats */}
+      <p role="status" className={beerRemoved ? "text-small text-ink-muted" : "sr-only"}>
+        {beerRemoved ? "Ölen togs bort eftersom passageraren är under 18 år." : ""}
+      </p>
       <Nerves
         id={`p${index}-nerver`}
         checked={passenger.nerves}
@@ -250,12 +264,15 @@ function PassengerLegFields({
         <ul aria-label={`Tillägg på ${leg.of}`} className="flex flex-col divide-y divide-line">
           {addons.map((addon) => {
             const count = passengerLeg.addons[addon.id] ?? 0;
+            // Öl bara från 18 år (TRIP-029-R3)
+            const tooYoung = isBeer(addon) && !isAdult(passenger.age);
             return (
               <li key={addon.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3 first:pt-0">
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <span className="font-bold">{addon.name}</span>
                   <span className="text-small text-ink-muted">{addon.description}</span>
                   <span className="text-small">{formatPrice(addon.price)} / st</span>
+                  {tooYoung && <span className="text-small text-ink-muted">Från 18 år</span>}
                 </div>
                 <div className="flex items-center gap-3">
                   <RoundButton
@@ -272,7 +289,7 @@ function PassengerLegFields({
                   </span>
                   <RoundButton
                     label={`Fler ${addon.name}`}
-                    disabled={count >= MAX_ADDONS}
+                    disabled={count >= MAX_ADDONS || tooYoung}
                     onClick={() => setCount(addon.id, count + 1)}
                   >
                     +

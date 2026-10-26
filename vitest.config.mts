@@ -14,7 +14,8 @@ export default defineConfig({
   },
   test: {
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**", ".next-test/**", "tests/**"],
+    // .claude/ kan ha andra sessioners worktrees, med egna node_modules
+    exclude: ["node_modules/**", ".next/**", ".next-test/**", "tests/**", ".claude/**"],
     environment: "node",
     // Bygger en färsk databas för datakontrollerna, aldrig din egen
     globalSetup: ["./vitest.global-setup.mjs"],
