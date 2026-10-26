@@ -412,7 +412,7 @@ test("TRIP-020-R1 and R6 and TRIP-022-R1 and R4 the admin page: header, card bor
 
 const NO_FLIGHTS = "Inga flyg dit just nu, luftrummet är stängt. Du får ta dig dit på egen hand.";
 
-test("TRIP-013-R5 and R8 the charter list: every category and access tag has its own colour with enough contrast, and the notice is red", async ({
+test("TRIP-013-R5 and R8 and TRIP-028-R2 the charter list: every category and access tag has its own colour with enough contrast, and the notice is red", async ({
   page,
 }) => {
   await page.goto("/charter");
@@ -430,6 +430,14 @@ test("TRIP-013-R5 and R8 the charter list: every category and access tag has its
   }
   expect(colours.size).toBe(18);
   expect(new Set(colours.values()).size).toBe(colours.size);
+
+  // TRIP-028-R2: the keyboard focus ring is drawn around the whole card, not around the link
+  const teufelsberg = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { level: 3, name: "Teufelsberg listening station, Tyskland" }) });
+  await teufelsberg.getByRole("link").focus();
+  await expect(teufelsberg).toHaveCSS("outline-width", "2px");
+  await expect(teufelsberg.getByRole("link")).toHaveCSS("outline-style", "none");
 
   // R8: the notice is red text, and it meets 4.5:1 against the card
   await page.goto("/charter?sok=chernobyl");

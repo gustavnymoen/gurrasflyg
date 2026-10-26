@@ -10,7 +10,6 @@ import {
   NO_FILTERS,
   parseFilters,
   suggestDestinations,
-  topCategories,
   tripTo,
   type DestinationCard,
   type Fares,
@@ -93,18 +92,6 @@ test("TRIP-013-R2 the search and filters are written to and read from the addres
 test("TRIP-013-R2 an unknown value in the address is ignored", () => {
   const params = new URLSearchParams("sok=berlin&varldsdel=Atlantis&land=XX&tillgang=Free&kategori=Zoo");
   expect(parseFilters(params, cards)).toEqual(filters({ q: "berlin" }));
-});
-
-test("TRIP-013-R3 the top six categories are in order of count, then by name", () => {
-  const top = topCategories(cards);
-  expect(top.map((c) => [c.value, c.count])).toEqual([
-    ["Ghost town or village", 34],
-    ["Industrial site", 14],
-    ["Military or Cold War site", 12],
-    ["Abandoned resort or hotel", 8],
-    ["Hospital or sanatorium", 7],
-    ["Prison", 4],
-  ]);
 });
 
 test("TRIP-013-R5 a card has the first sentence of the description", () => {

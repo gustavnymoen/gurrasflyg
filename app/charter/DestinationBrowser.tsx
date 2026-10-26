@@ -17,7 +17,6 @@ import {
   type Filters,
 } from "@/lib/destinations";
 import DestinationCard from "./DestinationCard";
-import StartCards from "./StartCards";
 
 type Suggestion = { id: string; name: string; detail: string };
 
@@ -28,7 +27,7 @@ const FILTER_LABELS: Record<FilterKey, string> = {
   category: "Kategori",
 };
 
-// Sidan /charter: fritextsökning, filter och startkort över resmålen (TRIP-013).
+// Sidan /charter: fritextsökning, filter och kort över resmålen (TRIP-013).
 // Sökningen och filtren står i adressen (lib/destinations.ts) och resmålen
 // filtreras här i webbläsaren, så att varje val svarar direkt.
 export default function DestinationBrowser({ cards }: { cards: DestinationCardData[] }) {
@@ -38,7 +37,6 @@ export default function DestinationBrowser({ cards }: { cards: DestinationCardDa
   const results = useMemo(() => applyFilters(cards, filters), [cards, filters]);
   const active = hasFilters(filters);
 
-  const resultsHeading = useRef<HTMLHeadingElement>(null);
   const searchBox = useRef<HTMLDivElement>(null);
   // Sant när sökfältet byggs om för en ny söktext och ska få tillbaka fokus
   const refocusSearch = useRef(false);
@@ -50,11 +48,10 @@ export default function DestinationBrowser({ cards }: { cards: DestinationCardDa
   }, [filters.q]);
 
   // Nytt läge i adressen, utan att ladda om sidan. Fokus hamnar kvar eller flyttas
-  // till rubriken över resultaten, eftersom knappen som valdes kan försvinna.
-  function go(next: Filters, focus: "results" | "search" | null = null) {
+  // till sökfältet, eftersom knappen som valdes kan försvinna.
+  function go(next: Filters, focus: "search" | null = null) {
     const query = filtersToParams(next).toString();
     window.history.pushState(null, "", query ? `/charter?${query}` : "/charter");
-    if (focus === "results") resultsHeading.current?.focus();
     if (focus === "search") {
       if (next.q !== filters.q) refocusSearch.current = true;
       else searchBox.current?.querySelector("input")?.focus();
@@ -123,19 +120,8 @@ export default function DestinationBrowser({ cards }: { cards: DestinationCardDa
         ))}
       </div>
 
-      {!active && (
-        <StartCards
-          cards={cards}
-          onContinent={(continent) => go({ ...NO_FILTERS, continent }, "results")}
-          onCountry={(continent, country) => go({ ...NO_FILTERS, continent, country }, "results")}
-          onCategory={(category) => go({ ...NO_FILTERS, category }, "results")}
-        />
-      )}
-
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 ref={resultsHeading} tabIndex={-1} className="text-section font-bold outline-none">
-          {countText}
-        </h2>
+        <h2 className="text-section font-bold">{countText}</h2>
         {active && (
           <Button variant="secondary" size="compact" onClick={() => go(NO_FILTERS, "search")}>
             Rensa
