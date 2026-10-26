@@ -1,0 +1,9 @@
+%% TECH-017 Limit admin sign-in attempts
+%% The attempt is counted before the password is checked.
+flowchart TD
+    A[Password sent on /admin/login] --> B["Count the attempt for the address R1"]
+    B --> C{More than 5 within 15 minutes?}
+    C -- yes --> D["För många försök, N minuter left R2 R3"]
+    C -- no --> E{Right password?}
+    E -- no --> F["Wait 1 s, Fel lösenord R4"]
+    E -- yes --> G["Clear the count, sign in R1 R4"]

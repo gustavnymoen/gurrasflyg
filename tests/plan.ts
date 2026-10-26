@@ -215,7 +215,7 @@ export async function fillAll(page: Page, passengers: number, email = "anna@exem
 
 // The test database (npm run test:local): how many bookings a contact has,
 // and deleting them, so the tests clean up after themselves
-async function inTestDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>) {
+export async function inTestDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>) {
   const db = createClient({ url: `file:${testDbFile}` });
   try {
     await db.execute("PRAGMA foreign_keys = ON");

@@ -5,7 +5,7 @@ description: Så loggar du in på och ut från adminsidan, och hur länge inlogg
 resource: app/admin/login/
 feature: TRIP-002
 tags: [admin, inloggning, lösenord]
-timestamp: 2026-10-20
+timestamp: 2026-10-26
 ---
 
 # Logga in som administratör
@@ -18,6 +18,8 @@ Adminsidan är till för den som sköter Gurras Flyg: plan, klasser, addons, rut
 2. Skriv lösenordet och klicka på **Logga in**.
 
 Står det **Fel lösenord.** stämmer inte lösenordet. Kontrollera stora och små bokstäver och försök igen.
+
+Skriver du fel lösenord fem gånger på 15 minuter från samma dator eller nätverk spärras inloggningen därifrån en stund. Då står det **För många försök. Försök igen om N minuter.** Vänta så länge det står, så går det att logga in igen. Det hjälper inte att skriva rätt lösenord under tiden.
 
 ## Hur länge är jag inloggad?
 
