@@ -132,6 +132,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-024 | Aircraft in the summary, classes from zero: the chosen aircraft with flight time and arrival in Din resa, every class starting at 0, totals so far, no going on until everyone is placed, focus kept on Fler and Färre | Flight booking | Done |
 | TRIP-026 | One choice at a time on the plan page: one card per flight, flight by flight; only aircraft with room, chosen with Välj; the classes under the chosen aircraft with a counter of travellers left; Klar folds the card; steps Flyg, Plan och klass, Resenärer | Flight booking | Done |
 | TRIP-012 | Book a flight: Fortsätt when every flight is done; Resenärer with passengers, class and add-ons per flight, Dåliga nerver, the contact and three required questions; Betala with two payment methods; the booking saved with the database's prices, once per Betala; a summary with the booking number shown only in that tab; new booking tables | Flight booking | Done |
+| TRIP-025 | Departures fill in from the top: the flight cards on `/flyg` fade in and slide down one after another (60 ms apart, the first ten delayed), not when sorting changes, none with reduced motion | Flight booking | Done |
 | TRIP-027 | Detailed price list: the total on Betala and in the summary split into fuel, bribes, fees, closed airspace, insurance and 0 % tax, in whole kronor adding up to the total | Flight booking | Done |
 
 ## Decisions for charter

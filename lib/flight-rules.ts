@@ -23,6 +23,11 @@ export type SortBy = "time" | "price";
 // Den simulerade sökningen tar 1–4 sekunder (R3). random är ett tal 0–1, t.ex. Math.random().
 export const searchDelay = (random: number) => 1000 + Math.round(random * 3000);
 
+// Avgångskorten fylls på uppifrån: kort nummer index (0 för det översta)
+// startar 60 ms efter kortet före, men bara de tio första fördröjs, så hela
+// animationen tar högst ca 0,8 s hur långa listan än är (TRIP-025-R1, R2)
+export const fillInDelay = (index: number) => Math.min(index, 9) * 60;
+
 // Flygnumret, t.ex. "GF 2013": ruttens id och avgångens nummer under dagen (1, 2 …)
 export const flightNumber = (routeId: number, position: number) => `GF ${routeId * 10 + position}`;
 

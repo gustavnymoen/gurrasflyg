@@ -204,6 +204,15 @@ export async function animationsDone(locator: Locator) {
 // WCAG 2.x level A or AA rule (TRIP-008-R12). axe finds only some of the
 // problems; the rest is checked by hand (TRIP-021).
 export async function expectNoA11yViolations(page: Page) {
+  // Cards that fill in (TRIP-025) are partly see-through while they move, which axe reads as low contrast
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => (a as CSSAnimation).animationName === "fill-in")
+        .map((a) => a.finished),
+    ),
+  );
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     // The review carousel's side cards are faded on purpose (TRIP-006-R1) and

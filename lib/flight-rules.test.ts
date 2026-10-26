@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { type Flight, flightNumber, hasLeft, localNow, searchDelay, sortFlights, totalPrice } from "./flight-rules";
+import { type Flight, fillInDelay, flightNumber, hasLeft, localNow, searchDelay, sortFlights, totalPrice } from "./flight-rules";
 
 const airport = { iata: "ARN", name: "Stockholm Arlanda", city: "Stockholm", country: "Sverige", timezone: "Europe/Stockholm" };
 const flight = (time: string, fromPrice: number): Flight => ({
@@ -12,6 +12,16 @@ const flight = (time: string, fromPrice: number): Flight => ({
   routeMinutes: 140,
   from: airport,
   to: { ...airport, iata: "LHR" },
+});
+
+test("TRIP-025-R1 each card starts 60 ms after the one before", () => {
+  expect([0, 1, 2, 3].map(fillInDelay)).toEqual([0, 60, 120, 180]);
+});
+
+test("TRIP-025-R2 only the first ten cards are delayed one after another", () => {
+  expect(fillInDelay(9)).toBe(540);
+  expect(fillInDelay(10)).toBe(fillInDelay(9));
+  expect(fillInDelay(500)).toBe(fillInDelay(9));
 });
 
 test("TRIP-010-R3 the simulated search takes 1–4 seconds", () => {

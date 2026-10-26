@@ -5,7 +5,7 @@ description: The flight search: the Sök button, the results page /flyg, its sim
 resource: app/flyg/
 feature: TRIP-010
 tags: [search, results, flights, prices, routes, flight-booking, accessibility]
-timestamp: 2026-10-23
+timestamp: 2026-10-26
 ---
 
 # Search results
@@ -38,6 +38,7 @@ On the results page the form is filled in from the search (`initial`): `Autocomp
 
 - **Simulated search:** the flights are already loaded, but are shown 1–4 seconds after the page starts in the browser (`searchDelay()`), to feel like a real flight search. Meanwhile four skeleton cards (`FlightSkeleton`) pulse, unless the visitor prefers reduced motion. A hidden status (`role="status"`) is empty on the server, says "Söker flyg…" when the page has started and the timer runs, and "7 flyg hittades" when it is done, so screen readers hear both.
 - **The list:** a heading per step ("Utresa Stockholm – London"), the date and the number of flights ("lör 24 okt · 7 flyg"), and the sort choice, Avgångstid or Pris: two radio buttons styled as a button group. Sorting (`sortFlights()`) happens in the browser without a new search; equal prices are ordered by time. With no flights left, the page says "Inga flyg kvar den här dagen. Prova ett annat datum i sökningen ovan."
+- **Filling in:** when a list of departures appears (the outbound list when the search is done, the return list after the outbound flight is chosen), each card fades in and slides 8 px down over 250 ms, one after another from the top, 60 ms apart (`fillInDelay()` in `lib/flight-rules.ts`). Only the first ten are delayed one after another, so it takes at most about 0.8 s. It is CSS (`--animate-fill-in` in `app/globals.css`) on the card's `<li>`, so the cards can be used at once. `FlightList` drops it when the sorting changes (the cards then change places at once), and the reduced-motion rule in `globals.css` switches it off (TRIP-025).
 - **The steps:** for a return trip, a list of steps (Utresa, Hemresa, Din resa) with `aria-current="step"` on the current one. Välj on an outbound flight shows the return flights, with the chosen outbound flight above them and **Ändra utresa**, which goes back to step 1 and clears the return flight. The last choice shows **Din resa**: each flight with its flight number and price, a button to change it, the total for all travellers, and **Fortsätt** to `/flyg/plan`. When the step changes, focus goes to the new step's heading. When the address holds chosen flights (`ut`, `hem`, see [aircraft and classes](aircraft-and-classes.md#the-address)), the page starts at Din resa with them, and Fortsätt keeps what was chosen for each flight that is still the same.
 
 `FlightCard` (`app/flyg/FlightCard.tsx`) is a `Card` in the new size `flush`, filled by one button: the departure time, the airports as IATA code and city, and "från 1 290 kr / person". It has `aria-expanded`, and opens the details: flight number, the airports' full names and countries, the date, the total for all travellers, and **Välj**. Flight time and arrival time are not shown: they depend on the aircraft, chosen on the next page. The button, the details panel and **Välj** are the shared `ChoiceCard` (`app/components/ChoiceCard.tsx`), which the aircraft cards on `/flyg/plan` use too (TECH-020); the number of travellers is written by `travellersText()` in `lib/format.ts`.
