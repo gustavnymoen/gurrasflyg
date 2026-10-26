@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { bookingTotal, fieldIds, PAYMENTS, paymentProblems, travellerProblems } from "@/lib/booking-rules";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, travellersText } from "@/lib/format";
 import { bookingUrl, paymentUrl } from "@/lib/trip";
 import Button, { buttonClass } from "../../components/Button";
 import Card from "../../components/Card";
@@ -113,7 +113,7 @@ export default function PaymentForm({ search, legs, flights, fleet, booking }: B
       <Card className="flex flex-col gap-3">
         <p className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="text-ink-muted">
-            Att betala, {search.travellers} {search.travellers === 1 ? "resenär" : "resenärer"}
+            Att betala, {travellersText(search.travellers)}
           </span>
           <span className="text-xl font-bold">{formatPrice(total)}</span>
         </p>

@@ -71,6 +71,7 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | `fieldClass()`, `textAreaClass()` | `Field.tsx` | sizes `large`, `small`, `compact`; error state | A field without a label inside, for example in admin tables. |
 | `Switch` | `Switch.tsx` | | An on/off choice ("Tur och retur"): a `button` with `role="switch"`, the track filled with the accent when on. |
 | `Card` | `Card.tsx` | sizes `default`, `compact` (admin), `flush` (no padding, for a card filled by a button or a label) | Cards. |
+| `ChoiceCard` | `ChoiceCard.tsx` | | The inside of a card that opens: a button over the full width with a chevron, a details panel and **Välj** (flight and aircraft cards). The frame comes from the user. |
 | `floatClass`, `floatingCardClass` | `Card.tsx` | | What floats above the page (floating surface and shadow): suggestion lists, and dialogs with a card's shape (`floatingCardClass`). |
 | `Message` | `Message.tsx` | `error`, `success` | Errors (`role="alert"`) and confirmations (`role="status"`) as coloured text, without a box. |
 | `Stars` | `Stars.tsx` | | A rating, 1–5 stars in brass. |

@@ -1,0 +1,7 @@
+%% TECH-020 Shared choice card and traveller plural
+%% The site behaves as before; both card lists use ChoiceCard.
+flowchart TD
+    A[Flight or aircraft card] --> B[ChoiceCard: button with aria-expanded]
+    B -- pressed --> C[Details panel with Välj R2]
+    C -- Välj --> D[onChoose of the page]
+    E[Text with a number of travellers] --> F["travellersText(n) R3"]

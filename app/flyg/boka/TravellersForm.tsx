@@ -24,7 +24,7 @@ import {
 } from "@/lib/booking-rules";
 import type { FleetAircraft } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, travellersText } from "@/lib/format";
 import type { Search } from "@/lib/search";
 import { LEG_NAMES, type LegChoice, paymentUrl } from "@/lib/trip";
 import Button from "../../components/Button";
@@ -188,7 +188,7 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
       <Card className="flex flex-col gap-3">
         <p className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="text-ink-muted">
-            Totalt för resan, {search.travellers} {search.travellers === 1 ? "resenär" : "resenärer"}
+            Totalt för resan, {travellersText(search.travellers)}
           </span>
           <span className="text-xl font-bold">{formatPrice(bookingTotal(form, booking))}</span>
         </p>
