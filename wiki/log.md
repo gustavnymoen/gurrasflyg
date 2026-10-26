@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-26
 
+- TRIP-016: in Admin the trash on a class, add-on or aircraft always asks "Är du säker?", and only the server decides whether the row is in use (`inUse` is gone from the lists). A class or add-on can be deleted at once after the only aircraft using it.
 - TECH-020: the expandable choice card (button with `aria-expanded`/`aria-controls`, details panel and **Välj**) is one component, `ChoiceCard`, used by `FlightCard` and `AircraftCard`; the text "1 resenär" / "N resenärer" is written by `travellersText(n)` in `lib/format.ts`. The site behaves as before.
 - TECH-019: every `RoundButton` is `aria-disabled` instead of `disabled` when unavailable, so keyboard focus stays on it (traveller picker, calendar month buttons, carousel arrows, "Lägg till klass"/"Lägg till addon"); the `keepFocus` prop and the calendar's move of focus to the grid are removed.
 - TECH-017: the admin sign-in refuses an IP address after 5 attempts within 15 minutes, for 15 minutes after the fifth, even with the right password: "För många försök. Försök igen om N minuter." The attempts are counted before the password is checked, in the new table `login_attempts` (migration `010_login_attempts.sql`, `lib/login-limit.ts`).

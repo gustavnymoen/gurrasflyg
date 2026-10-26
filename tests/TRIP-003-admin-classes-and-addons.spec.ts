@@ -95,8 +95,9 @@ test("TRIP-003-R5 delete a cabin class, unless it is in use", async ({ page }) =
   await createAircraft(page, aircraft, [{ name, seats: 10 }]);
   await trash(page, name).click();
   const dialog = page.getByRole("alertdialog");
+  await dialog.getByRole("button", { name: "Ja" }).click();
   await expect(dialog.getByRole("heading", { name: "Du kan ej ta bort" })).toBeVisible();
-  await expect(dialog.getByText(`${name} används av ett eller flera plan.`)).toBeVisible();
+  await expect(dialog.getByText("den används av ett plan eller en flight")).toBeVisible();
   await dialog.getByRole("button", { name: "OK" }).click();
   await expect(dialog).toBeHidden();
   await expect(trash(page, name)).toBeVisible();
@@ -172,8 +173,9 @@ test("TRIP-003-R9 delete an add-on, unless it is in use", async ({ page }) => {
 
   await trash(page, name).click();
   const dialog = page.getByRole("alertdialog");
+  await dialog.getByRole("button", { name: "Ja" }).click();
   await expect(dialog.getByRole("heading", { name: "Du kan ej ta bort" })).toBeVisible();
-  await expect(dialog.getByText(`${name} används av ett eller flera plan.`)).toBeVisible();
+  await expect(dialog.getByText("den används av ett plan eller en bokning")).toBeVisible();
   await dialog.getByRole("button", { name: "OK" }).click();
 
   await deleteWithConfirmation(page, `Ta bort ${aircraft}`);

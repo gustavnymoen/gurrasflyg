@@ -10,16 +10,14 @@ import {
   TIME_FACTOR_ERROR,
 } from "./numbers";
 
-// inUse = något annat i databasen pekar på raden, så den kan inte tas bort.
 // Faktorerna är procent som heltal: 150 = 1,50 (TRIP-011).
-export type CabinClass = { id: number; name: string; pricePercent: number; inUse: boolean };
-export type Addon = { id: number; name: string; description: string; price: number; inUse: boolean };
+export type CabinClass = { id: number; name: string; pricePercent: number };
+export type Addon = { id: number; name: string; description: string; price: number };
 export type Aircraft = {
   id: number;
   name: string;
   pricePercent: number;
   timePercent: number;
-  inUse: boolean;
   classes: {
     classId: number;
     className: string;
@@ -47,9 +45,10 @@ export type AddonInput = { name: string; description: string; price: string };
 // Fel som beror på vad admin matat in och som kan visas på sidan
 export class AdminError extends Error {}
 
-// SQL som avgör om en klass/addon används. Kontrolleras uttryckligen innan
+// SQL som avgör om en klass/addon används. Kontrolleras uttryckligen vid
 // borttagning, så att spärren fungerar även om databasen inte själv
-// kontrollerar REFERENCES.
+// kontrollerar REFERENCES. Det är bara servern som avgör: sidan känner inte
+// till vad som används, eftersom det kan ha ändrats sedan den lästes (TRIP-016).
 const CLASS_IN_USE = `
   EXISTS (SELECT 1 FROM aircraft_capacity WHERE class_id = c.id)
   OR EXISTS (SELECT 1 FROM booking_seats WHERE class_id = c.id)`;
@@ -61,29 +60,21 @@ const ADDON_IN_USE = `
 
 export async function listClasses(): Promise<CabinClass[]> {
   await connection();
-  const rows = await all<Omit<CabinClass, "inUse"> & { inUse: number }>(
-    `SELECT c.id, c.name, c.price_percent AS pricePercent, ${CLASS_IN_USE} AS inUse FROM classes c ORDER BY c.id`,
-  );
-  return rows.map((r) => ({ ...r, inUse: r.inUse === 1 }));
+  return all<CabinClass>("SELECT id, name, price_percent AS pricePercent FROM classes ORDER BY id");
 }
 
 export async function listAddons(): Promise<Addon[]> {
   await connection();
-  const rows = await all<Omit<Addon, "inUse"> & { inUse: number }>(
-    `SELECT a.id, a.name, a.description, a.price, ${ADDON_IN_USE} AS inUse
-     FROM addons a ORDER BY a.name`,
-  );
-  return rows.map((r) => ({ ...r, inUse: r.inUse === 1 }));
+  return all<Addon>("SELECT id, name, description, price FROM addons ORDER BY name");
 }
 
 // Alla plan med klasser och addons per klass
 export async function listAircraft(): Promise<Aircraft[]> {
   await connection();
   const [aircraft, classes, addons] = await Promise.all([
-    all<{ id: number; name: string; pricePercent: number; timePercent: number; inUse: number }>(
-      `SELECT a.id, a.name, a.price_percent AS pricePercent, a.time_percent AS timePercent,
-              EXISTS (SELECT 1 FROM booking_flights WHERE aircraft_id = a.id) AS inUse
-       FROM aircraft a ORDER BY a.name`,
+    all<{ id: number; name: string; pricePercent: number; timePercent: number }>(
+      `SELECT id, name, price_percent AS pricePercent, time_percent AS timePercent
+       FROM aircraft ORDER BY name`,
     ),
     all<{ aircraftId: number; classId: number; className: string; capacity: number }>(
       `SELECT ac.aircraft_id AS aircraftId, ac.class_id AS classId, c.name AS className, ac.capacity
@@ -102,7 +93,6 @@ export async function listAircraft(): Promise<Aircraft[]> {
     name: a.name,
     pricePercent: a.pricePercent,
     timePercent: a.timePercent,
-    inUse: a.inUse === 1,
     classes: classes
       .filter((c) => c.aircraftId === a.id)
       .map(({ classId, className, capacity }) => ({

@@ -119,8 +119,6 @@ function AircraftRow({
             <EditButton label={`Ändra ${aircraft.name}`} onClick={() => setEditing(true)} />
             <DeleteButton
               label={`Ta bort ${aircraft.name}`}
-              inUse={aircraft.inUse}
-              inUseReason={`${aircraft.name} används av en eller flera bokningar.`}
               onDelete={() => deleteAircraftAction(aircraft.id)}
             />
           </div>

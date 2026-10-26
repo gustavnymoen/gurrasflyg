@@ -47,6 +47,7 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-007 Import the course data | Charter | `specs/TRIP-007-import-course-data/` |
 | TRIP-008 Visual design: foundation | Shared | `specs/TRIP-008-visual-design/` |
 | TRIP-009 Return trip date picker | Flight booking | `specs/TRIP-009-return-trip-datepicker/` |
+| TRIP-016 Deleted aircraft still looks in use | Administration | `specs/TRIP-016-deleted-aircraft-in-use/` |
 | TRIP-019 Visual design: admin page | Administration | `specs/TRIP-019-admin-design/` |
 | TRIP-020 Visual design: start page | Shared | `specs/TRIP-020-start-page-design/` |
 | TRIP-021 Accessibility: WCAG 2.2 AA | Shared | `specs/TRIP-021-wcag/` |

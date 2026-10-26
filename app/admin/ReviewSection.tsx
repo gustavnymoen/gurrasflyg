@@ -42,8 +42,6 @@ export default function ReviewSection({ reviews }: { reviews: Review[] }) {
                     <td className="py-1.5">
                       <DeleteButton
                         label={`Ta bort omdöme från ${r.author}`}
-                        inUse={false}
-                        inUseReason=""
                         onDelete={() => deleteReviewAction(r.id)}
                       />
                     </td>
