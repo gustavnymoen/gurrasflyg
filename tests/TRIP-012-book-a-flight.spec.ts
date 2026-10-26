@@ -1,6 +1,4 @@
-import { createClient } from "@libsql/client";
 import { expect, type Locator, type Page } from "@playwright/test";
-import { testDbFile } from "../lib/local-db.mjs";
 import { expectNoA11yViolations, runsLocally } from "./helpers";
 import {
   alert,
@@ -9,11 +7,16 @@ import {
   chosenAircraft,
   classRow,
   count,
+  countBookings,
+  deleteBookings,
   done,
+  fillAll,
+  fillPassenger,
   folded,
   type Fleet,
   openBooking,
   openPlan,
+  passenger,
   place,
   test,
 } from "./plan";
@@ -22,7 +25,6 @@ import {
 // saving with the database's prices, a double Betala) are unit tests in
 // lib/booking-rules.test.ts and lib/bookings.test.ts.
 
-const passenger = (page: Page, n: number) => page.getByRole("region", { name: `Passagerare ${n}`, exact: true });
 const legGroup = (card: Locator, leg: "Utresa" | "Hemresa") => card.getByRole("group", { name: leg });
 const addonRow = (card: Locator, leg: "Utresa" | "Hemresa", name: string) =>
   legGroup(card, leg).getByRole("listitem").filter({ hasText: name });
@@ -33,43 +35,6 @@ const total = async (page: Page) =>
     await page.locator("main p:visible").filter({ hasText: /^Totalt för resan/ }).locator("span").last().textContent(),
   );
 const goOn = (page: Page) => page.getByRole("button", { name: "Till betalning" }).click();
-
-async function fillPassenger(page: Page, n: number, first: string) {
-  const card = passenger(page, n);
-  await card.getByLabel("Förnamn").fill(first);
-  await card.getByLabel("Efternamn").fill("Testsson");
-  await card.getByLabel("Ålder").selectOption("40");
-}
-
-// Everything on the booking page filled in, for the given number of passengers
-async function fillAll(page: Page, passengers: number, email = "anna@exempel.se") {
-  for (let n = 1; n <= passengers; n++) await fillPassenger(page, n, `E2E Resenär ${n}`);
-  const contact = page.getByRole("region", { name: "Kontaktperson" });
-  await contact.getByLabel("Förnamn").fill("Anna");
-  await contact.getByLabel("Efternamn").fill("Ek");
-  await contact.getByLabel("E-post").fill(email);
-  await contact.getByLabel("Telefon").fill("070-123 45 67");
-  await contact.getByLabel("Adress").fill("Storgatan 1, 123 45 Byn");
-  for (const box of await page.getByRole("region", { name: "Tre viktiga frågor" }).getByRole("checkbox").all()) {
-    await box.check();
-  }
-}
-
-// The test database (npm run test:local): how many bookings a contact has,
-// and deleting them, so the tests clean up after themselves
-async function inTestDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>) {
-  const db = createClient({ url: `file:${testDbFile}` });
-  try {
-    await db.execute("PRAGMA foreign_keys = ON");
-    return await fn(db);
-  } finally {
-    db.close();
-  }
-}
-const countBookings = (email: string) =>
-  inTestDb(async (db) => (await db.execute({ sql: "SELECT id FROM bookings WHERE email = ?", args: [email] })).rows.length);
-const deleteBookings = (email: string) =>
-  inTestDb((db) => db.execute({ sql: "DELETE FROM bookings WHERE email = ?", args: [email] }));
 
 const twoAndOne = (fleet: Fleet) => ({ [fleet.base]: 1, [fleet.luxury]: 2 });
 

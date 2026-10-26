@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-26
 
+- TRIP-027: Betala and the summary show the total split into Bränsle (40 %), Mutor (20 %), Alla möjliga avgifter (20 %), Stänga luftrummet (10 %), Försäkring (10 %) and Skatt (0 %), in whole kronor that add up to the total (`priceList()` in `lib/booking-rules.ts`, `PriceList`). Calculated, not saved. The booking page's test helpers moved to `tests/plan.ts`.
 - TRIP-012: the accessibility checklist gone through on the live site for Resenärer, Betala and the summary, and recorded in its `verification.md`. Fixed: the summary's tab title is "Din bokning – Gurras Flyg", which also fits when there is no booking to show (it said "Bokningen är klar"). The booking test also reloads the page and checks that everything filled in is kept.
 
 ## 2026-10-24

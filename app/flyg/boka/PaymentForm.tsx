@@ -9,6 +9,7 @@ import { bookingUrl, paymentUrl } from "@/lib/trip";
 import Button, { buttonClass } from "../../components/Button";
 import Card from "../../components/Card";
 import Message from "../../components/Message";
+import PriceList from "../PriceList";
 import Problem from "../Problem";
 import Steps, { tripSteps } from "../Steps";
 import TripOverview from "../TripOverview";
@@ -45,6 +46,7 @@ export default function PaymentForm({ search, legs, flights, fleet, booking }: B
     return <Problem text="Fyll i resenärerna först." href={bookingUrl(search, legs)} link="Till resenärerna" />;
   }
 
+  const total = bookingTotal(form, booking);
   const problem = attempts > 0 ? (paymentProblems(form)[fieldIds.payment] ?? null) : null;
   const errorId = `${fieldIds.payment}-error`;
 
@@ -113,8 +115,9 @@ export default function PaymentForm({ search, legs, flights, fleet, booking }: B
           <span className="text-ink-muted">
             Att betala, {search.travellers} {search.travellers === 1 ? "resenär" : "resenärer"}
           </span>
-          <span className="text-xl font-bold">{formatPrice(bookingTotal(form, booking))}</span>
+          <span className="text-xl font-bold">{formatPrice(total)}</span>
         </p>
+        <PriceList total={total} />
         {error && <Message kind="error">{error}</Message>}
         <div className="flex flex-wrap gap-3">
           <Button type="submit" aria-disabled={pending || undefined}>

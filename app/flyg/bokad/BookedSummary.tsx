@@ -6,6 +6,7 @@ import Card from "../../components/Card";
 import Problem from "../Problem";
 import { BOOKED_KEY, useStored } from "../boka/store";
 import FlightLine from "../FlightLine";
+import PriceList from "../PriceList";
 import { FlightTime } from "../plan/FlightTime";
 
 // Bokningsnumret, flygen, passagerarna med klass och tillägg, kontaktpersonen,
@@ -91,6 +92,7 @@ export default function BookedSummary() {
           <span className="text-ink-muted">Betalsätt</span>
           <span className="font-bold">{summary.payment}</span>
         </p>
+        <PriceList total={summary.total} />
         <p className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="text-ink-muted">Totalt</span>
           <span className="text-xl font-bold">{formatPrice(summary.total)}</span>
