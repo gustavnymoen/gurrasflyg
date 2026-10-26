@@ -1,0 +1,6 @@
+%% TRIP-028 Clickable destination cards, no start cards
+flowchart TD
+    A[Traveller opens /charter] --> B[Search, filters and all destination cards: R1]
+    B -->|press anywhere on a card, or Tab to its title and Enter| P[/charter/id with the search and filters in the address: R2/]
+    B -->|search or filters| F[Narrowed list]
+    F -->|Rensa| B

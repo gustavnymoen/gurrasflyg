@@ -9,13 +9,13 @@ title: "Charter: Destination pages and search"
 |---|---|---|---|---|
 | TRIP-013-R1 | Unit tests `TRIP-013-R1 …` in `lib/destinations.test.ts` (matching, case, suggestions); browser tests `TRIP-013-R1 …` in `tests/TRIP-013-destinations.spec.ts` (other name, Enter, case, arrow keys and the announcement, no match); axe with the suggestions open | local, CI | Pass | 2026-10-26 |
 | TRIP-013-R2 | Unit tests `TRIP-013-R2 …` (filters, countries, counts, address, unknown values); browser tests `TRIP-013-R2 …` (address, reload, Back, counts, Antarctica, Rensa, unknown value) | local, CI | Pass | 2026-10-26 |
-| TRIP-013-R3 | Unit test `TRIP-013-R3 the top six categories …`; browser tests `TRIP-013-R3 …` and `TRIP-013-R2 and R3 Rensa …` | local, CI | Pass | 2026-10-26 |
+| TRIP-013-R3 | Replaced by TRIP-028-R1: the start cards were removed, see `specs/TRIP-028-clickable-cards/verification.md` | local, CI | Replaced | 2026-10-26 |
 | TRIP-013-R4 | Unit tests `TRIP-013-R4 …` in `lib/destination-names.test.ts`, against the test database | local, CI | Pass | 2026-10-26 |
 | TRIP-013-R5 | Unit test `TRIP-013-R5 a card has the first sentence …`; browser test `TRIP-013-R5 a destination card shows its facts …` (card, link, no photo); design test `TRIP-013-R5 and R8 the charter list …` in `tests/TECH-018-design.spec.ts` (18 own colours, contrast 4.5:1); 320 px in `TRIP-013-R5 and R9 … 320 px` | local, CI | Pass | 2026-10-26 |
 | TRIP-013-R6 | Unit tests `TRIP-013-R6 …` in `lib/destinations.test.ts` (Teufelsberg 780, range 780–22 680, 95 with a trip, 24 through the gateway, none for Chernobyl) | local, CI | Pass | 2026-10-26 |
 | TRIP-013-R7 | Browser tests `TRIP-013-R7 a destination page shows …` (sections, credits, facts, airport, ways, gateway, sea voyage, 404) and `… no booking button, and the link back …`; design test `TRIP-013-R7 and R8 the destination page …`; unit tests for the back link and the text parsing | local, CI | Pass. The 404 page has status 200 (see Notes) | 2026-10-26 |
 | TRIP-013-R8 | Browser test `TRIP-013-R8 …` (card and page); design tests for the red text, the alert without a box and the contrast; unit test `TRIP-013-R6 and R8 …` | local, CI | Pass | 2026-10-26 |
-| TRIP-013-R9 | axe in `TRIP-013-R9 …` for the start, a search, filters, no match, a destination page and Chernobyl; focus and announcement in `TRIP-013-R9 a filter keeps focus …` and `TRIP-013-R3 Plats …`; 320 px in the design file | local, CI | Pass | 2026-10-26 |
+| TRIP-013-R9 | axe in `TRIP-013-R9 …` for the start, a search, filters, no match, a destination page and Chernobyl; focus and announcement in `TRIP-013-R9 a filter keeps focus …`; 320 px in the design file | local, CI | Pass | 2026-10-26 |
 
 ## The test plan
 
@@ -80,13 +80,7 @@ Acceptance criteria:
 
 ### TRIP-013-R3 Start cards
 
-Before a search or filter, `/charter` shall show the start cards Plats and Aktivitet as ways to start.
-
-Acceptance criteria:
-
-- **Given** `/charter` with no search or filter, **when** the traveller chooses a continent on Plats, **then** the page goes on to the countries of that continent (Antarktis goes straight to the list), and when a country is chosen the list shows its destinations with Världsdel and Land already filled in.
-- **Given** the card Aktivitet, **when** shown, **then** it has the six categories with the most destinations, in that order and by name when equal (today: Ghost town or village 34, Industrial site 14, Military or Cold War site 12, Abandoned resort or hotel 8, Hospital or sanatorium 7, Prison 4), each with its count, and a choice lists the category's destinations with Kategori filled in.
-- **Given** any search or filter, **when** shown, **then** the start cards are hidden.
+Replaced by TRIP-028-R1: the start cards Plats and Aktivitet are gone. The filters offer the same choices.
 
 ### TRIP-013-R4 Swedish names
 
@@ -103,7 +97,7 @@ Every destination in a list shall be a compact card with its title and country, 
 
 Acceptance criteria:
 
-- **Given** a destination, **when** its card is shown, **then** it has "Teufelsberg listening station, Tyskland", the photo, the first sentence of the description, the tags with the Swedish names (R4) of "Military or Cold War site" and "Open", and "Från 780 kr / person" (the cheapest round trip, see R6), and one button "Visa" that opens `/charter/teufelsberg`.
+- **Given** a destination, **when** its card is shown, **then** it has "Teufelsberg listening station, Tyskland", the photo, the first sentence of the description, the tags with the Swedish names (R4) of "Military or Cold War site" and "Open", and "Från 780 kr / person" (the cheapest round trip, see R6), and "Visa", which opens `/charter/teufelsberg` (TRIP-028-R2: the whole card is the one link, named by the title; "Visa" is only a button-like mark).
 - **Given** the tags, **when** shown, **then** each category and each access value has its own subdued colour, the meaning is also in the text, and the text has enough contrast (WCAG 2.2 AA).
 - **Given** a destination without a photo (Project Riese – Osówka), **when** its card is shown, **then** a plain placeholder area takes the photo's place, with no broken image.
 - **Given** a destination, **when** its card is on a phone (320 px), **then** nothing overflows or is cut off.
@@ -151,12 +145,11 @@ Acceptance criteria:
 
 - **Given** `/charter` (start, with a search, with filters, with no match) and a destination page (with and without flights), **when** checked with axe, **then** there are no violations.
 - **Given** a 320 px wide screen, **when** the pages are used, **then** nothing is cut off and nothing needs sideways scrolling.
-- **Given** a filter or a start card, **when** chosen, **then** focus is never lost and the new number of results is announced.
+- **Given** a filter, **when** chosen, **then** focus is never lost and the new number of results is announced.
 
 ## Notes
 
-- **Antarktis (R2, R3).** The course data gives Antarctica's two destinations country codes (GS, AQ). As built, choosing the continent Antarktis offers no country: Land keeps its full list, and the Plats card goes straight to the list.
+- **Antarktis (R2).** The course data gives Antarctica's two destinations country codes (GS, AQ). As built, choosing the continent Antarktis offers no country: Land keeps its full list.
 - **The 404 page (R7)** has the status code 200, since the page is already streaming when the id is found missing (Next.js with Cache Components). Next.js adds `noindex`; see `solution.md`.
 - **`Autocomplete` (R1).** The airport fields also announce the number of suggestions and name their list ("Förslag"); the card asked for it "as in the airport autocomplete", which did not do it before.
-- **The start cards (R3)** are laid out as two cards with equally sized buttons in a grid (name left, count right), on the user's request during the work.
 - **Accessibility checklist and the live smoke test** wait for the deploy.

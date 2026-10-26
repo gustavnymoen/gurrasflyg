@@ -12,7 +12,7 @@ export const DEPARTURE_AIRPORTS = ["ARN", "CPH"];
 export const NO_FLIGHTS_TEXT = "Inga flyg dit just nu, luftrummet är stängt. Du får ta dig dit på egen hand.";
 
 // Antarktis har inget land att välja: dess resmål listas direkt (TRIP-013-R2, R3)
-export const CONTINENT_WITHOUT_COUNTRIES = "Antarctica";
+const CONTINENT_WITHOUT_COUNTRIES = "Antarctica";
 
 // Det ett resmål i en lista behöver. Beskrivningen är bara första meningen
 // och priset är null när det inte finns några flyg dit.
@@ -195,36 +195,6 @@ export function filterOptions(cards: DestinationCard[], filters: Filters, key: F
 }
 
 const bySwedish = (a: string, b: string) => a.localeCompare(b, "sv");
-
-// Valen i ett filter med antal, de med flest resmål först och likadana i namnordning
-function choicesWithCounts(counts: Map<string, number>, name: (value: string) => string) {
-  return [...counts]
-    .map(([value, count]) => ({ value, name: name(value), count }))
-    .toSorted((a, b) => b.count - a.count || bySwedish(a.name, b.name));
-}
-
-// Kategorierna med flest resmål, för startkortet Aktivitet (TRIP-013-R3)
-export function topCategories(cards: DestinationCard[], limit = 6) {
-  const counts = new Map<string, number>();
-  for (const card of cards) counts.set(card.category, (counts.get(card.category) ?? 0) + 1);
-  return choicesWithCounts(counts, NAMES.category).slice(0, limit);
-}
-
-// Världsdelarna med antal, för startkortet Plats
-export function continentChoices(cards: DestinationCard[]) {
-  const counts = new Map<string, number>();
-  for (const card of cards) counts.set(card.continent, (counts.get(card.continent) ?? 0) + 1);
-  return choicesWithCounts(counts, NAMES.continent);
-}
-
-// Länderna i en världsdel med antal, för andra steget på startkortet Plats
-export function countriesIn(cards: DestinationCard[], continent: string) {
-  const counts = new Map<string, number>();
-  for (const card of cards.filter((c) => c.continent === continent)) {
-    counts.set(card.country, (counts.get(card.country) ?? 0) + 1);
-  }
-  return choicesWithCounts(counts, NAMES.country).toSorted((a, b) => bySwedish(a.name, b.name));
-}
 
 // Förslagen i sökfältet: resmål vars titel börjar med söktexten först
 export function suggestDestinations(cards: DestinationCard[], q: string, limit = 5) {

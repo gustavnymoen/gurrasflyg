@@ -14,7 +14,6 @@ const filter = (page: Page, label: "Världsdel" | "Land" | "Tillträde" | "Kateg
 // "47 destinationer" -> 47
 const resultCount = async (page: Page) =>
   Number((await page.getByRole("heading", { level: 2, name: /^\d+ destination(er)?$/ }).innerText()).match(/\d+/)![0]);
-const startCards = (page: Page) => page.getByRole("heading", { level: 2, name: /^Plats/ });
 
 test("TRIP-013-R1 suggestions find a destination by its other name, and Enter lists every match", async ({ page }) => {
   await page.goto("/charter");
@@ -25,6 +24,8 @@ test("TRIP-013-R1 suggestions find a destination by its other name, and Enter li
   await search(page).press("Enter");
   await expect(page).toHaveURL(/\/charter\?sok=field\+station$/);
   await expect(card(page, "Teufelsberg listening station, Tyskland")).toBeVisible();
+  // The list narrows after the address changes, so wait for it before counting
+  await expect(heading(page, "96 destinationer")).toBeHidden();
   expect(await page.getByRole("heading", { level: 3 }).count()).toBe(await resultCount(page));
 });
 
@@ -102,55 +103,17 @@ test("TRIP-013-R2 a choice shows how many destinations it gives, Antarctica leav
   await expect(filter(page, "Världsdel")).toHaveValue("");
 });
 
-test("TRIP-013-R2 and R3 Rensa clears the search and the filters and shows the start cards, which any search or filter hides", async ({ page }) => {
+test("TRIP-013-R2 and TRIP-028-R1 Rensa clears the search and the filters, and there are no start cards", async ({ page }) => {
   await page.goto("/charter?sok=berlin&varldsdel=Europe");
-  await expect(startCards(page)).toHaveCount(0);
   await page.getByRole("button", { name: "Rensa", exact: true }).click();
   await expect(page).toHaveURL(/\/charter$/);
   await expect(heading(page, "96 destinationer")).toBeVisible();
-  await expect(startCards(page)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: /^(Plats|Aktivitet)/ })).toHaveCount(0);
   await expect(search(page)).toHaveValue("");
   await expect(search(page)).toBeFocused();
 });
 
-test("TRIP-013-R3 Plats goes from a continent to its countries and then to the list, and Antarktis goes straight to it", async ({ page }) => {
-  await page.goto("/charter");
-  await page.getByRole("button", { name: /^Europa \(47\)$/ }).click();
-  await expect(heading(page, "Plats: Europa")).toBeFocused();
-  await page.getByRole("button", { name: /^Tyskland \(\d+\)$/ }).click();
-
-  await expect(page).toHaveURL(/varldsdel=Europe&land=DE$/);
-  await expect(filter(page, "Världsdel")).toHaveValue("Europe");
-  await expect(filter(page, "Land")).toHaveValue("DE");
-  await expect(startCards(page)).toHaveCount(0);
-  // The button that was chosen is gone, so focus moves to the results
-  await expect(page.getByRole("heading", { level: 2, name: /^\d+ destination(er)?$/ })).toBeFocused();
-  await page.goto("/charter");
-  await page.getByRole("button", { name: /^Antarktis \(2\)$/ }).click();
-  await expect(page).toHaveURL(/varldsdel=Antarctica$/);
-  await expect(heading(page, "2 destinationer")).toBeVisible();
-});
-
-test("TRIP-013-R3 Aktivitet has the six categories with most destinations, and a choice fills in Kategori", async ({
-  page,
-}) => {
-  await page.goto("/charter");
-  const activity = page.locator("section").filter({ has: heading(page, "Aktivitet") });
-  await expect(activity.getByRole("button")).toHaveText([
-    "Spökstad eller spökby (34)",
-    "Industriplats (14)",
-    "Militärt eller kalla kriget (12)",
-    "Övergiven semesterort eller hotell (8)",
-    "Sjukhus eller sanatorium (7)",
-    "Fängelse (4)",
-  ]);
-  await activity.getByRole("button", { name: /^Fängelse/ }).click();
-  await expect(page).toHaveURL(/kategori=Prison$/);
-  await expect(filter(page, "Kategori")).toHaveValue("Prison");
-  await expect(heading(page, "4 destinationer")).toBeVisible();
-});
-
-test("TRIP-013-R5 a destination card shows its facts and opens its page, and one without a photo has a plain area", async ({ page }) => {
+test("TRIP-013-R5 and TRIP-028-R2 a destination card shows its facts and opens its page, and one without a photo has a plain area", async ({ page }) => {
   await page.goto("/charter");
   const teufelsberg = card(page, "Teufelsberg listening station, Tyskland");
   await expect(teufelsberg.getByText("A Cold War listening station on a hill of wartime rubble in Berlin, now covered in street art.")).toBeVisible();
@@ -160,7 +123,12 @@ test("TRIP-013-R5 a destination card shows its facts and opens its page, and one
   await teufelsberg.scrollIntoViewIfNeeded();
   await expect(teufelsberg.locator("img")).toHaveCount(1);
 
-  await teufelsberg.getByRole("link", { name: "Visa Teufelsberg listening station" }).click();
+  // TRIP-028-R2: one link, named by the title, and a press anywhere on the card opens the page
+  await expect(teufelsberg.getByRole("link")).toHaveCount(1);
+  await expect(teufelsberg.getByRole("link", { name: "Teufelsberg listening station, Tyskland" })).toBeVisible();
+  // A real mouse press on the photo: it is the link's stretched area that gets it
+  const photo = (await teufelsberg.locator("img").boundingBox())!;
+  await page.mouse.click(photo.x + 20, photo.y + 20);
   await expect(page).toHaveURL(/\/charter\/teufelsberg$/);
   await page.goto("/charter?sok=osowka");
   const riese = card(page, "Project Riese – Osówka, Polen");
@@ -223,7 +191,7 @@ test("TRIP-013-R7 a destination page shows its photo with credits, text sections
 
 test("TRIP-013-R7 there is no booking button, and the link back keeps the search and filters", async ({ page }) => {
   await page.goto("/charter?sok=berlin&varldsdel=Europe");
-  await card(page, "Teufelsberg listening station, Tyskland").getByRole("link", { name: /^Visa/ }).click();
+  await card(page, "Teufelsberg listening station, Tyskland").getByRole("link").click();
   await expect(page).toHaveURL(/\/charter\/teufelsberg\?sok=berlin&varldsdel=Europe$/);
 
   await expect(page.getByRole("main").getByRole("button")).toHaveCount(0);
@@ -245,7 +213,7 @@ test("TRIP-013-R8 a destination without flights has the notice instead of a pric
   await expect(chernobyl.getByText(NO_FLIGHTS)).toBeVisible();
   await expect(chernobyl.getByText(/Från/)).toHaveCount(0);
 
-  await chernobyl.getByRole("link", { name: /^Visa/ }).click();
+  await chernobyl.getByRole("link").click();
   await expect(page.getByRole("alert").filter({ hasText: NO_FLIGHTS })).toBeVisible();
   await expect(page.getByText("Närmaste flygplats är Kyiv Boryspil International Airport (KBP). 170 km från destinationen.")).toBeVisible();
   await expect(page.getByText(/^Från [\d\s]+kr \/ person$/)).toHaveCount(0);
@@ -253,7 +221,7 @@ test("TRIP-013-R8 a destination without flights has the notice instead of a pric
 
 test("TRIP-013-R9 /charter has no accessibility violations in any state", async ({ page }) => {
   await page.goto("/charter");
-  await expect(startCards(page)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: /^(Plats|Aktivitet)/ })).toHaveCount(0);
   await expectNoA11yViolations(page);
 
   await search(page).fill("berlin");
@@ -296,7 +264,7 @@ test("TRIP-013-R7 @smoke /charter lists destinations and a destination page open
 }) => {
   await page.goto("/charter");
   await expect(heading(page, "96 destinationer")).toBeVisible();
-  await card(page, "Teufelsberg listening station, Tyskland").getByRole("link", { name: /^Visa/ }).click();
+  await card(page, "Teufelsberg listening station, Tyskland").getByRole("link").click();
   await expect(page.locator("figure figcaption")).toContainText("Foto: A.Savin");
   await expect(page.getByText("Du flyger till Berlin Brandenburg Airport (BER).")).toBeVisible();
 });

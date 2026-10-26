@@ -8,8 +8,8 @@ import { formatPrice } from "@/lib/format";
 import DestinationTag from "./DestinationTag";
 
 // Ett resmål i en lista: foto, namn, första meningen, taggar och "från"-pris,
-// med en knapp till resmålets sida (TRIP-013-R5). href bär med sig sökningen
-// och filtren, så att sidan kan länka tillbaka till samma lista.
+// och ett helt klickbart kort till resmålets sida (TRIP-028-R2). href bär med
+// sig sökningen och filtren, så att sidan kan länka tillbaka till samma lista.
 export default function DestinationCard({
   destination: d,
   href,
@@ -20,7 +20,10 @@ export default function DestinationCard({
   eager?: boolean;
 }) {
   return (
-    <Card size="flush" className="flex min-w-0 flex-col overflow-hidden">
+    <Card
+      size="flush"
+      className="relative flex min-w-0 flex-col overflow-hidden has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-3 has-[a:focus-visible]:outline-accent-strong"
+    >
       {/* Utan foto tar en enkel yta fotots plats */}
       <div className="relative aspect-[3/2] bg-surface-sunk">
         {d.photo && (
@@ -37,7 +40,10 @@ export default function DestinationCard({
       </div>
       <div className="flex flex-1 flex-col gap-3 p-4">
         <h3 className="text-lg leading-tight font-bold break-words">
-          {d.title}, {countryName(d.country)}
+          {/* Länken sträcks över hela kortet (after:, kortet är relative), så att en enda länk räcker för skärmläsare */}
+          <Link href={href} className="outline-none after:absolute after:inset-0">
+            {d.title}, {countryName(d.country)}
+          </Link>
         </h3>
         <p className="text-ink-muted">{d.summary}</p>
         <div className="flex flex-wrap gap-2">
@@ -50,9 +56,10 @@ export default function DestinationCard({
           ) : (
             <p className="font-bold">Från {formatPrice(d.price)} / person</p>
           )}
-          <Link href={href} aria-label={`Visa ${d.title}`} className={buttonClass("secondary", "compact")}>
+          {/* Bara utseendet: kortets länk gör jobbet */}
+          <span aria-hidden="true" className={buttonClass("secondary", "compact")}>
             Visa
-          </Link>
+          </span>
         </div>
       </div>
     </Card>
