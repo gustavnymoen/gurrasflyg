@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { resultsUrl, travellersUrl } from "../lib/charter-rules";
 import {
   ACCENT,
   ACCENT_SOFT,
@@ -445,7 +446,7 @@ test("TRIP-013-R5 and R8 and TRIP-028-R2 the charter list: every category and ac
   expect(contrast(DANGER, await backgroundOf(notice))).toBeGreaterThanOrEqual(4.5);
 });
 
-test("TRIP-013-R7 and R8 the destination page: a large photo, and a red alert without a box when there are no flights", async ({
+test("TRIP-013-R7 and R8 and TRIP-014-R1 the destination page: a large photo with the search beside it, and a red alert without a box when there are no flights", async ({
   page,
 }) => {
   await page.goto("/charter/teufelsberg");
@@ -454,6 +455,10 @@ test("TRIP-013-R7 and R8 the destination page: a large photo, and a red alert wi
   const box = (await photo.boundingBox())!;
   expect(box.width).toBeGreaterThan(800);
   expect(box.width / box.height).toBeCloseTo(16 / 9, 1);
+  // The price and the search form use the width beside the text instead of leaving it empty
+  const form = (await page.getByRole("region", { name: "Sök resa" }).boundingBox())!;
+  expect(form.x).toBeGreaterThan(box.x + box.width);
+  expect(form.y).toBeLessThan(box.y + box.height);
 
   await page.goto("/charter/chernobyl-pripyat");
   const alert = page.getByRole("alert").filter({ hasText: NO_FLIGHTS });
@@ -492,8 +497,20 @@ test.describe("on a phone", () => {
   test.describe("320 px wide", () => {
     test.use({ viewport: { width: 320, height: 640 } });
 
-    test("TRIP-013-R5 and R9 the charter list and the destination pages fit a 320 px screen", async ({ page }) => {
-      for (const path of ["/charter", "/charter?varldsdel=Antarctica", "/charter/chernobyl-pripyat", "/charter/teufelsberg"]) {
+    test("TRIP-013-R5 and R9 and TRIP-014-R11 the charter list, the destination pages and the booking pages fit a 320 px screen", async ({
+      page,
+    }) => {
+      const search = { from: "ARN", outbound: "2027-01-11", return: "2027-01-16", travellers: 2 };
+      const choice = { out: "ARN-BER-SK1122", back: "BER-ARN-SK1123" };
+      for (const path of [
+        "/charter",
+        "/charter?varldsdel=Antarctica",
+        "/charter/chernobyl-pripyat",
+        "/charter/teufelsberg",
+        resultsUrl("teufelsberg", search, choice),
+        travellersUrl("teufelsberg", search, choice),
+        "/charter/bokad",
+      ]) {
         await page.goto(path);
         await expect(page.getByRole("main").getByRole("heading").first()).toBeVisible();
         expect(await scrollsSideways(page), path).toBe(false);

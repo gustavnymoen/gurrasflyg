@@ -67,6 +67,7 @@ export default function Calendar({
   instruction,
   roundTrip,
   onRoundTripChange,
+  isChoosable,
   onMonthChange,
   onChoose,
   onFocusDay,
@@ -87,7 +88,10 @@ export default function Calendar({
   focusedDay: string;
   instruction: string;
   roundTrip: boolean;
-  onRoundTripChange: (on: boolean) => void;
+  // Utan den finns ingen "Tur och retur" att välja: resan är alltid tur och retur (charter, TRIP-014)
+  onRoundTripChange?: (on: boolean) => void;
+  // Dagar där ingen resa går kan inte väljas, också inom spannet (charter, TRIP-014-R2)
+  isChoosable?: (day: string) => boolean;
   onMonthChange: (month: string) => void;
   onChoose: (day: string) => void;
   // move: fokus ska flyttas dit (tangentbordet), inte bara noteras
@@ -141,7 +145,9 @@ export default function Calendar({
           </RoundButton>
         </div>
         {/* Högerställd, också när den hamnar på en egen rad i en smal kalender */}
-        <Switch label="Tur och retur" checked={roundTrip} onChange={onRoundTripChange} className="ml-auto" />
+        {onRoundTripChange && (
+          <Switch label="Tur och retur" checked={roundTrip} onChange={onRoundTripChange} className="ml-auto" />
+        )}
       </div>
 
       <div className={`grid gap-7 ${count === 2 ? "grid-cols-2" : ""}`}>
@@ -152,6 +158,7 @@ export default function Calendar({
             month={m}
             today={range.min}
             selectable={selectable}
+            isChoosable={isChoosable}
             outbound={outbound}
             returnDate={returnDate}
             focusedDay={focusedDay}
@@ -177,6 +184,7 @@ function MonthGrid({
   month,
   today,
   selectable,
+  isChoosable,
   outbound,
   returnDate,
   focusedDay,
@@ -188,6 +196,7 @@ function MonthGrid({
   month: string;
   today: string;
   selectable: DateRange;
+  isChoosable?: (day: string) => boolean;
   outbound: string | null;
   returnDate: string | null;
   focusedDay: string;
@@ -224,7 +233,7 @@ function MonthGrid({
             <tr key={i}>
               {week.map((day, j) => {
                 if (!day) return <td key={j} />;
-                const canChoose = day >= selectable.min && day <= selectable.max;
+                const canChoose = day >= selectable.min && day <= selectable.max && (isChoosable?.(day) ?? true);
                 const isStart = day === outbound;
                 const isEnd = day === returnDate;
                 const inRange = hasRange && day > outbound! && day < returnDate!;

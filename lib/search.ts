@@ -38,7 +38,7 @@ export function parseSearch(params: Params): Search | null {
 }
 
 // "YYYY-MM-DD" och en dag som finns (inte 2026-02-30)
-function isDate(value: string) {
+export function isDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [y, m, d] = value.split("-").map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));

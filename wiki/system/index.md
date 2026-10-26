@@ -23,6 +23,7 @@ How the site works, for developers. Start with the architecture.
 - [Flows](flows.md): the tabs Flyg and Charter on the start page, one area at a time, and Avbryt.
 - [Charter destinations](charter-destinations.md): the page `/charter` with search and filters, the destination pages, and the price and airport rules.
 - [Booking](booking.md): the steps Resenärer and Betala, the summary, how the booking is checked and saved, and the booking tables.
+- [Charter booking](charter-booking.md): the search form on a destination page, the results, the extras, Resenärer and Betala, the summary and the charter booking tables.
 
 ## Data
 
@@ -62,5 +63,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-018 Switch between flight booking and charter | Shared | `specs/TRIP-018-start-tabs/` |
 | TRIP-028 Clickable destination cards, no start cards | Charter | `specs/TRIP-028-clickable-cards/` |
 | TRIP-013 Charter: Destination pages and search | Charter | `specs/TRIP-013-destination-pages/` |
+| TRIP-014 Search and book charter trips | Charter | `specs/TRIP-014-charter-booking/` |
 
 [Wiki](../index.md)

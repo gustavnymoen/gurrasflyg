@@ -9,7 +9,7 @@ timestamp: 2026-10-24
 
 Så här använder du Gurras Flyg.
 
-Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbolagets egna rutter, och **charter** till spännande resmål (resmålen kan du redan titta på). Du väljer mellan dem på startsidan.
+Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbolagets egna rutter, och **charter** till spännande resmål, som du både kan titta på och boka. Du väljer mellan dem på startsidan.
 
 ## För resenärer
 
@@ -19,6 +19,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 - [Välja plan och klass](valja-plan-och-klass.md): plan för varje flyg, resenärer per klass, priser, flygtider och ankomst.
 - [Boka resan](boka-resan.md): resenärer, tillägg, kontaktperson, betalning och bokningsnumret.
 - [Hitta ett charterresmål](charter-resmal.md): söka och filtrera resmålen och läsa om ett resmål.
+- [Boka en charterresa](boka-charter.md): söka resor från ett resmåls sida, välja ut- och hemresa, tillägg, betalning och bokningsnumret.
 - [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
 
 ## För administratörer

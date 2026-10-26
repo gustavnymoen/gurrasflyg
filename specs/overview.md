@@ -70,6 +70,8 @@ The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement i
 | Timetable | A recurring trip from `data/flights.json`: from ARN or CPH to a destination's airport, or back, on certain weekdays during a period, direct or with changes. Identified by its ID, for example `ARN-BER-EW488`. |
 | Trip | One timetable on one date, for example `ARN-BER-EW488` on 2027-01-11. This is what a traveller books. |
 | Charter airport | An airport in `data/airports.json`, used by the timetables and destinations. |
+| Extra | One of three things a charter traveller can add to the whole booking (Den ultimata upplevelsen, Bear Grylls Experience, Dryckespaket XXXL), with a price per person. Defined in the code, not in admin. |
+| Charter booking | A round trip to a destination: an outbound and a return trip, travellers and extras, saved with a booking number that starts with `CH-`. |
 
 ## Scope
 
@@ -138,6 +140,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-018 | Switch between flight booking and charter: the tabs Flyg and Charter on the start page, the page `/charter`, one area at a time, and Avbryt with a question that throws away the booking | Shared | Done |
 | TRIP-028 | Clickable destination cards: the whole card on `/charter` opens the destination, and the start cards Plats and Aktivitet are gone (replaces TRIP-013-R3) | Charter | Done |
 | TRIP-013 | Charter: destination pages and search: `/charter` with free-text search, filters and cards with a "från" price, and `/charter/<id>` with photo credit, airport and ways of getting there; a notice for destinations without flights | Charter | Done |
+| TRIP-014 | Search and book charter trips: the search form on a destination page, round trips from ARN or CPH on the days the timetables run, the results with the arrival worked out in each airport's time zone, Resenärer with three extras for the whole booking, Betala, and a summary with a `CH-` booking number | Charter | Done |
 
 ## Decisions for charter
 
