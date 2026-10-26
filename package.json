@@ -12,7 +12,6 @@
     "typecheck": "next typegen && tsc --noEmit",
     "db:reset": "node scripts/db-setup.mjs --reset",
     "db:turso": "node --env-file=.env.turso scripts/db-setup.mjs",
-    "copy-to-prod": "node --env-file=.env.turso scripts/copy-to-prod.mjs",
     "postinstall": "node scripts/postinstall.mjs",
     "test": "playwright test",
     "test:local": "BASE_URL=http://localhost:3100 playwright test",

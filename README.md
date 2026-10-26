@@ -107,4 +107,3 @@ Which kind of test checks what, how tests are named, the rules for test data and
 | `npm run db:backup` | Saves a backup of the local database in `db/backups/`. |
 | `npm run db:reset` | Rebuilds the local database from scratch, after saving a backup. Never runs against Turso. |
 | `npm run db:turso` | Runs new migrations against Turso, using `.env.turso`. |
-| `npm run copy-to-prod` | Shows which classes, add-ons, aircraft and reviews exist locally but not in production. Add `-- --go` to copy them. Only adds, never removes. |

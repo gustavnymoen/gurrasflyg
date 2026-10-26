@@ -116,8 +116,6 @@ Security details (TECH-013):
 
 Changes reach `main` through pull requests, which branch protection merges only when CI (the whole test suite and the security scans) and Preview tests (smoke tests against the preview) are green and the branch is up to date. After each production deploy, Live tests runs the smoke tests against the live site. The workflows, their events and secrets are described in [Pipeline](pipeline.md).
 
-`npm run copy-to-prod` copies cabin classes, add-ons, aircraft and reviews from the local database to production. It only adds what is missing and never deletes.
-
 ## Tests
 
 Playwright browser tests in `tests/`, one file per feature (the look is checked in `tests/TECH-018-design.spec.ts`), and Vitest unit tests in `*.test.ts` next to the code they test (`vitest.config.mts`); each test named after a requirement ID. See [Testing](testing.md).
