@@ -49,9 +49,22 @@ test("TRIP-001-R4 airport can be chosen with mouse or keyboard", async ({ page }
   await to.press("ArrowUp");
   await expect(options.nth(0)).toHaveAttribute("aria-selected", "true");
 
-  // Wait for the new suggestions: Enter while the old list is still shown
-  // chooses from the old list (noted in verification.md)
-  await typeAirport(page, "Till", "arlanda");
+  // TRIP-015-R1: the answer for "arlanda" is held back. Enter while the list
+  // still answers "lon" chooses nothing, and does not submit the form either
+  // (before the 150 ms delay is over, as well as while the request is on its way)
+  let releaseAnswer = () => {};
+  const held = new Promise<void>((resolve) => (releaseAnswer = resolve));
+  await page.route("**/api/airports?q=arlanda", async (route) => {
+    await held;
+    await route.continue();
+  });
+  await to.fill("arlanda");
+  await to.press("Enter");
+  await expect(to).toHaveValue("arlanda");
+  await expect(page).toHaveURL(/\/$/);
+
+  // When the answer arrives, Enter chooses from it
+  releaseAnswer();
   await expect(list.getByRole("option")).toHaveCount(1);
   await to.press("Enter");
   await expect(to).toHaveValue("Stockholm Arlanda (ARN)");

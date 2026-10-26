@@ -30,5 +30,5 @@ Specified after the feature was built. Checked with the tests in `tests/TRIP-001
 
 ## Notes
 
-- **Found during verification:** if the traveller types quickly and presses Enter before the new suggestions have arrived (150 ms delay plus the request), the highlighted suggestion from the *previous* list is chosen. For example, changing "lon" to "arlanda" and pressing Enter at once chooses London Heathrow. The R4 test waits for the new list. Candidate for a fix in a later feature.
+- **Found during verification:** if the traveller typed quickly and pressed Enter before the new suggestions had arrived (150 ms delay plus the request), the highlighted suggestion from the *previous* list was chosen. For example, changing "lon" to "arlanda" and pressing Enter at once chose London Heathrow. Fixed in TRIP-010 and tested by TRIP-015-R1 in the R4 test.
 - The phone layout in R1 was checked on the live site with Playwright's iPhone 13 profile (390 px wide): the fields are stacked and the page doesn't scroll sideways.

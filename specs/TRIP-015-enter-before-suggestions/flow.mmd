@@ -1,0 +1,7 @@
+%% TRIP-015 Enter before new airport suggestions
+flowchart TD
+    A[Suggestions for lon are shown] --> B[Visitor changes the text to arlanda]
+    B --> C{New suggestions arrived?}
+    C -- no --> D[Enter does nothing: R1]
+    D --> C
+    C -- yes --> E[Enter chooses Stockholm Arlanda: R1]
