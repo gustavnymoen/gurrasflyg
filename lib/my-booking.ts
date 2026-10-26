@@ -362,8 +362,9 @@ export async function cancelParts(
       }
       const amount = kind === "flight" ? await flightAmount(id, ids, now, tx) : await charterAmount(id, ids, now, tx);
       const won = winsLottery(random());
-      const { lastId } = await run(
-        `INSERT INTO ${table} (booking_id, request_id, won, amount, refunded) VALUES (?, ?, ?, ?, ?)`, // nosemgrep: semgrep.sql-built-from-text
+      // Tabellen väljs av koden (kind), aldrig av besökaren
+      const { lastId } = await run( // nosemgrep: semgrep.sql-built-from-text
+        `INSERT INTO ${table} (booking_id, request_id, won, amount, refunded) VALUES (?, ?, ?, ?, ?)`,
         [id, requestId, won ? 1 : 0, amount, won ? amount : 0],
         tx,
       );
