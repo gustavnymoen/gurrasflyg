@@ -1,0 +1,8 @@
+%% TECH-018 Fewer, combined design tests
+%% How a design test is chosen: one test per page and state, not one per CSS value.
+flowchart TD
+    A[A design requirement needs a check] --> B{Same page and state as an existing design test?}
+    B -- yes --> C[Add the check to that test and name the test after the requirement too]
+    B -- no --> D[Write a new test for the new page or state]
+    C --> E[The test passes: the page was loaded once for many checks]
+    D --> E

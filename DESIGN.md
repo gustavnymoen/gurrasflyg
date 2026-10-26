@@ -110,14 +110,14 @@ The site's own images are in `public/brand/`; `public/images/` is the course's s
 - **Buttons are pills**, in three variants. A page's most important action is `primary`.
 - **Messages are coloured text**, never boxes.
 - **Cards** have the same border as the fields and the card shadow; menus and dialogs float with the fainter `--color-line` border and the floating shadow. The review in focus is told apart by its size and full visibility, not by its border.
-- **Contrast:** text and placeholders at least 4.5:1, borders that show a control and the focus ring at least 3:1. Check a new colour with the tests in `tests/TRIP-008-visual-design.spec.ts`.
+- **Contrast:** text and placeholders at least 4.5:1, borders that show a control and the focus ring at least 3:1. Check a new colour with the tests in `tests/TECH-018-design.spec.ts`.
 - **Motion** is short (at most 300 ms for controls), uses `ease-out`, and animates only `transform`, `opacity` and colours. Motion has a purpose: a button responds to a press, the carousel slides, the calendar floats in, the wordmark takes off once. The wordmark's take-off (1.4 s) and hop (0.9 s) are decoration, not a control's response, so the 300 ms limit doesn't apply to them.
 - **Reduced motion:** when the visitor prefers reduced motion, a rule in `globals.css` turns off every animation and limits transitions to colours and opacity, so nothing moves. New motion needs nothing extra; animations that should only run otherwise are also written `motion-safe:`.
 - **Tailwind only finds whole class names.** Write `focus:ring-3`, never `` `${state}:ring-3` ``. To vary a class, choose between whole strings (see `borders` in `Field.tsx`).
 
 ## How to change
 
-- **A colour:** change its value in `app/globals.css`. Run `npm run test:local -- tests/TRIP-008-visual-design.spec.ts`; the contrast tests fail if it gets too faint.
+- **A colour:** change its value in `app/globals.css`. Run `npm run test:local -- tests/TECH-018-design.spec.ts`; the contrast tests fail if it gets too faint.
 - **The font:** change the import in `app/layout.tsx` (`next/font/google`), keeping the variable `--font-bricolage`, or point `--font-display` and `--font-body` at another variable.
 - **A component:** change its file in `app/components/`. Every page that uses it follows.
 - **A new token:** add it to `@theme static` in `globals.css` and to the tables above.
