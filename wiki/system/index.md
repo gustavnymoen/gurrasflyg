@@ -2,7 +2,7 @@
 type: Index
 title: System documentation
 description: How Gurras Flyg is built: architecture, data, API endpoints and features.
-timestamp: 2026-10-24
+timestamp: 2026-10-26
 ---
 
 # System documentation
@@ -23,6 +23,7 @@ How the site works, for developers. Start with the architecture.
 - [Flows](flows.md): the tabs Flyg and Charter on the start page, one area at a time, and Avbryt.
 - [Charter destinations](charter-destinations.md): the page `/charter` with search and filters, the destination pages, and the price and airport rules.
 - [Booking](booking.md): the steps Resenärer and Betala, the summary, how the booking is checked and saved, and the booking tables.
+- [My booking](my-booking.md): the menu, the page Min bokning where a booking is found by its number and last name and cancelled in a 50/50 lottery, the guess limit and the 24 hour rule.
 - [Charter booking](charter-booking.md): the search form on a destination page, the results, the extras, Resenärer and Betala, the summary and the charter booking tables.
 
 ## Data
@@ -38,6 +39,7 @@ How the site works, for developers. Start with the architecture.
 
 ## Features
 
+- TRIP-023: a menu in the header and the page `/min-bokning`; see [My booking](my-booking.md).
 Each feature's requirements and how they were verified are in `specs/<feature>/`:
 
 | Feature | Area | Folder |

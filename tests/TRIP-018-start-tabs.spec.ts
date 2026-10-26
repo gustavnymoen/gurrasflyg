@@ -3,7 +3,7 @@ import { expectNoA11yViolations, openResults } from "./helpers";
 import { fillPassenger, openBooking, openPlan, searchUrl, test } from "./plan";
 
 // isInFlow() itself (which paths are a flow) is a unit test, lib/flow.test.ts.
-// The header with Avbryt, the wordmark and the footer's Start are the same on
+// The header with Avbryt, the wordmark and the menu's Start are the same on
 // every flow page, so Avbryt on /flyg/boka/betala is covered by that test and
 // by the other flow pages.
 
@@ -13,7 +13,11 @@ const charterLink = (page: Page) => page.getByRole("link", { name: "Utforska cha
 const dialog = (page: Page) => page.getByRole("dialog", { name: "Är du säker?" });
 const avbryt = (page: Page) => page.getByRole("banner").getByRole("button", { name: "Avbryt" });
 const wordmark = (page: Page) => page.getByRole("banner").getByRole("button", { name: "Gurras Flyg" });
-const footerStart = (page: Page) => page.getByRole("contentinfo").getByRole("button", { name: "Start" });
+// Start in the menu (TRIP-023-R1), which opens first
+const menuStart = async (page: Page) => {
+  await page.getByRole("banner").getByRole("button", { name: "Meny" }).click();
+  return page.getByRole("navigation", { name: "Meny" }).getByRole("button", { name: "Start" });
+};
 const stored = (page: Page) =>
   page.evaluate(() => [sessionStorage.getItem("gurrasflyg-bokning"), sessionStorage.getItem("gurrasflyg-bokad")]);
 
@@ -93,8 +97,7 @@ test.describe("one area at a time", () => {
     await expect(page.locator('a[href="/"]')).toHaveCount(0);
     await expect(avbryt(page)).toBeVisible();
     await expect(wordmark(page)).toBeVisible();
-    await expect(footerStart(page)).toBeVisible();
-    await expect(page.getByRole("contentinfo").getByRole("link", { name: "Admin" })).toBeVisible();
+    await expect(page.getByRole("banner").getByRole("button", { name: "Meny" })).toBeVisible();
   });
 
   test("TRIP-018-R2 the results page has no link to /charter or the start page", async ({ page }) => {
@@ -196,10 +199,10 @@ test.describe("abort the flow", () => {
     await expect(avbryt(page)).toHaveCount(0);
   });
 
-  test("TRIP-018-R3 the wordmark and the footer's Start open the same question", async ({ page }) => {
+  test("TRIP-018-R3 the wordmark and Start in the menu open the same question", async ({ page }) => {
     await page.goto("/charter");
-    for (const opener of [wordmark(page), footerStart(page)]) {
-      await opener.click();
+    for (const opener of [async () => wordmark(page), () => menuStart(page)]) {
+      await (await opener()).click();
       await expect(dialog(page)).toBeVisible();
       await dialog(page).getByRole("button", { name: "Nej, fortsätt" }).click();
       await expect(page).toHaveURL(/\/charter$/);

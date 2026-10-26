@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque } from "next/font/google";
-import Link from "next/link";
 import { Suspense } from "react";
-import { AbortButton, StartLink } from "./components/AbortFlow";
+import { AbortButton } from "./components/AbortFlow";
+import Menu from "./components/Menu";
 import PhotoCredit from "./components/PhotoCredit";
 import Wordmark from "./components/Wordmark";
 import "./globals.css";
@@ -31,9 +31,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Suspense>
             <Wordmark />
           </Suspense>
-          <Suspense>
-            <AbortButton />
-          </Suspense>
+          <div className="flex items-center gap-3">
+            <Suspense>
+              <AbortButton />
+            </Suspense>
+            <Suspense>
+              <Menu />
+            </Suspense>
+          </div>
         </header>
         {children}
         <footer className="mt-auto border-t border-line px-4 py-6">
@@ -42,14 +47,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Suspense>
               <PhotoCredit />
             </Suspense>
-            <nav className="flex gap-6">
-              <Suspense>
-                <StartLink className="hover:text-ink">Start</StartLink>
-              </Suspense>
-              <Link href="/admin" className="hover:text-ink">
-                Admin
-              </Link>
-            </nav>
           </div>
         </footer>
       </body>

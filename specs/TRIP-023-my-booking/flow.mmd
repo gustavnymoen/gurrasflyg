@@ -1,0 +1,20 @@
+%% TRIP-023 Manage my booking
+%% From the menu to a found booking, the choice of what to cancel, and the lottery on the server.
+flowchart TD
+    M[Menu: Min bokning] --> F[Form: booking number and last name]
+    F --> L{Locked?<br/>5 wrong in 15 min, R3}
+    L -- yes --> LK[För många försök]
+    L -- no --> C{Number and last name match? R2}
+    C -- no --> NF[Vi hittar ingen bokning: same text for both] --> F
+    C -- yes --> V[The whole booking, R4 R5]
+    V --> T[Tick flights, seats or travellers, R6 R7<br/>too late: greyed, R8]
+    T --> N[Rules and amount told before the button, R9]
+    N --> D{Är du säker?}
+    D -- Nej or Escape --> T
+    D -- Ja, avboka --> S[Server: check everything again, R12]
+    S -- refused --> E[Message, nothing changes] --> T
+    S --> W{Draw 50/50, R10}
+    W -- win --> R[Amount refunded]
+    W -- loss --> P[Full price paid anyway]
+    R --> H[Parts kept as Avbokad, history shown, R11]
+    P --> H

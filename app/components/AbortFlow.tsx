@@ -9,7 +9,7 @@ import Button from "./Button";
 import Dialog from "./Dialog";
 
 // Att lämna flygbokningen eller charter med avsikt (TRIP-018-R3). Inne i ett
-// flöde frågar Avbryt, ordmärket och Start i sidfoten först; på andra sidor är
+// flöde frågar Avbryt, ordmärket och länkarna i menyn först; på andra sidor är
 // ordmärket och Start vanliga länkar.
 
 // Frågan "Är du säker?": Ja, avbryt kastar bort bokningen och går till to
@@ -51,13 +51,24 @@ export function AbortButton() {
   );
 }
 
-// Länken till startsidan: i ett flöde en knapp som frågar först
-export function StartLink({ className, children }: { className: string; children: React.ReactNode }) {
+// En länk till valfri sida: i ett flöde en knapp som frågar först (TRIP-023-R1).
+// onNavigate körs när länken följs direkt, utan frågan.
+export function FlowLink({
+  to,
+  className,
+  onNavigate,
+  children,
+}: {
+  to: string;
+  className: string;
+  onNavigate?: () => void;
+  children: React.ReactNode;
+}) {
   const [asking, setAsking] = useState(false);
   const pathname = usePathname();
   if (!isInFlow(pathname)) {
     return (
-      <Link href="/" className={className}>
+      <Link href={to} className={className} onClick={onNavigate}>
         {children}
       </Link>
     );
@@ -67,7 +78,16 @@ export function StartLink({ className, children }: { className: string; children
       <button type="button" className={`${className} cursor-pointer`} onClick={() => setAsking(true)}>
         {children}
       </button>
-      {asking && <AbortDialog to="/" onClose={() => setAsking(false)} />}
+      {asking && <AbortDialog to={to} onClose={() => setAsking(false)} />}
     </>
+  );
+}
+
+// Länken till startsidan
+export function StartLink({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <FlowLink to="/" className={className}>
+      {children}
+    </FlowLink>
   );
 }

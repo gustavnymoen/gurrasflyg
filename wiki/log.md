@@ -2,13 +2,14 @@
 type: Log
 title: Log
 description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-24
+timestamp: 2026-10-26
 ---
 
 # Log
 
 ## 2026-10-26
 
+- TRIP-023: a **menu** in the header (Start, Min bokning, Admin; the footer's links are gone) and the page **Min bokning** (`/min-bokning`). A traveller types a booking number (flight `K7M2QX` or charter `CH-K7M2QX`) and the contact's last name and sees the whole booking; nothing is in the address. They can tick flights or passengers (flight booking) or the whole trip or travellers (charter) and cancel in a **50/50 lottery** told before the button: a win lowers what is left to pay by the price of everything cancelled, a loss refunds nothing. Not for a flight that leaves within 24 hours. 5 wrong lookups per address in 15 minutes lock the address for 15 minutes (counted in `login_attempts`, apart from the admin's). The server draws and sums everything itself, once per confirmation. Cancelled parts stay shown as "Avbokad". Migration `012_cancellations.sql` (only adds). New: `lib/cancel-rules.ts`, `lib/my-booking.ts`, `app/min-bokning/`, `app/components/Menu.tsx`; `AbortFlow` got `FlowLink`.
 - TECH-004: `npm run copy-to-prod` and `scripts/copy-to-prod.mjs` are removed, since production data is managed in admin and nothing needs copying from the local database. The site is unchanged.
 - TRIP-015: the test "TRIP-001-R4 …" now proves that Enter in an airport field chooses nothing from the old suggestion list while the new one is on its way, and then chooses from the new one. No change to the site; the behaviour came with TRIP-010. Corrected the note in TRIP-001's verification.
 - TRIP-028: on `/charter` the whole destination card opens the destination (one link on the title, stretched over the card) and the start cards Plats and Aktivitet are removed. Replaces TRIP-013-R3.
