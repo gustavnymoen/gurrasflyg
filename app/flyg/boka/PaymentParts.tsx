@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { fieldIds, PAYMENTS, type Payment } from "@/lib/booking-rules";
+import { fieldIds, PAYMENTS, type Payment, type PriceListArea } from "@/lib/booking-rules";
 import { formatPrice, travellersText } from "@/lib/format";
 import Button, { buttonClass } from "../../components/Button";
 import Card from "../../components/Card";
@@ -48,14 +48,17 @@ export function PaymentMethodCard({
   );
 }
 
-// "Att betala" med prislistan, Betala och länken tillbaka till resenärerna (TRIP-027-R1)
+// "Att betala" med prislistan för flyg eller charter, Betala och länken
+// tillbaka till resenärerna (TRIP-027-R1, TRIP-029)
 export function PayCard({
+  area,
   total,
   travellers,
   error,
   pending,
   backHref,
 }: {
+  area: PriceListArea;
   total: number;
   travellers: number;
   error: string | null;
@@ -68,7 +71,7 @@ export function PayCard({
         <span className="text-ink-muted">Att betala, {travellersText(travellers)}</span>
         <span className="text-xl font-bold">{formatPrice(total)}</span>
       </p>
-      <PriceList total={total} />
+      <PriceList total={total} area={area} />
       {error && <Message kind="error">{error}</Message>}
       <div className="flex flex-wrap gap-3">
         <Button type="submit" aria-disabled={pending || undefined}>

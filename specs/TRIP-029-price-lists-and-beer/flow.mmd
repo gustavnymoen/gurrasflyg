@@ -1,0 +1,13 @@
+%% TRIP-029 Price lists per area and beer from 18
+flowchart TD
+    A[Passenger card on Resenärer] --> B{Age 18 or more?}
+    B -- no, or no age --> C["Öl: Från 18 år, + disabled (R3)"]
+    B -- yes --> D[Öl can be added]
+    D --> E{Age changed to under 18?}
+    E -- yes --> F["Beer removed on every flight,<br/>text in the card (R4)"] --> C
+    E -- no --> G[Till betalning]
+    G --> H{"Server: travellerProblems<br/>beer under 18?"}
+    H -- yes --> I[Refused]
+    H -- no --> J["Betala and the summary:<br/>price list per area (R1, R2)"]
+    J --> K["Flight: 6 rows incl. closed airspace"]
+    J --> L["Charter: 5 rows, Mutor 30 %"]

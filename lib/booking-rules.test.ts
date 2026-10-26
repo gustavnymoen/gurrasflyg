@@ -11,12 +11,15 @@ import {
   firstClasses,
   fitForm,
   fitsTrip,
+  isAdult,
+  isBeer,
   isEmail,
   isPhone,
   NERVES_PRICE,
   paymentProblems,
   priceList,
   travellerProblems,
+  withoutBeerUnder18,
 } from "./booking-rules";
 import type { FleetAircraft } from "./fare-rules";
 import type { Flight } from "./flight-rules";
@@ -252,25 +255,75 @@ test("TRIP-012-R9 the summary has the flights, passengers with classes and add-o
   });
 });
 
-test("TRIP-027-R1 the total is split 40/20/20/10/10/0 in whole kronor", () => {
-  expect(priceList(10000).map((row) => row.amount)).toEqual([4000, 2000, 2000, 1000, 1000, 0]);
-  expect(priceList(10000).map((row) => row.label)).toEqual([
+test("TRIP-027-R1 TRIP-029-R2 a flight's total is split 40/20/20/10/10/0 in whole kronor", () => {
+  expect(priceList(10000, "flight").map((row) => row.amount)).toEqual([4000, 2000, 2000, 1000, 1000, 0]);
+  expect(priceList(10000, "flight").map((row) => row.label)).toEqual([
     "Bränsle",
     "Mutor",
-    "Alla möjliga avgifter",
+    "Diverse ospecificerade avgifter",
     "Stänga luftrummet vid avgång och ankomst",
     "Försäkring",
     "Skatt",
   ]);
-  expect(priceList(0).every((row) => row.amount === 0)).toBe(true);
+  expect(priceList(0, "flight").every((row) => row.amount === 0)).toBe(true);
+});
+
+test("TRIP-029-R1 R2 a charter total is split 40/30/20/10/0, without closing the airspace", () => {
+  expect(priceList(10000, "charter").map((row) => [row.label, row.amount])).toEqual([
+    ["Bränsle", 4000],
+    ["Mutor", 3000],
+    ["Diverse ospecificerade avgifter", 2000],
+    ["Försäkring", 1000],
+    ["Skatt", 0],
+  ]);
 });
 
 test("TRIP-027-R1 the rows always add up to the total, the remainder going to Bränsle", () => {
   // 1 237 kr: 20 % = 247, 10 % = 123, så bränslet får resten (497 i stället för 494)
-  expect(priceList(1237).map((row) => row.amount)).toEqual([497, 247, 247, 123, 123, 0]);
-  for (const total of [1, 7, 99, 1237, 12345, 99999]) {
-    const rows = priceList(total);
-    expect(rows.reduce((sum, row) => sum + row.amount, 0)).toBe(total);
-    expect(rows.every((row) => Number.isInteger(row.amount))).toBe(true);
+  expect(priceList(1237, "flight").map((row) => row.amount)).toEqual([497, 247, 247, 123, 123, 0]);
+  for (const area of ["flight", "charter"] as const) {
+    for (const total of [1, 7, 99, 1237, 12345, 99999]) {
+      const rows = priceList(total, area);
+      expect(rows.reduce((sum, row) => sum + row.amount, 0)).toBe(total);
+      expect(rows.every((row) => Number.isInteger(row.amount))).toBe(true);
+    }
   }
+});
+
+// Öl i båda klasserna, på båda flygen
+const BEER = { id: 14, name: "Öl", description: "En kall", price: 100 };
+const beerLeg = (of: string) => ({ ...leg(outbound, of), addons: { 1: [MEAL, BEER], 2: [MEAL, BEER] } });
+const BEER_LEGS = [beerLeg("utresan"), beerLeg("hemresan")];
+const withBeer = (age: string) => {
+  const form = filled(BEER_LEGS);
+  const p = form.passengers[0];
+  const legs = p.legs.map((l) => ({ ...l, addons: { [BEER.id]: 2, [MEAL.id]: 1 } }));
+  return { ...form, passengers: form.passengers.with(0, { ...p, age, legs }) };
+};
+
+test("TRIP-029-R3 beer is the add-on named Öl, for passengers from 18", () => {
+  expect(isBeer(BEER)).toBe(true);
+  expect(isBeer({ name: " öl " })).toBe(true);
+  expect(isBeer({ name: "Ölkorv" })).toBe(false);
+  expect(isAdult("18")).toBe(true);
+  expect(isAdult("17")).toBe(false);
+  expect(isAdult("")).toBe(false);
+});
+
+test("TRIP-029-R3 the server refuses beer for a passenger under 18", () => {
+  expect(travellerProblems(withBeer("18"), BEER_LEGS)).toEqual({});
+  expect(travellerProblems(withBeer("17"), BEER_LEGS)).toEqual({ "p0-alder": "Öl går bara att köpa från 18 år." });
+});
+
+test("TRIP-029-R4 a passenger under 18 loses the beer on every flight, and the price follows", () => {
+  const form = withBeer("16");
+  const { passenger, removed } = withoutBeerUnder18(form.passengers[0], BEER_LEGS);
+  expect(removed).toBe(true);
+  expect(passenger.legs.map((l) => l.addons)).toEqual([{ [MEAL.id]: 1 }, { [MEAL.id]: 1 }]);
+  const after = { ...form, passengers: form.passengers.with(0, passenger) };
+  expect(bookingTotal(form, BEER_LEGS) - bookingTotal(after, BEER_LEGS)).toBe(2 * 2 * BEER.price);
+  expect(travellerProblems(after, BEER_LEGS)).toEqual({});
+  // Ingen öl, eller 18 år: inget ändras
+  expect(withoutBeerUnder18(passenger, BEER_LEGS).removed).toBe(false);
+  expect(withoutBeerUnder18(withBeer("30").passengers[0], BEER_LEGS).removed).toBe(false);
 });

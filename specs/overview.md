@@ -144,6 +144,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-013 | Charter: destination pages and search: `/charter` with free-text search, filters and cards with a "från" price, and `/charter/<id>` with photo credit, airport and ways of getting there; a notice for destinations without flights | Charter | Done |
 | TRIP-014 | Search and book charter trips: the search form on a destination page, round trips from ARN or CPH on the days the timetables run, the results with the arrival worked out in each airport's time zone, Resenärer with three extras for the whole booking, Betala, and a summary with a `CH-` booking number | Charter | Done |
 
+| TRIP-029 | Price lists per area and beer from 18: charter's price list without closed airspace (its share on Mutor), "Diverse ospecificerade avgifter" in both, Öl only for passengers from 18 and removed when the age goes below | Shared | Done |
 | TRIP-023 | Manage my booking: a menu in the header, and Min bokning where a flight or charter booking is found by its number and the contact's last name and parts of it are cancelled in a 50/50 lottery told before the click, with a guess limit and the 24 hour rule | Shared | Done |
 
 ## Decisions for charter

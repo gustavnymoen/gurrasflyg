@@ -52,7 +52,7 @@ Defined once, in `EXTRAS` in `lib/charter-rules.ts` (code, name, text, price per
 
 ## Betala
 
-`/charter/<id>/boka/betala` (`CharterPaymentForm`): Din resa with the extras, **Hur vill du betala?** (`PaymentMethodCard`: Cash till piloten, Vi hämtar pengarna hos dig), "Att betala" with the price list (`PayCard` and `PriceList`, TRIP-027) and **Betala**. Opened without filled-in travellers it says "Fyll i resenärerna först.". Without a method: "Välj hur du vill betala." and focus on the first method. **Betala** calls the server action `bookCharterAction()` (`app/charter/actions.ts`), which reads the search and choices from the address and calls `createCharterBooking()`.
+`/charter/<id>/boka/betala` (`CharterPaymentForm`): Din resa with the extras, **Hur vill du betala?** (`PaymentMethodCard`: Cash till piloten, Vi hämtar pengarna hos dig), "Att betala" with charter's price list (`PayCard` and `PriceList` with `area="charter"`, TRIP-027, TRIP-029: no closed airspace, its 10 % on Mutor) and **Betala**. Opened without filled-in travellers it says "Fyll i resenärerna först.". Without a method: "Välj hur du vill betala." and focus on the first method. **Betala** calls the server action `bookCharterAction()` (`app/charter/actions.ts`), which reads the search and choices from the address and calls `createCharterBooking()`.
 
 ### Saving
 

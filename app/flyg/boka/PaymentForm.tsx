@@ -84,6 +84,7 @@ export default function PaymentForm({ search, legs, flights, fleet, booking }: B
         onChange={(payment) => saveForm({ ...form, payment })}
       />
       <PayCard
+        area="flight"
         total={total}
         travellers={search.travellers}
         error={error}

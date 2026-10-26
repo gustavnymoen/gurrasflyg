@@ -1,12 +1,13 @@
-import { priceList } from "@/lib/booking-rules";
+import { priceList, type PriceListArea } from "@/lib/booking-rules";
 import { formatPrice } from "@/lib/format";
 
-// Totalen uppdelad i prislistans rader (TRIP-027), på Betala och i sammanfattningen.
-// Bara summorna visas, utom skatten som får visa sina 0 %.
-export default function PriceList({ total }: { total: number }) {
+// Totalen uppdelad i prislistans rader (TRIP-027), på Betala och i
+// sammanfattningen, med raderna för flyg eller charter (TRIP-029). Bara
+// summorna visas, utom skatten som får visa sina 0 %.
+export default function PriceList({ total, area }: { total: number; area: PriceListArea }) {
   return (
     <dl className="flex flex-col gap-1 text-sm">
-      {priceList(total).map(({ label, percent, amount }) => (
+      {priceList(total, area).map(({ label, percent, amount }) => (
         <div key={label} className="flex flex-wrap items-baseline justify-between gap-2">
           <dt className="text-ink-muted">{percent === 0 ? `${label} ${percent} %` : label}</dt>
           <dd className="tabular-nums">{formatPrice(amount)}</dd>

@@ -347,7 +347,7 @@ test.describe("Betala and the summary", () => {
   const choice = { out: SK1122, back: SK1123 };
   const email = "e2e-charter@exempel.se";
 
-  test("TRIP-014-R8 R9 R10 Betala asks for a payment method, saves the booking with the booking number CH-, and the summary shows it once", async ({
+  test("TRIP-014-R8 R9 R10 TRIP-029-R1 Betala asks for a payment method, saves the booking with the booking number CH-, and the summary shows it once", async ({
     page,
   }) => {
     test.skip(!runsLocally, "saves a booking, and deletes it from the test database");
@@ -358,11 +358,11 @@ test.describe("Betala and the summary", () => {
     await expect(page.getByRole("heading", { name: "Betala", level: 1 })).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`${paymentUrl("teufelsberg", search({ travellers: 1 }), choice)}$`.replace("?", "\\?")));
 
-    // The price list splits "Att betala" in six rows that add up
+    // The price list splits "Att betala" in charter's five rows, without closing the airspace, that add up
     const toPay = (1190 + 1090 + 2000) * 1;
     const rows = page.locator("main dl:visible");
     expect((await rows.locator("dd").allTextContents()).map(amount).reduce((a, b) => a + b, 0)).toBe(toPay);
-    await expect(rows.locator("dt")).toHaveCount(6);
+    await expect(rows.locator("dt")).toHaveText(["Bränsle", "Mutor", "Diverse ospecificerade avgifter", "Försäkring", "Skatt 0 %"]);
     await expect(yourTrip(page)).toContainText("Bear Grylls Experience");
 
     // Without a method: a message, and focus on the first

@@ -26,6 +26,8 @@ För varje flyg står passagerarens **klass**. Från början sitter passagerarna
 
 Under klassen står tilläggen som går att köpa i just den klassen på just det planet, med namn, beskrivning och pris. Tryck **+** för att lägga till ett och **−** för att ta bort. Du kan välja flera olika, och upp till 10 av samma. Byter du klass försvinner tillägg som inte finns i den nya klassen.
 
+**Öl** går bara att köpa för passagerare som är 18 år eller äldre. Har du inte valt ålder, eller är passageraren yngre, står det "Från 18 år" och **+** går inte att trycka på. Ändrar du åldern till under 18 tas ölen bort på alla flyg, och det står i passagerarens kort varför.
+
 ### Dåliga nerver
 
 Kryssa i **Dåliga nerver** om flyget får vara lite mindre spännande. Det kostar 1 000 kr per flyg för den passageraren. Håll musen över rutan, eller gå till den med tangentbordet, så ser du vad det innebär. Tryck Esc för att dölja tipset.
@@ -42,7 +44,7 @@ Svara sedan på **Tre viktiga frågor** genom att kryssa i alla tre rutorna. Vil
 
 Välj hur du vill betala: **Cash till piloten** eller **Vi hämtar pengarna hos dig**. Ingen riktig betalning görs. Tryck **Betala**.
 
-Under **Att betala** ser du vart pengarna tar vägen: bränsle, mutor, alla möjliga avgifter, att stänga luftrummet vid avgång och ankomst, försäkring och skatt (0 %, förstås). Raderna blir alltid precis lika mycket som totalen.
+Under **Att betala** ser du vart pengarna tar vägen: bränsle, mutor, diverse ospecificerade avgifter, att stänga luftrummet vid avgång och ankomst, försäkring och skatt (0 %, förstås). Raderna blir alltid precis lika mycket som totalen.
 
 Vill du ändra något trycker du **Tillbaka till resenärerna**, eller på ett steg överst. Allt du fyllt i finns kvar.
 

@@ -4,6 +4,7 @@
 // regler och räknar priset från databasen.
 
 import {
+  ADULT_AGE,
   collectProblems,
   type Contact,
   contactProblems,
@@ -184,7 +185,6 @@ export function chosenTrips(choice: CharterChoice, out: CharterTrip[], back: Cha
 
 // ---------------------------------------------------------------- Tilläggen
 
-export const ADULT_AGE = 18;
 export const MINOR_TEXT = "Går inte att välja när någon resenär är under 18 år";
 
 // Tilläggen för hela bokningen, definierade här och inte i databasen eller admin (R7).

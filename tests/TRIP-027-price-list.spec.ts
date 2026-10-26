@@ -8,7 +8,7 @@ import { amount, deleteBookings, fillAll, openBooking, test } from "./plan";
 const ROWS = [
   "Bränsle",
   "Mutor",
-  "Alla möjliga avgifter",
+  "Diverse ospecificerade avgifter",
   "Stänga luftrummet vid avgång och ankomst",
   "Försäkring",
   "Skatt 0 %",
@@ -27,7 +27,7 @@ const sum = (numbers: number[]) => numbers.reduce((a, b) => a + b, 0);
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 
-  test("TRIP-027-R2 R4 Betala lists the six rows, adding up to Att betala, with no percent but the tax", async ({
+  test("TRIP-027-R2 R4 TRIP-029-R2 Betala lists the six rows, adding up to Att betala, with no percent but the tax", async ({
     page,
     fleet,
   }) => {
@@ -50,7 +50,7 @@ test.describe("with the tests' own aircraft", () => {
 test.describe("booking, which writes to the test database", () => {
   test.skip(!process.env.ADMIN_PASSWORD || !runsLocally, "Creates bookings: only against the local test server");
 
-  test("TRIP-027-R3 R4 the summary lists the same six rows, adding up to Totalt", async ({ page, fleet }) => {
+  test("TRIP-027-R3 R4 TRIP-029-R2 the summary lists the same six rows, adding up to Totalt", async ({ page, fleet }) => {
     const email = `e2e-${Date.now()}@exempel.se`;
     try {
       await openBooking(page, fleet.large, { [fleet.base]: 1 });
