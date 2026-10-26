@@ -2,7 +2,7 @@
 type: Index
 title: Användarmanual
 description: Hur man använder Gurras Flyg, för resenärer och administratörer.
-timestamp: 2026-10-24
+timestamp: 2026-10-26
 ---
 
 # Användarmanual
@@ -20,6 +20,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 - [Boka resan](boka-resan.md): resenärer, tillägg, kontaktperson, betalning och bokningsnumret.
 - [Hitta ett charterresmål](charter-resmal.md): söka och filtrera resmålen och läsa om ett resmål.
 - [Boka en charterresa](boka-charter.md): söka resor från ett resmåls sida, välja ut- och hemresa, tillägg, betalning och bokningsnumret.
+- [Min bokning](min-bokning.md): menyn, hitta sin bokning med bokningsnummer och efternamn, avboka delar av den och lotteriet om pengarna.
 - [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
 
 ## För administratörer

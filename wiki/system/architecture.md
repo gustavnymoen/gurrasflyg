@@ -24,12 +24,13 @@ flowchart LR
 
 | Folder | Content |
 |---|---|
-| `app/layout.tsx` | Every page: the header with the wordmark and, in a flow, Avbryt, and the footer (with the photo credit on the start page). See [flows](flows.md). |
+| `app/layout.tsx` | Every page: the header with the wordmark, in a flow Avbryt, and the menu (Start, Min bokning, Admin), and the footer (with the photo credit on the start page). See [flows](flows.md). |
 | `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)); `app/flyg/boka/` the booking's steps Resenärer and Betala with the server action `bookAction`, and `app/flyg/bokad/` the summary ([booking](booking.md)). `Steps`, `FlightLine`, `TripOverview` and `Problem` are shared. |
 | `app/page.tsx` | Start page: background photo, heading, the tabs Flyg (search form) and Charter, and review carousel. `app/charter/` is `/charter` and `/charter/<id>` ([Charter destinations](charter-destinations.md)). The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
 | `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Switch`, `Card`, `ChoiceCard`, `Message`, `Stars`, `Wordmark`, `Tabs`, `Dialog`, `AbortFlow`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. Whether a class, add-on or aircraft is in use is decided only by the delete functions in `lib/admin.ts`, inside the delete transaction; the page holds no such flag, since it can be old right after a change (TRIP-016). `login/` is the sign-in page. |
+| `app/min-bokning/` | `/min-bokning`: find a booking by number and last name and cancel parts of it, with the server actions `lookUpAction` and `cancelAction` ([my booking](my-booking.md)). |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
 | `proxy.ts` | Runs before every `/admin` request and sends visitors without a valid sign-in to `/admin/login`. |
@@ -45,12 +46,13 @@ flowchart LR
 | `lib/travel.ts` | The course's destinations (charter), read from the database, with the "från" price and airport. |
 | `lib/destinations.ts`, `lib/destination-names.ts`, `lib/markdown.ts` | Charter search, filters, address, price rule, Swedish names and text parsing, without a database (usable in the browser). |
 | `lib/charter-rules.ts`, `lib/charter.ts`, `lib/charter-bookings.ts` | Charter booking (TRIP-014): the rules for both the page and the server (search and address, which trips run, arrival, extras, the form, prices, summary), reading timetables and trips, and saving a booking in one write transaction with everything checked and priced from the database. Only `charter-rules.ts` is without `server-only`. See [Charter booking](charter-booking.md). |
+| `lib/cancel-rules.ts`, `lib/my-booking.ts` | Min bokning (TRIP-023): the rules for both the page and the server (booking numbers, the 24 hour rule, the lottery, amounts, ticking), and looking up, reading and cancelling bookings with everything checked in one write transaction. Only `cancel-rules.ts` is without `server-only`. See [My booking](my-booking.md). |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr") and durations ("9 h 20 min"). |
 | `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
 | `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
-Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, `app/flyg/boka/actions.ts`, which saves a flight booking, and `app/charter/actions.ts`, which saves a charter booking. Errors meant for the user are thrown as `AdminError`, `BookingError` or `CharterBookingError` and shown as messages.
+Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, `app/flyg/boka/actions.ts`, which saves a flight booking, and `app/charter/actions.ts`, which saves a charter booking, and `app/min-bokning/actions.ts`, which looks up and cancels. Errors meant for the user are thrown as `AdminError`, `BookingError` `CharterBookingError` or `CancelError` and shown as messages.
 
 This Next.js version has `cacheComponents` turned on: data that depends on the request (database reads, the clock, cookies) is read after `await connection()` or inside `<Suspense>`. See `AGENTS.md`.
 
@@ -70,6 +72,7 @@ On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't 
 
 - **Airports and routes:** `airports` (with `city`), `routes` (from, to, flight time; one for every ordered pair of airports) and `route_departures` (times of day, each with its price per person).
 - **Fleet:** `aircraft`, `classes`, `aircraft_capacity` (seats per class on an aircraft), `addons` and `aircraft_class_addons` (which add-ons can be bought in which class on which aircraft).
+- **Cancellations:** `booking_cancellations` and `charter_booking_cancellations` (the outcome of the lottery, the amount and the refund), and a `cancellation_id` on `booking_seats` and `charter_booking_passengers`. See [My booking](my-booking.md).
 - **Charter bookings:** `charter_bookings`, `charter_booking_passengers`, `charter_booking_trips` (the timetable, the date and the price) and `charter_booking_extras`. Separate from the flight booking's tables. See [Charter booking](charter-booking.md).
 - **Bookings:** `bookings` (the booking number, the contact, the payment method and the total), `booking_passengers`, `booking_flights` (route, date, departure, aircraft and price per flight), `booking_seats` (a passenger's class and price on a flight) and `booking_addons`. See [Booking](booking.md).
 - **Reviews:** `reviews`.
@@ -94,6 +97,7 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 | `009_bookings.sql` | The old flight and booking tables replaced by the booking tables (TRIP-012); stops if the old ones have any rows. |
 | `010_login_attempts.sql` | The table `login_attempts`, the admin sign-in attempts per IP address (TECH-017). |
 | `011_charter_bookings.sql` | The charter booking tables (TRIP-014). |
+| `012_cancellations.sql` | The cancellation tables and `cancellation_id` on seats and charter passengers (TRIP-023); only adds. |
 
 ## Admin sign-in
 
@@ -102,6 +106,7 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 Security details (TECH-013):
 
 - The password is compared as SHA-256 hashes with `timingSafeEqual` (`passwordMatches` in `lib/session.ts`), so the response time reveals neither how many characters were right nor how long the password is. A wrong password is answered after one second, which makes guessing slow. After 5 attempts from one IP address within 15 minutes, the sixth is refused, even with the right password, for 15 minutes after the fifth (TECH-017). The attempts are counted before the password is checked, in the table `login_attempts` in the database (`lib/login-limit.ts`), since on Vercel each request may run in a new function. The address is the first entry of `x-forwarded-for`, which Vercel sets itself. A right password clears the address's count, and rows older than 15 minutes are deleted at every attempt, so addresses are not kept longer than needed.
+- Min bokning (TRIP-023) shows personal data to anyone who knows a booking number and the contact's last name, so the lookup has the same kind of limit as the sign-in: 5 wrong attempts per address in 15 minutes, counted in `login_attempts` under the key `uppslag:<ip>`, apart from the admin's. A wrong number and a wrong last name give one and the same answer. The numbers and names travel in the body of a server action, never in the address or the logs, and the browser sends neither an amount nor the outcome of the lottery: the server recomputes both from the database in one write transaction.
 - The session is stateless: signing out deletes the cookie in the browser, but a copied cookie stays valid until its 8 hours are up. To end every session at once, change `ADMIN_SESSION_SECRET` (or the version in `lib/session.ts`). Acceptable for this site, where the admin has no real data.
 - Server actions check their input at run time, not only by TypeScript types: ids must be integers (`requireId`), texts strings of at most 200 characters, and lists arrays.
 - Every response has security headers from `next.config.ts`: the site can't be shown in a frame on another site (`X-Frame-Options: DENY`, `frame-ancestors 'none'`), file types aren't guessed (`nosniff`), and other sites get only the origin as referrer.

@@ -20,10 +20,12 @@ import {
   LINE,
   LINE_STRONG,
   requireAdminPassword,
+  runsLocally,
   signIn,
 } from "./helpers";
+import { removeSeed, seedFlightBooking } from "./my-booking-data";
 
-// De tre designfunktionernas tester (TRIP-008, TRIP-020, TRIP-022), ihopslagna per
+// De designfunktionernas tester (TRIP-008, TRIP-020, TRIP-022, TRIP-023), ihopslagna per
 // sida och tillstånd så att varje sida laddas så få gånger som möjligt (TECH-018).
 // Varje test heter efter alla krav det kontrollerar.
 
@@ -246,10 +248,13 @@ test("TRIP-008-R6, R7 and R12 an invalid date gives a red border, red text witho
 test("TRIP-008-R4, R8 and R9 keyboard focus shows a visible ring, and a disabled button is faded", async ({ page }) => {
   await page.goto("/");
   // Tab from the start of the page: first the wordmark in the header (TRIP-020-R1),
-  // then the selected tab (TRIP-018-R1), then the first field, then on to a button
+  // then the menu button (TRIP-023-R1), the selected tab (TRIP-018-R1), then the first field, then on to a button
   await page.keyboard.press("Tab");
   await expect(wordmark(page)).toBeFocused();
   await expect(wordmark(page)).toHaveCSS("outline-color", ACCENT_STRONG);
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Meny" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Meny" })).toHaveCSS("outline-color", ACCENT_STRONG);
   await page.keyboard.press("Tab");
   await expect(page.getByRole("tab", { name: "Flyg" })).toBeFocused();
   await page.keyboard.press("Tab");
@@ -347,6 +352,65 @@ test("TRIP-008-R5, R7, R8 and R12 and TRIP-020-R1 and R3 and TRIP-022-R1 and R4 
 
   await wordmark(page).click();
   await expect(page).toHaveURL(/\/$/);
+});
+
+test("TRIP-023-R1 and R2 the menu is a ring like the wordmark's with a floating list, and Min bokning is a card with the toned-down button", async ({
+  page,
+}) => {
+  await page.goto("/min-bokning");
+  const menuButton = page.getByRole("banner").getByRole("button", { name: "Meny" });
+  await expect(menuButton).toHaveCSS("border-top-left-radius", "999px");
+  await expect(menuButton).toHaveCSS("border-top-color", LINE_STRONG);
+  await menuButton.click();
+  const list = page.getByRole("navigation", { name: "Meny" });
+  expect(await css(list, "box-shadow")).toContain(FLOAT_SHADOW);
+  await expect(list).toHaveCSS("border-top-color", LINE);
+  await expect(list).toHaveCSS("background-color", "rgb(36, 33, 38)");
+  await page.keyboard.press("Escape");
+
+  const form = page.locator("section").filter({ has: page.getByLabel("Bokningsnummer") });
+  expect(await css(form, "box-shadow")).toContain(CARD_SHADOW);
+  await expect(form).toHaveCSS("border-top-color", LINE_STRONG);
+  await expectTonedDown(page.getByRole("button", { name: "Visa min bokning" }));
+  await page.getByRole("button", { name: "Visa min bokning" }).click();
+  await expectTextMessage(page.getByRole("alert").filter({ hasText: "Skriv bokningsnumret." }), DANGER);
+});
+
+test("TRIP-023-R4 and R6 and R9 a found booking: cards with the fields' border, the lottery rules before the button, and a cancelled seat in red", async ({
+  page,
+}) => {
+  test.skip(!runsLocally, "Writes to the test database: only against the local test server");
+  const seed = await seedFlightBooking();
+  try {
+    await page.goto("/min-bokning");
+    await page.getByLabel("Bokningsnummer").fill(seed.number);
+    await page.getByLabel("Efternamn").fill(seed.lastName);
+    await page.getByRole("button", { name: "Visa min bokning" }).click();
+    const outbound = page.getByRole("region", { name: "Utresa", exact: true });
+    await expect(outbound).toBeVisible();
+    expect(await css(outbound, "box-shadow")).toContain(CARD_SHADOW);
+    await expect(outbound).toHaveCSS("border-top-color", LINE_STRONG);
+
+    // A ticked box has the accent colour, and the selection is listed under the rules
+    const box = outbound.getByRole("checkbox", { name: /Bo Testsson/ });
+    await box.check();
+    await expect(box).toHaveCSS("accent-color", ACCENT_STRONG);
+    const rules = page.getByRole("region", { name: "Avboka", exact: true });
+    await expect(rules).toContainText("50/50");
+    await expect(rules).toContainText("Utresa: Bo Testsson");
+    await expect(page.getByRole("button", { name: "Avboka", exact: true })).toBeEnabled();
+    await expectNoA11yViolations(page);
+
+    // The tag Avbokad is red text, with enough contrast
+    await page.getByRole("button", { name: "Avboka", exact: true }).click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Ja, avboka" }).click();
+    const tag = outbound.getByText("Avbokad");
+    await expect(tag).toBeVisible();
+    await expect(tag).toHaveCSS("color", DANGER);
+    expect(contrast(DANGER, await backgroundOf(tag))).toBeGreaterThanOrEqual(4.5);
+  } finally {
+    await removeSeed(seed);
+  }
 });
 
 test("TRIP-020-R1 and R5 the plane takes off and hops, and the carousel slides", async ({ page }) => {
@@ -470,7 +534,7 @@ test.describe("on a phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   // The date group and Resenärer on a phone changed with TRIP-009 and are checked by TRIP-009-R1
-  test("TRIP-008-R3 and R12 and TRIP-020-R6 the start page and the sign-in page: smaller heading, no sideways scroll, Från and Till stacked", async ({
+  test("TRIP-008-R3 and R12 and TRIP-020-R6 and TRIP-023-R2 the start page, the sign-in page and Min bokning: smaller heading, no sideways scroll, Från and Till stacked", async ({
     page,
   }) => {
     await page.goto("/");
@@ -491,6 +555,12 @@ test.describe("on a phone", () => {
 
     await page.goto("/admin/login");
     await expect(h1).toBeVisible();
+    expect(await scrollsSideways(page)).toBe(false);
+
+    await page.goto("/min-bokning");
+    await expect(h1).toBeVisible();
+    expect(await scrollsSideways(page)).toBe(false);
+    await page.getByRole("banner").getByRole("button", { name: "Meny" }).click();
     expect(await scrollsSideways(page)).toBe(false);
   });
 

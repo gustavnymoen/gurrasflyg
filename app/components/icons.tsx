@@ -54,3 +54,11 @@ export function ChevronIcon({ open, className = "h-4 w-4" }: { open: boolean; cl
     </svg>
   );
 }
+
+export function MenuIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg {...iconProps} className={className}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}

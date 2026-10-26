@@ -79,7 +79,8 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 | `Wordmark` | `Wordmark.tsx` | | The plane in a brass ring and "Gurras Flyg", linking to the start page, in the header of every page (`app/layout.tsx`). The plane takes off into the ring once when the page loads and hops on hover; the take-off is removed when it has played, so the page stands still afterwards. |
 | `Dialog` | `Dialog.tsx` | `role` `alertdialog` (default) or `dialog` | A question over the page, shared by the admin and the abort question (TRIP-018) ("Är du säker?", "Du kan ej ta bort"), with compact `Button`s. The browser's `<dialog>` with `showModal()`: Tab cycles between its buttons, Escape closes it, and focus goes back to the button that opened it. The button to focus first has `data-autofocus`. |
 | `Tabs` | `Tabs.tsx` | | Tabs above a card (WAI-ARIA tabs: arrows, Home and End move and select). The start page's **Flyg** and **Charter** (TRIP-018). |
-| `AbortButton`, `StartLink` | `AbortFlow.tsx` | | **Avbryt** in the header and the wordmark and the footer's Start, which inside the flight or charter flow ask "Är du säker?" before going to the start page (TRIP-018). |
+| `AbortButton`, `FlowLink`, `StartLink` | `AbortFlow.tsx` | | **Avbryt** in the header, the wordmark and the menu's items, which inside the flight or charter flow ask "Är du säker?" before leaving (TRIP-018, TRIP-023). `StartLink` is a `FlowLink` to the start page. |
+| `Menu` | `Menu.tsx` | | The menu in the header (TRIP-023): a ring button like the wordmark's with the hamburger icon, opening a floating list (`floatClass`) with Start, Min bokning and Admin. `aria-expanded`, Escape and a click outside close it. |
 
 ### Admin pieces
 

@@ -2,7 +2,7 @@
 type: Product overview
 title: Gurras Flyg
 description: Purpose, product areas, terms, scope, features and shared rules of the Gurras Flyg booking site.
-timestamp: 2026-10-24
+timestamp: 2026-10-26
 ---
 
 # Gurras Flyg
@@ -35,7 +35,7 @@ The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement i
 
 ## Users
 
-- **Traveller:** a visitor who searches, compares and books. No account; a booking is identified by its booking number.
+- **Traveller:** a visitor who searches, compares and books. No account; a booking is identified by its booking number, and found again with the number and the contact's last name (Min bokning).
 - **Administrator:** signs in at `/admin` with a shared password and manages the airline's data.
 
 ## Terms
@@ -46,6 +46,7 @@ The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement i
 |---|---|
 | Booking | One or more flights or trips booked together for one or more passengers, with a contact person and a six-character booking number. |
 | Passenger | A person travelling on a booking. |
+| Cancellation | A traveller's cancellation of parts of a booking in Min bokning: a lottery with a 50 % chance that the price of what is cancelled is refunded (it is only taken off what is left to pay). The cancelled parts stay on the booking as "Avbokad". |
 | Contact | The person responsible for a booking, with name, address, phone and e-mail. |
 | Review | A traveller's rating (1–5 stars), title, text and name, shown on the start page. |
 
@@ -143,6 +144,8 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-013 | Charter: destination pages and search: `/charter` with free-text search, filters and cards with a "från" price, and `/charter/<id>` with photo credit, airport and ways of getting there; a notice for destinations without flights | Charter | Done |
 | TRIP-014 | Search and book charter trips: the search form on a destination page, round trips from ARN or CPH on the days the timetables run, the results with the arrival worked out in each airport's time zone, Resenärer with three extras for the whole booking, Betala, and a summary with a `CH-` booking number | Charter | Done |
 
+| TRIP-023 | Manage my booking: a menu in the header, and Min bokning where a flight or charter booking is found by its number and the contact's last name and parts of it are cancelled in a 50/50 lottery told before the click, with a guess limit and the 24 hour rule | Shared | Done |
+
 ## Decisions for charter
 
 Settled with the product owner, to be written into the charter cards' requirements:
@@ -163,4 +166,5 @@ Settled with the product owner, to be written into the charter cards' requiremen
 - **Accessibility:** the site meets WCAG 2.2 level AA. Every field has a label, and everything can be done with the keyboard. A feature that changes what visitors see is checked with axe in its tests (`expectNoA11yViolations` in `tests/helpers.ts`) and with the manual checklist in `wiki/system/accessibility.md`, and the result is recorded in its `verification.md`. The axe helper comes with TRIP-008, the checklist with TRIP-021.
 - **Mobile:** every page works on a phone screen.
 - **Admin:** every admin page and action requires a valid sign-in. A sign-in lasts until the browser closes, at most 8 hours.
+- **Personal data:** a booking's personal data is shown only to someone who types both its booking number and the contact's last name, with a limit on wrong guesses, and never appears in an address.
 - **Data integrity:** something that is in use cannot be deleted (for example a cabin class on an aircraft), and the administrator is told why.
