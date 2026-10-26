@@ -18,7 +18,7 @@ Flight booking and charter share the site but are two separate **flows**. The st
 
 ## What is a flow
 
-`isInFlow(pathname)` in `lib/flow.ts`: `/flyg` and everything below it except `/flyg/bokad`, and `/charter` and everything below it. `/flyg/bokad` is the summary of a finished booking; there the wordmark is an ordinary link and there is no Avbryt.
+`isInFlow(pathname)` in `lib/flow.ts`: `/flyg` and everything below it except `/flyg/bokad`, and `/charter` and everything below it except `/charter/bokad`. `/flyg/bokad` and `/charter/bokad` are the summaries of a finished booking; there the wordmark is an ordinary link and there is no Avbryt.
 
 In a flow there is no link or tab to the other area, and no link to the start page either (the start page has the tabs). The only ways out are Avbryt and, in the footer, Admin. A visitor who types the other address by hand, or uses the browser's back button, is not blocked (out of scope).
 
@@ -31,7 +31,7 @@ In a flow there is no link or tab to the other area, and no link to the start pa
 
 Both open the same question, `AbortDialog`, built on the shared `Dialog` (`role="dialog"`, heading "Är du säker?", "Det du har valt kastas bort."):
 
-- **Ja, avbryt:** `clearBooking()` (`app/flyg/boka/store.ts`) removes `gurrasflyg-bokning` and `gurrasflyg-bokad` from `sessionStorage`, the question closes, and the traveller goes to `/`.
+- **Ja, avbryt:** `clearBooking()` (`app/flyg/boka/store.ts`) removes `gurrasflyg-bokning`, `gurrasflyg-bokad`, `gurrasflyg-charter` and `gurrasflyg-charter-bokad` from `sessionStorage`, the question closes, and the traveller goes to `abortTarget(pathname)` (`lib/flow.ts`): `/charter` from the charter pages after the search (`/charter/<id>/resor`, `/boka` and `/boka/betala`, TRIP-014-R10), otherwise `/`. The wordmark and the footer's Start (`StartLink`) always go to `/`.
 - **Nej, fortsätt** (focused first), Escape or a click outside: the question closes and nothing else changes.
 
 ## The dialog

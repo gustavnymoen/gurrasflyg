@@ -9,6 +9,7 @@ export default function Checkbox({
   onChange,
   error = null,
   describedBy,
+  unavailable = false,
 }: {
   id: string;
   label: string;
@@ -17,6 +18,8 @@ export default function Checkbox({
   error?: string | null;
   // Id för en text som beskriver rutan, t.ex. ett tips
   describedBy?: string;
+  // Går inte att välja just nu, men fokus når den och skärmläsare kan läsa varför (describedBy)
+  unavailable?: boolean;
 }) {
   const errorId = `${id}-error`;
   const description = [describedBy, error ? errorId : null].filter(Boolean).join(" ") || undefined;
@@ -27,12 +30,15 @@ export default function Checkbox({
           id={id}
           type="checkbox"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e) => !unavailable && onChange(e.target.checked)}
+          aria-disabled={unavailable || undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={description}
-          className={`mt-0.5 h-5 w-5 shrink-0 accent-accent-strong ${error ? "outline-2 outline-danger" : ""}`}
+          className={`mt-0.5 h-5 w-5 shrink-0 accent-accent-strong ${error ? "outline-2 outline-danger" : ""} ${unavailable ? "cursor-not-allowed opacity-50" : ""}`}
         />
-        <label htmlFor={id}>{label}</label>
+        <label htmlFor={id} className={unavailable ? "text-ink-muted" : undefined}>
+          {label}
+        </label>
       </div>
       {error && (
         <Message kind="error" id={errorId} className="mt-1.5 ml-8">

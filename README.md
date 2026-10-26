@@ -5,7 +5,7 @@ A flight booking site with fake data, built as part of a course in AI engineerin
 The site has two separate product areas (see `specs/overview.md`):
 
 - **Flight booking:** search and book flights from airport A to B, on the airline's own routes, aircraft, cabin classes and add-ons, managed in admin.
-- **Charter** (planned): trips to urban exploration destinations (abandoned towns, industrial sites, Cold War relics) from Stockholm Arlanda and Copenhagen, based on the course's sample data.
+- **Charter:** trips to urban exploration destinations (abandoned towns, industrial sites, Cold War relics) from Stockholm Arlanda and Copenhagen, based on the course's sample data.
 
 The live site is <https://gurrasflyg.vercel.app>.
 

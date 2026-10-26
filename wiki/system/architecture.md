@@ -44,12 +44,13 @@ flowchart LR
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database, with the "från" price and airport. |
 | `lib/destinations.ts`, `lib/destination-names.ts`, `lib/markdown.ts` | Charter search, filters, address, price rule, Swedish names and text parsing, without a database (usable in the browser). |
+| `lib/charter-rules.ts`, `lib/charter.ts`, `lib/charter-bookings.ts` | Charter booking (TRIP-014): the rules for both the page and the server (search and address, which trips run, arrival, extras, the form, prices, summary), reading timetables and trips, and saving a booking in one write transaction with everything checked and priced from the database. Only `charter-rules.ts` is without `server-only`. See [Charter booking](charter-booking.md). |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr") and durations ("9 h 20 min"). |
 | `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
 | `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
-Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, and `app/flyg/boka/actions.ts`, which saves a booking. Errors meant for the user are thrown as `AdminError` or `BookingError` and shown as messages.
+Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, `app/flyg/boka/actions.ts`, which saves a flight booking, and `app/charter/actions.ts`, which saves a charter booking. Errors meant for the user are thrown as `AdminError`, `BookingError` or `CharterBookingError` and shown as messages.
 
 This Next.js version has `cacheComponents` turned on: data that depends on the request (database reads, the clock, cookies) is read after `await connection()` or inside `<Suspense>`. See `AGENTS.md`.
 
@@ -69,6 +70,7 @@ On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't 
 
 - **Airports and routes:** `airports` (with `city`), `routes` (from, to, flight time; one for every ordered pair of airports) and `route_departures` (times of day, each with its price per person).
 - **Fleet:** `aircraft`, `classes`, `aircraft_capacity` (seats per class on an aircraft), `addons` and `aircraft_class_addons` (which add-ons can be bought in which class on which aircraft).
+- **Charter bookings:** `charter_bookings`, `charter_booking_passengers`, `charter_booking_trips` (the timetable, the date and the price) and `charter_booking_extras`. Separate from the flight booking's tables. See [Charter booking](charter-booking.md).
 - **Bookings:** `bookings` (the booking number, the contact, the payment method and the total), `booking_passengers`, `booking_flights` (route, date, departure, aircraft and price per flight), `booking_seats` (a passenger's class and price on a flight) and `booking_addons`. See [Booking](booking.md).
 - **Reviews:** `reviews`.
 - **Charter** (the course data): `charter_airports`, `destinations` with their aliases, tags, ways of getting there, pages and photos, and `charter_timetables` with their days, flights and stops. Separate from the airline's tables. See [Charter data](data-charter.md).
@@ -91,6 +93,7 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 | `008_factors.sql` | Price factors for classes and aircraft and time factors for aircraft (TRIP-011). |
 | `009_bookings.sql` | The old flight and booking tables replaced by the booking tables (TRIP-012); stops if the old ones have any rows. |
 | `010_login_attempts.sql` | The table `login_attempts`, the admin sign-in attempts per IP address (TECH-017). |
+| `011_charter_bookings.sql` | The charter booking tables (TRIP-014). |
 
 ## Admin sign-in
 

@@ -163,10 +163,14 @@ async function readDeparture(search: Search, i: number, time: string, now: Date,
 }
 
 // Sex tecken, utan lätt förväxlade tecken som 0/O och 1/I
-async function newBookingNumber(tx: Transaction) {
+export function randomBookingCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({ length: 6 }, () => chars[randomInt(chars.length)]).join("");
+}
+
+async function newBookingNumber(tx: Transaction) {
   for (;;) {
-    const number = Array.from({ length: 6 }, () => chars[randomInt(chars.length)]).join("");
+    const number = randomBookingCode();
     if (!(await get("SELECT 1 FROM bookings WHERE booking_number = ?", [number], tx))) {
       return number;
     }
