@@ -17,7 +17,7 @@ test("TECH-007-R3 the seats field accepts only whole numbers", async ({ page }) 
 
   for (const notWhole of ["1e2", "12.0"]) {
     await seats.fill(notWhole);
-    await expect(plus, notWhole).toBeDisabled();
+    await expect(plus, notWhole).toHaveAttribute("aria-disabled", "true");
   }
   await seats.fill("120");
   await plus.click();

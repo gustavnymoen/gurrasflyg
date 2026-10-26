@@ -102,7 +102,7 @@ test.describe("with the tests' own aircraft", () => {
     await place(page, "utresan", fleet.luxury, 2);
     await expect(count(luxury)).toHaveText(`2 i ${fleet.luxury}`);
     // The class has two seats: a third traveller can't be put there
-    await expect(more(luxury, fleet.luxury)).toBeDisabled();
+    await expect(more(luxury, fleet.luxury)).toHaveAttribute("aria-disabled", "true");
 
     // The message comes at Klar (TRIP-026-R3)
     await done(page, "utresan");
@@ -112,7 +112,7 @@ test.describe("with the tests' own aircraft", () => {
     await more(basic, fleet.base).click();
     await expect(message).toHaveCount(0);
     // All three are placed, so no class takes more
-    await expect(more(basic, fleet.base)).toBeDisabled();
+    await expect(more(basic, fleet.base)).toHaveAttribute("aria-disabled", "true");
   });
 
   test("TRIP-011-R4 the prices per class, per flight and for the trip follow every change at once", async ({

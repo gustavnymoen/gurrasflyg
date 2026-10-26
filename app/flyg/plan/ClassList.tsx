@@ -75,7 +75,6 @@ export default function ClassList({
                 <RoundButton
                   label={`Färre i ${cabinClass.name}`}
                   disabled={count === 0}
-                  keepFocus
                   onClick={() => change(cabinClass.id, -1)}
                 >
                   −
@@ -88,7 +87,6 @@ export default function ClassList({
                 <RoundButton
                   label={`Fler i ${cabinClass.name}`}
                   disabled={!canAdd(cabinClass, seating, travellers)}
-                  keepFocus
                   onClick={() => change(cabinClass.id, 1)}
                 >
                   +

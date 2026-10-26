@@ -216,7 +216,7 @@ test("TRIP-008-R8 buttons are pills, and a disabled button is faded", async ({ p
   await page.goto("/");
   // With one traveller "Färre resenärer" is disabled
   const fewer = page.getByRole("button", { name: "Färre resenärer" });
-  await expect(fewer).toBeDisabled();
+  await expect(fewer).toHaveAttribute("aria-disabled", "true");
   await expect(fewer).toHaveCSS("cursor", "not-allowed");
   expect(Number(await css(fewer, "opacity"))).toBeLessThan(1);
 });

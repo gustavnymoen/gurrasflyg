@@ -94,7 +94,7 @@ test("TRIP-004-R4 classes need valid seats and can only be added once", async ({
   await f.getByLabel("Klass att lägga till").selectOption({ label: "Business" });
   for (const seats of ["0", "abc", "2.5"]) {
     await f.getByLabel("Antal platser", { exact: true }).fill(seats);
-    await expect(plus).toBeDisabled();
+    await expect(plus).toHaveAttribute("aria-disabled", "true");
   }
   await f.getByLabel("Antal platser", { exact: true }).fill("20");
   await plus.click();
@@ -155,7 +155,7 @@ test("TRIP-004-R6 add-ons are chosen per class, once each", async ({ page }) => 
   await f.getByRole("button", { name: "Lägg till addon" }).click();
   const plus = f.getByRole("button", { name: "Lägg till addon" });
   await f.getByLabel("Addon", { exact: true }).selectOption({ label: addon });
-  await expect(plus).toBeDisabled();
+  await expect(plus).toHaveAttribute("aria-disabled", "true");
   await f.getByLabel("Klass", { exact: true }).selectOption({ label: "Ekonomi" });
   await plus.click();
   await expect(f.getByText("Den addonen finns redan i den klassen.")).toBeVisible();

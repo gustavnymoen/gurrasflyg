@@ -57,14 +57,14 @@ test.describe("in the browser", () => {
     await outboundField(page).click();
     await expect(calendar(page).getByText("oktober 2026", { exact: true })).toBeVisible();
     await expect(calendar(page).getByText("november 2026", { exact: true })).toBeVisible();
-    await expect(calendar(page).getByRole("button", { name: "Föregående månad" })).toBeDisabled();
+    await expect(calendar(page).getByRole("button", { name: "Föregående månad" })).toHaveAttribute("aria-disabled", "true");
     await expect(day(page, "tisdag 20 oktober 2026")).toHaveAttribute("aria-disabled", "true");
     await expect(day(page, "onsdag 21 oktober 2026")).not.toHaveAttribute("aria-disabled");
 
     const next = calendar(page).getByRole("button", { name: "Nästa månad" });
     // October and November shown; five months later March and April
     for (let i = 0; i < 5; i++) await next.click();
-    await expect(next).toBeDisabled();
+    await expect(next).toHaveAttribute("aria-disabled", "true");
     await expect(calendar(page).getByRole("grid").last()).toHaveAccessibleName("april 2027");
     await expect(day(page, "onsdag 21 april 2027")).not.toHaveAttribute("aria-disabled");
     await expect(day(page, "torsdag 22 april 2027")).toHaveAttribute("aria-disabled", "true");
@@ -240,9 +240,10 @@ test.describe("in the browser", () => {
     await page.keyboard.press("Shift+Tab");
     await expect(calendar(page).getByRole("button", { name: "Nästa månad" })).toBeFocused();
     for (let i = 0; i < 5; i++) await page.keyboard.press("Enter");
-    // The button is disabled at March and April; focus moves to the first day shown
-    await expect(calendar(page).getByRole("button", { name: "Nästa månad" })).toBeDisabled();
-    await expect(day(page, "måndag 1 mars 2027")).toBeFocused();
+    // The button is unavailable at March and April, and keeps focus (TECH-019-R1)
+    const next = calendar(page).getByRole("button", { name: "Nästa månad" });
+    await expect(next).toHaveAttribute("aria-disabled", "true");
+    await expect(next).toBeFocused();
   });
 
   test("TRIP-009-R12 axe finds no violations with the calendar open, a range chosen and a message", async ({ page }) => {

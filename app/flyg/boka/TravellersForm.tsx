@@ -339,7 +339,6 @@ function PassengerLegFields({
                   <RoundButton
                     label={`Färre ${addon.name}`}
                     disabled={count === 0}
-                    keepFocus
                     onClick={() => setCount(addon.id, count - 1)}
                   >
                     −
@@ -352,7 +351,6 @@ function PassengerLegFields({
                   <RoundButton
                     label={`Fler ${addon.name}`}
                     disabled={count >= MAX_ADDONS}
-                    keepFocus
                     onClick={() => setCount(addon.id, count + 1)}
                   >
                     +

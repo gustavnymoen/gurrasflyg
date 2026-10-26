@@ -65,7 +65,7 @@ All in `app/components/`. Pages use these instead of styling their own buttons, 
 |---|---|---|---|
 | `Button` | `Button.tsx` | `primary`, `secondary`, `quiet`; sizes `default`, `compact` (admin) | Every button with text. Shrinks slightly when pressed; faded and `not-allowed` when disabled. |
 | `buttonClass()` | `Button.tsx` | the same variants and sizes | A link that looks like a button, because it goes to another page: **Fortsätt** from the search results, the links back on `/flyg/plan`. |
-| `RoundButton` | `RoundButton.tsx` | default, `compact` | + and −, the carousel's arrows. Needs a `label` (read aloud and shown on hover). |
+| `RoundButton` | `RoundButton.tsx` | default, `compact` | + and −, month and carousel arrows, "Lägg till klass"/"Lägg till addon". Needs a `label` (read aloud and shown on hover). An unavailable button is `aria-disabled`, never `disabled`, so it keeps keyboard focus (WCAG 2.4.3). |
 | `Field` | `Field.tsx` | error state | A field with its label small inside the box, above the value, and the error message under it. The input inside uses `fieldInputClass`. |
 | `FieldBox` | `Field.tsx` | `invalid`, `active` | Only the box of a `Field`, for fields whose message is shown elsewhere (the date group). `active` gives it the focus look while focus is somewhere else, in the calendar. |
 | `fieldClass()`, `textAreaClass()` | `Field.tsx` | sizes `large`, `small`, `compact`; error state | A field without a label inside, for example in admin tables. |
