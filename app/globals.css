@@ -120,6 +120,13 @@
   }
 }
 
+/* En tagg (DestinationTag.tsx): bakgrund och text i samma ton, --hue, så att
+   texten får minst 4,5:1 mot bakgrunden */
+@utility tag {
+  background: oklch(0.32 0.06 var(--hue));
+  color: oklch(0.9 0.06 var(--hue));
+}
+
 /* Mörkar fotot på startsidan och tonar ut det i bakgrunden nedåt, så att
    rubriken går att läsa. På mobil och surfplatta står texten över nästan
    hela bredden och fotot mörkas jämnt (photo-shade), på bred skärm mot

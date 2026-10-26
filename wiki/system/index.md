@@ -21,6 +21,7 @@ How the site works, for developers. Start with the architecture.
 - [Search results](search-results.md): the Sök button, the results page `/flyg`, choosing flights, and the routes, departures and prices behind it.
 - [Aircraft and classes](aircraft-and-classes.md): the page `/flyg/plan`, choosing an aircraft and the travellers per class for each flight, and the price and time factors.
 - [Flows](flows.md): the tabs Flyg and Charter on the start page, one area at a time, and Avbryt.
+- [Charter destinations](charter-destinations.md): the page `/charter` with search, filters and start cards, the destination pages, and the price and airport rules.
 - [Booking](booking.md): the steps Resenärer and Betala, the summary, how the booking is checked and saved, and the booking tables.
 
 ## Data
@@ -32,6 +33,7 @@ How the site works, for developers. Start with the architecture.
 
 - [GET /api/airports](api-airports.md): airport search for the search form (flight booking).
 - [GET /api/destinations](api-destinations.md): all destinations from the course data (charter).
+- `GET /api/destination-search?q=`: up to five destinations for the search field on `/charter`, see [Charter destinations](charter-destinations.md).
 
 ## Features
 
@@ -58,5 +60,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-026 One choice at a time on the plan page | Flight booking | `specs/TRIP-026-one-choice-at-a-time/` |
 | TRIP-012 Book a flight | Flight booking | `specs/TRIP-012-book-a-flight/` |
 | TRIP-018 Switch between flight booking and charter | Shared | `specs/TRIP-018-start-tabs/` |
+| TRIP-013 Charter: Destination pages and search | Charter | `specs/TRIP-013-destination-pages/` |
 
 [Wiki](../index.md)

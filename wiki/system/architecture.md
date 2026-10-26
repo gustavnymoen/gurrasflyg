@@ -26,7 +26,7 @@ flowchart LR
 |---|---|
 | `app/layout.tsx` | Every page: the header with the wordmark and, in a flow, Avbryt, and the footer (with the photo credit on the start page). See [flows](flows.md). |
 | `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)); `app/flyg/boka/` the booking's steps Resenärer and Betala with the server action `bookAction`, and `app/flyg/bokad/` the summary ([booking](booking.md)). `Steps`, `FlightLine`, `TripOverview` and `Problem` are shared. |
-| `app/page.tsx` | Start page: background photo, heading, the tabs Flyg (search form) and Charter, and review carousel. `app/charter/` is `/charter`. The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
+| `app/page.tsx` | Start page: background photo, heading, the tabs Flyg (search form) and Charter, and review carousel. `app/charter/` is `/charter` and `/charter/<id>` ([Charter destinations](charter-destinations.md)). The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
 | `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Switch`, `Card`, `ChoiceCard`, `Message`, `Stars`, `Wordmark`, `Tabs`, `Dialog`, `AbortFlow`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
 | `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. Whether a class, add-on or aircraft is in use is decided only by the delete functions in `lib/admin.ts`, inside the delete transaction; the page holds no such flag, since it can be old right after a change (TRIP-016). `login/` is the sign-in page. |
@@ -42,7 +42,8 @@ flowchart LR
 | `lib/bookings.ts` | Saving a booking in one write transaction, with everything checked and priced from the database (`createBooking`). |
 | `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
-| `lib/travel.ts` | The course's destinations (charter), read from the database. |
+| `lib/travel.ts` | The course's destinations (charter), read from the database, with the "från" price and airport. |
+| `lib/destinations.ts`, `lib/destination-names.ts`, `lib/markdown.ts` | Charter search, filters, address, price rule, Swedish names and text parsing, without a database (usable in the browser). |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr") and durations ("9 h 20 min"). |
 | `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
 | `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |

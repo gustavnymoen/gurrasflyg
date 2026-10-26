@@ -136,6 +136,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-018 | Fewer, combined design tests: the 39 design tests of TRIP-008, TRIP-020 and TRIP-022 are 12 tests in `tests/TECH-018-design.spec.ts`, one per page and state | Shared | Done |
 | TRIP-027 | Detailed price list: the total on Betala and in the summary split into fuel, bribes, fees, closed airspace, insurance and 0 % tax, in whole kronor adding up to the total | Flight booking | Done |
 | TRIP-018 | Switch between flight booking and charter: the tabs Flyg and Charter on the start page, the page `/charter`, one area at a time, and Avbryt with a question that throws away the booking | Shared | Done |
+| TRIP-013 | Charter: destination pages and search: `/charter` with free-text search, filters, start cards and cards with a "från" price, and `/charter/<id>` with photo credit, airport and ways of getting there; a notice for destinations without flights | Charter | Done |
 
 ## Decisions for charter
 

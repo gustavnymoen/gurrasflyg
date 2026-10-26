@@ -1,6 +1,7 @@
 import "server-only";
 import { connection } from "next/server";
-import { all } from "./db";
+import { all, get } from "./db";
+import { DEPARTURE_AIRPORTS, toCard, tripTo, type DestinationCard, type Fares } from "./destinations";
 
 // Kursens resmål (charter), i samma form som data/destinations.json
 export type Destination = {
@@ -88,4 +89,51 @@ export async function getDestinations(): Promise<Destination[]> {
     image: photoOf.get(d.id) ?? null,
     path: d.path,
   }));
+}
+
+// Billigaste pris dit från Arlanda eller Köpenhamn och hem därifrån, per flygplats, över hela tidtabellernas period
+async function getFares(): Promise<Fares> {
+  const marks = DEPARTURE_AIRPORTS.map(() => "?").join(", ");
+  const [out, back] = await Promise.all([
+    all<{ airport: string; price: number }>(
+      `SELECT to_airport AS airport, MIN(price) AS price FROM charter_timetables
+       WHERE from_airport IN (${marks}) GROUP BY to_airport`, // nosemgrep: semgrep.sql-built-from-text
+      DEPARTURE_AIRPORTS,
+    ),
+    all<{ airport: string; price: number }>(
+      `SELECT from_airport AS airport, MIN(price) AS price FROM charter_timetables
+       WHERE to_airport IN (${marks}) GROUP BY from_airport`, // nosemgrep: semgrep.sql-built-from-text
+      DEPARTURE_AIRPORTS,
+    ),
+  ]);
+  const byAirport = (rows: typeof out) => new Map(rows.map((row) => [row.airport, row.price]));
+  return { out: byAirport(out), back: byAirport(back) };
+}
+
+// Alla resmål som kort i listan, med pris (TRIP-013)
+export async function getDestinationCards(): Promise<DestinationCard[]> {
+  const [destinations, fares] = await Promise.all([getDestinations(), getFares()]);
+  return destinations.map((d) => toCard(d, tripTo(d, fares)));
+}
+
+// Ett resmål med sin sida: texterna, flygplatsen och priset. null om det inte finns.
+export async function getCharterDestination(id: string) {
+  const [destinations, fares] = await Promise.all([getDestinations(), getFares()]);
+  const destination = destinations.find((d) => d.id === id);
+  if (!destination) return null;
+  const [page, source] = await Promise.all([
+    get<{ overview: string; getting_there: string; visiting: string }>(
+      "SELECT overview, getting_there, visiting FROM destination_pages WHERE destination_id = ?",
+      [id],
+    ),
+    get<{ status_source: string | null }>("SELECT status_source FROM destinations WHERE id = ?", [id]),
+  ]);
+  return {
+    destination,
+    trip: tripTo(destination, fares),
+    overview: page?.overview ?? "",
+    gettingThere: page?.getting_there ?? "",
+    visiting: page?.visiting ?? "",
+    statusSource: source?.status_source ?? null,
+  };
 }

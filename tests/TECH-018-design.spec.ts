@@ -29,6 +29,16 @@ import {
 // The box around a field: <Field> draws the border and the ring, not the input itself
 const fieldBox = (input: Locator) => input.locator("xpath=..");
 
+// A computed colour as "rgb(…)": the browser reports oklch() colours (the destination tags) as written
+const toRgb = (page: Page, color: string) =>
+  page.evaluate((c) => {
+    const context = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
+    context.fillStyle = c;
+    context.fillRect(0, 0, 1, 1);
+    const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+    return `rgb(${r}, ${g}, ${b})`;
+  }, color);
+
 const wordmark = (page: Page) => page.getByRole("banner").getByRole("link", { name: "Gurras Flyg" });
 // The plane and its contrail inside the wordmark's ring
 const plane = (page: Page) => wordmark(page).locator("svg");
@@ -399,6 +409,50 @@ test("TRIP-020-R1 and R6 and TRIP-022-R1 and R4 the admin page: header, card bor
   expect(await scrollsSideways(page)).toBe(false);
 });
 
+const NO_FLIGHTS = "Inga flyg dit just nu, luftrummet är stängt. Du får ta dig dit på egen hand.";
+
+test("TRIP-013-R5 and R8 the charter list: every category and access tag has its own colour with enough contrast, and the notice is red", async ({
+  page,
+}) => {
+  await page.goto("/charter");
+  await expect(page.getByRole("heading", { level: 2, name: "96 destinationer" })).toBeVisible();
+
+  // R5: each tag text has one colour of its own, and text and background meet 4.5:1
+  const tags = await page.locator(".tag").evaluateAll((els) =>
+    els.map((el) => ({ text: el.textContent!, background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color })),
+  );
+  const colours = new Map<string, string>();
+  for (const tag of tags) {
+    const background = await toRgb(page, tag.background);
+    expect(contrast(await toRgb(page, tag.color), background), tag.text).toBeGreaterThanOrEqual(4.5);
+    colours.set(tag.text, background);
+  }
+  expect(colours.size).toBe(18);
+  expect(new Set(colours.values()).size).toBe(colours.size);
+
+  // R8: the notice is red text, and it meets 4.5:1 against the card
+  await page.goto("/charter?sok=chernobyl");
+  const notice = page.getByText(NO_FLIGHTS);
+  await expect(notice).toHaveCSS("color", DANGER);
+  expect(contrast(DANGER, await backgroundOf(notice))).toBeGreaterThanOrEqual(4.5);
+});
+
+test("TRIP-013-R7 and R8 the destination page: a large photo, and a red alert without a box when there are no flights", async ({
+  page,
+}) => {
+  await page.goto("/charter/teufelsberg");
+  const photo = page.locator("figure img");
+  await expect(photo).toBeVisible();
+  const box = (await photo.boundingBox())!;
+  expect(box.width).toBeGreaterThan(800);
+  expect(box.width / box.height).toBeCloseTo(16 / 9, 1);
+
+  await page.goto("/charter/chernobyl-pripyat");
+  const alert = page.getByRole("alert").filter({ hasText: NO_FLIGHTS });
+  await expectTextMessage(alert, DANGER);
+  expect(contrast(DANGER, await backgroundOf(alert))).toBeGreaterThanOrEqual(4.5);
+});
+
 test.describe("on a phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
@@ -425,5 +479,17 @@ test.describe("on a phone", () => {
     await page.goto("/admin/login");
     await expect(h1).toBeVisible();
     expect(await scrollsSideways(page)).toBe(false);
+  });
+
+  test.describe("320 px wide", () => {
+    test.use({ viewport: { width: 320, height: 640 } });
+
+    test("TRIP-013-R5 and R9 the charter list and the destination pages fit a 320 px screen", async ({ page }) => {
+      for (const path of ["/charter", "/charter?varldsdel=Antarctica", "/charter/chernobyl-pripyat", "/charter/teufelsberg"]) {
+        await page.goto(path);
+        await expect(page.getByRole("main").getByRole("heading").first()).toBeVisible();
+        expect(await scrollsSideways(page), path).toBe(false);
+      }
+    });
   });
 });

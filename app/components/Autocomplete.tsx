@@ -9,8 +9,10 @@ const SEARCH_DELAY = 150;
 // Sökfält med förslagslista. Hämtar förslag från searchUrl?q=<text>,
 // som ska svara med en JSON-lista av objekt med id och name. Listan läggs
 // under närmaste positionerade förälder, t.ex. rutan i en <Field>.
-export default function Autocomplete<T extends { id: number; name: string }>({
+export default function Autocomplete<T extends { id: number | string; name: string }>({
   id,
+  name,
+  enterSearches = false,
   placeholder,
   className,
   searchUrl,
@@ -23,6 +25,11 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   onSelect,
 }: {
   id: string;
+  // Fältets namn i ett omslutande formulär, som läser texten när det skickas
+  name?: string;
+  // Enter skickar formuläret med texten, så att den söker bland allt som matchar;
+  // ett förslag väljs med pilarna och Enter, eller med musen (TRIP-013-R1)
+  enterSearches?: boolean;
   placeholder: string;
   className: string;
   searchUrl: string;
@@ -44,6 +51,8 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   const [suggestions, setSuggestions] = useState<T[]>([]);
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
+  // Sant när besökaren flyttat markeringen med pilarna
+  const [moved, setMoved] = useState(false);
   // Söktexten som förslagen i listan svarar på
   const [answered, setAnswered] = useState("");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -62,6 +71,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
       setSuggestions(await res.json());
       setAnswered(query);
       setHighlighted(0);
+      setMoved(false);
       setOpen(true);
     } catch (e) {
       if ((e as Error).name !== "AbortError") throw e;
@@ -87,15 +97,24 @@ export default function Autocomplete<T extends { id: number; name: string }>({
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && enterSearches && !(open && moved)) {
+      // Formuläret skickas som vanligt; en sökning som inte hunnit starta ställs in
+      clearTimeout(timer.current);
+      pending.current?.abort();
+      setOpen(false);
+      return;
+    }
     if (!open || suggestions.length === 0) return;
     // Förslag för en äldre söktext (de nya har inte kommit än) väljs inte
     // med Enter eller Tab, så att valet alltid matchar det som står i fältet
     const current = answered === text.trim();
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      setMoved(true);
       setHighlighted((i) => (i + 1) % suggestions.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      setMoved(true);
       setHighlighted((i) => (i - 1 + suggestions.length) % suggestions.length);
     } else if (e.key === "Enter") {
       e.preventDefault();
@@ -114,6 +133,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
     <>
       <input
         id={id}
+        name={name}
         type="text"
         role="combobox"
         aria-expanded={open}
@@ -121,6 +141,7 @@ export default function Autocomplete<T extends { id: number; name: string }>({
         aria-autocomplete="list"
         aria-activedescendant={open && suggestions.length > 0 ? `${id}-opt-${highlighted}` : undefined}
         autoComplete="off"
+        enterKeyHint={enterSearches ? "search" : undefined}
         aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
         placeholder={placeholder}
@@ -131,10 +152,15 @@ export default function Autocomplete<T extends { id: number; name: string }>({
         onBlur={() => setOpen(false)}
         className={className}
       />
+      {/* Antalet förslag läses upp för den som inte ser listan */}
+      <span aria-live="polite" className="sr-only">
+        {open ? `${suggestions.length} förslag` : ""}
+      </span>
       {open && (
         <ul
           id={listId}
           role="listbox"
+          aria-label="Förslag"
           className={`absolute top-full left-0 z-10 mt-1.5 w-full min-w-64 rounded-card-compact p-1.5 text-base ${floatClass}`}
         >
           {suggestions.length === 0 && <li className="px-3 py-2.5 text-ink-muted">{emptyText}</li>}
