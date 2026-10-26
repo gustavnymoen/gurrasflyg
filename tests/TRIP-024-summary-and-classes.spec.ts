@@ -62,21 +62,63 @@ test.describe("with the tests' own aircraft", () => {
   });
 
   // The message comes at Klar (TRIP-026-R3)
-  test("TRIP-024-R2 every class starts at 0, and the numbers are kept going back and on", async ({ page, fleet }) => {
+  test("TRIP-024-R2 R3 R5 every class starts at 0, the totals follow, focus stays on Fler and Färre, and the numbers are kept going back and on", async ({
+    page,
+    fleet,
+  }) => {
     await openPlan(page, 2);
     await chooseAircraft(page, "utresan", fleet.fast);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`0 i ${fleet.luxury}`);
+
+    // R3: the totals are 0 kr at first
+    const legTotal = classList(page, "utresan").getByText(/^\d[\d\s]*\skr$/);
+    const tripTotal = page.getByText(/^\d[\d\s]*\skr$/).last();
+    await expect(legTotal).toHaveText(formatPrice(0));
+    await expect(tripTotal).toHaveText(formatPrice(0));
+
+    // R5: focus stays on Fler and Färre when they become unavailable
+    const row = classRow(page, "utresan", fleet.base);
+    const more = row.getByRole("button", { name: `Fler i ${fleet.base}` });
+    const fewer = row.getByRole("button", { name: `Färre i ${fleet.base}` });
+    // The second Enter places the last traveller
+    await more.focus();
+    await page.keyboard.press("Enter");
+    await expect(count(row)).toHaveText(`1 i ${fleet.base}`);
+    await page.keyboard.press("Enter");
+    await expect(count(row)).toHaveText(`2 i ${fleet.base}`);
+    await expect(more).toBeFocused();
+    await expect(more).toHaveAttribute("aria-disabled", "true");
+    // It does nothing now
+    await page.keyboard.press("Enter");
+    await expect(count(row)).toHaveText(`2 i ${fleet.base}`);
+
+    await fewer.focus();
+    await page.keyboard.press("Enter");
+    await expect(count(row)).toHaveText(`1 i ${fleet.base}`);
+    await page.keyboard.press("Enter");
+    await expect(count(row)).toHaveText(`0 i ${fleet.base}`);
+    await expect(fewer).toBeFocused();
+    await expect(fewer).toHaveAttribute("aria-disabled", "true");
+    await page.keyboard.press("Tab");
+    await expect(more).toBeFocused();
+
+    // R2: Klar says who is missing
     await done(page, "utresan");
     await expect(message(page, "utresan")).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
 
-    await place(page, "utresan", fleet.base, 1);
-    await expect(message(page, "utresan")).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
+    // R3: the totals are the sum so far
+    const luxury = classRow(page, "utresan", fleet.luxury);
     await place(page, "utresan", fleet.luxury, 1);
+    const price = await cardPrice(luxury);
+    await expect(legTotal).toHaveText(formatPrice(price));
+    expect(amount(await tripTotal.textContent())).toBe(price);
+    await expect(message(page, "utresan")).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
+    await place(page, "utresan", fleet.base, 1);
     await expect(message(page, "utresan")).toHaveCount(0);
     await done(page, "utresan");
 
-    // Back to the flights and on, without a change
+    // R2: back to the flights and on, without a change
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
     // The plan page has a Fortsätt of its own now (TRIP-012-R1): wait for the results
     await expect(page).toHaveURL(/\/flyg\?/);
@@ -84,21 +126,6 @@ test.describe("with the tests' own aircraft", () => {
     await folded(page, "utresan").click();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`1 i ${fleet.luxury}`);
-  });
-
-  test("TRIP-024-R3 the totals are 0 kr at first and then the sum so far", async ({ page, fleet }) => {
-    await openPlan(page, 2);
-    await chooseAircraft(page, "utresan", fleet.large);
-    const legTotal = classList(page, "utresan").getByText(/^\d[\d\s]*\skr$/);
-    const tripTotal = page.getByText(/^\d[\d\s]*\skr$/).last();
-    await expect(legTotal).toHaveText(formatPrice(0));
-    await expect(tripTotal).toHaveText(formatPrice(0));
-
-    const luxury = classRow(page, "utresan", fleet.luxury);
-    await place(page, "utresan", fleet.luxury, 1);
-    const price = await cardPrice(luxury);
-    await expect(legTotal).toHaveText(formatPrice(price));
-    expect(amount(await tripTotal.textContent())).toBe(price);
   });
 
   test("TRIP-024-R4 nothing leads on until everyone on every flight has a class", async ({ page, fleet }) => {
@@ -128,35 +155,5 @@ test.describe("with the tests' own aircraft", () => {
     await place(page, "hemresan", fleet.base, 2);
     await expect(tripNote(page)).toHaveText("Tryck Klar på varje flyg för att gå vidare.");
     await noWayOn();
-  });
-
-  test("TRIP-024-R5 focus stays on Fler and Färre when they become unavailable", async ({ page, fleet }) => {
-    await openPlan(page, 2);
-    await chooseAircraft(page, "utresan", fleet.fast);
-    const row = classRow(page, "utresan", fleet.base);
-    const more = row.getByRole("button", { name: `Fler i ${fleet.base}` });
-    const fewer = row.getByRole("button", { name: `Färre i ${fleet.base}` });
-
-    // The second Enter places the last traveller
-    await more.focus();
-    await page.keyboard.press("Enter");
-    await expect(count(row)).toHaveText(`1 i ${fleet.base}`);
-    await page.keyboard.press("Enter");
-    await expect(count(row)).toHaveText(`2 i ${fleet.base}`);
-    await expect(more).toBeFocused();
-    await expect(more).toHaveAttribute("aria-disabled", "true");
-    // It does nothing now
-    await page.keyboard.press("Enter");
-    await expect(count(row)).toHaveText(`2 i ${fleet.base}`);
-
-    await fewer.focus();
-    await page.keyboard.press("Enter");
-    await expect(count(row)).toHaveText(`1 i ${fleet.base}`);
-    await page.keyboard.press("Enter");
-    await expect(count(row)).toHaveText(`0 i ${fleet.base}`);
-    await expect(fewer).toBeFocused();
-    await expect(fewer).toHaveAttribute("aria-disabled", "true");
-    await page.keyboard.press("Tab");
-    await expect(more).toBeFocused();
   });
 });

@@ -36,95 +36,70 @@ test("TRIP-003-R1 card shows classes and add-ons and can be folded", async ({ pa
   await expect(classes).toBeVisible();
 });
 
-test("TRIP-003-R2 add a cabin class, or cancel", async ({ page }) => {
+test("TRIP-003-R2 R3 R4 R5 a cabin class is added (or cancelled), needs a unique name, is renamed and deleted unless it is in use", async ({ page }) => {
   const name = uniqueName("Klass");
-  await createClass(page, name);
-
+  const renamed = `${name} ny`;
   const section = tableSection(page, "Klasser");
+
+  // R2: add a class, or cancel
+  await createClass(page, name);
   await section.getByRole("button", { name: "Lägg till", exact: true }).click();
   await page.getByLabel("Namn på klassen").fill("Ska inte sparas");
   await section.getByRole("button", { name: "Avbryt" }).click();
   await expect(page.getByLabel("Namn på klassen")).toBeHidden();
   await expect(section.getByText("Ska inte sparas")).toBeHidden();
 
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-});
-
-test("TRIP-003-R3 class names are required and unique", async ({ page }) => {
-  const name = uniqueName("Klass");
-  await createClass(page, name);
-  const section = tableSection(page, "Klasser");
-
+  // R3: the name is required and unique
   await section.getByRole("button", { name: "Lägg till", exact: true }).click();
   await section.getByRole("button", { name: "Spara" }).click();
   await expect(section.getByText("Klassen måste ha ett namn.")).toBeVisible();
-
   await page.getByLabel("Namn på klassen").fill(`  ${name.toLowerCase()}  `);
   await section.getByRole("button", { name: "Spara" }).click();
   await expect(section.getByText(`Klassen "${name.toLowerCase()}" finns redan.`)).toBeVisible();
   await section.getByRole("button", { name: "Avbryt" }).click();
 
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-});
-
-test("TRIP-003-R4 rename a cabin class", async ({ page }) => {
-  const name = uniqueName("Klass");
-  const renamed = `${name} ny`;
-  await createClass(page, name);
-
+  // R4: rename
   await page.getByRole("button", { name: `Ändra ${name}`, exact: true }).click();
   await page.getByLabel("Namn på klassen").fill(renamed);
-  await tableSection(page, "Klasser").getByRole("button", { name: "Spara" }).click();
+  await section.getByRole("button", { name: "Spara" }).click();
   await expect(trash(page, renamed)).toBeVisible();
   await expect(trash(page, name)).toBeHidden();
 
-  await deleteWithConfirmation(page, `Ta bort ${renamed}`);
-});
-
-test("TRIP-003-R5 delete a cabin class, unless it is in use", async ({ page }) => {
-  const name = uniqueName("Klass");
-  await createClass(page, name);
-
-  // Nej keeps the class
-  await trash(page, name).click();
+  // R5: Nej keeps the class
+  await trash(page, renamed).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Nej" }).click();
-  await expect(trash(page, name)).toBeVisible();
+  await expect(trash(page, renamed)).toBeVisible();
 
-  // In use by an aircraft: can't be deleted
+  // R5: in use by an aircraft, it can't be deleted
   const aircraft = uniqueName("Plan");
-  await createAircraft(page, aircraft, [{ name, seats: 10 }]);
-  await trash(page, name).click();
+  await createAircraft(page, aircraft, [{ name: renamed, seats: 10 }]);
+  await trash(page, renamed).click();
   const dialog = page.getByRole("alertdialog");
   await dialog.getByRole("button", { name: "Ja" }).click();
   await expect(dialog.getByRole("heading", { name: "Du kan ej ta bort" })).toBeVisible();
   await expect(dialog.getByText("den används av ett plan eller en flight")).toBeVisible();
   await dialog.getByRole("button", { name: "OK" }).click();
   await expect(dialog).toBeHidden();
-  await expect(trash(page, name)).toBeVisible();
+  await expect(trash(page, renamed)).toBeVisible();
 
-  // Ja deletes it once nothing uses it
+  // R5: Ja deletes it once nothing uses it
   await deleteWithConfirmation(page, `Ta bort ${aircraft}`);
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-  await expect(trash(page, name)).toBeHidden();
+  await deleteWithConfirmation(page, `Ta bort ${renamed}`);
+  await expect(trash(page, renamed)).toBeHidden();
 });
 
-test("TRIP-003-R6 add an add-on with name, price and description", async ({ page }) => {
+test("TRIP-003-R6 R7 R8 R9 an add-on is added with name, price and description, needs them and a unique name, is changed and deleted unless it is in use", async ({ page }) => {
   const name = uniqueName("Addon");
-  await createAddon(page, name, "249", "Ett extra kolli på 23 kg");
-
-  const row = tableSection(page, "Addons").getByRole("row", { name: new RegExp(name) });
-  await expect(row).toContainText("Ett extra kolli på 23 kg");
-  await expect(row.getByRole("cell").nth(1)).toHaveText("249");
-
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-});
-
-test("TRIP-003-R7 add-on fields are required and names unique", async ({ page }) => {
-  const name = uniqueName("Addon");
-  await createAddon(page, name, "10", "Beskrivning");
   const section = tableSection(page, "Addons");
   const save = section.getByRole("button", { name: "Spara" });
 
+  // R6: add
+  await createAddon(page, name, "249", "Ett extra kolli på 23 kg");
+  const row = section.getByRole("row", { name: new RegExp(name) });
+  await expect(row).toContainText("Ett extra kolli på 23 kg");
+  await expect(row.getByRole("cell").nth(1)).toHaveText("249");
+
+  // R7: price, description and name are required, and the name is unique
   await section.getByRole("button", { name: "Lägg till", exact: true }).click();
   await page.getByLabel("Namn på addon").fill(`${name} 2`);
   await page.getByLabel("Beskrivning").fill("Beskrivning");
@@ -146,31 +121,17 @@ test("TRIP-003-R7 add-on fields are required and names unique", async ({ page })
   await expect(section.getByText(`Addon "${name.toUpperCase()}" finns redan.`)).toBeVisible();
   await section.getByRole("button", { name: "Avbryt" }).click();
 
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-});
-
-test("TRIP-003-R8 change an add-on", async ({ page }) => {
-  const name = uniqueName("Addon");
-  await createAddon(page, name, "100", "Beskrivning");
-
+  // R8: change the price
   await page.getByRole("button", { name: `Ändra ${name}`, exact: true }).click();
   await expect(page.getByLabel("Namn på addon")).toHaveValue(name);
-  await expect(page.getByLabel("Pris i kronor")).toHaveValue("100");
+  await expect(page.getByLabel("Pris i kronor")).toHaveValue("249");
   await page.getByLabel("Pris i kronor").fill("150");
-  await tableSection(page, "Addons").getByRole("button", { name: "Spara" }).click();
-
-  const row = tableSection(page, "Addons").getByRole("row", { name: new RegExp(name) });
+  await save.click();
   await expect(row.getByRole("cell").nth(1)).toHaveText("150");
 
-  await deleteWithConfirmation(page, `Ta bort ${name}`);
-});
-
-test("TRIP-003-R9 delete an add-on, unless it is in use", async ({ page }) => {
-  const name = uniqueName("Addon");
+  // R9: in use by an aircraft, it can't be deleted
   const aircraft = uniqueName("Plan");
-  await createAddon(page, name, "50", "Beskrivning");
   await createAircraft(page, aircraft, [{ name: "Ekonomi", seats: 10 }], [{ name, className: "Ekonomi" }]);
-
   await trash(page, name).click();
   const dialog = page.getByRole("alertdialog");
   await dialog.getByRole("button", { name: "Ja" }).click();

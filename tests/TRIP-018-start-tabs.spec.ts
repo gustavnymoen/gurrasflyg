@@ -29,7 +29,7 @@ test.describe("start page tabs", () => {
     await expect(charterLink(page)).toBeHidden();
   });
 
-  test("TRIP-018-R1 choosing Charter shows the text and the link and hides the form, and Flyg shows the form again", async ({
+  test("TRIP-018-R1 choosing Charter shows the text and the link and hides the form, and Flyg shows the form again; the arrow keys move between the tabs; the flight search still works; the Charter link opens /charter", async ({
     page,
   }) => {
     await page.goto("/");
@@ -44,10 +44,8 @@ test.describe("start page tabs", () => {
     await expect(flightForm(page)).toBeVisible();
     await expect(charterLink(page)).toBeHidden();
     await expectNoA11yViolations(page);
-  });
 
-  test("TRIP-018-R1 the arrow keys move between the tabs, and Tab goes to the panel", async ({ page }) => {
-    await page.goto("/");
+    // The arrow keys move between the tabs, and Tab goes to the panel
     await tab(page, "Flyg").focus();
     await page.keyboard.press("ArrowRight");
     await expect(tab(page, "Charter")).toBeFocused();
@@ -65,21 +63,17 @@ test.describe("start page tabs", () => {
     await expect(tab(page, "Flyg")).toHaveAttribute("tabindex", "-1");
     await page.keyboard.press("Tab");
     await expect(charterLink(page)).toBeFocused();
-  });
 
-  test("TRIP-018-R1 the flight search still works, and what was typed stays when switching tabs", async ({ page }) => {
-    await page.goto("/");
+    // What was typed stays when switching tabs, and the search still works
+    await tab(page, "Flyg").click();
     await page.getByRole("combobox", { name: "Från" }).fill("Arl");
     await tab(page, "Charter").click();
     await tab(page, "Flyg").click();
     await expect(page.getByRole("combobox", { name: "Från" })).toHaveValue("Arl");
-
     await page.getByRole("button", { name: "Sök" }).click();
     await expect(page.getByText("Välj var du vill flyga från.")).toBeVisible();
-  });
 
-  test("TRIP-018-R1 the Charter link opens /charter, which has the heading Charter", async ({ page }) => {
-    await page.goto("/");
+    // The Charter link opens /charter, which has the heading Charter
     await tab(page, "Charter").click();
     await charterLink(page).click();
     await expect(page).toHaveURL(/\/charter$/);
@@ -111,13 +105,6 @@ test.describe("one area at a time", () => {
     await expect(avbryt(page)).toBeVisible();
   });
 
-  test("TRIP-018-R2 the plan page has no link to /charter or the start page", async ({ page }) => {
-    await openPlan(page, 1);
-    await expect(page.locator('a[href^="/charter"]')).toHaveCount(0);
-    await expect(page.locator('a[href="/"]')).toHaveCount(0);
-    await expect(avbryt(page)).toBeVisible();
-  });
-
   test("TRIP-018-R2 the link out of an incomplete address asks before going to the start page", async ({ page }) => {
     await page.goto("/flyg/plan");
     await expect(page.locator('a[href="/"]')).toHaveCount(0);
@@ -139,12 +126,6 @@ test.describe("one area at a time", () => {
 // A flow page opened in each way, with something chosen
 const flows: { name: string; open: (page: Page) => Promise<void> }[] = [
   { name: "results", open: (page) => openResults(page, searchUrl(1, false)) },
-  {
-    name: "plan",
-    open: async (page) => {
-      await openPlan(page, 1);
-    },
-  },
   { name: "charter", open: (page) => page.goto("/charter").then(() => undefined) },
 ];
 
@@ -171,8 +152,13 @@ test.describe("abort the flow", () => {
     });
   }
 
-  test("TRIP-018-R3 Nej, fortsätt, Escape and a click outside keep the page and its choices", async ({ page }) => {
+  test("TRIP-018-R2 R3 R4 the plan page has no link to /charter or the start page, Nej, fortsätt, Escape and a click outside keep the page and its choices, the open dialog has no axe violations, and Ja, avbryt clears the booking", async ({
+    page,
+  }) => {
     await openPlan(page, 1);
+    await expect(page.locator('a[href^="/charter"]')).toHaveCount(0);
+    await expect(page.locator('a[href="/"]')).toHaveCount(0);
+    await expect(avbryt(page)).toBeVisible();
     await page.evaluate(() => sessionStorage.setItem("gurrasflyg-bokning", "{}"));
     const url = page.url();
 
@@ -193,6 +179,21 @@ test.describe("abort the flow", () => {
     expect(page.url()).toBe(url);
     await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeVisible();
     expect((await stored(page))[0]).toBe("{}");
+
+    // R4: the dialog open on the plan page
+    await avbryt(page).click();
+    await expect(dialog(page)).toBeVisible();
+    await expectNoA11yViolations(page);
+
+    // R3: Ja, avbryt clears the booking and goes to the start page
+    await page.evaluate(() => sessionStorage.setItem("gurrasflyg-bokad", "{}"));
+    await expect(dialog(page)).toContainText("kastas bort");
+    await dialog(page).getByRole("button", { name: "Ja, avbryt" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(tab(page, "Flyg")).toBeVisible();
+    expect(await stored(page)).toEqual([null, null]);
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(avbryt(page)).toHaveCount(0);
   });
 
   test("TRIP-018-R3 the wordmark and the footer's Start open the same question", async ({ page }) => {
@@ -224,11 +225,12 @@ test.describe("the dialog", () => {
   const focusIsInside = (page: Page, box: Locator) =>
     box.evaluate((el) => el.contains(document.activeElement));
 
-  test("TRIP-018-R4 is a modal with a heading, moves focus in and keeps it there, and returns it", async ({ page }) => {
+  test("TRIP-018-R4 is a modal with a heading and no axe violations, moves focus in and keeps it there, and returns it", async ({ page }) => {
     await page.goto("/charter");
     await avbryt(page).click();
     await expect(dialog(page)).toHaveAttribute("aria-modal", "true");
     await expect(dialog(page).getByRole("heading", { name: "Är du säker?" })).toBeVisible();
+    await expectNoA11yViolations(page);
     // Focus starts on the safe choice
     await expect(dialog(page).getByRole("button", { name: "Nej, fortsätt" })).toBeFocused();
     for (let i = 0; i < 5; i++) {
@@ -247,18 +249,6 @@ test.describe("the dialog", () => {
     await wordmark(page).click();
     await dialog(page).getByRole("button", { name: "Nej, fortsätt" }).click();
     await expect(wordmark(page)).toBeFocused();
-  });
-
-  test("TRIP-018-R4 axe finds no violations with the dialog open on /charter and on the plan page", async ({ page }) => {
-    await page.goto("/charter");
-    await avbryt(page).click();
-    await expect(dialog(page)).toBeVisible();
-    await expectNoA11yViolations(page);
-
-    await openPlan(page, 1);
-    await avbryt(page).click();
-    await expect(dialog(page)).toBeVisible();
-    await expectNoA11yViolations(page);
   });
 
   test.describe("on a phone", () => {

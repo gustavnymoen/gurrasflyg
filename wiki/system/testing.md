@@ -39,6 +39,8 @@ The project follows specification-driven development (see "How we work" in `spec
 - **The look** (TRIP-008, TRIP-020, TRIP-022) is checked in `tests/TECH-018-design.spec.ts`: one test per page and state, each named after every requirement it checks, so the page is loaded once for many checks. A new design check goes into the test for its page and state (a new page or state gets a new test there), not into a new file or a test of its own per CSS value. A design check stays a browser test, since it reads what the browser draws (computed colours, sizes, contrast, focus rings); a rule that needs no browser, such as a calculation or a token value read from a file, is a unit test.
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
 - **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
+- **Combine by journey.** Tests that reach the same page or state are one test that goes on from where the last check left it (TECH-021), named after every requirement it checks (`TRIP-004-R1 R2 R7 R8 R9 …`), with a comment per requirement. A test of its own is for a page, viewport at load time or data the others must not see. A 320 px check resizes the window in the middle of a test (`page.setViewportSize`).
+- **One run at a time per computer.** Every checkout shares `~/Ai Projekt/gurrasflyg-data/test.db`, which each `npm run test:local` deletes and builds again, so two runs at once break each other. A second run uses another `HOME` (`HOME=<empty folder> PLAYWRIGHT_BROWSERS_PATH=~/Library/Caches/ms-playwright npm run test:time`), which gives it a database of its own.
 - **A failing test** is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the requirement). Never weaken a test to make it pass.
 
 ## Smoke tests
@@ -99,7 +101,7 @@ The test suite is checked with every change, so that it doesn't grow slower and 
 
 ## Time budgets
 
-From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s):
+From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s; on 2026-10-26, 148 tests, 145 s, slowest 3.7 s):
 
 | What | Budget |
 |---|---|

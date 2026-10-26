@@ -15,11 +15,12 @@ const filter = (page: Page, label: "Världsdel" | "Land" | "Tillträde" | "Kateg
 const resultCount = async (page: Page) =>
   Number((await page.getByRole("heading", { level: 2, name: /^\d+ destination(er)?$/ }).innerText()).match(/\d+/)![0]);
 
-test("TRIP-013-R1 suggestions find a destination by its other name, and Enter lists every match", async ({ page }) => {
+test("TRIP-013-R1 R9 suggestions find a destination by its other name, and Enter lists every match", async ({ page }) => {
   await page.goto("/charter");
   await search(page).fill("field station");
   const list = page.getByRole("listbox", { name: "Förslag" });
   await expect(list.getByRole("option", { name: /Teufelsberg listening station/ })).toBeVisible();
+  await expectNoA11yViolations(page);
 
   await search(page).press("Enter");
   await expect(page).toHaveURL(/\/charter\?sok=field\+station$/);
@@ -48,15 +49,6 @@ test("TRIP-013-R1 a suggestion is chosen with the arrow keys and Enter, and the 
   await search(page).press("Enter");
   await expect(page).toHaveURL(/\/charter\/teufelsberg$/);
   await expect(heading(page, "Teufelsberg listening station, Tyskland")).toBeVisible();
-});
-
-test("TRIP-013-R1 a search without a match says so and offers to clear the search and the filters", async ({ page }) => {
-  await page.goto("/charter?sok=zzzzqx&varldsdel=Europe");
-  await expect(page.getByText("Inga destinationer matchar.")).toBeVisible();
-  await page.getByRole("button", { name: "Rensa sökning och filter" }).click();
-  await expect(page).toHaveURL(/\/charter$/);
-  await expect(heading(page, "96 destinationer")).toBeVisible();
-  await expect(search(page)).toHaveValue("");
 });
 
 test("TRIP-013-R2 a continent lists its destinations and limits the countries, and the address keeps the state", async ({
@@ -102,12 +94,23 @@ test("TRIP-013-R2 a choice shows how many destinations it gives, Antarctica leav
   await expect(filter(page, "Världsdel")).toHaveValue("");
 });
 
-test("TRIP-013-R2 and TRIP-028-R1 Rensa clears the search and the filters, and there are no start cards", async ({ page }) => {
-  await page.goto("/charter?sok=berlin&varldsdel=Europe");
+test("TRIP-013-R1 R2 R9 and TRIP-028-R1 a search without a match says so and offers to clear, and Rensa clears the search and the filters, and there are no start cards", async ({ page }) => {
+  await page.goto("/charter?sok=zzzzqx&varldsdel=Europe");
+  await expect(page.getByText("Inga destinationer matchar.")).toBeVisible();
+  await expectNoA11yViolations(page);
+  await page.getByRole("button", { name: "Rensa sökning och filter" }).click();
+  await expect(page).toHaveURL(/\/charter$/);
+  await expect(heading(page, "96 destinationer")).toBeVisible();
+  await expect(search(page)).toHaveValue("");
+  await expect(page.getByRole("heading", { level: 2, name: /^(Plats|Aktivitet)/ })).toHaveCount(0);
+  await expectNoA11yViolations(page);
+
+  await page.goto("/charter?sok=berlin&varldsdel=Europe&tillgang=Open");
+  await expect(heading(page, /destination/)).toBeVisible();
+  await expectNoA11yViolations(page);
   await page.getByRole("button", { name: "Rensa", exact: true }).click();
   await expect(page).toHaveURL(/\/charter$/);
   await expect(heading(page, "96 destinationer")).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: /^(Plats|Aktivitet)/ })).toHaveCount(0);
   await expect(search(page)).toHaveValue("");
   await expect(search(page)).toBeFocused();
 });
@@ -135,7 +138,7 @@ test("TRIP-013-R5 and TRIP-028-R2 a destination card shows its facts and opens i
   await expect(riese.locator("img")).toHaveCount(0);
 });
 
-test("TRIP-013-R7 a destination page shows its photo with credits, text sections, facts, airport, ways of getting there, and a gateway or a sea voyage, and an unknown one is a 404", async ({
+test("TRIP-013-R7 R9 a destination page shows its photo with credits, text sections, facts, airport, ways of getting there, and a gateway or a sea voyage, and an unknown one is a 404", async ({
   page,
   request,
 }) => {
@@ -144,6 +147,7 @@ test("TRIP-013-R7 a destination page shows its photo with credits, text sections
   for (const section of ["Översikt", "Ta sig dit", "Besöka"]) {
     await expect(heading(page, section)).toBeVisible();
   }
+  await expectNoA11yViolations(page);
 
   const credit = page.locator("figure figcaption");
   await expect(page.locator("figure img")).toBeVisible();
@@ -201,7 +205,7 @@ test("TRIP-013-R7 the link back keeps the search and filters", async ({ page }) 
 
 const NO_FLIGHTS = "Inga flyg dit just nu, luftrummet är stängt. Du får ta dig dit på egen hand.";
 
-test("TRIP-013-R8 a destination without flights has the notice instead of a price, on its card and its page", async ({
+test("TRIP-013-R8 R9 a destination without flights has the notice instead of a price, on its card and its page", async ({
   page,
 }) => {
   await page.goto("/charter?sok=chernobyl");
@@ -211,37 +215,9 @@ test("TRIP-013-R8 a destination without flights has the notice instead of a pric
 
   await chernobyl.getByRole("link").click();
   await expect(page.getByRole("alert").filter({ hasText: NO_FLIGHTS })).toBeVisible();
+  await expectNoA11yViolations(page);
   await expect(page.getByText("Närmaste flygplats är Kyiv Boryspil International Airport (KBP). 170 km från destinationen.")).toBeVisible();
   await expect(page.getByText(/^Från [\d\s]+kr \/ person$/)).toHaveCount(0);
-});
-
-test("TRIP-013-R9 /charter has no accessibility violations in any state", async ({ page }) => {
-  await page.goto("/charter");
-  await expect(page.getByRole("heading", { level: 2, name: /^(Plats|Aktivitet)/ })).toHaveCount(0);
-  await expectNoA11yViolations(page);
-
-  await search(page).fill("berlin");
-  await expect(page.getByRole("listbox", { name: "Förslag" })).toBeVisible();
-  await expectNoA11yViolations(page);
-
-  await page.goto("/charter?sok=berlin&varldsdel=Europe&tillgang=Open");
-  await expect(heading(page, /destination/)).toBeVisible();
-  await expectNoA11yViolations(page);
-
-  await page.goto("/charter?sok=zzzzqx");
-  await expect(page.getByText("Inga destinationer matchar.")).toBeVisible();
-  await expectNoA11yViolations(page);
-
-});
-
-test("TRIP-013-R9 the destination pages have no accessibility violations, with and without flights", async ({ page }) => {
-  await page.goto("/charter/teufelsberg");
-  await expect(heading(page, "Översikt")).toBeVisible();
-  await expectNoA11yViolations(page);
-
-  await page.goto("/charter/chernobyl-pripyat");
-  await expect(page.getByRole("alert").filter({ hasText: NO_FLIGHTS })).toBeVisible();
-  await expectNoA11yViolations(page);
 });
 
 test("TRIP-013-R9 a filter keeps focus and the new number of results is announced", async ({ page }) => {

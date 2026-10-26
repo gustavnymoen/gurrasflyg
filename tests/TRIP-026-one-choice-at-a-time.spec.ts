@@ -46,7 +46,7 @@ test.describe("with the tests' own aircraft", () => {
     await expect(page.getByText(/För få platser|Inget plan har plats/)).toHaveCount(0);
   });
 
-  test("TRIP-026-R2 one card per flight: Välj puts the aircraft at the top and its classes below", async ({
+  test("TRIP-026-R2 R3 one card per flight: Välj puts the aircraft at the top and its classes below, the counter counts down, Klar says who is missing or folds the card", async ({
     page,
     fleet,
   }) => {
@@ -75,19 +75,16 @@ test.describe("with the tests' own aircraft", () => {
     await expect(page).toHaveURL(/ut-plan=/);
 
     // The summary at the top of the card: name, time, arrival and price, no comparison
-    const summary = chosenAircraft(page, "utresan");
-    await expect(summary).toContainText(fleet.fast);
-    await expect(summary).toContainText(fastTime);
-    await expect(summary).toContainText(/\d\skr \/ person/);
-    await expect(summary).not.toContainText(/Billigast|Snabbast/);
+    const chosen = chosenAircraft(page, "utresan");
+    await expect(chosen).toContainText(fleet.fast);
+    await expect(chosen).toContainText(fastTime);
+    await expect(chosen).toContainText(/\d\skr \/ person/);
+    await expect(chosen).not.toContainText(/Billigast|Snabbast/);
     await expect(aircraftList(page, "utresan")).toHaveCount(0);
     await expect(legCard(page, "utresan").getByRole("region", { name: "Klasser på utresan" })).toBeVisible();
     await expectNoA11yViolations(page);
-  });
 
-  test("TRIP-026-R3 the counter counts down, Klar says who is missing or folds the card", async ({ page, fleet }) => {
-    await openPlan(page, 3, true);
-    await chooseAircraft(page, "utresan", fleet.large);
+    // R3: the counter counts down
     await expect(counter(page, "utresan")).toHaveText("Placera ut 3 resenärer");
     await expect(counter(page, "utresan")).toHaveAttribute("aria-live", "polite");
     await expect(alert(page)).toHaveCount(0);
@@ -117,21 +114,36 @@ test.describe("with the tests' own aircraft", () => {
     await expect(heading(page, "Hemresa")).toBeFocused();
     await expect(aircraftList(page, "hemresan")).toBeVisible();
     const summary = folded(page, "utresan");
-    await expect(summary).toContainText(fleet.large);
+    await expect(summary).toContainText(fleet.fast);
     await expect(summary).toContainText(`${fleet.base}: 2`);
     await expect(summary).toContainText(`${fleet.luxury}: 1`);
     await expect(summary).toContainText(total);
     await expect(classList(page, "utresan")).toHaveCount(0);
   });
 
-  test("TRIP-026-R4 an earlier choice opens again, and only another aircraft clears its classes", async ({
+  test("TRIP-026-R4 R5 after a reload the done cards are folded and the first one not done is open, an earlier choice opens again, and only another aircraft clears its classes", async ({
     page,
     fleet,
   }) => {
     await openPlan(page, 2, true);
+    // R5: after a reload the done cards are folded and the first one not done is open
     await finish(page, "utresan", fleet.large, fleet.base, 2);
-    await finish(page, "hemresan", fleet.fast, fleet.base, 2);
-    // Both folded, focus on the last one's summary
+    await page.reload();
+    await expect(folded(page, "utresan")).toContainText(fleet.large);
+    await expect(aircraftList(page, "hemresan")).toBeVisible();
+
+    // With an aircraft chosen, the card opens with it and the classes
+    await chooseAircraft(page, "hemresan", fleet.fast);
+    await place(page, "hemresan", fleet.base, 1);
+    await page.reload();
+    await expect(folded(page, "utresan")).toBeVisible();
+    await expect(chosenAircraft(page, "hemresan")).toContainText(fleet.fast);
+    await expect(count(classRow(page, "hemresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
+
+    await place(page, "hemresan", fleet.base, 1);
+    await done(page, "hemresan");
+    await expect(folded(page, "hemresan")).toBeVisible();
+    // R4: both folded, focus on the last one's summary
     await expect(folded(page, "hemresan")).toBeFocused();
     await expectNoA11yViolations(page);
     const returnSummary = (await folded(page, "hemresan").textContent()) ?? "";
@@ -161,25 +173,6 @@ test.describe("with the tests' own aircraft", () => {
     await done(page, "utresan");
     await expect(folded(page, "utresan")).toContainText(fleet.fast);
     await expect(folded(page, "utresan")).toBeFocused();
-  });
-
-  test("TRIP-026-R5 after a reload the done cards are folded and the first one not done is open", async ({
-    page,
-    fleet,
-  }) => {
-    await openPlan(page, 2, true);
-    await finish(page, "utresan", fleet.large, fleet.base, 2);
-    await page.reload();
-    await expect(folded(page, "utresan")).toContainText(fleet.large);
-    await expect(aircraftList(page, "hemresan")).toBeVisible();
-
-    // With an aircraft chosen, the card opens with it and the classes
-    await chooseAircraft(page, "hemresan", fleet.fast);
-    await place(page, "hemresan", fleet.base, 1);
-    await page.reload();
-    await expect(folded(page, "utresan")).toBeVisible();
-    await expect(chosenAircraft(page, "hemresan")).toContainText(fleet.fast);
-    await expect(count(classRow(page, "hemresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
   });
 });
 

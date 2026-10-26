@@ -1,0 +1,12 @@
+%% TECH-021 Faster browser tests
+%% How a browser test is chosen: one journey per state, not one test per requirement.
+flowchart TD
+    A[A requirement needs a browser check] --> B{A test already reaches the same page and state?}
+    B -- yes --> C[Add the check to that test, in order, and name the test after the requirement too]
+    B -- no --> D[Write a new test for the new page or state]
+    C --> E[The data is created once and the page loaded once for many checks]
+    D --> E
+    E --> F{npm run test:time within the budgets?}
+    F -- yes --> G[Done]
+    F -- no --> H[Find the slowest files and combine more, or move rules to unit tests]
+    H --> B

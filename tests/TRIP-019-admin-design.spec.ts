@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
   adminCard,
   CARD_SHADOW,
@@ -22,26 +22,41 @@ import {
 // Tests that need data create it with a unique name and delete it again, so
 // they can also run against the live site.
 
-// Opens the form for a new add-on, fills in everything but the name and saves
-async function saveAddonWithoutName(page: Page) {
-  const section = tableSection(page, "Addons");
-  await section.getByRole("button", { name: "Lägg till", exact: true }).click();
-  await page.getByLabel("Pris i kronor").fill("10");
-  await page.getByLabel("Beskrivning").fill("Beskrivning");
-  await section.getByRole("button", { name: "Spara" }).click();
-  return section.getByRole("alert").filter({ hasText: "Addon måste ha ett namn." });
-}
-
 test.beforeEach(async ({ page }) => {
   requireAdminPassword();
   await signIn(page);
 });
 
 // The card border is checked by TRIP-022-R1
-test("TRIP-019-R3 the admin cards have the card shadow", async ({ page }) => {
+test("TRIP-019-R3 R4 R5 the admin cards have the card shadow, Spara and Avbryt are compact pill buttons, an add-on without a name gives red text, and axe finds no violations, also with the aircraft form open", async ({
+  page,
+}) => {
   for (const title of ["Klasser & addons", "Plan", "Omdömen"]) {
     expect(await css(adminCard(page, title), "box-shadow")).toContain(CARD_SHADOW);
   }
+  await expectNoA11yViolations(page);
+
+  const section = tableSection(page, "Addons");
+  await section.getByRole("button", { name: "Lägg till", exact: true }).click();
+  const save = section.getByRole("button", { name: "Spara" });
+  const cancel = section.getByRole("button", { name: "Avbryt" });
+  // R5: the buttons' colours are checked by TRIP-022-R4
+  for (const button of [save, cancel]) {
+    await expect(button).toHaveCSS("border-top-left-radius", "999px");
+    await expect(button).toHaveCSS("height", "34px");
+  }
+
+  // R4: everything but the name is filled in
+  await page.getByLabel("Pris i kronor").fill("10");
+  await page.getByLabel("Beskrivning").fill("Beskrivning");
+  await save.click();
+  await expectTextMessage(section.getByRole("alert").filter({ hasText: "Addon måste ha ett namn." }), DANGER);
+  await expectNoA11yViolations(page);
+  await cancel.click();
+
+  await page.getByRole("button", { name: "Lägg till plan" }).click();
+  await expect(page.getByLabel("Planets namn")).toBeVisible();
+  await expectNoA11yViolations(page);
 });
 
 test("TRIP-019-R3 a dialog floats with the floating shadow", async ({ page }) => {
@@ -66,29 +81,4 @@ test("TRIP-019-R4 a saved review gives green text without a box", async ({ page 
   await expectTextMessage(reviewForm(page).getByRole("status").filter({ hasText: "Omdömet sparades." }), SUCCESS);
 
   await deleteWithConfirmation(page, `Ta bort omdöme från ${author}`);
-});
-
-test("TRIP-019-R4 an add-on without a name gives red text without a box", async ({ page }) => {
-  await expectTextMessage(await saveAddonWithoutName(page), DANGER);
-  await expectNoA11yViolations(page);
-});
-
-test("TRIP-019-R5 Spara and Avbryt are compact pill buttons of the same shape", async ({ page }) => {
-  const section = tableSection(page, "Addons");
-  await section.getByRole("button", { name: "Lägg till", exact: true }).click();
-  const save = section.getByRole("button", { name: "Spara" });
-  const cancel = section.getByRole("button", { name: "Avbryt" });
-
-  // The buttons' colours are checked by TRIP-022-R4
-  for (const button of [save, cancel]) {
-    await expect(button).toHaveCSS("border-top-left-radius", "999px");
-    await expect(button).toHaveCSS("height", "34px");
-  }
-});
-
-test("TRIP-019 accessibility: axe finds no violations on the admin page, also with the aircraft form open", async ({ page }) => {
-  await expectNoA11yViolations(page);
-  await page.getByRole("button", { name: "Lägg till plan" }).click();
-  await expect(page.getByLabel("Planets namn")).toBeVisible();
-  await expectNoA11yViolations(page);
 });

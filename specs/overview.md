@@ -121,6 +121,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-009 | Return trip date picker: Utresa and Hemresa typed or chosen in the site's own calendar, the switch "Tur och retur" | Flight booking | Done |
 | TRIP-022 | One border colour for cards and buttons: cards, review cards and buttons have the fields' border, the brass edge is removed, primary buttons have a faint wine red tone | Shared | Done |
 | TRIP-016 | Deleted aircraft still looks in use: the server alone decides whether a class, add-on or aircraft is in use, so they can be deleted at once after the aircraft | Administration | Done |
+| TECH-021 | Faster browser tests: 201 browser tests became 148 (189 s to 145 s) by combining tests per journey and state | Shared | Done |
 | TECH-020 | Shared choice card and traveller plural: one `ChoiceCard` for the flight and aircraft cards, and `travellersText(n)` for "1 resenär" / "N resenärer" | Shared | Done |
 | TECH-019 | Keep focus on the other round buttons: every `RoundButton` is `aria-disabled` when unavailable, so keyboard focus stays on it; `keepFocus` is gone | Shared | Done |
 | TECH-017 | Limit admin sign-in attempts: 5 attempts per IP address in 15 minutes, counted in the database before the password is checked, with a message with the minutes left | Administration | Done |

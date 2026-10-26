@@ -41,13 +41,17 @@ const twoAndOne = (fleet: Fleet) => ({ [fleet.base]: 1, [fleet.luxury]: 2 });
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 
-  test("TRIP-012-R1 Fortsätt comes when every card is folded and opens the booking page", async ({ page, fleet }) => {
+  test("TRIP-012-R1 R4 R5 R6 R10 Fortsätt opens the booking page, Dåliga nerver adds 1 000 kr per flight, a wrong e-mail and an unticked question keep the traveller there, and another aircraft clears that flight's add-ons", async ({
+    page,
+    fleet,
+  }) => {
+    // R1: Fortsätt comes when every card is folded
     await openPlan(page, 1, true);
     await chooseAircraft(page, "utresan", fleet.large);
-    await place(page, "utresan", fleet.base, 1);
+    await place(page, "utresan", fleet.luxury, 1);
     await done(page, "utresan");
     await chooseAircraft(page, "hemresan", fleet.large);
-    await place(page, "hemresan", fleet.luxury, 1);
+    await place(page, "hemresan", fleet.base, 1);
     // Everyone has a class, but the return card is still open
     await expect(page.getByText("Tryck Klar på varje flyg för att gå vidare.")).toBeVisible();
     await expect(page.getByRole("link", { name: "Fortsätt" })).toHaveCount(0);
@@ -67,64 +71,8 @@ test.describe("with the tests' own aircraft", () => {
     await expect(trip.getByText(`${fleet.luxury}: 1`)).toBeVisible();
     expect(await total(page)).toBe(tripTotal);
     await expectNoA11yViolations(page);
-  });
 
-  test("TRIP-012-R2 the passengers start in the chosen classes, and missing fields are red", async ({ page, fleet }) => {
-    await openBooking(page, fleet.large, twoAndOne(fleet));
-    const classOf = (n: number) => legGroup(passenger(page, n), "Utresa").getByLabel("Klass");
-    // The most expensive class first
-    await expect(classOf(1).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
-    await expect(classOf(2).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
-    await expect(classOf(3).locator("option:checked")).toHaveText(new RegExp(fleet.base));
-
-    // Passagerare 1 without a last name or age
-    await fillAll(page, 3);
-    const first = passenger(page, 1);
-    await first.getByLabel("Efternamn").fill("");
-    await first.getByLabel("Ålder").selectOption("");
-    await goOn(page);
-    await expect(page).toHaveURL(/\/flyg\/boka\?/);
-    await expect(first.getByLabel("Efternamn")).toBeFocused();
-    await expect(first.getByLabel("Efternamn")).toHaveAttribute("aria-invalid", "true");
-    await expect(first.getByLabel("Efternamn")).toHaveAccessibleDescription("Skriv passagerarens efternamn.");
-    await expect(first.getByLabel("Ålder")).toHaveAccessibleDescription("Välj passagerarens ålder.");
-    await expectNoA11yViolations(page);
-    await fillPassenger(page, 1, "E2E Resenär 1");
-
-    // Swapping only Passagerare 1 gives the wrong numbers; swapping 3 too makes them match
-    // The classes are listed cheapest first
-    await classOf(1).selectOption({ index: 0 });
-    await goOn(page);
-    const wrong = `På utresan ska 1 sitta i ${fleet.base}, men 2 gör det. Byt klass för någon passagerare.`;
-    await expect(alert(page).filter({ hasText: wrong })).toBeVisible();
-    await expect(classOf(1)).toBeFocused();
-    await classOf(3).selectOption({ index: 1 });
-    await expect(alert(page)).toHaveCount(0);
-    await goOn(page);
-    await expect(page).toHaveURL(/\/flyg\/boka\/betala\?/);
-  });
-
-  test("TRIP-012-R3 the add-ons of the passenger's class are offered and added to the total", async ({ page, fleet }) => {
-    await openBooking(page, fleet.large, twoAndOne(fleet));
-    const third = passenger(page, 3);
-    // Passagerare 3 sits in the 1,00 class: Måltid and Bagage, not Lounge
-    await expect(addonRow(third, "Utresa", fleet.meal)).toContainText("Varm mat");
-    await expect(addonRow(third, "Utresa", fleet.meal)).toContainText("120 kr / st");
-    await expect(addonRow(third, "Utresa", fleet.bag)).toBeVisible();
-    await expect(addonRow(third, "Utresa", fleet.lounge)).toHaveCount(0);
-    await expect(addonRow(passenger(page, 1), "Utresa", fleet.lounge)).toBeVisible();
-
-    const before = await total(page);
-    const meal = addonRow(third, "Utresa", fleet.meal);
-    await meal.getByRole("button", { name: `Fler ${fleet.meal}` }).click();
-    await meal.getByRole("button", { name: `Fler ${fleet.meal}` }).click();
-    await addonRow(third, "Utresa", fleet.bag).getByRole("button", { name: `Fler ${fleet.bag}` }).click();
-    await expect(meal.locator("[aria-live]")).toHaveText(`2 ${fleet.meal}`);
-    expect(await total(page)).toBe(before + 2 * 120 + 300);
-  });
-
-  test("TRIP-012-R4 Dåliga nerver adds 1 000 kr per flight, and its tip is shown on focus", async ({ page, fleet }) => {
-    await openBooking(page, fleet.large, { [fleet.base]: 1 }, true);
+    // R4: Dåliga nerver adds 1 000 kr per flight, and its tip is shown on focus
     const nerves = passenger(page, 1).getByRole("checkbox", { name: "Dåliga nerver" });
     const tip = page.getByRole("tooltip");
     await expect(tip).toBeHidden();
@@ -134,7 +82,6 @@ test.describe("with the tests' own aircraft", () => {
     await expectNoA11yViolations(page);
     await page.keyboard.press("Escape");
     await expect(tip).toBeHidden();
-
     const before = await total(page);
     await page.keyboard.press("Space");
     await expect(nerves).toBeChecked();
@@ -142,34 +89,9 @@ test.describe("with the tests' own aircraft", () => {
     await nerves.blur();
     await nerves.hover();
     await expect(tip).toBeVisible();
-  });
+    await nerves.uncheck();
 
-  test("TRIP-012-R5 R6 a wrong e-mail and an unticked question keep the traveller on the page", async ({ page, fleet }) => {
-    await openBooking(page, fleet.large, { [fleet.base]: 1 });
-    await fillAll(page, 1, "anna@");
-    const questions = page.getByRole("region", { name: "Tre viktiga frågor" }).getByRole("checkbox");
-    await questions.nth(1).uncheck();
-    await goOn(page);
-    await expect(page).toHaveURL(/\/flyg\/boka\?/);
-    const email = page.getByRole("region", { name: "Kontaktperson" }).getByLabel("E-post");
-    await expect(email).toBeFocused();
-    await expect(email).toHaveAccessibleDescription("Skriv en hel e-postadress, t.ex. anna@exempel.se.");
-    await expect(questions.nth(1)).toHaveAccessibleDescription("Kryssa i rutan för att gå vidare.");
-    await expect(questions.nth(0)).not.toHaveAttribute("aria-invalid");
-
-    await email.fill("anna@exempel.se");
-    await goOn(page);
-    await expect(questions.nth(1)).toBeFocused();
-    await questions.nth(1).check();
-    await goOn(page);
-    await expect(page).toHaveURL(/\/flyg\/boka\/betala\?/);
-  });
-
-  test("TRIP-012-R10 another aircraft clears that flight's add-ons, and keeps the names and the contact", async ({
-    page,
-    fleet,
-  }) => {
-    await openBooking(page, fleet.large, { [fleet.base]: 1 }, true);
+    // R10: another aircraft clears that flight's add-ons, and keeps the names and the contact
     await fillAll(page, 1);
     const card = passenger(page, 1);
     await addonRow(card, "Utresa", fleet.meal).getByRole("button", { name: `Fler ${fleet.meal}` }).click();
@@ -199,6 +121,84 @@ test.describe("with the tests' own aircraft", () => {
     await page.reload();
     await expect(card.getByLabel("Förnamn")).toHaveValue("E2E Resenär 1");
     await expect(addonRow(card, "Hemresa", fleet.bag).locator("[aria-live]")).toHaveText(`1 ${fleet.bag}`);
+
+    // R5 R6: a wrong e-mail and an unticked question keep the traveller on the page
+    await fillAll(page, 1, "anna@");
+    const questions = page.getByRole("region", { name: "Tre viktiga frågor" }).getByRole("checkbox");
+    await questions.nth(1).uncheck();
+    await goOn(page);
+    await expect(page).toHaveURL(/\/flyg\/boka\?/);
+    const email = page.getByRole("region", { name: "Kontaktperson" }).getByLabel("E-post");
+    await expect(email).toBeFocused();
+    await expect(email).toHaveAccessibleDescription("Skriv en hel e-postadress, t.ex. anna@exempel.se.");
+    await expect(questions.nth(1)).toHaveAccessibleDescription("Kryssa i rutan för att gå vidare.");
+    await expect(questions.nth(0)).not.toHaveAttribute("aria-invalid");
+
+    await email.fill("anna@exempel.se");
+    await goOn(page);
+    await expect(questions.nth(1)).toBeFocused();
+    await questions.nth(1).check();
+    await goOn(page);
+    await expect(page).toHaveURL(/\/flyg\/boka\/betala\?/);
+  });
+
+  test("TRIP-012-R2 R3 the passengers start in the chosen classes, missing fields are red, and the add-ons of the passenger's class are offered and added to the total", async ({
+    page,
+    fleet,
+  }) => {
+    await openBooking(page, fleet.large, twoAndOne(fleet));
+    const classOf = (n: number) => legGroup(passenger(page, n), "Utresa").getByLabel("Klass");
+    // The most expensive class first
+    await expect(classOf(1).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
+    await expect(classOf(2).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
+    await expect(classOf(3).locator("option:checked")).toHaveText(new RegExp(fleet.base));
+
+    // R3: Passagerare 3 sits in the 1,00 class: Måltid and Bagage, not Lounge
+    const third = passenger(page, 3);
+    await expect(addonRow(third, "Utresa", fleet.meal)).toContainText("Varm mat");
+    await expect(addonRow(third, "Utresa", fleet.meal)).toContainText("120 kr / st");
+    await expect(addonRow(third, "Utresa", fleet.bag)).toBeVisible();
+    await expect(addonRow(third, "Utresa", fleet.lounge)).toHaveCount(0);
+    await expect(addonRow(passenger(page, 1), "Utresa", fleet.lounge)).toBeVisible();
+
+    // R2: Passagerare 1 without a last name or age
+    await fillAll(page, 3);
+    const first = passenger(page, 1);
+    await first.getByLabel("Efternamn").fill("");
+    await first.getByLabel("Ålder").selectOption("");
+    await goOn(page);
+    await expect(page).toHaveURL(/\/flyg\/boka\?/);
+    await expect(first.getByLabel("Efternamn")).toBeFocused();
+    await expect(first.getByLabel("Efternamn")).toHaveAttribute("aria-invalid", "true");
+    await expect(first.getByLabel("Efternamn")).toHaveAccessibleDescription("Skriv passagerarens efternamn.");
+    await expect(first.getByLabel("Ålder")).toHaveAccessibleDescription("Välj passagerarens ålder.");
+    await expectNoA11yViolations(page);
+    await fillPassenger(page, 1, "E2E Resenär 1");
+
+    // R3: add-ons are added to the total (Passagerare 3 is still in the 1,00 class)
+    const totalBefore = await total(page);
+    const meal = addonRow(third, "Utresa", fleet.meal);
+    await meal.getByRole("button", { name: `Fler ${fleet.meal}` }).click();
+    await meal.getByRole("button", { name: `Fler ${fleet.meal}` }).click();
+    await addonRow(third, "Utresa", fleet.bag).getByRole("button", { name: `Fler ${fleet.bag}` }).click();
+    await expect(meal.locator("[aria-live]")).toHaveText(`2 ${fleet.meal}`);
+    expect(await total(page)).toBe(totalBefore + 2 * 120 + 300);
+    await meal.getByRole("button", { name: `Färre ${fleet.meal}` }).click();
+    await meal.getByRole("button", { name: `Färre ${fleet.meal}` }).click();
+    await addonRow(third, "Utresa", fleet.bag).getByRole("button", { name: `Färre ${fleet.bag}` }).click();
+    await expect(meal.locator("[aria-live]")).toHaveText(`0 ${fleet.meal}`);
+
+    // R2: swapping only Passagerare 1 gives the wrong numbers; swapping 3 too makes them match
+    // The classes are listed cheapest first
+    await classOf(1).selectOption({ index: 0 });
+    await goOn(page);
+    const wrong = `På utresan ska 1 sitta i ${fleet.base}, men 2 gör det. Byt klass för någon passagerare.`;
+    await expect(alert(page).filter({ hasText: wrong })).toBeVisible();
+    await expect(classOf(1)).toBeFocused();
+    await classOf(3).selectOption({ index: 1 });
+    await expect(alert(page)).toHaveCount(0);
+    await goOn(page);
+    await expect(page).toHaveURL(/\/flyg\/boka\/betala\?/);
   });
 });
 
