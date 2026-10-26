@@ -1,0 +1,21 @@
+%% TRIP-013 Charter: Destination pages and search
+%% The main flow and its error paths. Label steps with requirement IDs where it helps.
+flowchart TD
+    A[Traveller opens /charter] --> B[Start cards Plats and Aktivitet, all destinations: R3]
+    B -->|Plats: continent| C[Countries of the continent]
+    C -->|country| F
+    B -->|Antarktis or a category| F
+    B -->|types in the search field| S[Suggestions from /api/destination-search: R1]
+    S -->|arrow keys and Enter, or click| P
+    S -->|Enter or Sök| F
+    B -->|filters| F[List filtered by search and filters, address updated: R1, R2]
+    F --> G{Any match?}
+    G -- no --> H[Inga destinationer matchar, offer to clear: R1]
+    H --> B
+    G -- yes --> I[Destination cards: R5]
+    I -->|Visa| P[/charter/id: R7]
+    P --> Q{Flights?}
+    Q -- yes --> R[Price från, airport and distance: R6, R7]
+    Q -- no --> T[Red notice, no price: R8]
+    P -->|unknown id| N[404 page with link to the list]
+    P -->|Tillbaka till listan| F

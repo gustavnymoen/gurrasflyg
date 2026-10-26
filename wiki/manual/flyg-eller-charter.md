@@ -19,7 +19,7 @@ Gurras Flyg har två delar som inte blandas: **flyg**, där du bokar ett av flyg
 1. Välj fliken **Charter** med musen, eller med piltangenterna när en flik har fokus.
 2. Läs den korta texten och tryck på **Utforska charterresor**.
 
-Du kommer då till sidan **Charter**. Den har än så länge bara rubriken; resorna kommer senare.
+Du kommer då till sidan **Charter**, där du söker bland resmålen, se [Hitta ett charterresmål](charter-resmal.md). Att boka resorna kommer senare.
 
 ## När du har börjat
 
