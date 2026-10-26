@@ -70,7 +70,9 @@ Not combined: the smoke tests, TRIP-001, TRIP-002, TRIP-009, TRIP-016, TRIP-025,
 | Before | 201 | 189.2 s (over the 180 s budget) | 3.5 s |
 | After | 148 | 145.4 s (budget 180 s) | 3.7 s (`TRIP-012-R1 R4 R5 R6 R10 …`) |
 
-Unit tests: 124, 0.7 s. TRIP-014, not merged yet, adds about 20 s, which gives about 165 s.
+Unit tests: 124, 0.7 s.
+
+After `main` (with TRIP-014 and TRIP-028) was merged into the branch on 2026-10-26: 160 browser tests in 155.7 s, slowest 3.6 s; unit tests 160, 0.7 s. Without this change the same code would be about 200 s. The 150 s of R2 was measured on the base before that merge; the new features add about 10 s.
 
 ## Definition of Done
 
