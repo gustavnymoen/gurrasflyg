@@ -27,3 +27,4 @@ None.
 - **A list "appears" when `FlightList` is mounted.** The outbound and return lists are different places in the tree, so changing step (or going back with Ändra) mounts a new list with `fillIn` true again (R1, R3). The skeleton cards are replaced by the list when the search is done, so the first list animates then.
 - **Reduced motion (R4)** needs nothing new: the rule in `globals.css` that switches off all animations for `prefers-reduced-motion: reduce` covers it.
 - **R2 in the browser test** only shows the keyboard working during the animation: the routes have 5–7 departures, so the cap at the tenth card is a unit test.
+- **axe waits for the animation.** `expectNoA11yViolations` (`tests/helpers.ts`) first waits for the cards' `fill-in` animations, since a card that is still partly see-through reads as low contrast. Found when CI ran the existing TRIP-010 axe tests.
