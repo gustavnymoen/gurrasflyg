@@ -9,6 +9,7 @@ timestamp: 2026-10-24
 
 ## 2026-10-26
 
+- TECH-021: the browser tests are 148 instead of 201 and take 145 s instead of 189 s, by combining tests that go through the same page and state. No change for visitors.
 - TRIP-013: `/charter` lists the 96 destinations as cards with free-text search (autocomplete), the filters Världsdel, Land, Tillträde and Kategori with counts, the start cards Plats and Aktivitet, and "Från X kr / person"; `/charter/<id>` shows a destination with photo credit, airport, ways of getting there and the texts (in English, credited to Wikipedia). A destination without flights (Chernobyl) shows a red notice. No migration. `Autocomplete` announces the number of suggestions and names its list; the layout's address readers are in `Suspense`.
 - TECH-018: the 39 design tests of TRIP-008, TRIP-020 and TRIP-022 are 12 tests in `tests/TECH-018-design.spec.ts`, one per page and state, each named after every requirement it checks. Nothing changed on the site; `DESIGN.md` points to the new file.
 - TRIP-018: the start page has the tabs Flyg and Charter (Flyg selected); Charter links to the new page `/charter`. Inside the flight booking and charter there is no way to the other area: **Avbryt** in the header, the wordmark and the footer's Start ask "Är du säker?" and, on Ja, avbryt, remove the booking from `sessionStorage` and go to the start page. New shared components `Tabs`, `Dialog` (moved from admin) and `AbortFlow`.

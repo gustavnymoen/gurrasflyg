@@ -69,7 +69,7 @@ test.describe("the search form", () => {
     await expect(page.getByRole("heading", { name: "Utresa Stockholm – London" })).toBeVisible();
   });
 
-  test("TRIP-010-R1 a missing value is shown in red and nothing is searched", async ({ page }) => {
+  test("TRIP-010-R1 a missing value is shown in red and the same airport in Från and Till gives no search, and nothing is searched", async ({ page }) => {
     await chooseAirport(page, "Från", "Arlanda", "Stockholm Arlanda");
     await page.getByRole("button", { name: "Sök", exact: true }).click();
     await expect(page.getByRole("alert").filter({ hasText: "Välj vart du vill flyga." })).toBeVisible();
@@ -83,6 +83,15 @@ test.describe("the search form", () => {
     // The message goes away when the value is chosen
     await chooseAirport(page, "Till", "Heathrow", "London Heathrow");
     await expect(page.getByRole("alert").filter({ hasText: "Välj vart du vill flyga." })).toHaveCount(0);
+
+    // The same airport in both fields
+    await chooseAirport(page, "Till", "Arlanda", "Stockholm Arlanda");
+    await page.getByRole("combobox", { name: "Utresa" }).fill(formatShort(TOMORROW));
+    await page.getByRole("combobox", { name: "Utresa" }).press("Enter");
+    await page.getByRole("switch", { name: "Tur och retur" }).click();
+    await page.getByRole("button", { name: "Sök", exact: true }).click();
+    await expect(page.getByText("Ajja bajja, du måste flyga någonstans!")).toBeVisible();
+    await expect(page).toHaveURL("/");
   });
 
   test("TRIP-010-R13 Tab chooses the highlighted airport and moves on", async ({ page }) => {
@@ -121,44 +130,6 @@ test.describe("the search form", () => {
     await expect(to).toBeFocused();
   });
 
-  test("TRIP-010-R1 the same airport in Från and Till gives no search", async ({ page }) => {
-    await chooseAirport(page, "Från", "Arlanda", "Stockholm Arlanda");
-    await chooseAirport(page, "Till", "Arlanda", "Stockholm Arlanda");
-    await page.getByRole("combobox", { name: "Utresa" }).fill(formatShort(TOMORROW));
-    await page.getByRole("combobox", { name: "Utresa" }).press("Enter");
-    await page.getByRole("switch", { name: "Tur och retur" }).click();
-    await page.getByRole("button", { name: "Sök", exact: true }).click();
-    await expect(page.getByText("Ajja bajja, du måste flyga någonstans!")).toBeVisible();
-    await expect(page).toHaveURL("/");
-  });
-});
-
-test("TRIP-010-R2 the results page shows the search in the form, and a new date searches again", async ({ page }) => {
-  await openResults(page, roundTrip);
-  await expect(page.getByRole("combobox", { name: "Från" })).toHaveValue("Stockholm Arlanda (ARN)");
-  await expect(page.getByRole("combobox", { name: "Till" })).toHaveValue("London Heathrow (LHR)");
-  await expect(page.getByRole("combobox", { name: "Utresa" })).toHaveValue(formatShort(TOMORROW));
-  await expect(page.getByRole("combobox", { name: "Hemresa" })).toHaveValue(formatShort(IN_A_WEEK));
-  await expect(page.getByRole("group", { name: "Antal resenärer" })).toContainText("2");
-
-  const later = daysFromToday(3);
-  await page.getByRole("combobox", { name: "Utresa" }).fill(formatShort(later));
-  await page.getByRole("combobox", { name: "Utresa" }).press("Enter");
-  await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Sök", exact: true }).click();
-  await expect(page).toHaveURL(roundTrip.replace(TOMORROW, later));
-  await searchDone(page);
-  await expect(page.getByText(new RegExp(`^${formatDay(later)} · \\d+ flyg$`))).toBeVisible();
-});
-
-test("TRIP-010-R2 the address of a results page shows the same search in a new tab", async ({ page, context }) => {
-  await openResults(page, oneWay());
-  const times = await timesShown(page);
-  const other = await context.newPage();
-  await openResults(other, page.url());
-  expect(await timesShown(other)).toEqual(times);
-  // The prices are the same every time (R11)
-  expect(await pricesShown(other)).toEqual(await pricesShown(page));
 });
 
 test("TRIP-010-R2 an incomplete address shows the empty form and what to do", async ({ page }) => {
@@ -188,15 +159,6 @@ test("TRIP-010-R3 skeleton cards first, the flights 1–4 seconds later, and scr
   await expect(flightButtons(page).first()).toBeVisible();
 });
 
-test("TRIP-010-R4 every departure of the route is shown, at least 5, and the number matches", async ({ page }) => {
-  await openResults(page, oneWay());
-  const count = await flightButtons(page).count();
-  expect(count).toBeGreaterThanOrEqual(5);
-  await expect(page.getByText(new RegExp(`· ${count} flyg$`))).toBeVisible();
-  await expect(page.getByRole("status")).toHaveText(`${count} flyg hittades`);
-  await expectNoA11yViolations(page);
-});
-
 test("TRIP-010-R4 a search for today shows no departure that has already left", async ({ page }) => {
   await openResults(page, oneWay(daysFromToday(0)));
   const now = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", timeStyle: "short" }).format(new Date());
@@ -212,14 +174,44 @@ test("TRIP-010-R4 with no departures left the page says so and suggests another 
   await expectNoA11yViolations(page);
 });
 
-test("TRIP-010-R5 the card shows the departure, the airports and the price, no flight time", async ({ page }) => {
+test("TRIP-010-R2 R4 R5 R7 every departure is shown with the airports and the price, sorted by departure first and by price on request, and the address shows the same search in a new tab", async ({
+  page,
+  context,
+}) => {
   await openResults(page, oneWay());
+  // R4: every departure of the route, at least 5, and the number matches
+  const times = await timesShown(page);
+  const count = times.length;
+  expect(count).toBeGreaterThanOrEqual(5);
+  await expect(page.getByText(new RegExp(`· ${count} flyg$`))).toBeVisible();
+  await expect(page.getByRole("status")).toHaveText(`${count} flyg hittades`);
+  await expectNoA11yViolations(page);
+
+  // R5: the card shows the departure, the airports and the price, no flight time
   const card = flightButtons(page).first();
   await expect(card).toHaveAccessibleName(/^\d\d:\d\d ARN Stockholm till LHR London från [\d\s]+kr \/ person$/);
   await expect(card).not.toContainText(/min|tim|ankomst/i);
+
+  // R7: sorted by departure first, by price on request, at once
+  expect(times).toEqual(times.toSorted());
+  await sortBy(page, "Pris");
+  await expect(page.getByRole("radio", { name: "Pris" })).toBeChecked();
+  const prices = await pricesShown(page);
+  expect(prices).toEqual(prices.toSorted((a, b) => a - b));
+  await expect(page.getByRole("status")).toHaveText(/flyg hittades$/);
+  await sortBy(page, "Avgångstid");
+  expect(await timesShown(page)).toEqual(times);
+
+  // R2: the same address in a new tab shows the same flights, and the prices are the same every time (R11)
+  const other = await context.newPage();
+  await openResults(other, page.url());
+  expect(await timesShown(other)).toEqual(times);
+  expect(await pricesShown(other)).toEqual(await pricesShown(page));
 });
 
-test("TRIP-010-R6 a card expands with the details and Välj, and collapses again", async ({ page }) => {
+test("TRIP-010-R6 R9 a card expands with the details and Välj, collapses again, and a one-way trip ends with the chosen flight and its total price", async ({
+  page,
+}) => {
   await openResults(page, oneWay(TOMORROW, 3));
   const card = flightButtons(page).first();
   const price = kronor((await card.textContent()) ?? "");
@@ -244,30 +236,48 @@ test("TRIP-010-R6 a card expands with the details and Välj, and collapses again
   await expect(card).toHaveAttribute("aria-expanded", "true");
   await card.press(" ");
   await expect(card).toHaveAttribute("aria-expanded", "false");
+
+  // R9: Välj ends the trip with the flight and its total price
+  await card.click();
+  await details.getByRole("button", { name: "Välj" }).click();
+  await expect(page.getByRole("heading", { name: "Din resa" })).toBeFocused();
+  await expect(summary(page).getByText("Totalt för 3 resenärer")).toBeVisible();
+  expect(await summaryTotal(page)).toBe(3 * price);
+  await expectNoA11yViolations(page);
 });
 
-test("TRIP-010-R7 sorted by departure first, by price on request, at once", async ({ page }) => {
-  await openResults(page, oneWay());
-  const times = await timesShown(page);
-  expect(times).toEqual(times.toSorted());
-
-  await sortBy(page, "Pris");
-  await expect(page.getByRole("radio", { name: "Pris" })).toBeChecked();
-  const prices = await pricesShown(page);
-  expect(prices).toEqual(prices.toSorted((a, b) => a - b));
-  await expect(page.getByRole("status")).toHaveText(/flyg hittades$/);
-
-  await sortBy(page, "Avgångstid");
-  expect(await timesShown(page)).toEqual(times);
-});
-
-test("TRIP-010-R8 a return trip is chosen in two steps, and changing the outbound starts over", async ({ page }) => {
+test("TRIP-010-R2 R6 R8 R9 the results page shows the search in the form and a new date searches again, a return trip is chosen in two steps, changing the outbound starts over, and the trip ends with both flights and the sum of their prices, also at 320 px", async ({
+  page,
+}) => {
   await openResults(page, roundTrip);
-  await expect(page.getByRole("listitem").filter({ hasText: "Utresa" })).toHaveAttribute("aria-current", "step");
+  await expect(page.getByRole("combobox", { name: "Från" })).toHaveValue("Stockholm Arlanda (ARN)");
+  await expect(page.getByRole("combobox", { name: "Till" })).toHaveValue("London Heathrow (LHR)");
+  await expect(page.getByRole("combobox", { name: "Utresa" })).toHaveValue(formatShort(TOMORROW));
+  await expect(page.getByRole("combobox", { name: "Hemresa" })).toHaveValue(formatShort(IN_A_WEEK));
+  await expect(page.getByRole("group", { name: "Antal resenärer" })).toContainText("2");
 
+  // R2: a new date searches again
+  const later = daysFromToday(3);
+  await page.getByRole("combobox", { name: "Utresa" }).fill(formatShort(later));
+  await page.getByRole("combobox", { name: "Utresa" }).press("Enter");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Sök", exact: true }).click();
+  await expect(page).toHaveURL(roundTrip.replace(TOMORROW, later));
+  await searchDone(page);
+  await expect(page.getByText(new RegExp(`^${formatDay(later)} · \\d+ flyg$`))).toBeVisible();
+
+  // R8: the outbound is chosen first, then the return
+  await expect(page.getByRole("listitem").filter({ hasText: "Utresa" })).toHaveAttribute("aria-current", "step");
+  const wide = page.viewportSize()!;
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   const first = flightButtons(page).first();
   const outboundTime = ((await first.textContent()) ?? "").slice(0, 5);
   await first.click();
+  await expect(page.getByRole("button", { name: "Välj" })).toBeVisible();
+  // R6: an expanded card fits at 320 px
+  await page.setViewportSize({ width: 320, height: 640 });
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.setViewportSize(wide);
   await page.getByRole("button", { name: "Välj" }).click();
 
   await expect(listHeading(page)).toHaveText("Hemresa London – Stockholm");
@@ -278,53 +288,25 @@ test("TRIP-010-R8 a return trip is chosen in two steps, and changing the outboun
   await expect(flightButtons(page).first()).toHaveAccessibleName(/^\d\d:\d\d LHR London till ARN Stockholm/);
   await expectNoA11yViolations(page);
 
+  // R8: changing the outbound starts over
   await page.getByRole("button", { name: "Ändra utresa" }).click();
   await expect(listHeading(page)).toHaveText("Utresa Stockholm – London");
   await expect(page.getByText("Vald utresa")).toHaveCount(0);
-});
 
-test("TRIP-010-R9 a one-way trip ends with the chosen flight and its total price", async ({ page }) => {
-  await openResults(page, oneWay(TOMORROW, 2));
-  const first = flightButtons(page).first();
-  const price = kronor((await first.textContent()) ?? "");
-  await first.click();
-  await page.getByRole("button", { name: "Välj" }).click();
-
-  await expect(page.getByRole("heading", { name: "Din resa" })).toBeFocused();
-  await expect(summary(page).getByText("Totalt för 2 resenärer")).toBeVisible();
-  expect(await summaryTotal(page)).toBe(2 * price);
-  await expectNoA11yViolations(page);
-});
-
-test("TRIP-010-R9 a return trip ends with both flights and the sum of their prices", async ({ page }) => {
-  await openResults(page, roundTrip);
+  // R9: both flights are chosen, and the summary adds their prices
   const prices: number[] = [];
   for (let step = 0; step < 2; step++) {
-    const first = flightButtons(page).first();
-    prices.push(kronor((await first.textContent()) ?? ""));
-    await first.click();
+    const flight = flightButtons(page).first();
+    prices.push(kronor((await flight.textContent()) ?? ""));
+    await flight.click();
     await page.getByRole("button", { name: "Välj" }).click();
   }
   await expect(summary(page).getByText("Utresa", { exact: true })).toBeVisible();
   await expect(summary(page).getByText("Hemresa", { exact: true })).toBeVisible();
   expect(await summaryTotal(page)).toBe(2 * (prices[0] + prices[1]));
-});
-
-test.describe("on a narrow phone", () => {
-  test.use({ viewport: { width: 320, height: 640 } });
-
-  test("TRIP-010-R6 at 320 px an expanded card and the summary fit without sideways scrolling", async ({ page }) => {
-    await openResults(page, roundTrip);
-    const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    await flightButtons(page).first().click();
-    await expect(page.getByRole("button", { name: "Välj" })).toBeVisible();
-    expect(await overflow()).toBeLessThanOrEqual(0);
-    await page.getByRole("button", { name: "Välj" }).click();
-    await flightButtons(page).first().click();
-    await page.getByRole("button", { name: "Välj" }).click();
-    await expect(page.getByRole("heading", { name: "Din resa" })).toBeVisible();
-    expect(await overflow()).toBeLessThanOrEqual(0);
-  });
+  // R6: the summary fits at 320 px
+  await page.setViewportSize({ width: 320, height: 640 });
+  expect(await overflow()).toBeLessThanOrEqual(0);
 });
 
 test("TRIP-010-R12 admin has no Tilldela plan", async ({ page }) => {

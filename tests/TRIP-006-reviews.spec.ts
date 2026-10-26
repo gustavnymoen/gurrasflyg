@@ -27,19 +27,14 @@ const firstReviewRow = (page: Page) =>
   page.getByRole("row").filter({ has: page.getByRole("button", { name: /^Ta bort omdöme från/ }) }).first();
 
 test.describe("start page", () => {
-  test("TRIP-006-R1 the card in focus shows stars, title, text and name", async ({ page }) => {
+  test("TRIP-006-R1 R2 the card in focus shows stars, title, text and name, and arrows, keys and clicks move the cards round", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Vad våra resenärer säger" })).toBeVisible();
     const card = focused(page);
-    await expect(card).toHaveCount(1);
+    await expect(card).toHaveCount(1); // the carousel is streamed in after the page
     await expect(card.getByRole("img", { name: /^[1-5] av 5 stjärnor$/ })).toBeVisible();
     await expect(card.getByRole("heading")).not.toBeEmpty();
     await expect(card.getByText(/^– /)).toBeVisible();
-  });
-
-  test("TRIP-006-R2 arrows, keys and clicks move the cards round", async ({ page }) => {
-    await page.goto("/");
-    await expect(focused(page)).toHaveCount(1); // the carousel is streamed in after the page
     const cards = carousel(page).locator("article");
     const count = await cards.count();
     test.skip(count < 3, "needs at least three reviews");
@@ -82,7 +77,7 @@ test.describe("admin", () => {
     await signIn(page);
   });
 
-  test("TRIP-006-R3 form has name, stars, title and text with a counter", async ({ page }) => {
+  test("TRIP-006-R3 R4 form has name, stars, title and text with a counter, and every field is required", async ({ page }) => {
     const form = reviewForm(page);
     const fields = form.locator("input, textarea, [role=radiogroup]");
     await expect(fields.nth(0)).toHaveAccessibleName("Namn på personen");
@@ -95,10 +90,9 @@ test.describe("admin", () => {
     await form.getByLabel("Text").fill("x".repeat(200));
     await expect(form.getByLabel("Text")).toHaveValue("x".repeat(145));
     await expect(form.getByText("145/145")).toBeVisible();
-  });
 
-  test("TRIP-006-R4 every field is required", async ({ page }) => {
-    const form = reviewForm(page);
+    // R4: every field is required
+    await form.getByLabel("Text").fill("");
     const save = form.getByRole("button", { name: "Spara omdöme" });
     await save.click();
     await expect(form.getByText("Välj antal stjärnor.")).toBeVisible();
