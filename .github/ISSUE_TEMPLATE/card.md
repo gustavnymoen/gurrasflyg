@@ -51,7 +51,7 @@ Acceptance criteria:
 How the requirements will be checked (see `wiki/system/testing.md`). Write "none" with the reason where a kind doesn't apply.
 
 - **Unit tests:** which logic, calculations, rules or data.
-- **Browser tests:** which flows and states, with axe on each.
+- **Browser tests:** which flows and states, with axe on each. Checks of the look (colours, sizes, contrast, focus) go into the matching test in `tests/TECH-018-design.spec.ts`, one test per page and state; say which.
 - **Smoke test:** what a quick read-only check against the preview and production shows, if the card adds or changes a main page or flow.
 - **Accessibility:** which pages go through the checklist on the live site.
 - **Security:** whether `/security-review` is needed (sign-in, admin, API routes, server actions, database queries, personal data).
