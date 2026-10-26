@@ -8,17 +8,13 @@ import {
   type BookingLeg,
   bookingTotal,
   changeClass,
-  type Contact,
   emptyForm,
   fieldIds,
   fitForm,
   MAX_ADDONS,
-  MAX_AGE,
-  MIN_AGE,
   NERVES,
   NERVES_PRICE,
   type Passenger,
-  QUESTIONS,
   seatPrice,
   travellerProblems,
 } from "@/lib/booking-rules";
@@ -34,6 +30,7 @@ import Field, { fieldInputClass } from "../../components/Field";
 import Message from "../../components/Message";
 import RoundButton from "../../components/RoundButton";
 import Steps, { tripSteps } from "../Steps";
+import { ContactCard, PersonFields, QuestionsCard } from "./FormParts";
 import TripOverview from "../TripOverview";
 import { FORM_KEY, store, useStored } from "./store";
 
@@ -86,8 +83,6 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
   const error = (id: string) => problems[id] ?? null;
   const setPassenger = (p: number, passenger: Passenger) =>
     saveForm({ ...form, passengers: form.passengers.with(p, passenger) });
-  const setContact = (field: keyof Contact, value: string) =>
-    saveForm({ ...form, contact: { ...form.contact, [field]: value } });
 
   function next() {
     const first = Object.keys(travellerProblems(form!, booking))[0];
@@ -133,57 +128,12 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
           ),
       )}
 
-      <Card labelledBy="kontakt" className="flex flex-col gap-4">
-        <h2 id="kontakt" className="text-section font-bold">
-          Kontaktperson
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {(
-            [
-              ["firstName", "Förnamn", "text", "given-name"],
-              ["lastName", "Efternamn", "text", "family-name"],
-              ["email", "E-post", "email", "email"],
-              ["phone", "Telefon", "tel", "tel"],
-            ] as const
-          ).map(([field, label, type, autoComplete]) => (
-            <TextField
-              key={field}
-              id={fieldIds.contact(field)}
-              label={label}
-              type={type}
-              autoComplete={autoComplete}
-              value={form.contact[field]}
-              error={error(fieldIds.contact(field))}
-              onChange={(value) => setContact(field, value)}
-            />
-          ))}
-          <TextField
-            id={fieldIds.contact("address")}
-            label="Adress"
-            autoComplete="street-address"
-            value={form.contact.address}
-            error={error(fieldIds.contact("address"))}
-            onChange={(value) => setContact("address", value)}
-            className="sm:col-span-2"
-          />
-        </div>
-      </Card>
-
-      <Card labelledBy="fragor" className="flex flex-col gap-4">
-        <h2 id="fragor" className="text-section font-bold">
-          Tre viktiga frågor
-        </h2>
-        {QUESTIONS.map((question, i) => (
-          <Checkbox
-            key={question}
-            id={fieldIds.question(i)}
-            label={question}
-            checked={form.checks[i] ?? false}
-            error={error(fieldIds.question(i))}
-            onChange={(checked) => saveForm({ ...form, checks: QUESTIONS.map((_, j) => (j === i ? checked : !!form.checks[j])) })}
-          />
-        ))}
-      </Card>
+      <ContactCard
+        contact={form.contact}
+        error={error}
+        onChange={(contact) => saveForm({ ...form, contact })}
+      />
+      <QuestionsCard checks={form.checks} error={error} onChange={(checks) => saveForm({ ...form, checks })} />
 
       <Card className="flex flex-col gap-3">
         <p className="flex flex-wrap items-baseline justify-between gap-2">
@@ -224,40 +174,12 @@ function PassengerCard({
       <h2 id={headingId} className="text-section font-bold">
         Passagerare {number}
       </h2>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <TextField
-          id={fieldIds.firstName(index)}
-          label="Förnamn"
-          value={passenger.firstName}
-          error={error(fieldIds.firstName(index))}
-          onChange={(firstName) => onChange({ ...passenger, firstName })}
-        />
-        <TextField
-          id={fieldIds.lastName(index)}
-          label="Efternamn"
-          value={passenger.lastName}
-          error={error(fieldIds.lastName(index))}
-          onChange={(lastName) => onChange({ ...passenger, lastName })}
-        />
-        <Field label="Ålder" htmlFor={fieldIds.age(index)} error={error(fieldIds.age(index))}>
-          <select
-            id={fieldIds.age(index)}
-            required
-            value={passenger.age}
-            aria-invalid={error(fieldIds.age(index)) ? true : undefined}
-            aria-describedby={error(fieldIds.age(index)) ? `${fieldIds.age(index)}-error` : undefined}
-            onChange={(e) => onChange({ ...passenger, age: e.target.value })}
-            className={fieldInputClass}
-          >
-            <option value="">Välj</option>
-            {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => String(MIN_AGE + i)).map((age) => (
-              <option key={age} value={age}>
-                {age} år
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
+      <PersonFields
+        index={index}
+        person={passenger}
+        error={error}
+        onChange={(person) => onChange({ ...passenger, ...person })}
+      />
       <Nerves
         id={`p${index}-nerver`}
         checked={passenger.nerves}
@@ -390,42 +312,5 @@ function Nerves({ id, checked, onChange }: { id: string; checked: boolean; onCha
         Flyget blir mindre spännande, men kostar {formatPrice(NERVES_PRICE)} mer
       </p>
     </div>
-  );
-}
-
-// Ett textfält med etikett och ett eventuellt fel under (R2, R5)
-function TextField({
-  id,
-  label,
-  value,
-  error,
-  onChange,
-  type = "text",
-  autoComplete = "off",
-  className = "",
-}: {
-  id: string;
-  label: string;
-  value: string;
-  error: string | null;
-  onChange: (value: string) => void;
-  type?: "text" | "email" | "tel";
-  autoComplete?: string;
-  className?: string;
-}) {
-  return (
-    <Field label={label} htmlFor={id} error={error} className={className}>
-      <input
-        id={id}
-        type={type}
-        required
-        autoComplete={autoComplete}
-        value={value}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        onChange={(e) => onChange(e.target.value)}
-        className={fieldInputClass}
-      />
-    </Field>
   );
 }

@@ -10,7 +10,7 @@ timestamp: 2026-10-26
 
 # Hitta ett charterresmål
 
-Under **Charter** finns resmålen: övergivna städer, industriplatser och kalla krigets lämningar. Du öppnar sidan med **Utforska charterresor** på startsidan. Att boka resorna kommer senare; än så länge tittar du på resmålen.
+Under **Charter** finns resmålen: övergivna städer, industriplatser och kalla krigets lämningar. Du öppnar sidan med **Utforska charterresor** på startsidan. Att boka en resa står i [Boka en charterresa](boka-charter.md).
 
 ## Söka
 
@@ -48,5 +48,7 @@ Sidan har ett stort foto med fotografens namn, licens och länk till bilden, och
 Texterna är på engelska: de är hämtade från vår samarbetspartner Gurras charter AB och är jobbiga att översätta. De bygger på Wikipedia, som står som källa vid fotokrediten.
 
 **Tillbaka till listan** tar dig tillbaka till samma sökning och val som du hade.
+
+Bredvid texten (under bilden på en mobil) finns formuläret **Sök resa** för att boka resan, se [Boka en charterresa](boka-charter.md).
 
 [Användarmanual](index.md)

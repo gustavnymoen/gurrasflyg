@@ -13,6 +13,7 @@ type Leg = "outbound" | "return";
 
 const LABELS: Record<Leg, string> = { outbound: "Utresa", return: "Hemresa" };
 const CALENDAR_ID = "date-calendar";
+const NO_TRIP_ERROR = "Det går ingen resa den dagen.";
 
 // Två månader bredvid varandra från Tailwinds lg (64rem), annars en.
 // Klasserna placerar kalendern: under fälten, på mobil i formulärets bredd.
@@ -31,11 +32,15 @@ export default function DatePicker({
   onChange,
   missing = {},
   className = "",
+  runs,
 }: {
   value: TripDates;
   onChange: (value: TripDates) => void;
   missing?: Partial<Record<Leg, string | null>>;
   className?: string;
+  // Charter (TRIP-014-R2): resan är alltid tur och retur, och bara dagar då en resa går går att
+  // välja eller skriva in. Utan runs gäller flygbokningens regler.
+  runs?: (leg: Leg, day: string) => boolean;
 }) {
   const [open, setOpen] = useState(false);
   // Fältet kalendern väljer för
@@ -122,8 +127,10 @@ export default function DatePicker({
       return;
     }
     const outbound = leg === "return" ? (value.outbound ?? undefined) : undefined;
-    const { date, error } = readDate(texts[leg], new Date(), outbound);
-    if (!date) {
+    const read = readDate(texts[leg], new Date(), outbound);
+    const { date } = read;
+    const error = read.error ?? (date && runs && !runs(leg, date) ? NO_TRIP_ERROR : null);
+    if (!date || error) {
       if (chosen) onChange({ ...value, [leg]: null });
       setErrors((e) => ({ ...e, [leg]: error }));
       return;
@@ -252,7 +259,8 @@ export default function DatePicker({
             focusedDay={tabbableDay([focusedDay, value[active], range.min], shownMonth, count, range)}
             instruction={!value.roundTrip ? "Välj datum" : active === "outbound" ? "Välj utresa" : "Välj hemresa"}
             roundTrip={value.roundTrip}
-            onRoundTripChange={setRoundTrip}
+            onRoundTripChange={runs ? undefined : setRoundTrip}
+            isChoosable={runs && ((day) => runs(active, day))}
             onMonthChange={setMonth}
             onChoose={(day) => choose(active, day)}
             onFocusDay={focusDay}

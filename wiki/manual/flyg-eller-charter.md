@@ -19,7 +19,7 @@ Gurras Flyg har två delar som inte blandas: **flyg**, där du bokar ett av flyg
 1. Välj fliken **Charter** med musen, eller med piltangenterna när en flik har fokus.
 2. Läs den korta texten och tryck på **Utforska charterresor**.
 
-Du kommer då till sidan **Charter**, där du söker bland resmålen, se [Hitta ett charterresmål](charter-resmal.md). Att boka resorna kommer senare.
+Du kommer då till sidan **Charter**, där du söker bland resmålen, se [Hitta ett charterresmål](charter-resmal.md). Där väljer du ett resmål och bokar resan, se [Boka en charterresa](boka-charter.md).
 
 ## När du har börjat
 
@@ -33,6 +33,6 @@ Uppe till höger på sidorna för flygbokningen och på sidan Charter finns knap
 2. Tryck **Ja, avbryt** för att kasta bort din bokning och komma till startsidan, där du kan välja på nytt.
 3. Tryck **Nej, fortsätt** (eller **Esc**, eller klicka utanför rutan) för att stanna kvar. Allt du har valt finns då kvar.
 
-Är bokningen klar (sidan "Din bokning") finns ingen Avbryt; där tar **Gurras Flyg** dig direkt till startsidan.
+**Ja, avbryt** på sidorna för en charterresa efter sökningen tar dig i stället till sidan Charter. Är bokningen klar (sidan "Din bokning") finns ingen Avbryt; där tar **Gurras Flyg** dig direkt till startsidan.
 
 [Användarmanual](index.md)

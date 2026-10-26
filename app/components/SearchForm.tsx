@@ -3,13 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Airport } from "@/lib/db";
-import { MAX_TRAVELLERS, MIN_TRAVELLERS, searchUrl } from "@/lib/search";
+import { MIN_TRAVELLERS, searchUrl } from "@/lib/search";
 import Autocomplete from "./Autocomplete";
 import Button from "./Button";
 import Card from "./Card";
 import DatePicker, { type TripDates } from "./DatePicker";
 import Field, { fieldInputClass } from "./Field";
-import RoundButton from "./RoundButton";
+import TravellerCount from "./TravellerCount";
 
 const SAME_AIRPORT_ERROR = "Ajja bajja, du måste flyga någonstans!";
 // Fälten som måste vara ifyllda när besökaren trycker Sök (TRIP-010-R1)
@@ -92,29 +92,7 @@ export default function SearchForm({ initial }: { initial?: SearchFormValues }) 
           className="md:w-52"
         />
 
-        {/* Etiketten syns i rutan; gruppens namn säger vad siffran är */}
-        <Field label="Resenärer" className="md:w-44">
-          <div role="group" aria-label="Antal resenärer">
-            <span className="tabular-nums">{passengers}</span>
-            {/* Knapparna mitt i rutans höjd, till höger om etikett och siffra */}
-            <div className="absolute inset-y-0 right-3 flex items-center gap-2">
-              <RoundButton
-                label="Färre resenärer"
-                disabled={passengers <= MIN_TRAVELLERS}
-                onClick={() => setPassengers((p) => p - 1)}
-              >
-                −
-              </RoundButton>
-              <RoundButton
-                label="Fler resenärer"
-                disabled={passengers >= MAX_TRAVELLERS}
-                onClick={() => setPassengers((p) => p + 1)}
-              >
-                +
-              </RoundButton>
-            </div>
-          </div>
-        </Field>
+        <TravellerCount value={passengers} onChange={setPassengers} className="md:w-44" />
 
         {/* Till höger om Resenärer, på mobil under, i fältens höjd */}
         <Button type="submit" className="md:h-14.5 md:px-6">

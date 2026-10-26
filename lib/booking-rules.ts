@@ -261,20 +261,22 @@ function classProblem(form: BookingForm, leg: BookingLeg, legIndex: number) {
   return null;
 }
 
-// Det som måste stämma för att gå vidare till betalningen (R2, R5, R6)
-export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Problems {
-  const problems: Problems = {};
-  const add = (id: string, problem: string | null) => {
-    if (problem) problems[id] = problem;
-  };
-  form.passengers.forEach((p, i) => {
+// En resenär med namn och ålder, det flyg och charter har gemensamt
+export type Person = { firstName: string; lastName: string; age: string };
+
+type Add = (id: string, problem: string | null) => void;
+
+// Namn och ålder för varje resenär (R5), gemensamt för flyg och charter (TRIP-014-R6)
+export function passengerProblems(passengers: Person[], add: Add) {
+  passengers.forEach((p, i) => {
     add(fieldIds.firstName(i), textProblem(p.firstName, MAX_NAME, "Skriv passagerarens förnamn."));
     add(fieldIds.lastName(i), textProblem(p.lastName, MAX_NAME, "Skriv passagerarens efternamn."));
     add(fieldIds.age(i), isAge(p.age) ? null : "Välj passagerarens ålder.");
   });
-  legs.forEach((leg, i) => add(fieldIds.classes(i), classProblem(form, leg, i)));
+}
 
-  const { contact } = form;
+// Kontaktpersonen och de tre frågorna (R5, R6)
+export function contactProblems(contact: Contact, checks: boolean[], add: Add) {
   add(fieldIds.contact("firstName"), textProblem(contact.firstName, MAX_NAME, "Skriv ditt förnamn."));
   add(fieldIds.contact("lastName"), textProblem(contact.lastName, MAX_NAME, "Skriv ditt efternamn."));
   add(
@@ -289,41 +291,68 @@ export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Proble
   );
   add(fieldIds.contact("address"), textProblem(contact.address, MAX_ADDRESS, "Skriv din adress."));
 
-  QUESTIONS.forEach((_, i) => add(fieldIds.question(i), form.checks[i] ? null : "Kryssa i rutan för att gå vidare."));
+  QUESTIONS.forEach((_, i) => add(fieldIds.question(i), checks[i] ? null : "Kryssa i rutan för att gå vidare."));
+}
+
+// Samlar problemen i { fältets id: meddelande }, med det första först
+export function collectProblems(check: (add: Add) => void): Problems {
+  const problems: Problems = {};
+  check((id, problem) => {
+    if (problem) problems[id] = problem;
+  });
   return problems;
 }
 
+// Det som måste stämma för att gå vidare till betalningen (R2, R5, R6)
+export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Problems {
+  return collectProblems((add) => {
+    passengerProblems(form.passengers, add);
+    legs.forEach((leg, i) => add(fieldIds.classes(i), classProblem(form, leg, i)));
+    contactProblems(form.contact, form.checks, add);
+  });
+}
+
 // Det som måste stämma för att betala (R7)
-export function paymentProblems(form: BookingForm): Problems {
+export function paymentProblems(form: Pick<BookingForm, "payment">): Problems {
   return form.payment ? {} : { [fieldIds.payment]: "Välj hur du vill betala." };
 }
 
-const isAge = (age: string) => /^\d+$/.test(age) && Number(age) >= MIN_AGE && Number(age) <= MAX_AGE;
+export const isAge = (age: string) => /^\d+$/.test(age) && Number(age) >= MIN_AGE && Number(age) <= MAX_AGE;
 
 // Har formuläret rätt form för resan? Servern kontrollerar det innan något
 // annat, eftersom vad som helst kan skickas till den: rätt antal passagerare
 // och flyg, klasser som finns på planet, och bara tillägg som går att köpa i
 // passagerarens klass, högst 10 av varje (R3, R8).
 export function fitsTrip(form: BookingForm, legs: BookingLeg[], travellers: number) {
-  const text = (value: unknown) => typeof value === "string";
-  if (typeof form !== "object" || form === null) return false;
-  const { contact } = form;
   return (
-    text(form.requestId) &&
-    /^[\w-]{8,64}$/.test(form.requestId) &&
+    fitsForm(form) &&
     Array.isArray(form.passengers) &&
     form.passengers.length === travellers &&
     form.passengers.every(
       (p) =>
-        text(p.firstName) &&
-        text(p.lastName) &&
-        text(p.age) &&
+        fitsPerson(p) &&
         typeof p.nerves === "boolean" &&
         Array.isArray(p.legs) &&
         p.legs.length === legs.length &&
         legs.every((leg, i) => fitsLeg(leg, p.legs[i])),
-    ) &&
-    [contact?.firstName, contact?.lastName, contact?.email, contact?.phone, contact?.address].every(text) &&
+    )
+  );
+}
+
+const isText = (value: unknown) => typeof value === "string";
+
+// Namn och ålder är text (åldern kontrolleras av passengerProblems)
+export const fitsPerson = (p: Person) => isText(p.firstName) && isText(p.lastName) && isText(p.age);
+
+// Det som är lika i flyg och charter: ett id för bokningen, kontaktpersonen,
+// de tre frågorna och betalsättet har rätt form (TRIP-014-R8)
+export function fitsForm(form: { requestId: string; contact: Contact; checks: boolean[]; payment: Payment | null }) {
+  if (typeof form !== "object" || form === null) return false;
+  const { contact } = form;
+  return (
+    isText(form.requestId) &&
+    /^[\w-]{8,64}$/.test(form.requestId) &&
+    [contact?.firstName, contact?.lastName, contact?.email, contact?.phone, contact?.address].every(isText) &&
     Array.isArray(form.checks) &&
     form.checks.every((c) => typeof c === "boolean") &&
     (form.payment === null || PAYMENTS.some((p) => p.value === form.payment))
