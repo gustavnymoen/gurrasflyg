@@ -1,0 +1,25 @@
+%% TRIP-014 Search and book charter trips
+%% From a destination page to a booking number. Steps are labelled with requirement IDs.
+flowchart TD
+    A[Destination page /charter/id] --> B{Flights to the destination?}
+    B -- no --> N[Notice, no form: TRIP-013-R8]
+    B -- yes --> C[Form: airport, dates, travellers: R1, R2]
+    C -- date missing --> C1[Red message, focus on first: R1]
+    C1 --> C
+    C -- valid --> D[Results /resor: R3]
+    D -- address wrong --> D1[Sökningen saknar något + link to /charter: R1]
+    D --> E[Choose outbound, the return list opens: R3, R5]
+    E --> F[Choose return, Fortsätt: R5]
+    F --> G[Resenärer /boka: passengers, contact, questions, extras: R6, R7]
+    G -- something missing --> G1[Red fields, focus on first: R6]
+    G1 --> G
+    G --> H[Betala /boka/betala: payment method, price list: R8]
+    H -- no method --> H1[Välj hur du vill betala.: R8]
+    H1 --> H
+    H --> I{Server checks and prices from the database: R8}
+    I -- trip changed --> I1[Något i resan har ändrats: back to Resa]
+    I -- ok --> J[Booking CH-XXXXXX saved once per request id: R8]
+    J --> K[Summary /charter/bokad: R9]
+    D -. Avbryt .-> X[Ask, then /charter: R10]
+    G -. Avbryt .-> X
+    H -. Avbryt .-> X

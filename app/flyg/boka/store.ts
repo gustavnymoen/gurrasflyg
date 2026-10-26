@@ -8,6 +8,9 @@ import { useMemo, useSyncExternalStore } from "react";
 // och fram mellan stegen och försvinner när fliken stängs.
 export const FORM_KEY = "gurrasflyg-bokning";
 export const BOOKED_KEY = "gurrasflyg-bokad";
+// Charterbokningens formulär och sammanfattning (TRIP-014-R6, R9), skilda från flygbokningens
+export const CHARTER_FORM_KEY = "gurrasflyg-charter";
+export const CHARTER_BOOKED_KEY = "gurrasflyg-charter-bokad";
 
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => {
@@ -53,9 +56,8 @@ export function store(key: string, value: unknown) {
   for (const listener of listeners) listener();
 }
 
-// Kastar bort den pågående bokningen och sammanfattningen när besökaren
-// avbryter (TRIP-018-R3)
+// Kastar bort den pågående bokningen och sammanfattningen, för flyg och charter,
+// när besökaren avbryter (TRIP-018-R3, TRIP-014-R10)
 export function clearBooking() {
-  store(FORM_KEY, null);
-  store(BOOKED_KEY, null);
+  for (const key of [FORM_KEY, BOOKED_KEY, CHARTER_FORM_KEY, CHARTER_BOOKED_KEY]) store(key, null);
 }

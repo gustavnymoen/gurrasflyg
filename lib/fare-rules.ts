@@ -58,7 +58,7 @@ export function arrival(leg: Omit<Leg, "price" | "routeMinutes">, minutes: numbe
 // Tidpunkten (millisekunder, UTC) för en lokal tid i en tidszon. Första
 // gissningen läser tiden som UTC; skillnaden mot den lokala tiden där är
 // tidszonens förskjutning. Två varv, så att sommartid räknas rätt.
-function instant(date: string, time: string, timeZone: string) {
+export function instant(date: string, time: string, timeZone: string) {
   const asUtc = Date.parse(`${date}T${time}:00Z`);
   const offset = (ms: number) => {
     const local = localNow(timeZone, new Date(ms));

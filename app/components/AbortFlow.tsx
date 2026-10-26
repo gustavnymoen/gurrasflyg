@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { clearBooking } from "../flyg/boka/store";
-import { isInFlow } from "@/lib/flow";
+import { abortTarget, isInFlow } from "@/lib/flow";
 import Button from "./Button";
 import Dialog from "./Dialog";
 
@@ -12,8 +12,8 @@ import Dialog from "./Dialog";
 // flöde frågar Avbryt, ordmärket och Start i sidfoten först; på andra sidor är
 // ordmärket och Start vanliga länkar.
 
-// Frågan "Är du säker?": Ja, avbryt kastar bort bokningen och går till startsidan
-function AbortDialog({ onClose }: { onClose: () => void }) {
+// Frågan "Är du säker?": Ja, avbryt kastar bort bokningen och går till to
+function AbortDialog({ to, onClose }: { to: string; onClose: () => void }) {
   const router = useRouter();
 
   function abort() {
@@ -21,7 +21,7 @@ function AbortDialog({ onClose }: { onClose: () => void }) {
     // Stängs först, så att frågan inte ligger kvar öppen nästa gång besökaren
     // är i ett flöde
     onClose();
-    router.push("/");
+    router.push(to);
   }
 
   return (
@@ -46,7 +46,7 @@ export function AbortButton() {
       <Button variant="secondary" size="compact" onClick={() => setAsking(true)}>
         Avbryt
       </Button>
-      {asking && <AbortDialog onClose={() => setAsking(false)} />}
+      {asking && <AbortDialog to={abortTarget(pathname)} onClose={() => setAsking(false)} />}
     </>
   );
 }
@@ -67,7 +67,7 @@ export function StartLink({ className, children }: { className: string; children
       <button type="button" className={`${className} cursor-pointer`} onClick={() => setAsking(true)}>
         {children}
       </button>
-      {asking && <AbortDialog onClose={() => setAsking(false)} />}
+      {asking && <AbortDialog to="/" onClose={() => setAsking(false)} />}
     </>
   );
 }

@@ -72,6 +72,6 @@ ORDER BY t.departs;
 ## Related
 
 - Source files: [Flight timetables](data-flights.md), `data/airports.json`, `data/destinations.json`, the [destination pages](../../knowledge/index.md)
-- Read by: [GET /api/destinations](api-destinations.md) (`lib/travel.ts`)
+- Read by: [GET /api/destinations](api-destinations.md) (`lib/travel.ts`), and the charter search and booking (`lib/charter.ts`, [Charter booking](charter-booking.md)), which work out the arrival from `departs` and `duration_minutes`
 - Tests: `tests/TRIP-007-import-course-data.spec.ts`
 - Feature: card TRIP-007 (#11), `specs/TRIP-007-import-course-data/`

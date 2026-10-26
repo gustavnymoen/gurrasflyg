@@ -137,3 +137,12 @@ export async function getCharterDestination(id: string) {
     statusSource: source?.status_source ?? null,
   };
 }
+
+// Resmålets namn och flygplatsen man flyger till (samma regel som på resmålets sida, tripTo),
+// för charterbokningen. null om resmålet inte finns eller inga flyg går dit (TRIP-014).
+export async function getDestinationAirport(id: string) {
+  const [destinations, fares] = await Promise.all([getDestinations(), getFares()]);
+  const destination = destinations.find((d) => d.id === id);
+  const trip = destination && tripTo(destination, fares);
+  return destination && trip ? { id: destination.id, title: destination.title, airport: trip.airport.iata } : null;
+}
