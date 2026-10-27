@@ -5,7 +5,9 @@ description: Searches the airline's airports by name or IATA code, for the autoc
 resource: app/api/airports/route.ts
 feature: TRIP-001
 tags: [airports, search, flight-booking]
-timestamp: 2026-10-20
+generated:
+  by: claude
+  at: 2026-10-21T22:11:03+02:00
 ---
 
 # Request

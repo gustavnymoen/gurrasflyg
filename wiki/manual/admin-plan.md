@@ -5,7 +5,9 @@ description: Så lägger du till, ändrar och tar bort plan med klasser, antal p
 resource: app/admin/AircraftForm.tsx
 feature: TRIP-004
 tags: [admin, plan, klasser, platser, addons]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Plan
@@ -65,3 +67,5 @@ Ett plan som finns i en bokning går inte att ta bort: efter **Ja** visas **Du k
 | Den addonen finns redan i den klassen. | Addonen finns redan; välj en annan addon eller klass. |
 | Prisfaktorn måste vara ett tal från 1 till 10 med högst två decimaler, t.ex. 1,50. | Skriv en faktor från 1,00 till 10,00, med decimalkomma. |
 | Tidsfaktorn måste vara ett tal större än 0 och högst 10 med högst två decimaler, t.ex. 0,50. | Skriv en faktor större än 0 och högst 10,00, med decimalkomma. |
+
+Hur det fungerar tekniskt, på engelska: [Administration](../system/admin.md).

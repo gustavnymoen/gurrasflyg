@@ -5,7 +5,9 @@ description: The search form on a destination page, the results, the steps Resen
 resource: app/charter/
 feature: TRIP-014
 tags: [charter, booking, search, timetables, extras, payment, personal-data, accessibility, security]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T22:03:53+01:00
 ---
 
 # Charter booking

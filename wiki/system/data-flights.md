@@ -4,7 +4,9 @@ title: Flight timetables
 description: Sample flight timetables between Stockholm Arlanda or Copenhagen and the airports used by the destinations, in both directions, November 2026 to April 2027.
 resource: data/flights.json
 tags: [search, data, flights]
-timestamp: 2026-10-19
+generated:
+  by: claude
+  at: 2026-10-21T22:25:54+02:00
 ---
 
 # Flight timetables

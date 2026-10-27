@@ -5,7 +5,9 @@ description: How a change goes from a branch to the live site: the GitHub workfl
 resource: .github/workflows/
 feature: TECH-014
 tags: [workflow, pipeline, ci, deploy, testing]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-23T18:19:19+02:00
 ---
 
 # Pipeline

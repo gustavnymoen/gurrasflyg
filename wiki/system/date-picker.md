@@ -5,7 +5,9 @@ description: The date fields Utresa and Hemresa in the search form, the calendar
 resource: app/components/DatePicker.tsx
 feature: TRIP-009
 tags: [dates, calendar, search, flight-booking, accessibility]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-23T12:06:03+02:00
 ---
 
 # Date picker

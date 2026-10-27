@@ -37,3 +37,5 @@ No texts change.
 - **Dialog buttons are compact.** R5 says the admin buttons are compact; the dialogs are only on the admin page.
 - **The quiet "+ Lägg till" keeps its padding.** Removing the padding with `px-0` would be a second padding class on the same element, decided by the order in the CSS, not in the class list (`DESIGN.md`, rules).
 - **The collapsible card's heading and the star picker stay their own `<button>`s.** They are not buttons in the design's sense (a heading that folds, a radio group of stars); they use the tokens only.
+
+How it works today: [Design](../../wiki/system/design.md).

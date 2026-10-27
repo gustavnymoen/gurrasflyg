@@ -103,3 +103,5 @@ Table `reviews` (rating 1–5, title, author, body up to 255 characters, created
 
 - The carousel respects "reduce motion" in the operating system: the cards move without animation.
 - Cards not in focus are hidden from screen readers.
+
+How it works today: [Reviews](../../wiki/system/reviews.md).

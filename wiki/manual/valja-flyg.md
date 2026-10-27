@@ -5,7 +5,9 @@ description: Så ser du flygen för din sökning, sorterar dem och väljer utres
 resource: app/flyg/
 feature: TRIP-010
 tags: [resenär, sökresultat, flyg, pris, utresa, hemresa]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T10:34:11+01:00
 ---
 
 # Välja flyg

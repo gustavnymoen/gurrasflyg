@@ -5,7 +5,9 @@ description: The steps Resenärer and Betala after /flyg/plan, the summary with 
 resource: app/flyg/boka/
 feature: TRIP-012
 tags: [booking, passengers, add-ons, payment, personal-data, flight-booking, accessibility, security]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-26T22:03:53+01:00
 ---
 
 # Booking

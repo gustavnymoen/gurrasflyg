@@ -133,3 +133,5 @@ Tables `classes` (name unique, case-insensitive) and `addons` (name unique case-
 ## History
 
 - 2026-10-21, TECH-005: prices are whole kronor instead of öre (R6, R7, Data). Before, an add-on price could have öre.
+
+How it works today: [Administration](../../wiki/system/admin.md).

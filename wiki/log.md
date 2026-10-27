@@ -1,11 +1,8 @@
----
-type: Log
-title: Log
-description: Changes to the site and its documentation, newest first.
-timestamp: 2026-10-26
----
-
 # Log
+
+## 2026-10-27
+
+- TECH-024: new system pages for what was built before the project had its rules: [Administration](system/admin.md) (the admin page, classes, add-ons, aircraft, what is "in use", the route data), [Admin sign-in](system/admin-sign-in.md), [Reviews](system/reviews.md) and [Design](system/design.md) (a summary of `DESIGN.md`), linked from the system index, `architecture.md`, the manual pages and the old spec folders. The wiki follows the Open Knowledge Format v0.2 more closely: `generated: {by, at}` instead of `timestamp`, no frontmatter on `index.md` and `log.md` (only the root index has `okf_version`), and index entries that repeat each page's description. No change to the site.
 
 ## 2026-10-26
 

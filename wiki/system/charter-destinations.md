@@ -5,7 +5,9 @@ description: The page /charter with search and filters, the destination pages /c
 resource: app/charter/
 feature: TRIP-013
 tags: [charter, destinations, search, filters, prices, accessibility]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T15:38:12+01:00
 ---
 
 # Charter destinations

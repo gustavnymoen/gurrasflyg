@@ -4,7 +4,9 @@ title: Architecture
 description: The parts of Gurras Flyg, how they fit together, the database, environments and deploys.
 resource: app/
 tags: [architecture, database, deploy, admin]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Architecture
@@ -29,7 +31,7 @@ flowchart LR
 | `app/page.tsx` | Start page: background photo, heading, the tabs Flyg (search form) and Charter, and review carousel. `app/charter/` is `/charter` and `/charter/<id>` ([Charter destinations](charter-destinations.md)). The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
 | `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Switch`, `Card`, `ChoiceCard`, `Message`, `Stars`, `Wordmark`, `Tabs`, `Dialog`, `AbortFlow`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
-| `app/admin/` | Admin page (`page.tsx`), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. Whether a class, add-on or aircraft is in use is decided only by the delete functions in `lib/admin.ts`, inside the delete transaction; the page holds no such flag, since it can be old right after a change (TRIP-016). `login/` is the sign-in page. |
+| `app/admin/` | Admin page (`page.tsx`; see [Administration](admin.md)), its tables and forms, `admin-ui.tsx` with the admin's own pieces (collapsible card, icon buttons, see [`DESIGN.md`](../../DESIGN.md)), and `actions.ts` with the server actions that change data. Whether a class, add-on or aircraft is in use is decided only by the delete functions in `lib/admin.ts`, inside the delete transaction; the page holds no such flag, since it can be old right after a change (TRIP-016). `login/` is the sign-in page. |
 | `app/min-bokning/` | `/min-bokning`: find a booking by number and last name and cancel parts of it, with the server actions `lookUpAction` and `cancelAction` ([my booking](my-booking.md)). |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
@@ -41,7 +43,7 @@ flowchart LR
 | `lib/trip.ts`, `lib/fare-rules.ts` | The trip's address after the search (chosen flights, aircraft and classes); prices with factors, flight times, arrivals, which aircraft and numbers per class are possible. Without `server-only`. |
 | `lib/booking-rules.ts` | The booking's rules for both the page and the server: the form, the checks, the prices, what a change clears, the summary. Without `server-only`. |
 | `lib/bookings.ts` | Saving a booking in one write transaction, with everything checked and priced from the database (`createBooking`). |
-| `lib/reviews.ts`, `lib/review-rules.ts` | Reviews. The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
+| `lib/reviews.ts`, `lib/review-rules.ts` | Reviews ([Reviews](reviews.md)). The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database, with the "från" price and airport. |
 | `lib/destinations.ts`, `lib/destination-names.ts`, `lib/markdown.ts` | Charter search, filters, address, price rule, Swedish names and text parsing, without a database (usable in the browser). |
@@ -100,6 +102,8 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 | `012_cancellations.sql` | The cancellation tables and `cancellation_id` on seats and charter passengers (TRIP-023); only adds. |
 
 ## Admin sign-in
+
+See also [Admin sign-in](admin-sign-in.md).
 
 The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasflyg_admin` with an expiry time and an HMAC-SHA256 signature made with `ADMIN_SESSION_SECRET`. The cookie lasts until the browser closes, and is rejected after 8 hours. `proxy.ts` checks it before admin pages load, and every server action checks it again.
 

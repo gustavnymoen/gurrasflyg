@@ -5,7 +5,9 @@ description: Så söker du en charterresa från ett resmåls sida, väljer ut- o
 resource: app/charter/
 feature: TRIP-014
 tags: [resenär, charter, bokning, tillägg, betalning, bokningsnummer]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T22:03:53+01:00
 ---
 
 # Boka en charterresa

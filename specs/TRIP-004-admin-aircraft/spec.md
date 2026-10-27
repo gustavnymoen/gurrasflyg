@@ -139,3 +139,5 @@ Tables `aircraft`, `aircraft_capacity` (seats per class) and `aircraft_class_add
 ## Non-functional requirements
 
 - Enter in a seats field confirms that row; it doesn't save the whole aircraft.
+
+How it works today: [Administration](../../wiki/system/admin.md).

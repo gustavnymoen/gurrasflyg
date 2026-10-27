@@ -5,7 +5,9 @@ description: The menu, the page Min bokning where a traveller finds a flight or 
 resource: app/min-bokning/
 feature: TRIP-023
 tags: [booking, cancel, lottery, menu, personal-data, security, server-actions, accessibility]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T17:53:48+01:00
 ---
 
 # My booking

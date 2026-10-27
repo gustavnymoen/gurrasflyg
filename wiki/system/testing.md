@@ -4,7 +4,9 @@ title: Testing
 description: How Gurras Flyg is tested: which kind of check verifies what, when it is written, where it runs, and the rules and time budgets for the tests.
 feature: TECH-016
 tags: [workflow, testing, quality, sdd]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-26T15:45:38+01:00
 ---
 
 # Testing

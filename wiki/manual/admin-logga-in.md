@@ -5,7 +5,9 @@ description: Så loggar du in på och ut från adminsidan, och hur länge inlogg
 resource: app/admin/login/
 feature: TRIP-002
 tags: [admin, inloggning, lösenord]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Logga in som administratör
@@ -34,3 +36,5 @@ Klicka på **Logga ut** uppe till höger på adminsidan. Gör det alltid om du a
 **Jag fick meddelandet "Du är inte inloggad längre. Ladda om sidan och logga in."** Inloggningen har gått ut medan sidan var öppen. Ladda om sidan, logga in och gör ändringen igen.
 
 **Var ändrar jag lösenordet?** Lösenordet är inställningen `ADMIN_PASSWORD`, lokalt i `.env.local` och på Vercel under Settings → Environment Variables. Det kan inte ändras på sajten.
+
+Hur det fungerar tekniskt, på engelska: [Admin sign-in](../system/admin-sign-in.md).

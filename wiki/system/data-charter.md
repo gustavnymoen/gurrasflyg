@@ -5,7 +5,9 @@ description: The tables that hold the course's charter data (airports, destinati
 resource: db/migrations/005_charter.sql
 feature: TRIP-007
 tags: [charter, data, database, destinations, timetables]
-timestamp: 2026-10-21
+generated:
+  by: claude
+  at: 2026-10-26T14:42:56+01:00
 ---
 
 # Charter data in the database
