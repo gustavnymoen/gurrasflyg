@@ -5,7 +5,9 @@ description: Så fyller du i resenärerna, väljer tillägg, svarar på de tre v
 resource: app/flyg/boka/
 feature: TRIP-012
 tags: [resenär, bokning, tillägg, betalning, bokningsnummer]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-26T22:03:53+01:00
 ---
 
 # Boka resan

@@ -5,7 +5,9 @@ description: Why and how every feature and technical task is reviewed before it 
 resource: .claude/agents/code-reviewer.md
 feature: TECH-006
 tags: [workflow, code-review, quality]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-23T18:30:41+02:00
 ---
 
 # Code review

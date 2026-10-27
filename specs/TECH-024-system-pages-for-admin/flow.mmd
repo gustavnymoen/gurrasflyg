@@ -1,0 +1,9 @@
+%% TECH-024 System pages for the administration and reviews
+%% How the wiki is brought to the OKF v0.2 shape and checked (throwaway scripts, not committed).
+flowchart TD
+    A[New pages: admin, admin-sign-in, reviews, design] --> B[Links added in index, architecture, manual and old specs]
+    B --> C[Script: timestamp becomes generated, index pages lose frontmatter, entries repeat descriptions]
+    C --> D{Check script: frontmatter, links, anchors, reachable from wiki/index.md}
+    D -- problems --> E[Fix and run again]
+    E --> D
+    D -- none --> F[Code review against the code]

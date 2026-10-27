@@ -1,45 +1,41 @@
----
-type: Index
-title: System documentation
-description: How Gurras Flyg is built: architecture, data, API endpoints and features.
-timestamp: 2026-10-26
----
-
 # System documentation
 
 How the site works, for developers. Start with the architecture.
 
 ## Overview
 
-- [Architecture](architecture.md): the parts of the site, the database, environments and deploys.
-- [Pipeline](pipeline.md): how a change goes from a branch to the live site: the workflows, Vercel's deploys, which checks run where, and the branch protection on `main`.
-- [Testing](testing.md): how the site is tested: unit tests, browser tests, smoke tests, accessibility, security and code review, and the rules and time budgets for the tests.
-- [Code review](code-review.md): how every feature is reviewed before it is done.
-- [Accessibility](accessibility.md): how the site is kept at WCAG 2.2 AA: the axe check in the tests and the manual checklist.
-- [Design](../../DESIGN.md): the design "Loungen": tokens, shared components, rules and how to change them.
-- [Date picker](date-picker.md): the date fields Utresa and Hemresa, the calendar, and the date rules in `lib/dates.ts`.
-- [Search results](search-results.md): the Sök button, the results page `/flyg`, choosing flights, and the routes, departures and prices behind it.
-- [Aircraft and classes](aircraft-and-classes.md): the page `/flyg/plan`, choosing an aircraft and the travellers per class for each flight, and the price and time factors.
-- [Flows](flows.md): the tabs Flyg and Charter on the start page, one area at a time, and Avbryt.
-- [Charter destinations](charter-destinations.md): the page `/charter` with search and filters, the destination pages, and the price and airport rules.
-- [Booking](booking.md): the steps Resenärer and Betala, the summary, how the booking is checked and saved, and the booking tables.
-- [My booking](my-booking.md): the menu, the page Min bokning where a booking is found by its number and last name and cancelled in a 50/50 lottery, the guess limit and the 24 hour rule.
-- [Charter booking](charter-booking.md): the search form on a destination page, the results, the extras, Resenärer and Betala, the summary and the charter booking tables.
+- [Architecture](architecture.md): The parts of Gurras Flyg, how they fit together, the database, environments and deploys.
+- [Pipeline](pipeline.md): How a change goes from a branch to the live site: the GitHub workflows, Vercel's deploys, which checks run where, and the branch protection on main.
+- [Testing](testing.md): How Gurras Flyg is tested: which kind of check verifies what, when it is written, where it runs, and the rules and time budgets for the tests.
+- [Code review](code-review.md): Why and how every feature and technical task is reviewed before it is done, what the reviewer looks for and how strict the review is.
+- [Accessibility](accessibility.md): How the site is kept at WCAG 2.2 level AA: the axe check in the tests, the manual checklist, and when a feature must go through it.
+- [Design](design.md): How the design "Loungen" is built from tokens and shared components, the rules that keep it consistent and accessible, and where each part is described in DESIGN.md and tested.
+- [Date picker](date-picker.md): The date fields Utresa and Hemresa in the search form, the calendar under them, and the date rules they use.
+- [Search results](search-results.md): The flight search: the Sök button, the results page /flyg, its simulated search, flight cards, sorting and the steps for choosing flights, and the route and price data behind it.
+- [Aircraft and classes](aircraft-and-classes.md): The page /flyg/plan, where the traveller chooses an aircraft and the travellers per class for each chosen flight, and the price and time factors behind its prices, flight times and the "från" price.
+- [Flows](flows.md): How the start page separates flight booking and charter, why a traveller in one cannot reach the other, and how Avbryt throws away the booking.
+- [Charter destinations](charter-destinations.md): The page /charter with search and filters, the destination pages /charter/<id>, and the price, airport and notice for destinations without flights.
+- [Booking](booking.md): The steps Resenärer and Betala after /flyg/plan, the summary with the booking number, how the form is kept in the tab, how a booking is checked, priced and saved, and the booking tables.
+- [My booking](my-booking.md): The menu, the page Min bokning where a traveller finds a flight or charter booking by its number and the contact's last name and cancels parts of it in a 50/50 lottery, the guess limit, the 24 hour rule and the cancellation tables.
+- [Administration](admin.md): The admin page /admin where the administrator manages cabin classes, add-ons and aircraft (and reviews), how every change is checked and saved on the server, what counts as "in use", and the route data the admin no longer assigns aircraft to.
+- [Admin sign-in](admin-sign-in.md): How the administrator signs in and out, the signed session cookie, the three places that check it, and the limit on wrong passwords per IP address.
+- [Reviews](reviews.md): The carousel of reviews on the start page and the card Omdömen in admin where the administrator creates and deletes them, with the limits on length and how they are checked and stored.
+- [Charter booking](charter-booking.md): The search form on a destination page, the results, the steps Resenärer and Betala, the three extras, the summary, how a charter booking is checked and saved, and the charter booking tables.
 
 ## Data
 
-- [Flight timetables](data-flights.md): the course's sample timetables to and from ARN and CPH, in `data/flights.json`.
-- [Charter data](data-charter.md): the course data in the database: airports, destinations, pages, photo credits and timetables.
+- [Flight timetables](data-flights.md): Sample flight timetables between Stockholm Arlanda or Copenhagen and the airports used by the destinations, in both directions, November 2026 to April 2027.
+- [Charter data](data-charter.md): The tables that hold the course's charter data (airports, destinations, pages, photo credits and timetables), how they are generated from the course files, and their rules.
 
 ## API endpoints
 
-- [GET /api/airports](api-airports.md): airport search for the search form (flight booking).
-- [GET /api/destinations](api-destinations.md): all destinations from the course data (charter).
-- `GET /api/destination-search?q=`: up to five destinations for the search field on `/charter`, see [Charter destinations](charter-destinations.md).
+- [GET /api/airports](api-airports.md): Searches the airline's airports by name or IATA code, for the autocomplete in the search form.
+- [GET /api/destinations](api-destinations.md): Returns all destinations with their location, category, access, airports and photo.
+- `GET /api/destination-search?q=`: up to five destinations for the search field on `/charter`, described on the Charter destinations page above.
 
 ## Features
 
-- TRIP-023: a menu in the header and the page `/min-bokning`; see [My booking](my-booking.md).
+
 Each feature's requirements and how they were verified are in `specs/<feature>/`:
 
 | Feature | Area | Folder |

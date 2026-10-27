@@ -5,7 +5,9 @@ description: Så fyller du i sökformuläret på startsidan – flygplatser, utr
 resource: app/components/SearchForm.tsx
 feature: TRIP-001, TRIP-009, TRIP-010
 tags: [resenär, sök, flygplats, datum, kalender, startsida]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-26T11:10:10+01:00
 ---
 
 # Söka flyg

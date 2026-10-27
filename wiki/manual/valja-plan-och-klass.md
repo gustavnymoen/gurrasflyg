@@ -5,7 +5,9 @@ description: Så väljer du, ett flyg i taget, plan och hur många resenärer so
 resource: app/flyg/plan/
 feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012
 tags: [resenär, plan, klass, pris, flygtid, ankomst]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-24T20:12:51+02:00
 ---
 
 # Välja plan och klass

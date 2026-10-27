@@ -5,7 +5,9 @@ description: The page /flyg/plan, where the traveller chooses an aircraft and th
 resource: app/flyg/plan/
 feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012
 tags: [aircraft, classes, prices, flight-time, factors, flight-booking, admin, accessibility]
-timestamp: 2026-10-24
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Aircraft and classes
@@ -14,7 +16,7 @@ After choosing flights on [the results page](search-results.md), the traveller p
 
 ## Factors
 
-Every aircraft has a **price factor** (1,00–10,00) and a **time factor** (more than 0, at most 10,00), and every class a **price factor** (1,00–10,00), set in admin. They are stored as percent in whole numbers (1,20 = 120), in `aircraft.price_percent`, `aircraft.time_percent` and `classes.price_percent` (migration `008_factors.sql`):
+Every aircraft has a **price factor** (1,00–10,00) and a **time factor** (more than 0, at most 10,00), and every class a **price factor** (1,00–10,00), set in admin ([Administration](admin.md)). They are stored as percent in whole numbers (1,20 = 120), in `aircraft.price_percent`, `aircraft.time_percent` and `classes.price_percent` (migration `008_factors.sql`):
 
 - **Price per person** in a class on an aircraft = the departure's price × the aircraft's price factor × the class's price factor, rounded to whole kronor (`fare()` in `lib/fare-rules.ts`). Example: 1 000 kr × 1,20 × 1,50 = 1 800 kr.
 - **Flight time** = the route's flight time × the aircraft's time factor, rounded to whole minutes and at least 1 (`flightMinutes()`). Example: 140 min × 4,00 = 9 h 20 min.

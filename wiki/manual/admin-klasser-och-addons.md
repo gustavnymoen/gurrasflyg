@@ -5,7 +5,9 @@ description: Så skapar, ändrar och tar du bort kabinklasser och addons på adm
 resource: app/admin/ClassTable.tsx
 feature: TRIP-003
 tags: [admin, klasser, addons, pris]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Klasser och addons
@@ -48,3 +50,5 @@ Papperskorgen frågar alltid "Är du säker?". Används klassen eller addonen av
 | Addon "…" finns redan. | Välj ett annat namn. |
 | Priset måste vara 0 kr eller mer. | Skriv ett pris som inte är negativt. |
 | Ange priset i hela kronor. | Skriv bara siffror, till exempel 13 i stället för 12,50. |
+
+Hur det fungerar tekniskt, på engelska: [Administration](../system/admin.md).

@@ -54,3 +54,5 @@ New and changed texts for visitors:
 - **Messages:** `Alert` is replaced by `Message` everywhere, admin included, instead of keeping two versions.
 - **No "Sök flyg" button yet.** The search form has no search button; adding one that does nothing would change behaviour. TRIP-010 adds it with `Button`.
 - **axe leaves out the carousel's side cards** (`article[aria-hidden="true"]`): they are faded on purpose (TRIP-006-R1) and hidden from screen readers, and the same review is shown at full contrast in focus (WCAG 1.4.3 exception for decoration).
+
+How it works today: [Design](../../wiki/system/design.md).

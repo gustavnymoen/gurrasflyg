@@ -5,7 +5,9 @@ description: Så hittar du din flyg- eller charterbokning med bokningsnummer och
 resource: app/min-bokning/
 feature: TRIP-023
 tags: [resenär, bokning, avboka, lotteri, bokningsnummer, meny]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T17:53:48+01:00
 ---
 
 # Min bokning

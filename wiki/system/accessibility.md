@@ -4,7 +4,9 @@ title: Accessibility
 description: How the site is kept at WCAG 2.2 level AA: the axe check in the tests, the manual checklist, and when a feature must go through it.
 feature: TRIP-021
 tags: [workflow, accessibility, wcag, quality]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-26T17:53:48+01:00
 ---
 
 # Accessibility

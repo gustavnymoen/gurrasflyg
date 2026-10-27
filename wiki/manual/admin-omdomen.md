@@ -5,7 +5,9 @@ description: Så skapar och tar du bort omdömena som visas på startsidan.
 resource: app/admin/ReviewSection.tsx
 feature: TRIP-006, TRIP-021
 tags: [admin, omdömen]
-timestamp: 2026-10-23
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Omdömen i admin
@@ -37,3 +39,5 @@ Omdömen kan inte ändras. Ta bort det och skapa ett nytt.
 | Omdömet måste ha en rubrik. | Skriv en rubrik. |
 | Ange vem som lämnat omdömet. | Skriv personens namn. |
 | Skriv en text till omdömet. | Skriv en text. |
+
+Hur det fungerar tekniskt, på engelska: [Reviews](../system/reviews.md).

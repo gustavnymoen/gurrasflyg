@@ -8,8 +8,9 @@ export const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 // Räknar ett försök (som inte tagits bort av ett rätt lösenord) från adressen och säger om det är låst, annars null.
 // Försöket räknas innan lösenordet kontrolleras, i ett enda anrop, så att
 // många försök på en gång inte kan slinka förbi gränsen. Ett lyckat försök
-// tar bort räknaren (clearLoginAttempts). Är adressen låst räknas inte fler
-// försök, så låset förlängs inte av att någon fortsätter. Fönstret räknas
+// tar bort räknaren (clearLoginAttempts). Är adressen låst flyttas inte tiden för
+// senaste försöket (räknaren räknas upp ändå), så låset förlängs inte av att
+// någon fortsätter. Fönstret räknas
 // från senaste försöket som kontrollerades; är det utgånget börjar räknaren om.
 export async function registerLoginAttempt(ip: string, now = Date.now()): Promise<{ minutesLeft: number } | null> {
   // Gamla rader tas bort här, så att tabellen inte växer utan slut

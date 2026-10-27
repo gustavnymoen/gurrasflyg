@@ -4,7 +4,9 @@ title: GET /api/destinations
 description: Returns all destinations with their location, category, access, airports and photo.
 resource: app/api/destinations/route.ts
 tags: [destinations, data]
-timestamp: 2026-10-21
+generated:
+  by: claude
+  at: 2026-10-21T22:25:54+02:00
 ---
 
 # Request

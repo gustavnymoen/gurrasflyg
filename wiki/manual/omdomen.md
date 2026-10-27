@@ -5,7 +5,9 @@ description: Så bläddrar du bland resenärernas omdömen på startsidan.
 resource: app/components/ReviewCarousel.tsx
 feature: TRIP-006
 tags: [resenär, omdömen, startsida]
-timestamp: 2026-10-22
+generated:
+  by: claude
+  at: 2026-10-27T13:16:25+01:00
 ---
 
 # Omdömen på startsidan
@@ -28,3 +30,5 @@ Har du valt **minska rörelse** i datorns eller telefonens inställningar byter 
 ## Vanliga frågor
 
 **Kan jag skriva ett eget omdöme?** Inte på sajten än. Omdömena läggs in av Gurras Flyg.
+
+Hur det fungerar tekniskt, på engelska: [Reviews](../system/reviews.md).

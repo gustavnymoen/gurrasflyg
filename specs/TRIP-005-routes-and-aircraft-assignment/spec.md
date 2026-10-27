@@ -129,3 +129,5 @@ Acceptance criteria:
 ## Notes on testing
 
 R1–R5, R7, R8 and R9 are tested only against the local test database (`npm run test:local`): R1–R5 read the database directly, and R7–R9 would replace the real assignments on the live site.
+
+How it works today: [Administration](../../wiki/system/admin.md).

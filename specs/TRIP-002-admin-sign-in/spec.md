@@ -108,3 +108,5 @@ None. The sign-in is only stored in the cookie.
 - The password and signature are compared in constant time, so response times don't reveal how many characters were right.
 - The cookie is `Secure` in production and `SameSite=Lax`.
 - `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` are set in `.env.local` locally and in Vercel's environment variables in production, never in the code.
+
+How it works today: [Admin sign-in](../../wiki/system/admin-sign-in.md).

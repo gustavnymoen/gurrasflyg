@@ -1,10 +1,3 @@
----
-type: Index
-title: Användarmanual
-description: Hur man använder Gurras Flyg, för resenärer och administratörer.
-timestamp: 2026-10-26
----
-
 # Användarmanual
 
 Så här använder du Gurras Flyg.
@@ -13,21 +6,21 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 
 ## För resenärer
 
-- [Flyg eller charter](flyg-eller-charter.md): flikarna på startsidan och att avbryta.
-- [Söka flyg](soka-flyg.md): sökformuläret på startsidan.
-- [Välja flyg](valja-flyg.md): flygen för din sökning, sortering och att välja utresa och hemresa.
-- [Välja plan och klass](valja-plan-och-klass.md): plan för varje flyg, resenärer per klass, priser, flygtider och ankomst.
-- [Boka resan](boka-resan.md): resenärer, tillägg, kontaktperson, betalning och bokningsnumret.
-- [Hitta ett charterresmål](charter-resmal.md): söka och filtrera resmålen och läsa om ett resmål.
-- [Boka en charterresa](boka-charter.md): söka resor från ett resmåls sida, välja ut- och hemresa, tillägg, betalning och bokningsnumret.
-- [Min bokning](min-bokning.md): menyn, hitta sin bokning med bokningsnummer och efternamn, avboka delar av den och lotteriet om pengarna.
-- [Omdömen på startsidan](omdomen.md): bläddra bland resenärernas omdömen.
+- [Flyg eller charter](flyg-eller-charter.md): Hur du väljer mellan flygbokning och charter på startsidan, och hur du avbryter och börjar om.
+- [Söka flyg](soka-flyg.md): Så fyller du i sökformuläret på startsidan – flygplatser, utresa och hemresa, antal resenärer – och söker.
+- [Välja flyg](valja-flyg.md): Så ser du flygen för din sökning, sorterar dem och väljer utresa och hemresa.
+- [Välja plan och klass](valja-plan-och-klass.md): Så väljer du, ett flyg i taget, plan och hur många resenärer som sitter i varje klass, och ser vad resan kostar och hur lång tid den tar.
+- [Boka resan](boka-resan.md): Så fyller du i resenärerna, väljer tillägg, svarar på de tre viktiga frågorna, betalar och får ditt bokningsnummer.
+- [Hitta ett charterresmål](charter-resmal.md): Så söker och filtrerar du bland charterresmålen, och vad du ser på ett resmåls sida.
+- [Boka en charterresa](boka-charter.md): Så söker du en charterresa från ett resmåls sida, väljer ut- och hemresa, fyller i resenärerna, väljer tillägg, betalar och får ditt bokningsnummer.
+- [Min bokning](min-bokning.md): Så hittar du din flyg- eller charterbokning med bokningsnummer och efternamn och avbokar delar av den, och hur lotteriet om pengarna fungerar.
+- [Omdömen på startsidan](omdomen.md): Så bläddrar du bland resenärernas omdömen på startsidan.
 
 ## För administratörer
 
-- [Logga in som administratör](admin-logga-in.md)
-- [Klasser och addons](admin-klasser-och-addons.md)
-- [Plan](admin-plan.md)
-- [Omdömen i admin](admin-omdomen.md)
+- [Logga in som administratör](admin-logga-in.md): Så loggar du in på och ut från adminsidan, och hur länge inloggningen gäller.
+- [Klasser och addons](admin-klasser-och-addons.md): Så skapar, ändrar och tar du bort kabinklasser och addons på adminsidan.
+- [Plan](admin-plan.md): Så lägger du till, ändrar och tar bort plan med klasser, antal platser och addons per klass.
+- [Omdömen i admin](admin-omdomen.md): Så skapar och tar du bort omdömena som visas på startsidan.
 
 [Wiki](../index.md)

@@ -5,7 +5,9 @@ description: Hur du väljer mellan flygbokning och charter på startsidan, och h
 resource: app/page.tsx
 feature: TRIP-018
 tags: [resenär, startsida, flikar, charter, avbryta]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T14:42:56+01:00
 ---
 
 # Flyg eller charter

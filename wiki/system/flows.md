@@ -5,7 +5,9 @@ description: How the start page separates flight booking and charter, why a trav
 resource: app/components/AbortFlow.tsx
 feature: TRIP-018
 tags: [start page, tabs, charter, flow, dialog, sessionStorage]
-timestamp: 2026-10-26
+generated:
+  by: claude
+  at: 2026-10-26T17:53:48+01:00
 ---
 
 # Flows
