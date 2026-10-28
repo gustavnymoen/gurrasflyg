@@ -1,0 +1,13 @@
+%% TECH-025 Rate limit on public flows
+%% A request to a public flow is counted per IP address before anything is checked.
+flowchart TD
+    A[Betala or an API call] --> B{x-forwarded-for?}
+    B -- no, local run --> G[Check and save or read as before]
+    B -- yes --> C[registerAttempt: count in login_attempts]
+    C --> D{Over the limit?}
+    D -- no --> G
+    D -- "yes, Betala (R1)" --> E["För många försök. Försök igen om N minuter."]
+    D -- "yes, API route (R3)" --> F["429 with Retry-After"]
+    A --> H{"query longer than 1 000? (R4)"}
+    H -- yes --> I[Refused as changed, nothing counted or read]
+    H -- no --> B

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { weekdayOf } from "../lib/charter-rules";
 import { addDays, toDateString } from "../lib/dates";
 
 // True when the tests run against the local test server (npm run test:local),
@@ -244,6 +245,14 @@ export async function chooseAirport(page: Page, field: "Från" | "Till", text: s
 
 // A date some days from today, as "YYYY-MM-DD" in local time
 export const daysFromToday = (days: number) => addDays(toDateString(new Date()), days);
+
+// The first Monday at least a week ahead, and not before the charter timetables start on 1 November,
+// with a Saturday the same week to come home on (TRIP-014)
+export function charterTripDays() {
+  let monday = daysFromToday(7) < "2026-11-02" ? "2026-11-02" : daysFromToday(7);
+  while (weekdayOf(monday) !== "Mon") monday = addDays(monday, 1);
+  return { monday, saturday: addDays(monday, 5) };
+}
 
 // Opens a results page without waiting the simulated 1–4 seconds (TRIP-010-R3):
 // the browser's clock is faked, and moved forward once the search has started

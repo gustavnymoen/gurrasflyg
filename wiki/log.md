@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-28
+
+- TECH-025: new page [Rate limits](system/rate-limits.md). Betala (flight and charter) is limited to 10 presses in 15 minutes per IP address and the three API routes to 60 calls a minute each (status 429 with `Retry-After`); the sign-in and Min bokning limits are unchanged but share the new helper. The booking actions refuse a trip address over 1 000 characters. Updated the booking, API, My booking, Admin sign-in and architecture pages and the manual's Betala sections.
+
 ## 2026-10-27
 
 - TECH-024: new system pages for what was built before the project had its rules: [Administration](system/admin.md) (the admin page, classes, add-ons, aircraft, what is "in use", the route data), [Admin sign-in](system/admin-sign-in.md), [Reviews](system/reviews.md) and [Design](system/design.md) (a summary of `DESIGN.md`), linked from the system index, `architecture.md`, the manual pages and the old spec folders. The wiki follows the Open Knowledge Format v0.2 more closely: `generated: {by, at}` instead of `timestamp`, no frontmatter on `index.md` and `log.md` (only the root index has `okf_version`), and index entries that repeat each page's description. No change to the site.

@@ -7,7 +7,7 @@ feature: TRIP-001
 tags: [airports, search, flight-booking]
 generated:
   by: claude
-  at: 2026-10-21T22:11:03+02:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Request
@@ -37,6 +37,8 @@ Status 200 with a JSON array of at most 5 airports from the table `airports` who
 ```
 
 `%` and `_` in `q` are matched literally, not as SQL wildcards.
+
+More than 60 calls in a minute from one IP address are answered with status 429, a `Retry-After` header and `{ "error": "För många anrop. Försök igen om N sekunder." }` (TECH-025, [Rate limits](rate-limits.md)).
 
 # Related
 

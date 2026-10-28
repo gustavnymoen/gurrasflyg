@@ -4,15 +4,21 @@
 // som helst, så allt kontrolleras igen här och i createCharterBooking, och
 // priserna räknas från databasen.
 
+import { MAX_QUERY_LENGTH } from "@/lib/booking-rules";
 import { CharterBookingError, CHANGED, createCharterBooking } from "@/lib/charter-bookings";
 import { type CharterForm, type CharterSummary, charterSummary, parseCharterSearch, parseChoice } from "@/lib/charter-rules";
+import { bookingLimitError } from "@/lib/flow-limits";
 import { getDestinationAirport } from "@/lib/travel";
 
 export type CharterBookResult = { ok: true; summary: CharterSummary } | { ok: false; error: string };
 
 // id är resmålet, query resans adress efter "?", form det besökaren fyllt i
 export async function bookCharterAction(id: string, query: string, form: CharterForm): Promise<CharterBookResult> {
-  if (typeof id !== "string" || typeof query !== "string") return { ok: false, error: CHANGED };
+  if (typeof id !== "string" || typeof query !== "string" || query.length > MAX_QUERY_LENGTH) {
+    return { ok: false, error: CHANGED };
+  }
+  const limited = await bookingLimitError();
+  if (limited) return { ok: false, error: limited };
   const params = Object.fromEntries(new URLSearchParams(query));
   const search = parseCharterSearch(params);
   const destination = search ? await getDestinationAirport(id) : null;

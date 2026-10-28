@@ -7,7 +7,7 @@ feature: TRIP-014
 tags: [resenär, charter, bokning, tillägg, betalning, bokningsnummer]
 generated:
   by: claude
-  at: 2026-10-26T22:03:53+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Boka en charterresa
@@ -55,7 +55,7 @@ Tryck **Till betalning** när allt är ifyllt. Saknas något blir fältet rött 
 
 ## Betala
 
-Välj **Cash till piloten** eller **Vi hämtar pengarna hos dig** (ingen riktig betalning görs) och tryck **Betala**. Under **Att betala** ser du hur summan delas upp: bränsle, mutor, diverse ospecificerade avgifter, försäkring och skatt (0 %). Luftrummet stänger vi bara för våra egna plan, så i charter går de pengarna till mutorna i stället. Har du inte valt betalsätt står det "Välj hur du vill betala.". Vill du ändra något trycker du **Tillbaka till resenärerna** eller på ett steg överst. Har något i resan ändrats sedan du valde den, till exempel att en resa inte längre går, står det "Något i resan har ändrats sedan du valde den. Gå tillbaka till Resa och välj igen." och ingenting sparas.
+Välj **Cash till piloten** eller **Vi hämtar pengarna hos dig** (ingen riktig betalning görs) och tryck **Betala**. Under **Att betala** ser du hur summan delas upp: bränsle, mutor, diverse ospecificerade avgifter, försäkring och skatt (0 %). Luftrummet stänger vi bara för våra egna plan, så i charter går de pengarna till mutorna i stället. Har du inte valt betalsätt står det "Välj hur du vill betala.". Vill du ändra något trycker du **Tillbaka till resenärerna** eller på ett steg överst. Har något i resan ändrats sedan du valde den, till exempel att en resa inte längre går, står det "Något i resan har ändrats sedan du valde den. Gå tillbaka till Resa och välj igen." och ingenting sparas. Trycker du **Betala** mer än 10 gånger på 15 minuter står det "För många försök. Försök igen om N minuter.". Vänta så många minuter som det står och försök igen.
 
 ## Bokningen är klar
 

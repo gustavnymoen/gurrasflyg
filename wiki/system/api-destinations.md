@@ -6,7 +6,7 @@ resource: app/api/destinations/route.ts
 tags: [destinations, data]
 generated:
   by: claude
-  at: 2026-10-21T22:25:54+02:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Request
@@ -17,7 +17,7 @@ No parameters.
 
 # Response
 
-Status 200 with a JSON array of all destinations, sorted by `id`. The destinations are read from the database ([Charter data](data-charter.md)), which is imported from the course data; the response is the same as `data/destinations.json`. Each item has its fields:
+Status 200 with a JSON array of all destinations, sorted by `id`. The destinations are read from the database ([Charter data](data-charter.md)), which is imported from the course data; the response is the same as `data/destinations.json`. More than 60 calls in a minute from one IP address are answered with status 429 and a `Retry-After` header (TECH-025, [Rate limits](rate-limits.md)); the route reads the address, so it is not cached. Each item has its fields:
 
 | Field | Meaning |
 |---|---|

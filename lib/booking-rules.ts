@@ -18,6 +18,8 @@ export const MAX_AGE = 120;
 export const MAX_NAME = 100;
 export const MAX_ADDRESS = 200;
 export const MAX_EMAIL = 254;
+// Resans adress efter "?" i bokningsactions; en riktig är några hundra tecken
+export const MAX_QUERY_LENGTH = 1000;
 
 export type Payment = "cash" | "collect";
 export const PAYMENTS: { value: Payment; label: string }[] = [

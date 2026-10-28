@@ -7,7 +7,7 @@ feature: TRIP-002, TECH-013, TECH-017
 tags: [admin, sign-in, session, cookie, security, server-actions]
 generated:
   by: claude
-  at: 2026-10-27T13:20:47+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Admin sign-in
@@ -54,7 +54,7 @@ Three places check it, so no single one has to be perfect:
 `loginAction` (`app/admin/login/actions.ts`) does these steps in order:
 
 1. **No password set** (`ADMIN_PASSWORD` missing): locally it says what is missing; on the live site only "Inloggningen fungerar inte just nu.", so a visitor never sees the names of settings.
-2. **Count the attempt** for the visitor's IP address (the first entry of `x-forwarded-for`, which Vercel sets; `local` when there is none). More than 5 within 15 minutes gives "För många försök. Försök igen om N minuter." even with the right password.
+2. **Count the attempt** for the visitor's IP address (`clientIp()`: the first entry of `x-forwarded-for`, which Vercel sets; `local` when there is none) with the shared [rate limit](rate-limits.md). More than 5 within 15 minutes gives "För många försök. Försök igen om N minuter." even with the right password.
 3. **Compare** with `passwordMatches()`: both sides are hashed with SHA-256 and compared with `timingSafeEqual`, so the response time says nothing about how many characters were right or how long the password is.
 4. A wrong password is answered after **one second** ("Fel lösenord."), which makes guessing slow.
 5. The right password clears the count, sets the cookie and goes to `/admin`.

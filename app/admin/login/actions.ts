@@ -1,20 +1,15 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { clientIp } from "@/lib/client-ip";
 import { clearLoginAttempts, registerLoginAttempt } from "@/lib/login-limit";
+import { tooManyMessage } from "@/lib/rate-limit";
 import { createSessionToken, passwordMatches, SESSION_COOKIE } from "@/lib/session";
 
 export type LoginState = { error: string | null };
 
 const WRONG_PASSWORD_DELAY_MS = 1000;
-
-// Besökarens IP-adress. Vercel skriver själv x-forwarded-for med den riktiga
-// adressen; lokalt saknas den och alla räknas som "local".
-async function clientIp() {
-  const forwarded = (await headers()).get("x-forwarded-for");
-  return forwarded?.split(",")[0].trim().slice(0, 45) || "local";
-}
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const expected = process.env.ADMIN_PASSWORD;
@@ -28,10 +23,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
   }
   const ip = await clientIp();
   const locked = await registerLoginAttempt(ip);
-  if (locked) {
-    const { minutesLeft } = locked;
-    return { error: `För många försök. Försök igen om ${minutesLeft} ${minutesLeft === 1 ? "minut" : "minuter"}.` };
-  }
+  if (locked) return { error: tooManyMessage(locked.minutesLeft) };
   const password = String(formData.get("password") ?? "");
   if (!passwordMatches(password, expected)) {
     // En sekunds väntan gör det långsamt att gissa lösenordet

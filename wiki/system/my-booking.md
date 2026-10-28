@@ -7,7 +7,7 @@ feature: TRIP-023
 tags: [booking, cancel, lottery, menu, personal-data, security, server-actions, accessibility]
 generated:
   by: claude
-  at: 2026-10-26T17:53:48+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # My booking
@@ -37,7 +37,7 @@ flowchart LR
 
 The number and the last name are sent in the server action's request, never in the address, and the booking lives only in the page's state: a reload shows the empty form again.
 
-**The limit.** After 5 wrong attempts from one address within 15 minutes the next ones are refused for 15 minutes, even with the right number and last name ("För många försök. Försök igen om N minuter."). It is the same mechanism as the admin sign-in ([Architecture](architecture.md), TECH-017): `registerLoginAttempt` counts before the check, in `login_attempts`, but with the key `uppslag:<ip>` so the two are counted apart. A right lookup clears the count. The address is the first entry of `x-forwarded-for`.
+**The limit.** After 5 wrong attempts from one address within 15 minutes the next ones are refused for 15 minutes, even with the right number and last name ("För många försök. Försök igen om N minuter."). It is the same mechanism as the admin sign-in ([Rate limits](rate-limits.md), TECH-017): `registerLoginAttempt` counts before the check, in `login_attempts`, but with the key `uppslag:<ip>` so the two are counted apart. A right lookup clears the count. The address is the first entry of `x-forwarded-for`.
 
 ## The booking
 
