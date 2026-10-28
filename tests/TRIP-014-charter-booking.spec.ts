@@ -1,22 +1,16 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { type CharterChoice, type CharterSearch, paymentUrl, resultsUrl, travellersUrl, weekdayOf } from "../lib/charter-rules";
+import { type CharterChoice, type CharterSearch, paymentUrl, resultsUrl, travellersUrl } from "../lib/charter-rules";
 import { addDays, formatShort } from "../lib/dates";
-import { daysFromToday, expectNoA11yViolations, runsLocally } from "./helpers";
+import { charterTripDays, daysFromToday, expectNoA11yViolations, runsLocally } from "./helpers";
 import { amount, fillAll, inTestDb } from "./plan";
 
 // The rules behind the pages (the search and its address, which trips run, the arrival,
 // the extras, the prices, saving) are unit tests in lib/charter-rules.test.ts,
 // lib/charter.test.ts and lib/charter-bookings.test.ts; here the pages use them.
 
-// The first Monday at least a week ahead, and not before the timetables start on 1 November,
-// with a Saturday the same week to come home on. ARN to BER and back runs every day of the week
-// except that EW488 and EW489 (Eurowings) don't run on Saturdays and Sundays.
-function tripDays() {
-  let monday = daysFromToday(7) < "2026-11-02" ? "2026-11-02" : daysFromToday(7);
-  while (weekdayOf(monday) !== "Mon") monday = addDays(monday, 1);
-  return { monday, saturday: addDays(monday, 5) };
-}
-const { monday, saturday } = tripDays();
+// ARN to BER and back runs every day of the week except that EW488 and EW489 (Eurowings) don't run
+// on Saturdays and Sundays.
+const { monday, saturday } = charterTripDays();
 
 const search = (over: Partial<CharterSearch> = {}): CharterSearch => ({
   from: "ARN",

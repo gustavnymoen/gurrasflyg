@@ -20,6 +20,7 @@ How the site works, for developers. Start with the architecture.
 - [Administration](admin.md): The admin page /admin where the administrator manages cabin classes, add-ons and aircraft (and reviews), how every change is checked and saved on the server, what counts as "in use", and the route data the admin no longer assigns aircraft to.
 - [Admin sign-in](admin-sign-in.md): How the administrator signs in and out, the signed session cookie, the three places that check it, and the limit on wrong passwords per IP address.
 - [Reviews](reviews.md): The carousel of reviews on the start page and the card Omdömen in admin where the administrator creates and deletes them, with the limits on length and how they are checked and stored.
+- [Rate limits](rate-limits.md): The limits per IP address on sign-in, Min bokning, Betala and the API routes, how they are counted in the database, and what is not limited.
 - [Charter booking](charter-booking.md): The search form on a destination page, the results, the steps Resenärer and Betala, the three extras, the summary, how a charter booking is checked and saved, and the charter booking tables.
 
 ## Data

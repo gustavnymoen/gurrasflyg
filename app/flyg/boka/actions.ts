@@ -4,15 +4,18 @@
 // som helst, så allt kontrolleras igen här och i createBooking, och priserna
 // räknas från databasen.
 
-import { type BookingForm, type BookingSummary, bookingSummary } from "@/lib/booking-rules";
+import { type BookingForm, type BookingSummary, bookingSummary, MAX_QUERY_LENGTH } from "@/lib/booking-rules";
 import { BookingError, CHANGED, createBooking } from "@/lib/bookings";
 import { loadTrip } from "@/lib/flights";
+import { bookingLimitError } from "@/lib/flow-limits";
 
 export type BookResult = { ok: true; summary: BookingSummary } | { ok: false; error: string };
 
 // query är resans adress efter "?", form det besökaren fyllt i
 export async function bookAction(query: string, form: BookingForm): Promise<BookResult> {
-  if (typeof query !== "string") return { ok: false, error: CHANGED };
+  if (typeof query !== "string" || query.length > MAX_QUERY_LENGTH) return { ok: false, error: CHANGED };
+  const limited = await bookingLimitError();
+  if (limited) return { ok: false, error: limited };
   const trip = await loadTrip(Object.fromEntries(new URLSearchParams(query)));
   if ("problem" in trip) return { ok: false, error: CHANGED };
   try {

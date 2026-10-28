@@ -7,7 +7,7 @@ feature: TRIP-013
 tags: [charter, destinations, search, filters, prices, accessibility]
 generated:
   by: claude
-  at: 2026-10-26T15:38:12+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Charter destinations
@@ -18,7 +18,7 @@ generated:
 
 `app/charter/page.tsx` reads all destinations as cards (`getDestinationCards()` in `lib/travel.ts`) and hands them to `DestinationBrowser`, a client component. The browser filters them itself with the functions of `lib/destinations.ts`, so every choice answers at once.
 
-- **Search:** the field "Sök resmål" is the shared `Autocomplete` with `enterSearches`. Suggestions come from `GET /api/destination-search?q=` (at most five; titles starting with the text first). A suggestion opens its page; Enter or **Sök** lists every match. The search finds title, other names, locality, region, country (Swedish and English) and tags; every word must be somewhere, and case and accents don't matter.
+- **Search:** the field "Sök resmål" is the shared `Autocomplete` with `enterSearches`. Suggestions come from `GET /api/destination-search?q=` (at most five; titles starting with the text first; more than 60 calls a minute from one address get 429, see [Rate limits](rate-limits.md)). A suggestion opens its page; Enter or **Sök** lists every match. The search finds title, other names, locality, region, country (Swedish and English) and tags; every word must be somewhere, and case and accents don't matter.
 - **Filters:** Världsdel, Land, Tillträde and Kategori are `<select>`s. Each choice shows the count it would give with the other filters and the search (`filterOptions`). Land offers the countries of the chosen continent; for Antarktis it is unchanged, and changing the continent clears the country.
 - **Address:** `?sok=berlin&varldsdel=Europe&land=DE&tillgang=Open&kategori=Prison`, written with `window.history.pushState` and read with `useSearchParams`, so reload, sharing and Back work. A value that no destination has is ignored (`parseFilters`).
 - **Rensa** clears everything. With no match the page says "Inga destinationer matchar" and offers "Rensa sökning och filter".

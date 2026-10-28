@@ -7,7 +7,7 @@ feature: TRIP-012
 tags: [resenär, bokning, tillägg, betalning, bokningsnummer]
 generated:
   by: claude
-  at: 2026-10-26T22:03:53+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Boka resan
@@ -73,6 +73,7 @@ Du kan gå tillbaka till **Flyg** eller **Plan och klass** med stegen överst. �
 | Välj hur du vill betala. | Välj ett betalsätt. |
 | Något i resan har ändrats sedan du valde den. … | Ett flyg har gått eller ett plan har ändrats. Gå tillbaka till Plan och klass och välj igen. |
 | Fyll i resenärerna först. | Tryck Till resenärerna och fyll i allt. |
+| För många försök. Försök igen om N minuter. | Du har tryckt Betala mer än 10 gånger på 15 minuter. Vänta så många minuter som det står och försök igen. |
 
 **Hamnar mina uppgifter i adressen?** Nej. Det du fyller i sparas bara i webbläsarfliken tills du bokar, och försvinner när du stänger den.
 

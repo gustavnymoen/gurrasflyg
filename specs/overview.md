@@ -147,6 +147,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-029 | Price lists per area and beer from 18: charter's price list without closed airspace (its share on Mutor), "Diverse ospecificerade avgifter" in both, Öl only for passengers from 18 and removed when the age goes below | Shared | Done |
 | TRIP-023 | Manage my booking: a menu in the header, and Min bokning where a flight or charter booking is found by its number and the contact's last name and parts of it are cancelled in a 50/50 lottery told before the click, with a guess limit and the 24 hour rule | Shared | Done |
 | TECH-024 | System pages for the administration and reviews, the design page, and the wiki brought closer to the Open Knowledge Format v0.2 (`generated` instead of `timestamp`, no frontmatter on index pages) | Shared | Done |
+| TECH-025 | Rate limit on public flows: 10 presses of Betala per IP address in 15 minutes and 60 calls a minute to each API route (429 with `Retry-After`), one shared helper with the sign-in's limit, and a length limit on the trip address in the booking actions | Shared | Done |
 
 ## Decisions for charter
 

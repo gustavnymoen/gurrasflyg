@@ -7,7 +7,7 @@ feature: TRIP-012
 tags: [booking, passengers, add-ons, payment, personal-data, flight-booking, accessibility, security]
 generated:
   by: claude
-  at: 2026-10-26T22:03:53+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Booking
@@ -37,7 +37,7 @@ Till betalning runs `travellerProblems()`. Each problem marks its field (`aria-i
 
 `PaymentForm`: Din resa, "Hur vill du betala?" with **Cash till piloten** and **Vi hämtar pengarna hos dig** (radio buttons), "Att betala" with the price list under it (below), **Betala** and **Tillbaka till resenärerna**. Without a method, Betala gives "Välj hur du vill betala." and focus on the first method. Opened without filled-in travellers (directly, or after a booking) it says "Fyll i resenärerna först." with **Till resenärerna**.
 
-Betala calls the server action `bookAction(query, form)` (`app/flyg/boka/actions.ts`), shows "Betalar…" meanwhile, and shows its message if it fails. On success the summary is saved in the tab under `gurrasflyg-bokad`, the form is removed, and the page is replaced by `/flyg/bokad`.
+Betala calls the server action `bookAction(query, form)` (`app/flyg/boka/actions.ts`), shows "Betalar…" meanwhile, and shows its message if it fails. `bookAction` first refuses an address longer than `MAX_QUERY_LENGTH` (1 000 characters) as "ändrats", then counts the press against the [rate limit](rate-limits.md): the 11th within 15 minutes from one address gives "För många försök. Försök igen om N minuter." and saves nothing (TECH-025). On success the summary is saved in the tab under `gurrasflyg-bokad`, the form is removed, and the page is replaced by `/flyg/bokad`.
 
 ## The price list
 

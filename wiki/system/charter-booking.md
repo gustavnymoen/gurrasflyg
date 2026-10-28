@@ -7,7 +7,7 @@ feature: TRIP-014
 tags: [charter, booking, search, timetables, extras, payment, personal-data, accessibility, security]
 generated:
   by: claude
-  at: 2026-10-26T22:03:53+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Charter booking
@@ -54,7 +54,7 @@ Defined once, in `EXTRAS` in `lib/charter-rules.ts` (code, name, text, price per
 
 ## Betala
 
-`/charter/<id>/boka/betala` (`CharterPaymentForm`): Din resa with the extras, **Hur vill du betala?** (`PaymentMethodCard`: Cash till piloten, Vi hämtar pengarna hos dig), "Att betala" with charter's price list (`PayCard` and `PriceList` with `area="charter"`, TRIP-027, TRIP-029: no closed airspace, its 10 % on Mutor) and **Betala**. Opened without filled-in travellers it says "Fyll i resenärerna först.". Without a method: "Välj hur du vill betala." and focus on the first method. **Betala** calls the server action `bookCharterAction()` (`app/charter/actions.ts`), which reads the search and choices from the address and calls `createCharterBooking()`.
+`/charter/<id>/boka/betala` (`CharterPaymentForm`): Din resa with the extras, **Hur vill du betala?** (`PaymentMethodCard`: Cash till piloten, Vi hämtar pengarna hos dig), "Att betala" with charter's price list (`PayCard` and `PriceList` with `area="charter"`, TRIP-027, TRIP-029: no closed airspace, its 10 % on Mutor) and **Betala**. Opened without filled-in travellers it says "Fyll i resenärerna först.". Without a method: "Välj hur du vill betala." and focus on the first method. **Betala** calls the server action `bookCharterAction()` (`app/charter/actions.ts`), which refuses an address longer than 1 000 characters as "ändrats", counts the press against the [rate limit](rate-limits.md) (10 presses of Betala in 15 minutes from one address, TECH-025), reads the search and choices from the address and calls `createCharterBooking()`.
 
 ### Saving
 

@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-10-27T13:16:25+01:00
+  at: 2026-10-28T09:50:00+01:00
 ---
 
 # Architecture
@@ -109,8 +109,9 @@ The password is `ADMIN_PASSWORD`. On sign-in the server sets the cookie `gurrasf
 
 Security details (TECH-013):
 
-- The password is compared as SHA-256 hashes with `timingSafeEqual` (`passwordMatches` in `lib/session.ts`), so the response time reveals neither how many characters were right nor how long the password is. A wrong password is answered after one second, which makes guessing slow. After 5 attempts from one IP address within 15 minutes, the sixth is refused, even with the right password, for 15 minutes after the fifth (TECH-017). The attempts are counted before the password is checked, in the table `login_attempts` in the database (`lib/login-limit.ts`), since on Vercel each request may run in a new function. The address is the first entry of `x-forwarded-for`, which Vercel sets itself. A right password clears the address's count, and rows older than 15 minutes are deleted at every attempt, so addresses are not kept longer than needed.
+- The password is compared as SHA-256 hashes with `timingSafeEqual` (`passwordMatches` in `lib/session.ts`), so the response time reveals neither how many characters were right nor how long the password is. A wrong password is answered after one second, which makes guessing slow. After 5 attempts from one IP address within 15 minutes, the sixth is refused, even with the right password, for 15 minutes after the fifth (TECH-017). The attempts are counted before the password is checked, in the table `login_attempts` in the database (`lib/login-limit.ts`, on top of the shared `lib/rate-limit.ts`, see [Rate limits](rate-limits.md)), since on Vercel each request may run in a new function. The address is the first entry of `x-forwarded-for`, which Vercel sets itself. A right password clears the address's count, and rows older than 15 minutes are deleted at every attempt, so addresses are not kept longer than needed.
 - Min bokning (TRIP-023) shows personal data to anyone who knows a booking number and the contact's last name, so the lookup has the same kind of limit as the sign-in: 5 wrong attempts per address in 15 minutes, counted in `login_attempts` under the key `uppslag:<ip>`, apart from the admin's. A wrong number and a wrong last name give one and the same answer. The numbers and names travel in the body of a server action, never in the address or the logs, and the browser sends neither an amount nor the outcome of the lottery: the server recomputes both from the database in one write transaction.
+- Everything anyone can call is limited per IP address (TECH-025): 10 presses of Betala in 15 minutes and 60 calls a minute to each API route. See [Rate limits](rate-limits.md).
 - The session is stateless: signing out deletes the cookie in the browser, but a copied cookie stays valid until its 8 hours are up. To end every session at once, change `ADMIN_SESSION_SECRET` (or the version in `lib/session.ts`). Acceptable for this site, where the admin has no real data.
 - Server actions check their input at run time, not only by TypeScript types: ids must be integers (`requireId`), texts strings of at most 200 characters, and lists arrays.
 - Every response has security headers from `next.config.ts`: the site can't be shown in a frame on another site (`X-Frame-Options: DENY`, `frame-ancestors 'none'`), file types aren't guessed (`nosniff`), and other sites get only the origin as referrer.
