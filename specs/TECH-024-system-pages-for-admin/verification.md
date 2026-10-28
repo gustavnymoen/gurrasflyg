@@ -37,7 +37,7 @@ Within the budgets (30 s, 180 s, 5 s per test). The "before" slowest test was ov
 
 - [x] Tests: every check in the card's test plan is done; every requirement has a recorded manual check (no test can check a text against code); `npm run test:unit` and `npm run test:local` pass (`npm run test:time`)
 - [x] Test suite: within the time budgets, no tests added
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`: a line to the new system pages on five pages), system docs (`wiki/system/`) and `wiki/log.md` updated

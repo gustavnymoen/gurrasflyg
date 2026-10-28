@@ -38,7 +38,7 @@ Within the budgets (30 s, 180 s) except one test: `TRIP-012-R1 R4 R5 R6 R10` too
 
 - [x] Tests: every check in the card's test plan is done; every requirement has a test named after it; `npm run test:unit` and `npm run test:local` pass (`npm run test:time`)
 - [x] Test suite: within the time budgets (one run 0.3 s over the per-test budget, see above), total time grown by 0.2 s, and the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests)
 - [x] Accessibility: the new message on Betala passes `expectNoA11yViolations`; nothing else visitors see changes
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/`), system docs (`wiki/system/`, new page `rate-limits.md`) and `wiki/log.md` updated
