@@ -41,7 +41,7 @@ Where it went (measured by adding up Playwright's steps, see `solution.md`): tra
 
 - [x] Tests: every check in the card's test plan is done; every requirement is tested or has a recorded check; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time shrank by 21 %, and the helper added follows the quality rules in `wiki/system/testing.md`
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed on merge commit d8107f6, 2026-10-30
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built (R1 widened with `playwright.config.ts` on 2026-10-30), no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual (not applicable), system docs (`wiki/system/testing.md`, `pipeline.md`) and `wiki/log.md` updated
