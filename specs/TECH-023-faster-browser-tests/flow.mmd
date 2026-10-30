@@ -1,0 +1,12 @@
+%% TECH-023 Browser tests back inside the time budget
+%% How the time of a test is spent, and where it was cut.
+flowchart TD
+    A[Test starts] --> B[Open page]
+    B --> C{Element appears after a delay?}
+    C -- "Playwright polls 20 / 100 / 500 ms" --> D[Found up to 500 ms late]
+    C -- "appears(): polls every 25 ms (TECH-023-R2)" --> E[Found at once]
+    D --> F[Click a flight card]
+    E --> F
+    F --> G{Card animating?}
+    G -- "no-preference: wait for it" --> H[About 0,4 s]
+    G -- "reduced motion (default): no animation (TECH-023-R2)" --> I[Click at once]

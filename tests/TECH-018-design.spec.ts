@@ -413,19 +413,24 @@ test("TRIP-023-R4 and R6 and R9 a found booking: cards with the fields' border, 
   }
 });
 
-test("TRIP-020-R1 and R5 the plane takes off and hops, and the carousel slides", async ({ page }) => {
-  const started = await recordAnimations(page);
-  await page.goto("/");
-  await expect.poll(started).toEqual(expect.arrayContaining(["takeoff", "trail"]));
+test.describe("with motion", () => {
+  test.use({ reducedMotion: "no-preference" });
 
-  // With the pointer over the wordmark, the plane makes a small hop
-  await wordmark(page).hover();
-  await expect.poll(started).toContain("hop");
+  test("TRIP-020-R1 and R5 the plane takes off and hops, and the carousel slides", async ({ page }) => {
+    const started = await recordAnimations(page);
+    await page.goto("/");
+    await expect.poll(started).toEqual(expect.arrayContaining(["takeoff", "trail"]));
 
-  expect(await css(focusedReview(page), "transition-property")).toContain("transform");
+    // With the pointer over the wordmark, the plane makes a small hop
+    await wordmark(page).hover();
+    await expect.poll(started).toContain("hop");
+
+    expect(await css(focusedReview(page), "transition-property")).toContain("transform");
+  });
 });
 
 test.describe("with reduced motion", () => {
+  // The tests default to this (playwright.config.ts); kept to show what the test is about
   test.use({ reducedMotion: "reduce" });
 
   test("TRIP-020-R1 and R5 the wordmark doesn't move, and the carousel changes card without sliding", async ({

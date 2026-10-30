@@ -4,6 +4,9 @@ import { daysFromToday, expectNoA11yViolations, openResults } from "./helpers";
 // fillInDelay() itself is a unit test (lib/flight-rules.test.ts). The routes
 // have 5–7 departures a day, so R2's cap at the tenth card is tested there.
 
+// The cards move in, so these tests ask for motion (the tests default to reduced motion)
+test.use({ reducedMotion: "no-preference" });
+
 const roundTrip = `/flyg?fran=ARN&till=LHR&utresa=${daysFromToday(1)}&hemresa=${daysFromToday(7)}&resenarer=1`;
 
 const cards = (page: Page) => page.getByRole("listitem").filter({ has: page.getByRole("button", { name: /^\d\d:\d\d / }) });
