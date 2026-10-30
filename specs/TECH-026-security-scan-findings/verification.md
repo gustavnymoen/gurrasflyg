@@ -9,7 +9,7 @@ title: Security scan findings
 |---|---|---|---|---|
 | TECH-026-R1 | Unit tests `TECH-026-R1 …` in `lib/my-booking.test.ts` (four wrong guesses, a right lookup and a wrong one: the count is kept and the address locked, another address not; five right lookups in a row all work). Browser test `TECH-026-R1 a right lookup between wrong guesses does not stop the lock` in `tests/TECH-026-security-scan-findings.spec.ts` | local | Pass | 2026-10-30 |
 | TECH-026-R2 | Unit tests `TECH-026-R2 …` in `lib/search-text.test.ts` (1 000 characters cut to 100, short text trimmed, missing text empty). Browser test `TECH-026-R2 …` (1 000 characters to `/api/airports` gives 200 and a list) | local | Pass | 2026-10-30 |
-| TECH-026-R3 | Browser test `TECH-026-R3 …` (exact values of the three headers on a page and an API response; no `securitypolicyviolation` and no CSP console error on `/`, `/charter`, `/min-bokning` and `/admin/login`; an inline script runs, a script from another origin is blocked). The first smoke test checks the headers on the start page | local; preview and live after the merge | Pass locally; deployed checks not yet done | 2026-10-30 |
+| TECH-026-R3 | Browser test `TECH-026-R3 …` (exact values of the three headers on a page and an API response; no `securitypolicyviolation` and no CSP console error on `/`, `/charter`, `/min-bokning` and `/admin/login`; an inline script runs, a script from another origin is blocked). The first smoke test checks the headers on the start page | local, preview, live | Pass (the smoke test passed in Preview tests and in Live tests after the merge) | 2026-10-30 |
 | TECH-026-R4 | Manual: `git ls-files .vitest` is empty, `/.vitest/` is in `.gitignore`, and the README's step 2 says `chmod 600 .env.local` (documentation only, can't be meaningfully automated) | local | Pass | 2026-10-30 |
 | TECH-026-R5 | Code review: `wiki/system/admin-sign-in.md` has the section "Known limit: no server-side session" ([review.md](review.md)) | local | Pass | 2026-10-30 |
 
@@ -19,7 +19,7 @@ title: Security scan findings
 |---|---|---|---|---|
 | Unit tests | `lib/my-booking.test.ts` (the old "right lookup clears the count" test replaced by two R1 tests; the R12 test now uses an address per request, since nine lookups from one address would lock it) and the new `lib/search-text.test.ts`. `npm run test:unit`: 222 pass | local | Pass | 2026-10-30 |
 | Browser tests | `tests/TECH-026-security-scan-findings.spec.ts` (3 tests; the lookup test runs only locally). `tests/TRIP-023-my-booking.spec.ts` clears the count of the test server's address after each test, since right lookups no longer do. The full suite: 178 pass. Run on port 3199 with its own `HOME`, since another run held port 3100 | local | Pass | 2026-10-30 |
-| Smoke test | The headers are checked in `SMOKE-1` in `tests/smoke.spec.ts` (CSP contains `default-src 'self'`, Permissions-Policy exact, HSTS starts with `max-age=63072000; includeSubDomains`). Not run against a deployment yet | preview, live | Not checked | |
+| Smoke test | The headers are checked in `SMOKE-1` in `tests/smoke.spec.ts` (CSP contains `default-src 'self'`, Permissions-Policy exact, HSTS starts with `max-age=63072000; includeSubDomains`). Passed in Preview tests (before the merge) and in Live tests (run 2026-10-30 10:29 UTC, after the merge) | preview, live | Pass | 2026-10-30 |
 | Accessibility | Not applicable: no page changes; the existing axe checks pass | local | Pass | 2026-10-30 |
 | Security | `/security-review`: no findings at confidence 8 or higher. The review's security points: [review.md](review.md) | local | Pass | 2026-10-30 |
 | Code review | [review.md](review.md) | local | Passed | 2026-10-30 |
@@ -31,15 +31,15 @@ title: Security scan findings
 | | Tests | Total time | Slowest test |
 |---|---|---|---|
 | Before (TECH-025, `verification.md`) | 219 unit, 175 browser | 0.9 s + 167.2 s | 5.3 s |
-| After | 222 unit, 178 browser | 1.9 s + 204.9 s | 4.4 s, `TRIP-029-R3 R4` |
+| After (a quiet computer, `npm run test:time`) | 222 unit, 178 browser | 0.9 s + 177.1 s | 4.6 s, `TRIP-012-R1 R4 R5 R6 R10` |
 
-The browser total is 37 s (22 %) above the last record and over the 180 s budget. The run shared the computer with another project's Playwright run and a Vitest watcher (a first run, also under load, took 4.1 minutes), and the three new tests take about 3.5 s together, so the growth is load, not this change. To be re-measured on a quiet computer (`npm run test:time`), and in CI.
+Within the budgets (30 s, 180 s, 5 s per test). The total grew by 9.9 s (6 %) from the last record; the three new tests take about 3.5 s of it. An earlier run on the same day took 204.9 s while the computer was shared with another project's test run, so that number was load, not this change.
 
 ## Definition of Done
 
 - [x] Tests: every check in the card's test plan is done; every requirement has a test or a recorded manual check; `npm run test:unit` passes and the full browser suite passes
-- [ ] Test suite: browser time 204.9 s against the 180 s budget, measured under load (see above); to be measured again on a quiet computer
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Test suite: within the time budgets, total time grown by 6 %, and the new tests follow the quality rules
+- [x] Deployed, and the smoke tests pass against production (Live tests)
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements in the card match what was built, no open questions left; copied below as built; `solution.md` describes how it was built
 - [x] Manual: nothing visitors see changes, so `wiki/manual/` is unchanged; system docs (`wiki/system/`, new page `security-headers.md`) and `wiki/log.md` updated
