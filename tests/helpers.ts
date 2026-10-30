@@ -20,12 +20,23 @@ export function requireAdminPassword() {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 }
 
+// Waits for something that appears a few hundred milliseconds after a page
+// opens (the admin page's cards), checking
+// every 25 ms. Playwright's own waits back off to 100 and 500 ms between
+// checks, so for such an element a click or expect would wait up to 500 ms
+// longer than the element needs (TECH-023). It waits for the element to
+// exist, not to be visible; the click that follows checks that itself.
+export const appears = (locator: Locator) =>
+  expect.poll(() => locator.count(), { intervals: [25] }).toBeGreaterThan(0);
+
 export async function signIn(page: Page) {
   await page.goto("/admin/login");
   await page.getByLabel("Lösenord").fill(process.env.ADMIN_PASSWORD ?? "");
   await page.getByRole("button", { name: "Logga in" }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await expect(page.getByRole("heading", { name: "Admin", exact: true })).toBeVisible();
+  // The cards come a moment after the heading; the tests click in them first
+  await appears(page.getByRole("button", { name: "Lägg till plan" }));
 }
 
 // Clicks the trash can for a row and answers "Ja" in the "Är du säker?" dialog

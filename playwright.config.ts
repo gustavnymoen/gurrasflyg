@@ -31,13 +31,19 @@ export default defineConfig({
     baseURL,
     browserName: "chromium",
     locale: "sv-SE",
+    // The tests don't wait for the site's animations: Playwright waits for a
+    // card that is moving into place before it clicks it, about 0,4 s each time
+    // (TECH-023). The few tests of the motion itself ask for "no-preference".
+    reducedMotion: "reduce",
     // Sent with every request, so no bypass cookie is needed
     extraHTTPHeaders: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
-    // Screenshot of failing tests, for the report. A trace only locally: it
-    // saves every request's headers and typed values, and so the bypass secret
-    // and the admin password, which the runs against a deployed site use (TECH-013).
+    // Screenshot of failing tests, for the report. A trace only locally, and
+    // only when TRACE=1: recording one for every test costs about a tenth of
+    // the run time (TECH-023). It saves every request's headers and typed
+    // values, and so the bypass secret and the admin password, which the runs
+    // against a deployed site use (TECH-013).
     screenshot: "only-on-failure",
-    trace: local ? "retain-on-failure" : "off",
+    trace: local && process.env.TRACE === "1" ? "retain-on-failure" : "off",
   },
   webServer: local
     ? { command: "node scripts/test-server.mjs", url: baseURL, reuseExistingServer: false, timeout: 300_000 }

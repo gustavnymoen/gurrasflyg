@@ -7,7 +7,7 @@ feature: TECH-014
 tags: [workflow, pipeline, ci, deploy, testing]
 generated:
   by: claude
-  at: 2026-10-23T18:19:19+02:00
+  at: 2026-10-30T15:00:00+01:00
 ---
 
 # Pipeline
@@ -44,7 +44,7 @@ The diagram can be exported as a picture, for example with the Mermaid Live Edit
 - **Secrets:** Preview tests uses the repository secret `VERCEL_AUTOMATION_BYPASS_SECRET` (created in Vercel under Settings → Deployment Protection → Protection Bypass for Automation) to get past the sign-in Vercel puts on previews; nothing else in the pipeline uses a real secret. CI makes up a throw-away admin password for its test server. Secrets are given only to the step that runs the tests, and every workflow's `GITHUB_TOKEN` can only read.
 - **Playwright's image:** the test jobs run in `mcr.microsoft.com/playwright:v<version>-noble`, which already has Node, Chromium and its system libraries. Their shared setup (`.github/actions/setup-tests/`) runs `npm ci` and stops the job if the image's Playwright version differs from `@playwright/test`. When `@playwright/test` is updated, change the image's version in the three workflows to match.
 - **Actions** are pinned to commits, and Dependabot proposes new versions once a month (TECH-012).
-- **When tests fail,** the run saves Playwright's report with screenshots as an artifact. Traces are saved only for local runs, since a trace holds typed values and headers.
+- **When tests fail,** the run saves Playwright's report with screenshots as an artifact. Traces are saved only for local runs with `TRACE=1`, since a trace holds typed values and headers and recording one costs run time.
 - **A newer push** to the same branch cancels the older CI run, and a newer preview cancels the older Preview tests run.
 - **A skipped `live` check on pull requests** is expected: Vercel sends `deployment_status` for previews too, and Live tests skips everything that isn't production.
 

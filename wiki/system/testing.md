@@ -6,7 +6,7 @@ feature: TECH-016
 tags: [workflow, testing, quality, sdd]
 generated:
   by: claude
-  at: 2026-10-26T15:45:38+01:00
+  at: 2026-10-30T15:00:00+01:00
 ---
 
 # Testing
@@ -39,6 +39,7 @@ The project follows specification-driven development (see "How we work" in `spec
 - **Tool:** Playwright, one file per feature: `tests/<ID>-<name>.spec.ts` (the one exception is the look, below), each test named after its requirement, for example `test("TRIP-007-R2 shows only departures on the chosen date", …)`.
 - **Helpers:** `tests/helpers.ts` (sign-in, unique names, creating classes, add-ons and aircraft, colours, contrast, axe). Use them instead of copying. The tests of `/flyg/plan` (TRIP-011, TRIP-024, TRIP-026, and the booking after them) share `tests/plan.ts`: a worker fixture with the tests' own classes and aircraft, and the parts of the page (`openPlan()`, `chooseAircraft()`, `place()`, `done()`, `folded()`, …).
 - **The look** (TRIP-008, TRIP-020, TRIP-022) is checked in `tests/TECH-018-design.spec.ts`: one test per page and state, each named after every requirement it checks, so the page is loaded once for many checks. A new design check goes into the test for its page and state (a new page or state gets a new test there), not into a new file or a test of its own per CSS value. A design check stays a browser test, since it reads what the browser draws (computed colours, sizes, contrast, focus rings); a rule that needs no browser, such as a calculation or a token value read from a file, is a unit test.
+- **Waiting and motion (TECH-023):** the tests run with reduced motion (`reducedMotion: "reduce"` in `playwright.config.ts`), so the site's animations are off and Playwright does not wait for a moving card before it clicks it (about 0,4 s each). A test of the motion itself asks for `test.use({ reducedMotion: "no-preference" })` (TRIP-025, the plane in `TECH-018-design.spec.ts`); otherwise it would pass without testing anything. Playwright also checks in steps (a click after 0, 20, 100, 100, 500 ms; an `expect` after 100, 250, 500, 1000 ms), so something that appears 300 ms after the page opens is found after 700–850 ms. For such an element wait with `appears(locator)` from `tests/helpers.ts` (every 25 ms), as `signIn` does for the admin page's cards. No trace is recorded unless `TRACE=1` is set (`TRACE=1 npm run test:local`), since recording one for every test costs about a tenth of the run.
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
 - **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
 - **Combine by journey.** Tests that reach the same page or state are one test that goes on from where the last check left it (TECH-021), named after every requirement it checks (`TRIP-004-R1 R2 R7 R8 R9 …`), with a comment per requirement. A test of its own is for a page, viewport at load time or data the others must not see. A 320 px check resizes the window in the middle of a test (`page.setViewportSize`).
@@ -103,7 +104,7 @@ The test suite is checked with every change, so that it doesn't grow slower and 
 
 ## Time budgets
 
-From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s; on 2026-10-26, 148 tests, 145 s, slowest 3.7 s):
+From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s; on 2026-10-26, 148 tests, 145 s, slowest 3.7 s; on 2026-10-30, after TECH-023, 178 tests, 140 s, slowest 3.0 s):
 
 | What | Budget |
 |---|---|

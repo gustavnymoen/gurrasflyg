@@ -81,6 +81,8 @@ test("TRIP-013-R2 a choice shows how many destinations it gives, Antarctica leav
   const option = filter(page, "Tillträde").locator("option", { hasText: /^Öppen \(\d+\)$/ });
   const shown = Number((await option.innerText()).match(/\((\d+)\)/)![1]);
   await filter(page, "Tillträde").selectOption("Open");
+  // Wait for the list to change before reading it
+  await expect(heading(page, new RegExp(`^${shown} destination(er)?$`))).toBeVisible();
   expect(await resultCount(page)).toBe(shown);
   await page.goto("/charter");
   const before = await filter(page, "Land").locator("option").count();
