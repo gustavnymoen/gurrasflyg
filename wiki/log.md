@@ -1,5 +1,9 @@
 # Log
 
+## 2026-10-30
+
+- TECH-026: the security scan's findings. Min bokning no longer clears the guess count on a right lookup, so guesses can't be mixed with lookups of one's own booking; `/api/airports` cuts the search text to 100 characters like `/api/destination-search`; every response has a Content Security Policy (with `'unsafe-inline'`), a Permissions-Policy and HSTS (new page [Security headers](system/security-headers.md)); `.vitest/` is out of Git and the README tells the developer to run `chmod 600 .env.local`; the stateless admin sign-in is described as a known limit in [Admin sign-in](system/admin-sign-in.md). Nothing a visitor sees changes.
+
 ## 2026-10-28
 
 - TECH-025: new page [Rate limits](system/rate-limits.md). Betala (flight and charter) is limited to 10 presses in 15 minutes per IP address and the three API routes to 60 calls a minute each (status 429 with `Retry-After`); the sign-in and Min bokning limits are unchanged but share the new helper. The booking actions refuse a trip address over 1 000 characters. Updated the booking, API, My booking, Admin sign-in and architecture pages and the manual's Betala sections.

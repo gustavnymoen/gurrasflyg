@@ -244,12 +244,17 @@ test("TRIP-023-R3 after 5 wrong attempts the sixth is refused even with the righ
   expect(await mine.lookUpBooking(IP, flightCredentials, later)).toHaveProperty("booking");
 });
 
-test("TRIP-023-R3 a right lookup clears the address's count, and another address is not locked", async () => {
-  for (let i = 0; i < 4; i++) await mine.lookUpBooking(IP, { ...flightCredentials, lastName: "Fel" }, NOW);
+test("TECH-026-R1 a right lookup keeps the address's count, so alternating guesses and lookups still lock it, and another address is not locked", async () => {
+  const wrong = { ...flightCredentials, lastName: "Fel" };
+  for (let i = 0; i < 4; i++) await mine.lookUpBooking(IP, wrong, NOW);
   expect(await mine.lookUpBooking(IP, flightCredentials, NOW)).toHaveProperty("booking");
-  expect(await queryUnitDb("SELECT * FROM login_attempts WHERE ip = ?", [`uppslag:${IP}`])).toHaveLength(0);
-  for (let i = 0; i < 6; i++) await mine.lookUpBooking("203.0.113.8", { ...flightCredentials, lastName: "Fel" }, NOW);
-  expect(await mine.lookUpBooking(IP, flightCredentials, NOW)).toHaveProperty("booking");
+  expect(await queryUnitDb("SELECT * FROM login_attempts WHERE ip = ?", [`uppslag:${IP}`])).toHaveLength(1);
+  expect(await mine.lookUpBooking(IP, wrong, NOW)).toEqual({ locked: { minutesLeft: expect.any(Number) } });
+  expect(await mine.lookUpBooking("203.0.113.8", flightCredentials, NOW)).toHaveProperty("booking");
+});
+
+test("TECH-026-R1 a visitor who looks up their own booking a few times in a row stays under the limit", async () => {
+  for (let i = 0; i < 5; i++) expect(await mine.lookUpBooking(IP, flightCredentials, NOW)).toHaveProperty("booking");
 });
 
 test("TRIP-023-R3 the count is kept apart from the admin sign-in's", async () => {
@@ -325,7 +330,8 @@ test("TRIP-023-R12 a seat from another booking, one already cancelled, an empty 
     request("unit-g8", [1.5]),
     request("unit-g9", [ids.seats[1]], { requestId: "" }),
   ];
-  for (const r of refused) expect(await mine.cancelParts(IP, r, NOW, WIN)).toHaveProperty("error");
+  // Each from an address of its own: a right lookup no longer clears the count (TECH-026-R1), and nine would lock one
+  for (const [i, r] of refused.entries()) expect(await mine.cancelParts(`203.0.113.${100 + i}`, r, NOW, WIN)).toHaveProperty("error");
   expect(await cancellations()).toHaveLength(1);
   const cancelled = await queryUnitDb<{ id: number }>("SELECT id FROM booking_seats WHERE cancellation_id IS NOT NULL");
   expect(cancelled.map((s) => s.id)).toEqual([ids.seats[0]]);

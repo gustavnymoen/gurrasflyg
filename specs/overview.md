@@ -148,6 +148,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-023 | Manage my booking: a menu in the header, and Min bokning where a flight or charter booking is found by its number and the contact's last name and parts of it are cancelled in a 50/50 lottery told before the click, with a guess limit and the 24 hour rule | Shared | Done |
 | TECH-024 | System pages for the administration and reviews, the design page, and the wiki brought closer to the Open Knowledge Format v0.2 (`generated` instead of `timestamp`, no frontmatter on index pages) | Shared | Done |
 | TECH-025 | Rate limit on public flows: 10 presses of Betala per IP address in 15 minutes and 60 calls a minute to each API route (429 with `Retry-After`), one shared helper with the sign-in's limit, and a length limit on the trip address in the booking actions | Shared | Done |
+| TECH-026 | Security scan findings: a right Min bokning lookup no longer clears the guess count, the airport search text is cut to 100 characters, every response has a Content Security Policy, Permissions-Policy and HSTS, `.vitest/` is out of Git, and the stateless admin sign-in is documented as a known limit | Shared | Done |
 
 ## Decisions for charter
 

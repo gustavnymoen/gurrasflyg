@@ -3,11 +3,11 @@ type: API endpoint
 title: GET /api/airports
 description: Searches the airline's airports by name or IATA code, for the autocomplete in the search form.
 resource: app/api/airports/route.ts
-feature: TRIP-001
+feature: TRIP-001, TECH-026
 tags: [airports, search, flight-booking]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-10-30T12:00:00+01:00
 ---
 
 # Request
@@ -16,7 +16,7 @@ generated:
 
 | Parameter | Meaning |
 |---|---|
-| `q` | Text to search for. Leading and trailing spaces are ignored. |
+| `q` | Text to search for. Leading and trailing spaces are ignored, and only the first 100 characters are used (`searchText()` in `lib/search-text.ts`, shared with `/api/destination-search`; TECH-026-R2). |
 
 # Response
 

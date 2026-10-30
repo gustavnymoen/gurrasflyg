@@ -55,3 +55,6 @@ next-env.d.ts
 # designverktygens arbetsfiler (den godkända designtavlan ligger i specs/)
 /.impeccable/
 /.taste-skill/
+
+# vitest (lokala rapporter med sökvägar)
+/.vitest/
