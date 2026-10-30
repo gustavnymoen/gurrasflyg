@@ -3,11 +3,11 @@ type: Feature
 title: Admin sign-in
 description: How the administrator signs in and out, the signed session cookie, the three places that check it, and the limit on wrong passwords per IP address.
 resource: app/admin/login/
-feature: TRIP-002, TECH-013, TECH-017
+feature: TRIP-002, TECH-013, TECH-017, TECH-026
 tags: [admin, sign-in, session, cookie, security, server-actions]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-10-30T12:00:00+01:00
 ---
 
 # Admin sign-in
@@ -64,6 +64,10 @@ Three places check it, so no single one has to be perfect:
 `lib/login-limit.ts` counts attempts per IP address in the table `login_attempts` (migration `010_login_attempts.sql`): `ip`, `attempts` and `last_failed_at`. The attempt is counted **before** the password is checked, in one `INSERT … ON CONFLICT … RETURNING`, so many requests at once can't slip past the limit. Once an address is locked, `last_failed_at` stops moving, so continuing doesn't extend the lock. The window counts from the last counted attempt; old rows are deleted on every call so the table doesn't grow. The table is in the database, not in memory, since on Vercel each request may run in a server of its own.
 
 [My booking](my-booking.md) uses the same functions for its lookup, under the key `uppslag:<ip>`.
+
+## Known limit: no server-side session (TECH-026-R5)
+
+The sign-in is stateless. Logging out only deletes the cookie in the browser; the server keeps no record of the session. A cookie that was stolen or copied before the logout therefore works until it expires, 8 hours after sign-in. What would remove the limit is server-side sessions: a table of session ids that the proxy and the pages look up on every request, so that logging out (or the administrator, for all sessions at once) deletes the row. That is not built, because the site has one shared password and the admin has no personal data; per-user accounts and server-side sessions are out of scope until that changes. Until then, changing `ADMIN_SESSION_SECRET` ends every session.
 
 ## Decisions
 

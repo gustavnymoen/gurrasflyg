@@ -1,0 +1,9 @@
+%% TECH-026 Security scan findings
+%% The Min bokning lookup with the counter that a success no longer clears (R1).
+flowchart TD
+    A[Visitor sends number and last name] --> B[Count the attempt for the address]
+    B --> C{Over the limit?}
+    C -- yes --> D[Show the lock message]
+    C -- no --> E{Number and last name match?}
+    E -- no --> F[Show "Vi hittar ingen bokning"]
+    E -- yes --> G[Show the booking - the count is kept]

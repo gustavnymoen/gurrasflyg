@@ -118,6 +118,9 @@ test.describe("with a booking in the test database", () => {
   test.afterEach(async () => {
     if (seed) await removeSeed(seed);
     seed = undefined;
+    // A right lookup no longer clears the count (TECH-026-R1), so the lookups of a test without an
+    // address of its own (the test server sees ::1) are cleared here, or the tests after it get locked
+    await inTestDb((db) => db.execute({ sql: "DELETE FROM login_attempts WHERE ip = ?", args: ["uppslag:::1"] }));
   });
 
   test("TRIP-023-R2 R4 R5 a wrong number and a wrong last name give the same answer and keep the fields, an empty field is named, and a found booking is not in the address", async ({

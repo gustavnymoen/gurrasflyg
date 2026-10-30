@@ -23,7 +23,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 ## Getting started
 
 1. `npm install` installs the dependencies and downloads the browser Playwright uses (`scripts/postinstall.mjs`).
-2. Copy `.env.example` to `.env.local` and fill in `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET`.
+2. Copy `.env.example` to `.env.local` and fill in `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET`. Then close the file to other users of the computer: `chmod 600 .env.local`.
 3. `npm run dev` creates or updates the local database and starts the site on <http://localhost:3000>.
 
 ## Way of working

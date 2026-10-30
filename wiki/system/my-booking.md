@@ -3,11 +3,11 @@ type: Feature
 title: My booking
 description: The menu, the page Min bokning where a traveller finds a flight or charter booking by its number and the contact's last name and cancels parts of it in a 50/50 lottery, the guess limit, the 24 hour rule and the cancellation tables.
 resource: app/min-bokning/
-feature: TRIP-023
+feature: TRIP-023, TECH-026
 tags: [booking, cancel, lottery, menu, personal-data, security, server-actions, accessibility]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-10-30T12:00:00+01:00
 ---
 
 # My booking
@@ -37,7 +37,7 @@ flowchart LR
 
 The number and the last name are sent in the server action's request, never in the address, and the booking lives only in the page's state: a reload shows the empty form again.
 
-**The limit.** After 5 wrong attempts from one address within 15 minutes the next ones are refused for 15 minutes, even with the right number and last name ("För många försök. Försök igen om N minuter."). It is the same mechanism as the admin sign-in ([Rate limits](rate-limits.md), TECH-017): `registerLoginAttempt` counts before the check, in `login_attempts`, but with the key `uppslag:<ip>` so the two are counted apart. A right lookup clears the count. The address is the first entry of `x-forwarded-for`.
+**The limit.** After 5 wrong attempts from one address within 15 minutes the next ones are refused for 15 minutes, even with the right number and last name ("För många försök. Försök igen om N minuter."). It is the same mechanism as the admin sign-in ([Rate limits](rate-limits.md), TECH-017): `registerLoginAttempt` counts before the check, in `login_attempts`, but with the key `uppslag:<ip>` so the two are counted apart. A right lookup does not clear the count (TECH-026-R1): otherwise someone with a booking of their own could alternate four guesses with one successful lookup and never be locked. The count ends with its window. The price: every lookup and cancellation counts, so a visitor who looks up and cancels more than 5 times in 15 minutes is locked until the window ends. The address is the first entry of `x-forwarded-for`.
 
 ## The booking
 

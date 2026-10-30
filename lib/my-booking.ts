@@ -20,7 +20,7 @@ import { readTimetables } from "./charter";
 import { makeTrip, TRIP_NAMES } from "./charter-rules";
 import { all, constraintKind, type Executor, get, run, withTransaction } from "./db";
 import { arrival, flightMinutes, instant } from "./fare-rules";
-import { clearLoginAttempts, registerLoginAttempt } from "./login-limit";
+import { registerLoginAttempt } from "./login-limit";
 import { LEG_NAMES } from "./trip";
 
 // Det besökaren skriver för att hitta sin bokning (R2)
@@ -59,6 +59,8 @@ async function findBooking({ bookingNumber, lastName }: Credentials, ex?: Execut
 
 // Räknar försöket och säger om adressen är låst (R3). Som inloggningen i admin räknas försöket
 // innan uppgifterna kontrolleras, så att många försök på en gång inte slinker förbi gränsen.
+// Ett lyckat uppslag nollställer inte räknaren: annars kunde den som har en egen bokning växla
+// mellan fyra gissningar och ett lyckat uppslag och aldrig bli låst (TECH-026-R1).
 async function checkCredentials(
   ip: string,
   credentials: Credentials,
@@ -68,7 +70,6 @@ async function checkCredentials(
   if (locked) return { locked };
   const found = await findBooking(credentials);
   if (!found) return { notFound: true };
-  await clearLoginAttempts(limitKey(ip));
   return { found };
 }
 

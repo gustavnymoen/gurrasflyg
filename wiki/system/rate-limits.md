@@ -3,11 +3,11 @@ type: Feature
 title: Rate limits
 description: The limits per IP address on sign-in, Min bokning, Betala and the API routes, how they are counted in the database, and what is not limited.
 resource: lib/rate-limit.ts
-feature: TECH-017, TECH-025
+feature: TECH-017, TECH-025, TECH-026
 tags: [security, rate-limit, api, server-actions]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-10-30T12:00:00+01:00
 ---
 
 # Rate limits
@@ -32,7 +32,7 @@ flowchart TD
 | Betala, flight and charter together | 10 presses in 15 minutes | `bokning:<ip>` | the same message, nothing is saved |
 | `/api/airports`, `/api/destination-search`, `/api/destinations` | 60 calls in a minute, per route | `api:<route>:<ip>` | status 429, header `Retry-After` (seconds), `{ "error": "För många anrop. Försök igen om N sekunder." }` |
 
-The sign-in and Min bokning count the window from the latest attempt, so a lock lasts 15 minutes after the last guess. Betala and the API routes count a fixed window from the first attempt (`fixedWindow`), so "10 in 15 minutes" and "60 in a minute" mean exactly that, and steady use spread over a longer time is never refused. Further attempts while locked don't extend the lock. A right password or a right lookup clears the sign-in's and Min bokning's count; Betala and the API routes never clear theirs.
+The sign-in and Min bokning count the window from the latest attempt, so a lock lasts 15 minutes after the last guess. Betala and the API routes count a fixed window from the first attempt (`fixedWindow`), so "10 in 15 minutes" and "60 in a minute" mean exactly that, and steady use spread over a longer time is never refused. Further attempts while locked don't extend the lock. A right password clears the sign-in's count. A right lookup does not clear Min bokning's count (TECH-026-R1), so guesses can't be mixed with lookups of the guesser's own booking; Betala and the API routes never clear theirs either. Every count ends with its window.
 
 ## How it is built
 
