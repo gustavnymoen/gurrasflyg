@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-03
+
+- TECH-027: Next's experimental SRI was tried to remove `'unsafe-inline'` from `script-src`. It hashes only the script files, not the inline scripts every page needs to hydrate, so Chromium blocked them and the page did not work; the policy is unchanged and the result is written in [Security headers](system/security-headers.md), with why `style-src` keeps `'unsafe-inline'` too. Nothing a visitor sees changes.
+
 ## 2026-10-30
 
 - TECH-023: the browser tests are faster, 178 tests in 140 s (was 177 s). They run with reduced motion unless they test the motion, wait for the admin page's cards every 25 ms, and record a trace only with `TRACE=1`. Described in [Testing](system/testing.md); nothing a visitor sees changes.

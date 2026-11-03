@@ -3,8 +3,9 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 // TECH-026-R3: 'unsafe-inline' för script och style behövs för Nexts egna inline-skript och
 // stilar. En strikt policy med nonce kräver att varje sida renderas dynamiskt, vilket inte går
-// med cacheComponents (wiki/system/security-headers.md). I utvecklingsläget behöver Reacts
-// felsökning dessutom 'unsafe-eval'.
+// med cacheComponents. experimental.sri provades i TECH-027 men täcker bara skriptfilerna, inte
+// de inline-skript som hydreringen behöver, så policyn blev kvar (wiki/system/security-headers.md).
+// I utvecklingsläget behöver Reacts felsökning dessutom 'unsafe-eval'.
 const contentSecurityPolicy = (dev: boolean) =>
   [
     "default-src 'self'",
