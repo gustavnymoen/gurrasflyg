@@ -1,0 +1,9 @@
+%% TECH-028 Ponytail audit of the solution
+flowchart TD
+    A[Run the audit on the whole scope] --> B[Mark every finding: must-fix, should-fix, not needed]
+    B --> C{Must-fix?}
+    C -- small --> D[Fix it with a test named TECH-028-R2 F n]
+    C -- too big --> E[Stop, settle with the user, make a card]
+    C -- none left --> F[Should-fix: small now, large to the board]
+    D --> F
+    E --> F

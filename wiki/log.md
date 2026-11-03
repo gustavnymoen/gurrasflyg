@@ -2,6 +2,7 @@
 
 ## 2026-11-03
 
+- TECH-028: a Ponytail audit of the whole solution (`specs/TECH-028-ponytail-audit/audit.md`) found no bugs; the admin session cookie got unit tests (`lib/session.test.ts`), and the larger findings are on the board as TECH-029.
 - TECH-027: Next's experimental SRI was tried to remove `'unsafe-inline'` from `script-src`. It hashes only the script files, not the inline scripts every page needs to hydrate, so Chromium blocked them and the page did not work; the policy is unchanged and the result is written in [Security headers](system/security-headers.md), with why `style-src` keeps `'unsafe-inline'` too. Nothing a visitor sees changes.
 
 ## 2026-10-30
