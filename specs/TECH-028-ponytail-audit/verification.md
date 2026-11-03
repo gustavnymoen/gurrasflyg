@@ -40,7 +40,7 @@ title: Ponytail audit of the solution
 - [x] No leftovers: nothing made unused; `.claude/launch.json` is not committed
 - [x] Clean code: `npm run lint`, `npm run typecheck` pass; the build ran inside `test:time`
 - [x] Code review done, no must-fix findings left: see [review.md](review.md)
-- [x] Technical tasks: F2–F5 are for one grouped technical task, not created yet (left to the user); F6 is the user's to decide
+- [x] Technical tasks: F2–F5 are on the board as TECH-029 (#113); F6 is the user's to decide
 
 ## Requirements as built
 

@@ -29,5 +29,5 @@ None.
 
 ## Outside the change
 
-- One grouped technical task for F2–F5 (destination list read per request, duplicated flight/charter booking code, no unit test for `lib/reviews.ts`, two extra statements per rate-limited API call). Not added yet; left to the user.
+- One grouped technical task for F2–F5 (destination list read per request, duplicated flight/charter booking code, no unit test for `lib/reviews.ts`, two extra statements per rate-limited API call). Added to the board as TECH-029 (#113).
 - F6: `db/gurrasflyg.db` is an old leftover in the project folder; the user decides.
