@@ -1,0 +1,10 @@
+%% TECH-027 Strict Content Security Policy
+%% The experiment and its decision (R1, R2, R3)
+flowchart TD
+    A[Enable experimental.sri and script-src 'self'] --> B[Production build]
+    B --> C{Do inline scripts run?}
+    C -- yes --> D[Keep the strict script-src]
+    C -- no, blocked and no hydration --> E[Policy unchanged]
+    E --> F[Write the result in security-headers.md]
+    D --> G{Styles work without 'unsafe-inline'?}
+    G -- no, inline style attributes --> F
