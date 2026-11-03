@@ -3,11 +3,11 @@ type: Feature
 title: Admin sign-in
 description: How the administrator signs in and out, the signed session cookie, the three places that check it, and the limit on wrong passwords per IP address.
 resource: app/admin/login/
-feature: TRIP-002, TECH-013, TECH-017, TECH-026
+feature: TRIP-002, TECH-013, TECH-017, TECH-026, TECH-028
 tags: [admin, sign-in, session, cookie, security, server-actions]
 generated:
   by: claude
-  at: 2026-10-30T12:00:00+01:00
+  at: 2026-11-03T22:10:00+01:00
 ---
 
 # Admin sign-in
@@ -38,6 +38,7 @@ flowchart TD
 - The cookie is `httpOnly` (JavaScript can't read it), `secure` on the live site, `sameSite: "lax"` and `path: "/"`.
 - It has **no expiry date**, so the browser deletes it when it closes. The expiry time inside it, `SESSION_HOURS` (8) after sign-in, is checked on every request.
 - `isValidSessionToken()` rejects an old, missing or forged cookie. `safeEqual()` compares the signatures in constant time.
+- `lib/session.test.ts` (TECH-028) checks it in unit tests: a token past its expiry with a correct signature, a changed expiry, another secret, malformed values and a missing secret are all refused, and `passwordMatches()` compares the whole value.
 
 ## Where the cookie is checked
 

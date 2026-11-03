@@ -18,7 +18,7 @@ title: Strict Content Security Policy
 |---|---|---|---|---|
 | Unit tests | Not applicable, no logic; `npm run test:unit` passes | local | Pass | 2026-11-03 |
 | Browser tests | No new test: the policy is unchanged, and the existing TECH-026-R3 test already checks it exactly. Nothing loosened | local | Pass | 2026-11-03 |
-| Smoke test | Unchanged. Not run on a preview, see R1 | not run | Not checked | |
+| Smoke test | Unchanged. Not run on a preview, see R1; Live tests against main after PR #112 passed | live | Pass | 2026-11-03 |
 | Accessibility | Not applicable, no page changes | | | |
 | Security | Security points in the review; `/security-review` run on the diff: no findings (only a comment changed) | local | Pass | 2026-11-03 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-03 |
@@ -36,7 +36,7 @@ After: browser tests 140.6 s. No tests added or removed.
 
 - [x] Tests: nothing new needed; `npm run test:unit` and `npm run test:local` (via `test:time`) pass
 - [x] Test suite: 178 tests, 140.6 s (budget 180 s, was 139.6 s); one test over its own budget, as before this change (TECH-019-R1)
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): green against main after PR #112, 2026-11-03
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements as built below, no open questions; `solution.md` describes the work
 - [x] Manual not affected; system docs (`security-headers.md`, index) and `wiki/log.md` updated
