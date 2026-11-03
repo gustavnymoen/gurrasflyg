@@ -33,7 +33,7 @@ title: Ponytail audit of the solution
 
 - [x] Tests: the plan's checks are done; `npm run test:unit` and `npm run test:local` (via `test:time`) pass
 - [x] Test suite: 178 browser tests, 138.3 s (budget 180 s), 228 unit tests, 0.8 s; six fast unit tests added
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed, and the smoke tests pass against production (Live tests): Live tests against main after PR #114 passed, 2026-11-03
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements as built below, no open questions; `solution.md` describes the work
 - [x] Manual not affected; system docs (`admin-sign-in.md`) and `wiki/log.md` updated
