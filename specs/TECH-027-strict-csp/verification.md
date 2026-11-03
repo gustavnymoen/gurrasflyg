@@ -61,4 +61,6 @@ The policy is unchanged, so the site works as before; the whole suite passes.
 
 ## Notes
 
+CI failed on `TECH-019-R1` (the calendar test), which had "april 2027" written into it. The last bookable month follows today's date (today plus `MAX_MONTHS_AHEAD`), so from 1 November it is May. The test now computes the month from `lib/dates.ts`; the check itself is not weakened. Unrelated to the CSP work, fixed here because it blocked the pull request.
+
 The experiment used `NEXT_DIST_DIR=.next-exp` and a throwaway database file, both deleted afterwards. The build added the folder to `tsconfig.json`; that change was reverted.

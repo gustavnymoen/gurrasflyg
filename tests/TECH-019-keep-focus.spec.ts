@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { addMonths, formatMonth, MAX_MONTHS_AHEAD, toDateString } from "../lib/dates";
 import { createAddon, deleteWithConfirmation, expectNoA11yViolations, requireAdminPassword, signIn, uniqueName } from "./helpers";
 
 // Round buttons are aria-disabled, never disabled, so focus stays on them
@@ -48,10 +49,11 @@ test("TECH-019-R1 the calendar's month buttons keep focus on the first and the l
   await previous.focus();
   await expectKeepsFocus(page, previous);
 
+  // Fem tryck från första månaden ger sista bokningsbara månaden, som följer dagens datum
   await next.focus();
   for (let i = 0; i < 5; i++) await page.keyboard.press("Enter");
   await expectKeepsFocus(page, next);
-  await expect(calendar.getByRole("grid").last()).toHaveAccessibleName("april 2027");
+  await expect(calendar.getByRole("grid").last()).toHaveAccessibleName(formatMonth(toDateString(addMonths(new Date(), MAX_MONTHS_AHEAD))));
   await previous.focus();
   await page.keyboard.press("Enter");
   await expect(next).not.toHaveAttribute(UNAVAILABLE, "true");
