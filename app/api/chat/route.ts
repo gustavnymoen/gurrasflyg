@@ -20,8 +20,8 @@ export async function POST(request: NextRequest) {
     const reply = await askAgneta(messages);
     if (reply) return Response.json({ reply });
   } catch (error) {
-    // Bara slaget av fel: felobjektet kan innehålla svar från API:et
-    console.error("chat failed", error instanceof Error ? error.name : "unknown");
+    // Bara slaget av fel och HTTP-status: felobjektet kan innehålla svar från API:et
+    console.error("chat failed", error instanceof Error ? error.name : "unknown", (error as { status?: number }).status ?? "");
   }
   return Response.json({ error: "Agneta kunde inte svara." }, { status: 502 });
 }
