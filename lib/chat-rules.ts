@@ -1,11 +1,13 @@
+import { HALF_LINK } from "./markdown";
+
 // Regler för chatten med Agneta (TRIP-017, TRIP-032), gemensamma för webbläsaren och servern.
 // Servern kontrollerar allt igen: det som skickas därifrån går att förfalska.
 
 export const MAX_QUESTION_LENGTH = 500;
 // Så många meddelanden följer med varje fråga (R7) och så många tar routen emot (R8)
 export const MAX_MESSAGES = 6;
-// Agnetas svar är högst 600 tokens (cirka 2 500 tecken); 4 000 är en vid gräns. Historiken får aldrig mer förtroende än en fråga.
-export const MAX_ANSWER_LENGTH = 4000;
+// Agnetas svar är högst 1 000 tokens (cirka 4 000 tecken); 6 000 är en vid gräns. Historiken får aldrig mer förtroende än en fråga.
+export const MAX_ANSWER_LENGTH = 6000;
 // Frågan och svaren har bara de här två rollerna
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -43,17 +45,18 @@ export function waitText(seconds: number) {
   return `Du har frågat nog för en stund. Kom tillbaka om ${time}, så ska jag se vad jag orkar.`;
 }
 
-// Agnetas hälsning när chatten öppnas första gången i en session (TRIP-032-R7): en slumpad
-// mutter ur listan, sedan frågan. Den är inget API-anrop och följer aldrig med frågorna.
-export const GREETINGS = [
-  "Nämen, en kund. Vad roligt för alla.",
-  "Jaha, då var det dags igen.",
-  "Du hann före lunchen. Tyvärr.",
-  "Jag var mitt i en paus, men fortsätt du.",
-  "Där är du ja. Jag har väntat, ungefär.",
-  "Välkommen. Försök hålla det kort.",
-];
-export const GREETING_QUESTION = "Hur kan jag hjälpa dig då?";
+// Agnetas hälsning när chatten öppnas första gången i en session (TRIP-033-R2). Den är inget
+// API-anrop och följer aldrig med frågorna.
+export const GREETING = "Vad vill du?!";
 
-export const pickGreeting = (random = Math.random()) =>
-  `${GREETINGS[Math.floor(random * GREETINGS.length)]} ${GREETING_QUESTION}`;
+// Ett svar som stannade vid tokengränsen (TRIP-033-R4), kapat vid den sista hela stycket eller punkten.
+// Sista raden är avbruten och slängs; en huvudpunkt vars underpunkt slängdes följer med, för att
+// punkt och underpunkt hör ihop. Finns ingen hel rad kapas vid sista hela ordet. En halv länk visas aldrig.
+export function cutToWhole(text: string): string {
+  const lines = text.split("\n");
+  const last = lines.pop() ?? "";
+  if (last.startsWith(" ") && lines.at(-1) !== undefined && !lines.at(-1)!.startsWith(" ")) lines.pop();
+  const whole = lines.join("\n").trim();
+  if (whole !== "") return whole;
+  return text.replace(HALF_LINK, "").replace(/\s+\S*$/, "").trim();
+}

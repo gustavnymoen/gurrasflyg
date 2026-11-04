@@ -3,16 +3,16 @@ type: Guide
 title: Fråga Agneta
 description: Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten (en panel vid sidan av sidan, eller en ruta på mobilen) på startsidan och charter-sidorna.
 resource: app/components/Chat.tsx
-feature: TRIP-017, TRIP-032
+feature: TRIP-017, TRIP-032, TRIP-033
 tags: [resenär, charter, chatt, agneta]
 generated:
   by: claude
-  at: 2026-11-04T16:30:00+01:00
+  at: 2026-11-04T22:00:00+01:00
 ---
 
 # Fråga Agneta
 
-Agneta Spydenius jobbar hos oss och svarar på frågor om våra **charterresmål** och om **hur du bokar en charterresa**. Hon är sur och torr i tonen och klagar lite, men hon hjälper dig alltid. Hon kan inget annat: frågar du om vanliga flyg, väder, annat resande eller något helt annat säger hon nej och pekar dig till rätt ställe (flyg finns under fliken Flyg på startsidan).
+Agneta Spydenius jobbar hos oss som kundtjänstmedarbetare (det står under hennes namn i chatten, med en grön prick och ordet "Live") och svarar på frågor om våra **charterresmål** och om **hur du bokar en charterresa**. Hon är sur och torr i tonen och klagar lite, men hon hjälper dig alltid. Hon kan inget annat: frågar du om vanliga flyg, väder, annat resande eller något helt annat säger hon nej och pekar dig till rätt ställe (flyg finns under fliken Flyg på startsidan).
 
 ## Öppna chatten
 
@@ -21,13 +21,13 @@ Knappen **Fråga Agneta**, med hennes bild, finns nere till höger på startsida
 - **På en bred skärm** öppnas chatten som en panel längs högerkanten. Sidan trycks ihop vid sidan av den, så du kan fortsätta bläddra medan du chattar.
 - **På en smal skärm**, till exempel mobilen, öppnas chatten som en ruta som fyller skärmen.
 
-Första gången du öppnar chatten i en flik står det "Kopplar in Agneta …" i några sekunder. Sedan hälsar Agneta, och markören står i fältet **Din fråga**.
+Första gången du öppnar chatten i en flik står det "Kopplar in Agneta …" i några sekunder. Sedan hälsar Agneta med "Vad vill du?!", och markören står i fältet **Din fråga**.
 
 ## Ställa en fråga
 
 1. Skriv din fråga, högst 500 tecken. Närmar du dig gränsen står det hur många tecken som är kvar.
 2. Tryck **Skicka** eller Enter. Din fråga syns som en pratbubbla till höger, och medan Agneta tänker står det "Agneta tänker …".
-3. Agnetas svar kommer som en bubbla till vänster. Svaren är korta, ofta som en lista, och resmålen är länkar till sin sida. Hon svarar på det språk du frågar på, och minns de senaste frågorna, så du kan fråga vidare ("och hur tar jag mig dit?").
+3. Agnetas svar kommer som en bubbla till vänster. Svaren är korta. Frågar du om flera resmål får du en lista med en punkt per resmål: namnet är en länk till resmålets sida, med en kort sammanfattning, och under den en rad med flygplats och pris "från" per person. Resmål hon nämner är alltid länkar, också på startsidan. Hon svarar på det språk du frågar på, och minns de senaste frågorna, så du kan fråga vidare ("och hur tar jag mig dit?").
 
 Vad du kan fråga: vad ett resmål är, hur du tar dig dit, vad du kan se, vad det kostar, vilka dagar resorna går och hur resmålen skiljer sig. Vet hon inte svaret säger hon det. Hon bokar inte åt dig utan visar hur du bokar på resmålets sida, se [Boka en charterresa](boka-charter.md).
 

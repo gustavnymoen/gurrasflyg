@@ -76,3 +76,16 @@ test("TRIP-032-R2 every destination has its page path, and the format rules are 
   expect(prompt).toContain("[Title](/charter/id)");
   expect(prompt).toContain("always write the destination's name in full");
 });
+
+test("TRIP-033-R3 the Voice section says the tone is there from the first answer", () => {
+  const voice = prompt.slice(prompt.indexOf("# Voice"), prompt.indexOf("# How to book"));
+  expect(voice).toContain("The tone is there from your very first answer");
+});
+
+test("TRIP-033-R5 R7 the format rules say link on every page and one bullet with one sub-bullet per destination", () => {
+  expect(prompt).toContain("on every page and in every answer, give its page as a link");
+  expect(prompt).toContain("one bullet per destination");
+  expect(prompt).toContain("exactly one sub-bullet");
+  expect(prompt).toContain('the airport and the price "from" per person');
+  expect(prompt).toContain("never a list that stops after the first");
+});

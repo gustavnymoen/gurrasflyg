@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { GREETINGS } from "../lib/chat-rules";
+import { GREETING } from "../lib/chat-rules";
 import { expectNoA11yViolations, agnetaGreeted } from "./helpers";
 
 // Agneta: panelen, bubblorna, det sparade samtalet och inkopplingen (TRIP-032). Alla prov kör med
@@ -41,12 +41,11 @@ test("TRIP-032-R7 a new session shows the connecting view for 2 to 3 seconds, th
   await page.clock.runFor(1200);
   await expect(connecting(page)).toHaveCount(0);
 
-  // R7: avatar and name in the header, and one of the lines, ending with the question
+  // R7: avatar and name in the header, and the greeting (TRIP-033-R2: only "Vad vill du?!")
   await expect(panel(page).getByRole("heading", { name: "Agneta Spydenius" })).toBeVisible();
   await expect(panel(page).locator("img")).toBeVisible();
   const greeting = (await panel(page).getByRole("log").textContent())!.replace(/^Agneta: /, "");
-  expect(GREETINGS.some((line) => greeting.startsWith(`${line} `))).toBe(true);
-  expect(greeting.endsWith("Hur kan jag hjälpa dig då?")).toBe(true);
+  expect(greeting).toBe(GREETING);
   // Focus moves to the field when the view that had it is gone
   await expect(field(page)).toBeFocused();
 
@@ -96,7 +95,7 @@ test("TRIP-032-R3 R2 bubbles: questions right, answers left, a header with avata
   await openButton(page).click();
 
   // R3: the header
-  const header = panel(page).locator("h2").locator("..");
+  const header = panel(page).getByRole("heading").locator("../..");
   await expect(header.locator("img")).toHaveAttribute("alt", "");
   await expect(panel(page).getByRole("heading")).toHaveText("Agneta Spydenius");
   await expect(header.getByRole("button")).toHaveText(["", ""]);
@@ -143,7 +142,7 @@ test("TRIP-032-R4 R5 the panel pushes the page aside, stays open with its conver
   // R4: on the right, 22 rem wide at this window width, full height, and the page is not covered
   const box = (await panel(page).boundingBox())!;
   const viewport = page.viewportSize()!;
-  expect(box.width).toBe(352);
+  expect(box.width).toBe(416); // TRIP-033-R6: 26 rem
   expect(box.x + box.width).toBe(viewport.width);
   expect(box.height).toBe(viewport.height);
   expect(await mainRight()).toBeLessThanOrEqual(box.x);

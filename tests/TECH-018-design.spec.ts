@@ -532,15 +532,20 @@ test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a
   expect(form.y).toBeLessThan(box.y + box.height);
 
   // TRIP-017-R7 and TRIP-032-R3 R4: the chat button floats at the bottom right; the chat is a panel on
-  // the right, 22 rem wide here, with a bubble in the accent colour for the visitor and a darker one for
+  // the right, 26 rem wide here (TRIP-033-R6), with a bubble in the accent colour for the visitor and a darker one for
   // Agneta, both with readable text
   const chat = page.getByRole("button", { name: "Fråga Agneta" });
   await expect(chat).toHaveCSS("position", "fixed");
   await chat.click();
   const panel = page.getByRole("region", { name: "Agneta" });
   await expect(panel).toHaveCSS("position", "fixed");
-  await expect(panel).toHaveCSS("width", "352px");
+  await expect(panel).toHaveCSS("width", "416px");
   await expect(panel).toHaveCSS("border-left-width", "1px");
+  // TRIP-033-R1: the dot is green and the texts under the name are readable
+  const surface = await backgroundOf(panel);
+  expect(contrast(await css(panel.getByTestId("agneta-live-dot"), "background-color"), surface)).toBeGreaterThanOrEqual(3);
+  expect(contrast(await css(panel.getByText("Live", { exact: true }), "color"), surface)).toBeGreaterThanOrEqual(4.5);
+  expect(contrast(await css(panel.getByText("Kundtjänstmedarbetare"), "color"), surface)).toBeGreaterThanOrEqual(4.5);
   await panel.getByLabel("Din fråga").fill("Hej");
   await panel.getByLabel("Din fråga").press("Enter");
   const mineBubble = panel.getByRole("log").locator("> div").nth(1);

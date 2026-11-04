@@ -1,0 +1,13 @@
+%% TRIP-033 Agneta polish
+%% How an answer reaches the visitor whole.
+flowchart TD
+    A[Visitor opens the chat] --> B[Header: name, Kundtjänstmedarbetare, green dot Live - R1]
+    B --> C[Greeting Vad vill du?! saved, never sent - R2]
+    C --> D[Question to /api/chat]
+    D --> E[Model answers with the tone from the first answer - R3]
+    E --> F{stop_reason is max_tokens?}
+    F -- no --> H[Answer as it is]
+    F -- yes --> G[Log it, cut at the last whole bullet or word - R4]
+    G --> H
+    H --> I[Reader: bullet with link, one sub-bullet; half link removed - R4 R5 R7]
+    I --> J[Bubble in the wider panel - R6]
