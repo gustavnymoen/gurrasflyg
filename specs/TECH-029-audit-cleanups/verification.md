@@ -34,7 +34,7 @@ title: Audit cleanups
 
 - [x] Tests: the plan's checks are done; `npm run test:unit` and `npm run test:local` (via `test:time`) pass
 - [x] Test suite: within the budgets; nine fast unit tests added
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not checked, nothing is pushed yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): Live tests against main after PR #116 passed, 2026-11-04
 - [x] Accessibility: not applicable, visitors see no change
 - [x] Requirements as built below, no open questions; `solution.md` describes the work
 - [x] Manual not affected; system docs and `wiki/log.md` updated
