@@ -2,6 +2,7 @@
 
 ## 2026-11-04
 
+- TRIP-017: the chat **Fråga Agneta** on the start page and every charter page. Agneta, a grumpy travel agent, answers questions about the charter destinations and how to book from a system prompt built from the database (all 96 destinations with their texts and timetables) and refuses everything else. New route `POST /api/chat` (10 questions in 5 minutes per IP address, 600 tokens, prompt caching, `usage` logged), `lib/chat*.ts`, `app/components/Chat.tsx`, a `wide` `Dialog`, and the secret `LLM_API_KEY`. Tests use a fake client (`LLM_MOCK=1`). New pages [Charter chatbot Agneta](system/charter-chatbot.md) and [Fråga Agneta](manual/fraga-agneta.md).
 - TECH-029: the audit's larger findings. A destination page and a charter booking read only their own destination instead of all ~100; the flight and charter bookings share `lib/booking-common.ts` (error class, booking number, request id lookup, the actions' error handling); `lib/reviews.ts` has a unit test. Nothing a visitor sees changes.
 
 ## 2026-11-03

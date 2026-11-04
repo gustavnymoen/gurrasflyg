@@ -153,6 +153,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-027 | Strict Content Security Policy: Next's experimental SRI tried without `'unsafe-inline'` in `script-src`; it does not cover inline scripts, so the policy is unchanged and the result is documented | Shared | Done |
 | TECH-028 | Ponytail audit of the whole solution: one report with every finding marked; the one must-fix finding (no unit test for the admin session cookie) is fixed, larger findings are left for a grouped technical task | Shared | Done |
 | TECH-029 | Audit cleanups: a destination page and a charter booking read one destination instead of all, the flight and charter bookings share their duplicated code, and reviews have a unit test | Shared | Done |
+| TRIP-017 | Charter chatbot Agneta: the chat "Fråga Agneta" on the start page and the charter pages, answers about the destinations and how to book from a system prompt built from the database, refuses everything else, 10 questions per 5 minutes per IP address | Charter | Done |
 
 ## Decisions for charter
 

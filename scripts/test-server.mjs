@@ -21,6 +21,8 @@ const env = {
   TURSO_DATABASE_URL: `file:${testDbFile}`,
   TURSO_AUTH_TOKEN: "",
   NEXT_DIST_DIR: ".next-test",
+  // Agneta svarar med en låtsasklient: inga prov kostar kursens tak (TRIP-017)
+  LLM_MOCK: "1",
 };
 
 // prebuild (scripts/db-setup.mjs) skapar testdatabasen
