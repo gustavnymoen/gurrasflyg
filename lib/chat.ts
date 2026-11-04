@@ -47,6 +47,8 @@ export async function askAgneta(
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
+    // Utan detta tänker modellen först, och det tänkandet räknas mot max_tokens: ett svar på ~60 tokens stoppades vid 1 000 (TRIP-033)
+    thinking: { type: "disabled" },
     // Hela systemtexten cachas, så att nästa fråga inom fem minuter läser den billigt
     cache_control: { type: "ephemeral" },
     system: await buildSystemPrompt(),
