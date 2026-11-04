@@ -1,7 +1,7 @@
 import "server-only";
 import type { Transaction } from "@libsql/client";
+import { BookingError, findBookingByRequestId, INVALID, newBookingNumber } from "./booking-common";
 import { paymentProblems } from "./booking-rules";
-import { randomBookingCode } from "./bookings";
 import { type CharterData, readCharter } from "./charter";
 import {
   type CharterChoice,
@@ -14,7 +14,7 @@ import {
   extrasProblem,
   fitsCharterForm,
 } from "./charter-rules";
-import { get, run, withTransaction } from "./db";
+import { run, withTransaction } from "./db";
 
 // Det som skickas när besökaren trycker Betala: resmålet, sökningen och valen
 // från adressen och formuläret. Inget av det är kontrollerat än.
@@ -27,10 +27,9 @@ export type CharterRequest = {
 
 // Fel som beror på vad besökaren valt eller på att något ändrats sedan dess,
 // och som kan visas för besökaren
-export class CharterBookingError extends Error {}
+export class CharterBookingError extends BookingError {}
 
 export const CHANGED = "Något i resan har ändrats sedan du valde den. Gå tillbaka till Resa och välj igen.";
-const INVALID = "Bokningen gick inte att spara. Gå tillbaka till Resenärer och kontrollera uppgifterna.";
 
 // Sparar bokningen och returnerar bokningsnumret och resorna den gäller (R8).
 // Allt kontrolleras och alla priser räknas här, i transaktionen, från
@@ -39,11 +38,7 @@ const INVALID = "Bokningen gick inte att spara. Gå tillbaka till Resenärer och
 export async function createCharterBooking(request: CharterRequest, now = new Date()) {
   const { destination, search, choice, form } = request;
   return withTransaction(async (tx) => {
-    const existing = await get<{ bookingNumber: string }>(
-      "SELECT booking_number AS bookingNumber FROM charter_bookings WHERE request_id = ?",
-      [typeof form?.requestId === "string" ? form.requestId : ""],
-      tx,
-    );
+    const existing = await findBookingByRequestId(tx, "charter_bookings", form?.requestId);
 
     const data = await readCharter(destination, search, choice, now, tx);
     if (!data?.outbound || !data.home || data.choice.out !== choice.out || data.choice.back !== choice.back) {
@@ -57,7 +52,7 @@ export async function createCharterBooking(request: CharterRequest, now = new Da
     if (!valid) throw new CharterBookingError(INVALID);
     if (existing) return { bookingNumber: existing.bookingNumber, trips };
 
-    const bookingNumber = await newBookingNumber(tx);
+    const bookingNumber = await newBookingNumber(tx, "charter_bookings", "CH-");
     const { contact } = form;
     const { lastId: bookingId } = await run(
       `INSERT INTO charter_bookings
@@ -109,15 +104,5 @@ async function saveTrips(tx: Transaction, bookingId: number, trips: CharterTrip[
       [bookingId, position, trip.id, trip.date, trip.price],
       tx,
     );
-  }
-}
-
-// CH- och sex tecken, så att numret inte går att förväxla med en flygbokning
-async function newBookingNumber(tx: Transaction) {
-  for (;;) {
-    const number = `CH-${randomBookingCode()}`;
-    if (!(await get("SELECT 1 FROM charter_bookings WHERE booking_number = ?", [number], tx))) {
-      return number;
-    }
   }
 }

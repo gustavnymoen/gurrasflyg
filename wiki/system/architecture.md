@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-10-30T12:00:00+01:00
+  at: 2026-11-04T12:00:00+01:00
 ---
 
 # Architecture
@@ -42,6 +42,7 @@ flowchart LR
 | `lib/search.ts`, `lib/flight-rules.ts` | The search and its address; flight numbers, prices, sorting and which departures have left. Without `server-only`, for both the page and the browser. |
 | `lib/trip.ts`, `lib/fare-rules.ts` | The trip's address after the search (chosen flights, aircraft and classes); prices with factors, flight times, arrivals, which aircraft and numbers per class are possible. Without `server-only`. |
 | `lib/booking-rules.ts` | The booking's rules for both the page and the server: the form, the checks, the prices, what a change clears, the summary. Without `server-only`. |
+| `lib/booking-common.ts` | What the flight and charter bookings share: `BookingError`, the booking number, the lookup by request id and the error shown by the actions (TECH-029). |
 | `lib/bookings.ts` | Saving a booking in one write transaction, with everything checked and priced from the database (`createBooking`). |
 | `lib/reviews.ts`, `lib/review-rules.ts` | Reviews ([Reviews](reviews.md)). The text limit lives in `review-rules.ts`, without `server-only`, so the admin form can use it too. |
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
@@ -54,7 +55,7 @@ flowchart LR
 | `lib/numbers.ts` | `parseWholeNumber` and `parseFactor`: read a whole number ("1 290") or a factor ("1,50") typed in an admin form, for both the forms and the server. |
 | `lib/local-db.mjs` | Where the local database and the test database are. |
 
-Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, `app/flyg/boka/actions.ts`, which saves a flight booking, and `app/charter/actions.ts`, which saves a charter booking, and `app/min-bokning/actions.ts`, which looks up and cancels. Errors meant for the user are thrown as `AdminError`, `BookingError` `CharterBookingError` or `CancelError` and shown as messages.
+Pages read data in server components. Changes go through server actions: `app/admin/actions.ts`, which check the sign-in, call `lib/`, and refresh the page, `app/flyg/boka/actions.ts`, which saves a flight booking, and `app/charter/actions.ts`, which saves a charter booking, and `app/min-bokning/actions.ts`, which looks up and cancels. Errors meant for the user are thrown as `AdminError`, `BookingError` (`CharterBookingError` is one) or `CancelError` and shown as messages.
 
 This Next.js version has `cacheComponents` turned on: data that depends on the request (database reads, the clock, cookies) is read after `await connection()` or inside `<Suspense>`. See `AGENTS.md`.
 

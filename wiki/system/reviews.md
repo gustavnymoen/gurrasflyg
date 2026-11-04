@@ -7,7 +7,7 @@ feature: TRIP-006, TRIP-021
 tags: [reviews, carousel, admin, start-page, server-actions, accessibility]
 generated:
   by: claude
-  at: 2026-10-27T13:20:47+01:00
+  at: 2026-11-04T12:00:00+01:00
 ---
 
 # Reviews
@@ -50,6 +50,8 @@ They are called by `createReviewAction` and `deleteReviewAction` in `app/admin/a
 - It is a `region` with `aria-roledescription="karusell"`, and `Stars` gives "<n> av 5 stjärnor" to screen readers. The movement is a CSS transition, which the reduced motion rule turns off ([Design](design.md)).
 
 ## Tests
+
+Unit: `lib/reviews.test.ts` (TECH-029-R3: the stars, the empty and over-long fields, trimming, newest first and deleting, in the unit-test database).
 
 Browser: `tests/TRIP-006-reviews.spec.ts` (the carousel on the start page, and the form, saving and deleting in admin) and the `TRIP-021-R4` tests in `tests/TRIP-021-wcag.spec.ts` (the length limits, and the longest review fitting its card with larger text spacing).
 

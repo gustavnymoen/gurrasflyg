@@ -22,7 +22,7 @@ vi.mock("next/server", () => ({ connection: async () => {} }));
 // Kursens resmål ur enhetstesternas databas. lib/db.ts läser adressen när den importeras,
 // så travel importeras först när den är satt.
 process.env.TURSO_DATABASE_URL = `file:${unitTestDbFile}`;
-const { getDestinationCards, getCharterDestination } = await import("./travel");
+const { getDestinationCards, getCharterDestination, getDestinationAirport, getDestinations } = await import("./travel");
 const cards = await getDestinationCards();
 const find = (id: string) => cards.find((c) => c.id === id)!;
 const ids = (list: DestinationCard[]) => list.map((c) => c.id);
@@ -141,4 +141,20 @@ test("TRIP-013-R7 the link back to the list keeps the search and filters", () =>
   expect(listHref({ sok: "berlin", varldsdel: "Europe", other: "x" })).toBe("/charter?sok=berlin&varldsdel=Europe");
   expect(listHref({})).toBe("/charter");
   expect(listHref({ sok: ["a", "b"] })).toBe("/charter");
+});
+
+test("TECH-029-R1 one destination read gives the same destination as the whole list, and null for an unknown id", async () => {
+  const all = await getDestinations();
+  const one = await getCharterDestination("teufelsberg");
+  expect(one?.destination).toEqual(all.find((d) => d.id === "teufelsberg"));
+  expect(await getDestinationAirport("teufelsberg")).toEqual({ id: "teufelsberg", title: one!.destination.title, airport: one!.trip!.airport.iata });
+  expect(await getDestinationAirport("does-not-exist")).toBeNull();
+  expect(await getDestinationAirport("")).toBeNull(); // tomt id är inget id, inte "alla"
+  expect(await getCharterDestination("")).toBeNull();
+});
+
+test("TECH-029-R1 a destination with no flights has no airport to book", async () => {
+  const noFlights = (await Promise.all(cards.map((c) => getCharterDestination(c.id)))).find((d) => !d?.trip);
+  expect(noFlights).toBeDefined();
+  expect(await getDestinationAirport(noFlights!.destination.id)).toBeNull();
 });

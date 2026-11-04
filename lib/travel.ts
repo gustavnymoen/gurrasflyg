@@ -37,11 +37,15 @@ type PhotoRow = NonNullable<Destination["image"]> & { destination_id: string };
 
 // Ett resmåls lista (alias, taggar eller transport) i den ordning den har i kursdatan.
 // Tabell och kolumn kommer bara från anropen här i filen, aldrig från en besökare.
-const listQuery = (table: string, column: string) =>
-  all<ListRow>(`SELECT destination_id, ${column} AS value FROM ${table} ORDER BY destination_id, position`); // nosemgrep: semgrep.sql-built-from-text
+const listQuery = (table: string, column: string, id?: string) =>
+  all<ListRow>(
+    `SELECT destination_id, ${column} AS value FROM ${table} ${id !== undefined ? "WHERE destination_id = ?" : ""} ORDER BY destination_id, position`, // nosemgrep: semgrep.sql-built-from-text
+    id !== undefined ? [id] : [],
+  );
 
-// Alla resmål, sorterade på id
-export async function getDestinations(): Promise<Destination[]> {
+// Alla resmål, eller bara det med givet id, sorterade på id. Samma läsning och
+// samma form för båda, så att de inte kan glida isär.
+async function readDestinations(id?: string): Promise<Destination[]> {
   // Läs från databasen när någon frågar, inte en gång vid bygget
   await connection();
   const [rows, aliases, tags, transport, photos] = await Promise.all([
@@ -53,12 +57,17 @@ export async function getDestinations(): Promise<Destination[]> {
        FROM destinations d
        JOIN charter_airports n ON n.iata = d.nearest_airport
        LEFT JOIN charter_airports g ON g.iata = d.gateway_airport
-       ORDER BY d.id`,
+       ${id !== undefined ? "WHERE d.id = ?" : ""}
+       ORDER BY d.id`, // nosemgrep: semgrep.sql-built-from-text
+      id !== undefined ? [id] : [],
     ),
-    listQuery("destination_aliases", "alias"),
-    listQuery("destination_tags", "tag"),
-    listQuery("destination_transport", "transport"),
-    all<PhotoRow>("SELECT destination_id, src, author, license, license_url, source FROM destination_photos"),
+    listQuery("destination_aliases", "alias", id),
+    listQuery("destination_tags", "tag", id),
+    listQuery("destination_transport", "transport", id),
+    all<PhotoRow>(
+      `SELECT destination_id, src, author, license, license_url, source FROM destination_photos ${id !== undefined ? "WHERE destination_id = ?" : ""}`, // nosemgrep: semgrep.sql-built-from-text
+      id !== undefined ? [id] : [],
+    ),
   ]);
 
   const values = (list: ListRow[]) => {
@@ -91,6 +100,8 @@ export async function getDestinations(): Promise<Destination[]> {
   }));
 }
 
+export const getDestinations = () => readDestinations();
+
 // Billigaste pris dit från Arlanda eller Köpenhamn och hem därifrån, per flygplats, över hela tidtabellernas period
 async function getFares(): Promise<Fares> {
   const marks = DEPARTURE_AIRPORTS.map(() => "?").join(", ");
@@ -118,8 +129,7 @@ export async function getDestinationCards(): Promise<DestinationCard[]> {
 
 // Ett resmål med sin sida: texterna, flygplatsen och priset. null om det inte finns.
 export async function getCharterDestination(id: string) {
-  const [destinations, fares] = await Promise.all([getDestinations(), getFares()]);
-  const destination = destinations.find((d) => d.id === id);
+  const [[destination], fares] = await Promise.all([readDestinations(id), getFares()]);
   if (!destination) return null;
   const [page, source] = await Promise.all([
     get<{ overview: string; getting_there: string; visiting: string }>(
@@ -141,8 +151,7 @@ export async function getCharterDestination(id: string) {
 // Resmålets namn och flygplatsen man flyger till (samma regel som på resmålets sida, tripTo),
 // för charterbokningen. null om resmålet inte finns eller inga flyg går dit (TRIP-014).
 export async function getDestinationAirport(id: string) {
-  const [destinations, fares] = await Promise.all([getDestinations(), getFares()]);
-  const destination = destinations.find((d) => d.id === id);
+  const [[destination], fares] = await Promise.all([readDestinations(id), getFares()]);
   const trip = destination && tripTo(destination, fares);
   return destination && trip ? { id: destination.id, title: destination.title, airport: trip.airport.iata } : null;
 }

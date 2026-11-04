@@ -7,7 +7,7 @@ feature: TRIP-012
 tags: [booking, passengers, add-ons, payment, personal-data, flight-booking, accessibility, security]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-11-04T12:00:00+01:00
 ---
 
 # Booking
@@ -50,9 +50,9 @@ Under "Att betala", and above "Totalt" in the summary, `PriceList` (`app/flyg/Pr
 1. Looks up the request id; a booking already saved with it is returned at the end instead of a new one, so two Betala give one booking.
 2. Reads each departure (it must exist and not have left), the fleet (`readFleet(tx)`) and the add-ons (`readAddons(ids, tx)`) inside the transaction, and builds the flights with `bookingLegs()`. A missing departure or aircraft, or numbers that no longer fit, give "Något i resan har ändrats sedan du valde den. Gå tillbaka till Plan och klass och välj igen.".
 3. Checks the form: its shape (`fitsTrip()`: the number of passengers and flights, classes on the aircraft, only add-ons of the passenger's class, 0–10 of each, strings and booleans where expected) and its contents (`travellerProblems()`, `paymentProblems()`). Anything wrong gives "Bokningen gick inte att spara. Gå tillbaka till Resenärer och kontrollera uppgifterna.".
-4. Saves the booking with a new six-character booking number (no 0/O or 1/I) and the prices it calculated: per seat the departure's price × the aircraft's × the class's price factor (`seatPrice()`), the add-ons at their price in the database, Dåliga nerver 1 000 kr per flight, and the total.
+4. Saves the booking with a new six-character booking number (no 0/O or 1/I; `newBookingNumber()` in `lib/booking-common.ts`, shared with charter, which also holds the "Bokningen gick inte att spara" text, the request id lookup and the `BookingError` class) and the prices it calculated: per seat the departure's price × the aircraft's × the class's price factor (`seatPrice()`), the add-ons at their price in the database, Dåliga nerver 1 000 kr per flight, and the total.
 
-Nothing from the browser is used as a price. Since the reads and the insert are in the same write transaction, admin can't change an aircraft, class or add-on in between: either the whole booking is saved with what applied, or nothing. Other errors give "Något gick fel, försök igen." and are logged on the server.
+Nothing from the browser is used as a price. Since the reads and the insert are in the same write transaction, admin can't change an aircraft, class or add-on in between: either the whole booking is saved with what applied, or nothing. Other errors give "Något gick fel, försök igen." and are logged on the server (`bookingFailure()` in `lib/booking-common.ts`, shared with the charter action).
 
 ## The summary
 

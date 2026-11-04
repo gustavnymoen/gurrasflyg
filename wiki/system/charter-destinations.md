@@ -7,7 +7,7 @@ feature: TRIP-013
 tags: [charter, destinations, search, filters, prices, accessibility]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-11-04T12:00:00+01:00
 ---
 
 # Charter destinations
@@ -15,6 +15,8 @@ generated:
 `/charter` lists the course's 96 destinations as cards that can be searched and filtered, and `/charter/<id>` is one destination's page. Choosing the dates and booking the trip is on the destination page ([Charter booking](charter-booking.md), TRIP-014).
 
 ## The list
+
+A destination page and a charter booking read only their own destination (`getCharterDestination()`, `getDestinationAirport()` in `lib/travel.ts`), with the same row mapping as the whole list (TECH-029).
 
 `app/charter/page.tsx` reads all destinations as cards (`getDestinationCards()` in `lib/travel.ts`) and hands them to `DestinationBrowser`, a client component. The browser filters them itself with the functions of `lib/destinations.ts`, so every choice answers at once.
 

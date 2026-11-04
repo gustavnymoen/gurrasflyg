@@ -7,7 +7,7 @@ feature: TRIP-014
 tags: [charter, booking, search, timetables, extras, payment, personal-data, accessibility, security]
 generated:
   by: claude
-  at: 2026-10-28T09:50:00+01:00
+  at: 2026-11-04T12:00:00+01:00
 ---
 
 # Charter booking
@@ -63,7 +63,7 @@ Defined once, in `EXTRAS` in `lib/charter-rules.ts` (code, name, text, price per
 1. Looks up the request id; a booking already saved with it is returned at the end, so two Betala make one booking.
 2. Reads the timetables inside the transaction (`readCharter()`) and finds both chosen trips. If a timetable doesn't run on its date, a date has passed or the return doesn't fit the outbound, nothing is saved and the page says "Något i resan har ändrats sedan du valde den. Gå tillbaka till Resa och välj igen.".
 3. Checks the form: its shape (`fitsCharterForm()`, `fitsForm()`), the extras (`extrasProblem()`: only known codes, none twice, no drinks package with a traveller under 18), the fields (`charterProblems()`) and the payment method. Anything wrong gives "Bokningen gick inte att spara. Gå tillbaka till Resenärer och kontrollera uppgifterna.".
-4. Saves the booking with a booking number `CH-` and six characters (no 0/O or 1/I, `randomBookingCode()` in `lib/bookings.ts`), with the prices from the database and the extras' prices from `EXTRAS`.
+4. Saves the booking with a booking number `CH-` and six characters (no 0/O or 1/I, `newBookingNumber()` in `lib/booking-common.ts`, shared with the flight booking; `CharterBookingError` is a `BookingError`), with the prices from the database and the extras' prices from `EXTRAS`.
 
 Nothing from the browser is used as a price. Other errors give "Något gick fel, försök igen." and are logged on the server. On success the summary is saved in the tab (`gurrasflyg-charter-bokad`), the form is removed and the page is replaced by `/charter/bokad`.
 
