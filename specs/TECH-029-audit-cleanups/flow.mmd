@@ -1,0 +1,8 @@
+%% TECH-029 Audit cleanups
+%% Betala for flight and charter now share their error handling and booking number.
+flowchart TD
+    A[Betala] --> B[createBooking or createCharterBooking]
+    B --> C{BookingError?}
+    C -- yes --> D[bookingFailure: show the message]
+    C -- no, other error --> E[bookingFailure: log, show Något gick fel]
+    C -- saved --> F[newBookingNumber, or the booking found by request_id]

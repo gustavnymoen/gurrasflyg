@@ -5,7 +5,8 @@
 // priserna räknas från databasen.
 
 import { MAX_QUERY_LENGTH } from "@/lib/booking-rules";
-import { CharterBookingError, CHANGED, createCharterBooking } from "@/lib/charter-bookings";
+import { bookingFailure } from "@/lib/booking-common";
+import { CHANGED, createCharterBooking } from "@/lib/charter-bookings";
 import { type CharterForm, type CharterSummary, charterSummary, parseCharterSearch, parseChoice } from "@/lib/charter-rules";
 import { bookingLimitError } from "@/lib/flow-limits";
 import { getDestinationAirport } from "@/lib/travel";
@@ -32,8 +33,6 @@ export async function bookCharterAction(id: string, query: string, form: Charter
     });
     return { ok: true, summary: charterSummary(bookingNumber, destination.title, form, trips) };
   } catch (e) {
-    if (e instanceof CharterBookingError) return { ok: false, error: e.message };
-    console.error(e);
-    return { ok: false, error: "Något gick fel, försök igen." };
+    return bookingFailure(e);
   }
 }

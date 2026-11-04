@@ -5,7 +5,8 @@
 // räknas från databasen.
 
 import { type BookingForm, type BookingSummary, bookingSummary, MAX_QUERY_LENGTH } from "@/lib/booking-rules";
-import { BookingError, CHANGED, createBooking } from "@/lib/bookings";
+import { bookingFailure } from "@/lib/booking-common";
+import { CHANGED, createBooking } from "@/lib/bookings";
 import { loadTrip } from "@/lib/flights";
 import { bookingLimitError } from "@/lib/flow-limits";
 
@@ -22,8 +23,6 @@ export async function bookAction(query: string, form: BookingForm): Promise<Book
     const { bookingNumber, legs } = await createBooking({ search: trip.search, legs: trip.legs, form });
     return { ok: true, summary: bookingSummary(bookingNumber, form, legs, trip.flights) };
   } catch (e) {
-    if (e instanceof BookingError) return { ok: false, error: e.message };
-    console.error(e);
-    return { ok: false, error: "Något gick fel, försök igen." };
+    return bookingFailure(e);
   }
 }

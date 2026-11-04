@@ -1,5 +1,4 @@
 import "server-only";
-import { randomInt } from "node:crypto";
 import type { Transaction } from "@libsql/client";
 import {
   type BookingForm,
@@ -14,6 +13,7 @@ import {
   seatPrice,
   travellerProblems,
 } from "./booking-rules";
+import { BookingError, findBookingByRequestId, INVALID, newBookingNumber } from "./booking-common";
 import { get, run, withTransaction } from "./db";
 import { hasLeft, localNow } from "./flight-rules";
 import { readAddons, readFleet } from "./flights";
@@ -24,13 +24,10 @@ import type { LegChoice } from "./trip";
 // adressen och formuläret. Inget av det är kontrollerat än.
 export type BookingRequest = { search: Search; legs: LegChoice[]; form: BookingForm };
 
-// Fel som beror på vad besökaren valt eller på att något ändrats sedan dess,
-// och som kan visas för besökaren
-export class BookingError extends Error {}
+export { BookingError };
 
 export const CHANGED =
   "Något i resan har ändrats sedan du valde den. Gå tillbaka till Plan och klass och välj igen.";
-const INVALID = "Bokningen gick inte att spara. Gå tillbaka till Resenärer och kontrollera uppgifterna.";
 
 // Sparar bokningen och returnerar bokningsnumret och flygen den gäller (R8).
 // Allt kontrolleras och alla priser räknas här, i transaktionen, från
@@ -40,11 +37,7 @@ const INVALID = "Bokningen gick inte att spara. Gå tillbaka till Resenärer och
 export async function createBooking(request: BookingRequest, now = new Date()) {
   const { search, legs, form } = request;
   return withTransaction(async (tx) => {
-    const existing = await get<{ bookingNumber: string }>(
-      "SELECT booking_number AS bookingNumber FROM bookings WHERE request_id = ?",
-      [typeof form?.requestId === "string" ? form.requestId : ""],
-      tx,
-    );
+    const existing = await findBookingByRequestId(tx, "bookings", form?.requestId);
 
     const departures = [];
     for (const [i, leg] of legs.entries()) departures.push(await readDeparture(search, i, leg.time, now, tx));
@@ -69,7 +62,7 @@ export async function createBooking(request: BookingRequest, now = new Date()) {
     if (!valid) throw new BookingError(INVALID);
     if (existing) return { bookingNumber: existing.bookingNumber, legs: booked };
 
-    const bookingNumber = await newBookingNumber(tx);
+    const bookingNumber = await newBookingNumber(tx, "bookings");
     const { contact } = form;
     const { lastId: bookingId } = await run(
       `INSERT INTO bookings (booking_number, request_id, first_name, last_name, email, phone, address, payment, total)
@@ -160,19 +153,4 @@ async function readDeparture(search: Search, i: number, time: string, now: Date,
   );
   if (!departure || (i === 1 && !search.return)) return undefined;
   return hasLeft({ date: legDate(search, i), time }, localNow(departure.timezone, now)) ? undefined : departure;
-}
-
-// Sex tecken, utan lätt förväxlade tecken som 0/O och 1/I
-export function randomBookingCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  return Array.from({ length: 6 }, () => chars[randomInt(chars.length)]).join("");
-}
-
-async function newBookingNumber(tx: Transaction) {
-  for (;;) {
-    const number = randomBookingCode();
-    if (!(await get("SELECT 1 FROM bookings WHERE booking_number = ?", [number], tx))) {
-      return number;
-    }
-  }
 }

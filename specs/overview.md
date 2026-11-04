@@ -152,6 +152,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TECH-026 | Security scan findings: a right Min bokning lookup no longer clears the guess count, the airport search text is cut to 100 characters, every response has a Content Security Policy, Permissions-Policy and HSTS, `.vitest/` is out of Git, and the stateless admin sign-in is documented as a known limit | Shared | Done |
 | TECH-027 | Strict Content Security Policy: Next's experimental SRI tried without `'unsafe-inline'` in `script-src`; it does not cover inline scripts, so the policy is unchanged and the result is documented | Shared | Done |
 | TECH-028 | Ponytail audit of the whole solution: one report with every finding marked; the one must-fix finding (no unit test for the admin session cookie) is fixed, larger findings are left for a grouped technical task | Shared | Done |
+| TECH-029 | Audit cleanups: a destination page and a charter booking read one destination instead of all, the flight and charter bookings share their duplicated code, and reviews have a unit test | Shared | Done |
 
 ## Decisions for charter
 

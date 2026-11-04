@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-04
+
+- TECH-029: the audit's larger findings. A destination page and a charter booking read only their own destination instead of all ~100; the flight and charter bookings share `lib/booking-common.ts` (error class, booking number, request id lookup, the actions' error handling); `lib/reviews.ts` has a unit test. Nothing a visitor sees changes.
+
 ## 2026-11-03
 
 - TECH-028: a Ponytail audit of the whole solution (`specs/TECH-028-ponytail-audit/audit.md`) found no bugs; the admin session cookie got unit tests (`lib/session.test.ts`), and the larger findings are on the board as TECH-029.
