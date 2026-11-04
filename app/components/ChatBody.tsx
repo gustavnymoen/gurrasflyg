@@ -3,9 +3,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
   FAIL_TEXT,
+  GREETING,
   lastMessages,
   MAX_QUESTION_LENGTH,
-  pickGreeting,
   SHOW_LEFT_FROM,
   waitText,
 } from "@/lib/chat-rules";
@@ -36,10 +36,25 @@ export function ChatHeader({
   return (
     <div className="flex items-center gap-3">
       {connected && <AgnetaAvatar size={40} className="size-10" />}
-      <h2 id={id} className={connected ? "flex-1 text-lg font-semibold" : "sr-only"}>
-        {connected ? "Agneta Spydenius" : "Agneta"}
-      </h2>
-      {!connected && <span className="flex-1" />}
+      {connected ? (
+        <div className="flex-1">
+          <h2 id={id} className="text-lg leading-tight font-semibold">
+            Agneta Spydenius
+          </h2>
+          <p className="text-small text-ink-muted">Kundtjänstmedarbetare</p>
+          <p className="flex items-center gap-1.5 text-small text-ink-muted">
+            <span aria-hidden="true" data-testid="agneta-live-dot" className="size-2 rounded-full bg-success" />
+            Live
+          </p>
+        </div>
+      ) : (
+        <>
+          <h2 id={id} className="sr-only">
+            Agneta
+          </h2>
+          <span className="flex-1" />
+        </>
+      )}
       <HeaderButton label="Minimera chatten" onClick={onMinimise} path="M5 12h14" />
       <HeaderButton label="Stäng chatten" onClick={onClose} path="M6 6l12 12M18 6L6 18" />
     </div>
@@ -71,7 +86,7 @@ export default function ChatBody({
   useEffect(() => {
     if (!connecting) return;
     const timer = setTimeout(
-      () => setEntries((list) => (list.length > 0 ? list : [{ role: "assistant", content: pickGreeting() }])),
+      () => setEntries((list) => (list.length > 0 ? list : [{ role: "assistant", content: GREETING }])),
       2000 + Math.random() * 1000,
     );
     return () => clearTimeout(timer);

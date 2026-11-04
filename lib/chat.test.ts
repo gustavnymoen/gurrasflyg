@@ -21,18 +21,18 @@ afterEach(() => {
   delete process.env.LLM_MOCK;
 });
 
-test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 600 and the messages", async () => {
+test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 1000 and the messages", async () => {
   const { client, create } = clientOf(reply([{ type: "text", text: "Dyrt." }]));
   expect(await askAgneta(question, client)).toBe("Dyrt.");
   expect(MODEL).toBe("claude-sonnet-5-5");
   expect(create).toHaveBeenCalledWith({
     model: "claude-sonnet-5-5",
-    max_tokens: 600,
+    max_tokens: 1000,
     cache_control: { type: "ephemeral" },
     system: await buildSystemPrompt(),
     messages: question,
   });
-  expect(MAX_TOKENS).toBe(600);
+  expect(MAX_TOKENS).toBe(1000);
 });
 
 test("TRIP-017-R6 the usage of every response is logged, and the key never", async () => {
@@ -56,11 +56,19 @@ test("TRIP-017-R8 the fake client fails on a question with FEL, so the error sta
   await expect(mockClient.messages.create({ messages: [{ role: "user", content: "FEL" }] } as never)).rejects.toThrow();
 });
 
-test("TRIP-017-R8 a refusal or an answer with nothing gives null, an answer cut off at the limit is shown as it is", async () => {
+test("TRIP-017-R8 a refusal or an answer with nothing gives null, an answer cut off at the limit is shown as far as it goes", async () => {
   vi.spyOn(console, "log").mockImplementation(() => {});
   expect(await askAgneta(question, clientOf(reply([], "refusal")).client)).toBeNull();
   expect(await askAgneta(question, clientOf(reply([{ type: "text", text: "  " }])).client)).toBeNull();
   expect(await askAgneta(question, clientOf(reply([{ type: "text", text: "Avbru" }], "max_tokens")).client)).toBe("Avbru");
+});
+
+test("TRIP-033-R4 an answer that stopped at the limit is cut at the last whole bullet and the event is logged", async () => {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  const text = "- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person\n- [B](/charter/b";
+  expect(await askAgneta(question, clientOf(reply([{ type: "text", text }], "max_tokens")).client)).toBe("- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person");
+  expect(log).toHaveBeenCalledWith("chat cut at the token limit", JSON.stringify(usage));
+  expect(await askAgneta(question, clientOf(reply([{ type: "text", text }])).client)).toBe(text); // inte kapad: oförändrad
 });
 
 test("TRIP-017-R8 an API failure is thrown to the route", async () => {

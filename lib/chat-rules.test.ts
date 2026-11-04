@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { type ChatMessage, FAIL_TEXT, GREETINGS, lastMessages, MAX_QUESTION_LENGTH, parseMessages, pickGreeting, waitText } from "./chat-rules";
+import { cutToWhole, type ChatMessage, FAIL_TEXT, GREETING, lastMessages, MAX_QUESTION_LENGTH, parseMessages, waitText } from "./chat-rules";
 
 const q = (content = "Hur bokar jag?"): ChatMessage => ({ role: "user", content });
 const a = (content = "Suck."): ChatMessage => ({ role: "assistant", content });
@@ -23,7 +23,7 @@ test("TRIP-017-R8 more than 6 messages, a wrong order, a wrong last message or a
   expect(parse([a(), q()])).toBeNull();
   expect(parse([q(), q()])).toBeNull();
   expect(parse([q(), a()])).toBeNull();
-  expect(parse([q(), a("x".repeat(4001)), q()])).toBeNull();
+  expect(parse([q(), a("x".repeat(6001)), q()])).toBeNull();
   expect(parse([])).toBeNull();
 });
 
@@ -51,11 +51,20 @@ test("TRIP-017-R8 the friendly texts name no status code and say how long to wai
   expect(waitText(61)).toContain("2 minuter");
 });
 
-test("TRIP-032-R7 every greeting is one of the lines and ends with the question", () => {
-  for (const random of [0, 0.3, 0.99]) {
-    const text = pickGreeting(random);
-    expect(GREETINGS.some((line) => text.startsWith(`${line} `))).toBe(true);
-    expect(text.endsWith("Hur kan jag hjälpa dig då?")).toBe(true);
-  }
-  expect(new Set(GREETINGS.map((_, i) => pickGreeting(i / GREETINGS.length))).size).toBe(GREETINGS.length);
+test("TRIP-033-R2 the greeting is exactly Vad vill du?!", () => {
+  expect(GREETING).toBe("Vad vill du?!");
+});
+
+test("TRIP-033-R4 an answer cut at the limit ends at the last whole bullet with its sub-bullet", () => {
+  const list = "- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person\n- [B](/charter/b): Två.\n  - ARN, från 200 kr per person";
+  // Avbruten i en länk och i en underpunkt (huvudpunkten följer med; en hel sista underpunkt räknas som avbruten och går också)
+  expect(cutToWhole(`${list}\n- [C](/charter/c`)).toBe(list);
+  expect(cutToWhole(`${list}\n- [C](/charter/c): Tre.\n  - CPH, frå`)).toBe(list);
+  expect(cutToWhole("Först.\n\nAndra stycket som avbry")).toBe("Först.");
+});
+
+test("TRIP-033-R4 an answer cut with no whole line ends at the last whole word and has no half link", () => {
+  expect(cutToWhole("Jag tycker att Beelitz är ett dåligt val, men ta en titt på [Beelitz-Heil")).toBe("Jag tycker att Beelitz är ett dåligt val, men ta en titt på");
+  expect(cutToWhole("Här är länken: [Beelitz-Heilstätten] (/charter/beelitz")).toBe("Här är länken:");
+  expect(cutToWhole("Ett långt ord avbry")).toBe("Ett långt ord");
 });

@@ -1,10 +1,10 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import type { ChatMessage } from "./chat-rules";
+import { type ChatMessage, cutToWhole } from "./chat-rules";
 import { buildSystemPrompt } from "./chat-prompt";
 
 export const MODEL = "claude-sonnet-5-5";
-export const MAX_TOKENS = 600;
+export const MAX_TOKENS = 1000;
 
 // Det av klienten som används: ett anrop som ger ett svar. Provet byter ut den mot en låtsasklient.
 export type ChatClient = {
@@ -25,9 +25,14 @@ export const mockClient: ChatClient = {
     create: async (params) => {
       const question = params.messages.at(-1)?.content;
       if (typeof question === "string" && question.includes("FEL")) throw new Error("mock failed");
+      // "KAPAD" ger ett svar som stannar mitt i en länk, så att kapningen går att prova
+      const cut = typeof question === "string" && question.includes("KAPAD");
+      const text = cut
+        ? "- [Teufelsberg](/charter/teufelsberg): Spökstation.\n  - Berlin, från 1 000 kr per person\n- [Beelitz-Heilstätten] (/charter/beelitz"
+        : `Svar från Agneta på: ${question}`;
       return {
-        content: [{ type: "text", text: `Svar från Agneta på: ${question}` }],
-        stop_reason: "end_turn",
+        content: [{ type: "text", text }],
+        stop_reason: cut ? "max_tokens" : "end_turn",
         usage: { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 },
       } as unknown as Anthropic.Message;
     },
@@ -48,9 +53,12 @@ export async function askAgneta(
     messages,
   });
   console.log("chat usage", JSON.stringify(response.usage));
+  const cut = response.stop_reason === "max_tokens";
+  if (cut) console.log("chat cut at the token limit", JSON.stringify(response.usage));
   const text = response.content
     .flatMap((block) => (block.type === "text" ? [block.text] : []))
     .join("")
     .trim();
-  return response.stop_reason === "refusal" || text === "" ? null : text;
+  if (response.stop_reason === "refusal" || text === "") return null;
+  return cut ? cutToWhole(text) : text;
 }

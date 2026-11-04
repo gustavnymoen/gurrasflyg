@@ -20,9 +20,13 @@ export function parseBlocks(markdown: string): Block[] {
 // (/charter/<id>) blir länkar; all annan text, också andra länkar, förblir vanlig text (TRIP-032-R2).
 export type Inline = { text: string; bold: boolean; href?: string };
 
+// Slutet av en länk som inte hann bli hel: "[Namn", "[Namn]", "[Namn](/charter/ab". Radslut stoppar den.
+export const HALF_LINK = /\[[^\]\n]*(\]\s*(\([^)\n]*)?)?$/;
+
 const INLINE = /\*\*(.+?)\*\*|\[([^\]]+)\]\((\/charter\/[a-z0-9-]+)\)/g;
 
-export function parseInline(text: string): Inline[] {
+export function parseInline(raw: string): Inline[] {
+  const text = raw.replace(HALF_LINK, "").trimEnd(); // en halv länk visas aldrig som text (TRIP-033-R4)
   const parts: Inline[] = [];
   let from = 0;
   for (const m of text.matchAll(INLINE)) {

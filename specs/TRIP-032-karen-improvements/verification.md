@@ -57,7 +57,7 @@ The connecting-view test uses Playwright's fake clock instead of waiting 2 to 3 
 
 ## Requirements as built
 
-Copied from the card (#119) as it stands after the work, with the name Agneta.
+Copied from the card (#119) as it stands after the work, with the name Agneta. The panel width, the header text and the greeting below are changed by [TRIP-033](../TRIP-033-agneta-polish/verification.md).
 
 ### TRIP-032-R1 Voice
 

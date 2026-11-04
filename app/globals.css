@@ -205,7 +205,7 @@
    marginal lika bred, så att den trycks ihop i stället för att täckas. Panelens bredd är en
    variabel som app/components/Chat.tsx också använder. */
 @theme static {
-  --agneta-panel-width: clamp(22rem, 20vw, 28rem);
+  --agneta-panel-width: clamp(26rem, 25vw, 36rem);
 }
 
 @media (min-width: 64rem) {

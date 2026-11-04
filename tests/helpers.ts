@@ -290,7 +290,7 @@ export const kronor = (text: string) => Number(text.match(/från\s*([\d\s]+?)\s*
 export async function agnetaGreeted(page: Page, open = false) {
   await page.addInitScript((isOpen) => {
     if (sessionStorage.getItem("agneta-chat")) return;
-    const greeting = { role: "assistant", content: "Jaha, då var det dags igen. Hur kan jag hjälpa dig då?" };
+    const greeting = { role: "assistant", content: "Vad vill du?!" };
     sessionStorage.setItem("agneta-chat", JSON.stringify({ open: isOpen, entries: [greeting] }));
   }, open);
 }

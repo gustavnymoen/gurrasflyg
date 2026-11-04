@@ -40,3 +40,9 @@ test("TRIP-032-R2 an answer has paragraphs, a list with sub-lists, and bold text
     { type: "paragraph", text: "Slut." },
   ]);
 });
+
+test("TRIP-033-R4 a half link is never shown as text", () => {
+  for (const half of ["[Beelitz-", "[Beelitz-Heilstätten]", "[Beelitz-Heilstätten] (/charter/beelitz", "[Beelitz-Heilstätten](/charter/beel"]) {
+    expect(parseInline(`Se ${half}`), half).toEqual([{ text: "Se", bold: false }]);
+  }
+});
