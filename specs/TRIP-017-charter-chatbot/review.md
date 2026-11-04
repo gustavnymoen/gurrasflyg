@@ -8,7 +8,7 @@ title: Charter chatbot Agneta
 **Result:** Passed
 **Date:** 2026-11-04, review run 1
 **Summary:** R1–R9 are met as far as the code shows. The key is read in one server-only place and never logged, the prompt holds nothing visitor-specific, and the history is validated on the server. No must-fix findings.
-**Security:** Security points passed (public route by design; input validated on the server before the model call; parameterised SQL; `LLM_API_KEY` only in `lib/chat.ts`, never logged or in an error text; rate limit per IP address after validation). `/security-review` has not been run yet (to be run before the pull request and its result added here).
+**Security:** Security points passed (public route by design; input validated on the server before the model call; parameterised SQL; `LLM_API_KEY` only in `lib/chat.ts`, never logged or in an error text; rate limit per IP address after validation). `/security-review` run 2026-11-04: no finding with confidence 8 or above (route validation, key handling, SQL parameters, React text rendering all checked; cost and rate-limit points are excluded by that review).
 
 How the review works: `wiki/system/code-review.md`.
 

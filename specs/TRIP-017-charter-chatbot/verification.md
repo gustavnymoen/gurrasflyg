@@ -27,7 +27,7 @@ How each requirement was checked. Create this file when work starts and fill it 
 | Browser tests | `tests/TRIP-017-charter-chatbot.spec.ts` (7 tests), one added check in `tests/TECH-018-design.spec.ts` | local | Pass | 2026-11-04 |
 | Smoke test | `TRIP-017-R7 @smoke` (no question is sent) | preview, live | Not run yet (after the pull request and the deploy) | – |
 | Accessibility | axe in the browser tests; the checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local | axe pass, checklist not checked | 2026-11-04 |
-| Security | Security points in the review; `/security-review` not run yet | local | Points pass | 2026-11-04 |
+| Security | Security points in the review; `/security-review` run: no findings | local | Pass | 2026-11-04 |
 | Real model by hand | Not checked yet: two questions within 5 minutes (cache), bundle search, the refusal questions | preview, live | Not checked | – |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-04 |
 
