@@ -21,13 +21,14 @@ afterEach(() => {
   delete process.env.LLM_MOCK;
 });
 
-test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 1000 and the messages", async () => {
+test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 1000, thinking off and the messages", async () => {
   const { client, create } = clientOf(reply([{ type: "text", text: "Dyrt." }]));
   expect(await askAgneta(question, client)).toBe("Dyrt.");
   expect(MODEL).toBe("claude-sonnet-5-5");
   expect(create).toHaveBeenCalledWith({
     model: "claude-sonnet-5-5",
     max_tokens: 1000,
+    thinking: { type: "disabled" },
     cache_control: { type: "ephemeral" },
     system: await buildSystemPrompt(),
     messages: question,

@@ -129,5 +129,7 @@ Acceptance criteria:
 
 ## Notes
 
+- **After the merge (live):** a question on the live site gave a cut answer ending in "…under 4 000 kr:". The log line showed `output_tokens: 1000`, so the limit was hit by something that is not visible text (thinking). Fix: `thinking: { type: "disabled" }` in `askAgneta`, covered by the unit test of the request. Whether the live answer is now whole: **not checked**.
+
 - **The cause of the cut answers is not confirmed.** The card says to reproduce the cut on the preview and read `stop_reason` before changing the code; the build session had no preview and sent no question to the real model. The limit is raised to 1 000 and a cut is handled and logged ("chat cut at the token limit" with the usage). If the preview shows a cut at about 50 tokens, the limit is not the cause and the card must be updated.
 - **Not checked:** the tone, the list format and the links with the real model (R3, R4, R5, R7), the panel width by eye and just above `lg` (R6), the accessibility checklist and the live smoke tests.
