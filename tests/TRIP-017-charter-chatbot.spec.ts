@@ -1,17 +1,23 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
+import { expectNoA11yViolations, agnetaGreeted } from "./helpers";
 
-// Chatten med Agneta (TRIP-017). Alla prov kör med låtsasklienten (LLM_MOCK=1 i
+// Chatten med Agneta (TRIP-017; panelen, bubblorna och det sparade samtalet är TRIP-032). Alla prov kör med låtsasklienten (LLM_MOCK=1 i
 // scripts/test-server.mjs), så inget prov kostar kursens tak. En fråga med "FEL" gör
 // att låtsasklienten misslyckas. Mot en riktig sajt (npm test) provas bara det som inte skickar en fråga.
 
+// Chatten är en panel på en bred skärm och en dialog på en smal (TRIP-032-R4). Provens bredd är bred,
+// så den är en panel utom i de prov som säger annat. Hälsningen är redan gjord (agnetaGreeted),
+// så att ingen väntar på inkopplingen.
 const openButton = (page: Page) => page.getByRole("button", { name: "Fråga Agneta" });
-const dialog = (page: Page) => page.getByRole("dialog", { name: "Fråga Agneta" });
-const field = (page: Page) => dialog(page).getByLabel("Din fråga");
+const panel = (page: Page) => page.getByRole("region", { name: "Agneta" });
+const dialog = (page: Page) => page.getByRole("dialog", { name: "Agneta Spydenius" });
+const field = (page: Page) => panel(page).getByLabel("Din fråga");
+
+test.beforeEach(({ page }) => agnetaGreeted(page));
 
 async function ask(page: Page, question: string) {
   await field(page).fill(question);
-  await dialog(page).getByRole("button", { name: "Skicka" }).click();
+  await panel(page).getByRole("button", { name: "Skicka" }).click();
 }
 
 test("TRIP-017-R7 the button is on the start page and every charter page, and on no other page", async ({ page }) => {
@@ -26,7 +32,7 @@ test("TRIP-017-R7 the button is on the start page and every charter page, and on
   }
 });
 
-test("TRIP-017-R7 R8 R9 the chat: ask and wait, answers in order, kept when closed, cleared by a reload, a blank question and an error", async ({
+test("TRIP-017-R7 R8 R9 the chat: ask and wait, answers in order, kept when closed, a blank question and an error", async ({
   page,
 }) => {
   const sent: string[] = [];
@@ -46,17 +52,17 @@ test("TRIP-017-R7 R8 R9 the chat: ask and wait, answers in order, kept when clos
   await openButton(page).click();
   // R9: focus goes to the field when the chat opens
   await expect(field(page)).toBeFocused();
-  await expect(dialog(page)).toContainText("Skriv inga personuppgifter");
+  await expect(panel(page)).toContainText("Skriv inga personuppgifter");
 
   // R7: a blank question sends nothing
-  await dialog(page).getByRole("button", { name: "Skicka" }).click();
+  await panel(page).getByRole("button", { name: "Skicka" }).click();
   await field(page).fill("   ");
   await field(page).press("Enter");
   expect(sent).toHaveLength(0);
 
   // R7: the question appears, the field is emptied and the waiting text shows (announced by the log, R9)
   await ask(page, "Vad kostar Teufelsberg?");
-  const log = dialog(page).getByRole("log", { name: "Samtalet" });
+  const log = panel(page).getByRole("log", { name: "Samtalet" });
   await expect(log).toContainText("Vad kostar Teufelsberg?");
   await expect(field(page)).toHaveValue("");
   await expect(log.getByText("Agneta tänker …")).toBeVisible();
@@ -81,19 +87,16 @@ test("TRIP-017-R7 R8 R9 the chat: ask and wait, answers in order, kept when clos
   expect(JSON.parse(sent.at(-1)!).messages.map((m: { content: string }) => m.content)).not.toContain("FEL");
 
   // R7: closed and opened again, the conversation is still there; R9: focus goes back to the button
-  await dialog(page).getByRole("button", { name: "Stäng" }).click();
-  await expect(dialog(page)).toBeHidden();
+  await panel(page).getByRole("button", { name: "Minimera chatten" }).click();
+  await expect(panel(page)).toBeHidden();
   await expect(openButton(page)).toBeFocused();
   await openButton(page).click();
   await expect(log).toContainText("Svar från Agneta på: Tredje frågan");
 
-  // R9: Escape closes it too, and a reload starts over
+  // R9: Escape closes it too
   await page.keyboard.press("Escape");
-  await expect(dialog(page)).toBeHidden();
+  await expect(panel(page)).toBeHidden();
   await expect(openButton(page)).toBeFocused();
-  await page.reload();
-  await openButton(page).click();
-  await expect(log).not.toContainText("Svar från Agneta");
 });
 
 test("TRIP-017-R8 R9 the field stops at 500 characters and shows what is left; the chat fits 320 px and has no axe violations", async ({
@@ -101,10 +104,10 @@ test("TRIP-017-R8 R9 the field stops at 500 characters and shows what is left; t
 }) => {
   await page.goto("/");
   await openButton(page).click();
-  await expect(dialog(page).getByText("tecken kvar")).toHaveCount(0);
+  await expect(panel(page).getByText("tecken kvar")).toHaveCount(0);
   await field(page).pressSequentially("x".repeat(501));
   await expect(field(page)).toHaveValue("x".repeat(500));
-  await expect(dialog(page).getByText("0 tecken kvar")).toBeVisible();
+  await expect(panel(page).getByText("0 tecken kvar")).toBeVisible();
 
   // R9: no violations on the start page, and on a charter page below
   await expectNoA11yViolations(page);
@@ -115,8 +118,9 @@ test("TRIP-017-R8 R9 the field stops at 500 characters and shows what is left; t
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(dialog(page).getByRole("button", { name: "Skicka" })).toBeInViewport();
 
+  // The chat stays open from page to page (TRIP-032-R5), now as a dialog
   await page.goto("/charter/teufelsberg");
-  await openButton(page).click();
+  await expect(dialog(page)).toBeVisible();
   await expectNoA11yViolations(page);
 });
 
@@ -129,16 +133,7 @@ test("TRIP-017-R9 the keyboard alone opens the chat, asks, reads and closes it, 
   await expect(field(page)).toBeFocused();
   await page.keyboard.type("Hur bokar jag?");
   await page.keyboard.press("Enter");
-  await expect(dialog(page)).toContainText("Svar från Agneta på: Hur bokar jag?");
-  // Tab goes round inside the chat: the log (it scrolls, so it can be reached), field, Stäng, Skicka, and back
-  await page.keyboard.press("Tab");
-  await expect(dialog(page).getByRole("button", { name: "Stäng" })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(dialog(page).getByRole("button", { name: "Skicka" })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(dialog(page).getByRole("log")).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(field(page)).toBeFocused();
+  await expect(panel(page)).toContainText("Svar från Agneta på: Hur bokar jag?");
   await page.keyboard.press("Escape");
   await expect(openButton(page)).toBeFocused();
 });
@@ -161,6 +156,6 @@ test("TRIP-017-R7 @smoke the button is on the start page and /charter, and opens
     await page.goto(path);
     await openButton(page).click();
     await expect(field(page)).toBeFocused();
-    await dialog(page).getByRole("button", { name: "Stäng" }).click();
+    await panel(page).getByRole("button", { name: "Minimera chatten" }).click();
   }
 });

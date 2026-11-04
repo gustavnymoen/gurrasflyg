@@ -1,4 +1,4 @@
-// Regler för chatten med Agneta (TRIP-017), gemensamma för webbläsaren och servern.
+// Regler för chatten med Agneta (TRIP-017, TRIP-032), gemensamma för webbläsaren och servern.
 // Servern kontrollerar allt igen: det som skickas därifrån går att förfalska.
 
 export const MAX_QUESTION_LENGTH = 500;
@@ -42,3 +42,18 @@ export function waitText(seconds: number) {
   const time = seconds >= 60 ? `${Math.ceil(seconds / 60)} minuter` : `${seconds} sekunder`;
   return `Du har frågat nog för en stund. Kom tillbaka om ${time}, så ska jag se vad jag orkar.`;
 }
+
+// Agnetas hälsning när chatten öppnas första gången i en session (TRIP-032-R7): en slumpad
+// mutter ur listan, sedan frågan. Den är inget API-anrop och följer aldrig med frågorna.
+export const GREETINGS = [
+  "Nämen, en kund. Vad roligt för alla.",
+  "Jaha, då var det dags igen.",
+  "Du hann före lunchen. Tyvärr.",
+  "Jag var mitt i en paus, men fortsätt du.",
+  "Där är du ja. Jag har väntat, ungefär.",
+  "Välkommen. Försök hålla det kort.",
+];
+export const GREETING_QUESTION = "Hur kan jag hjälpa dig då?";
+
+export const pickGreeting = (random = Math.random()) =>
+  `${GREETINGS[Math.floor(random * GREETINGS.length)]} ${GREETING_QUESTION}`;

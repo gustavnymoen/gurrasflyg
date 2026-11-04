@@ -13,7 +13,7 @@ Gurras Flyg har två delar: **flygbokning** mellan två flygplatser med flygbola
 - [Boka resan](boka-resan.md): Så fyller du i resenärerna, väljer tillägg, svarar på de tre viktiga frågorna, betalar och får ditt bokningsnummer.
 - [Hitta ett charterresmål](charter-resmal.md): Så söker och filtrerar du bland charterresmålen, och vad du ser på ett resmåls sida.
 - [Boka en charterresa](boka-charter.md): Så söker du en charterresa från ett resmåls sida, väljer ut- och hemresa, fyller i resenärerna, väljer tillägg, betalar och får ditt bokningsnummer.
-- [Fråga Agneta](fraga-agneta.md): Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten på startsidan och charter-sidorna.
+- [Fråga Agneta](fraga-agneta.md): Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten (en panel vid sidan av sidan, eller en ruta på mobilen) på startsidan och charter-sidorna.
 - [Min bokning](min-bokning.md): Så hittar du din flyg- eller charterbokning med bokningsnummer och efternamn och avbokar delar av den, och hur lotteriet om pengarna fungerar.
 - [Omdömen på startsidan](omdomen.md): Så bläddrar du bland resenärernas omdömen på startsidan.
 

@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { type ChatMessage, FAIL_TEXT, lastMessages, MAX_QUESTION_LENGTH, parseMessages, waitText } from "./chat-rules";
+import { type ChatMessage, FAIL_TEXT, GREETINGS, lastMessages, MAX_QUESTION_LENGTH, parseMessages, pickGreeting, waitText } from "./chat-rules";
 
 const q = (content = "Hur bokar jag?"): ChatMessage => ({ role: "user", content });
 const a = (content = "Suck."): ChatMessage => ({ role: "assistant", content });
@@ -49,4 +49,13 @@ test("TRIP-017-R8 the friendly texts name no status code and say how long to wai
   expect(FAIL_TEXT).not.toMatch(/\d{3}|fel|error/i);
   expect(waitText(30)).toContain("30 sekunder");
   expect(waitText(61)).toContain("2 minuter");
+});
+
+test("TRIP-032-R7 every greeting is one of the lines and ends with the question", () => {
+  for (const random of [0, 0.3, 0.99]) {
+    const text = pickGreeting(random);
+    expect(GREETINGS.some((line) => text.startsWith(`${line} `))).toBe(true);
+    expect(text.endsWith("Hur kan jag hjälpa dig då?")).toBe(true);
+  }
+  expect(new Set(GREETINGS.map((_, i) => pickGreeting(i / GREETINGS.length))).size).toBe(GREETINGS.length);
 });

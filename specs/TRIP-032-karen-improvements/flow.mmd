@@ -1,0 +1,20 @@
+%% TRIP-032 Agneta improvements
+%% Opening the chat, the connecting view and the greeting, and how the conversation is kept.
+flowchart TD
+    A[Visitor presses Fråga Agneta] --> B{Wide screen?}
+    B -- yes --> C[Panel on the right, page pushed aside - R4]
+    B -- no --> D[Dialog - R4]
+    C --> E{Any saved entries?}
+    D --> E
+    E -- no --> F[Kopplar in Agneta ... 2-3 s - R7]
+    F --> G[Header with avatar and name, greeting saved as first entry - R3 R7]
+    E -- yes --> H[Saved conversation, no greeting - R5 R7]
+    G --> I[Visitor asks]
+    H --> I
+    I --> J[Last 6 messages without the greeting to /api/chat]
+    J --> K[Answer as bubble: lists, bold, /charter links - R2]
+    K --> L[Saved in sessionStorage - R5]
+    L --> M{Minimise or close?}
+    M -- yes --> N[Only the button; conversation kept - R4 R5]
+    N --> A
+    M -- no --> I

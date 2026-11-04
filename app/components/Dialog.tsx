@@ -11,15 +11,18 @@ import { floatingCardClass } from "./Card";
 // role: alertdialog för en varning, t.ex. att ta bort en rad, och dialog för
 // en vanlig fråga, t.ex. att avbryta resan (TRIP-018-R4).
 // wide: en bredare ruta med vänsterställd text och fält, för chatten (TRIP-017-R9)
+// header: en egen rubrikrad i stället för title och detail, med rubriken märkt med det id som ges (TRIP-032-R3)
 export default function Dialog({
   title,
+  header,
   detail,
   role = "alertdialog",
   wide = false,
   onClose,
   children,
 }: {
-  title: string;
+  title?: string;
+  header?: (titleId: string) => React.ReactNode;
   detail?: string;
   role?: "dialog" | "alertdialog";
   wide?: boolean;
@@ -74,10 +77,16 @@ export default function Dialog({
       }}
       className={`${floatingCardClass} m-auto w-[calc(100%-2rem)] text-ink backdrop:bg-ground/80 ${wide ? "max-w-lg" : "max-w-sm text-center"}`}
     >
-      <h2 id={titleId} className="text-lg font-semibold">
-        {title}
-      </h2>
-      {detail && <p className="mt-2 text-sm text-ink-muted">{detail}</p>}
+      {header ? (
+        header(titleId)
+      ) : (
+        <>
+          <h2 id={titleId} className="text-lg font-semibold">
+            {title}
+          </h2>
+          {detail && <p className="mt-2 text-sm text-ink-muted">{detail}</p>}
+        </>
+      )}
       <div className={wide ? "mt-4" : "mt-6 flex justify-center gap-3"}>{children}</div>
     </dialog>
   );
