@@ -46,7 +46,7 @@ test("TRIP-017-R1 a destination with no flights says so", async () => {
 });
 
 test("TRIP-017-R1 R3 the instructions and the booking text are in it, and nothing that changes per request", () => {
-  expect(prompt).toContain("You are Agneta");
+  expect(prompt).toContain("You are Agneta Spydenius");
   expect(prompt).toContain("# How to book a charter trip");
   expect(prompt).toContain("CH-");
   expect(prompt).toContain("Min bokning");
@@ -61,4 +61,18 @@ test("TRIP-017-R1 the prompt follows a change in the database", async () => {
   } finally {
     await queryUnitDb("UPDATE destination_pages SET overview = REPLACE(overview, ' ZZ-CHANGED-ZZ', '') WHERE destination_id = 'teufelsberg'");
   }
+});
+
+test("TRIP-032-R1 the Voice section has the tone rules", () => {
+  const voice = prompt.slice(prompt.indexOf("# Voice"), prompt.indexOf("# How to book"));
+  expect(voice).toContain("Never start an answer by repeating the visitor's question");
+  expect(voice).toContain("Do not insist that a destination is bad");
+  expect(voice).toContain("At most one such trait per answer");
+});
+
+test("TRIP-032-R2 every destination has its page path, and the format rules are in the instructions", async () => {
+  const rows = await queryUnitDb<{ id: string }>("SELECT id FROM destinations ORDER BY id");
+  for (const r of rows) expect(prompt).toContain(`Page: /charter/${r.id}\n`);
+  expect(prompt).toContain("[Title](/charter/id)");
+  expect(prompt).toContain("always write the destination's name in full");
 });

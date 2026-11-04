@@ -284,3 +284,13 @@ export async function searchDone(page: Page) {
 // "från 1 290 kr / person" -> 1290 (the spaces in a price are non-breaking)
 export const kronor = (text: string) => Number(text.match(/från\s*([\d\s]+?)\s*kr/)![1].replace(/\s/g, ""));
 
+
+// Chatten med Agneta har redan hälsat (TRIP-032-R7), så att provet slipper den korta inkopplingen.
+// Ett samtal som redan finns i fliken lämnas orört, så att det överlever en omladdning.
+export async function agnetaGreeted(page: Page, open = false) {
+  await page.addInitScript((isOpen) => {
+    if (sessionStorage.getItem("agneta-chat")) return;
+    const greeting = { role: "assistant", content: "Jaha, då var det dags igen. Hur kan jag hjälpa dig då?" };
+    sessionStorage.setItem("agneta-chat", JSON.stringify({ open: isOpen, entries: [greeting] }));
+  }, open);
+}

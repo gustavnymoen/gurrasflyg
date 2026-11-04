@@ -5,6 +5,7 @@ import {
   ACCENT_SOFT,
   ACCENT_STRONG,
   adminCard,
+  agnetaGreeted,
   animationsDone,
   backgroundOf,
   BRASS,
@@ -518,6 +519,7 @@ test("TRIP-013-R5 and R8 and TRIP-028-R2 the charter list: every category and ac
 test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a large photo with the search beside it, and a red alert without a box when there are no flights", async ({
   page,
 }) => {
+  await agnetaGreeted(page);
   await page.goto("/charter/teufelsberg");
   const photo = page.locator("figure img");
   await expect(photo).toBeVisible();
@@ -529,12 +531,24 @@ test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a
   expect(form.x).toBeGreaterThan(box.x + box.width);
   expect(form.y).toBeLessThan(box.y + box.height);
 
-  // TRIP-017-R7: the chat button floats at the bottom right, and the chat is a floating card
+  // TRIP-017-R7 and TRIP-032-R3 R4: the chat button floats at the bottom right; the chat is a panel on
+  // the right, 22 rem wide here, with a bubble in the accent colour for the visitor and a darker one for
+  // Agneta, both with readable text
   const chat = page.getByRole("button", { name: "Fråga Agneta" });
   await expect(chat).toHaveCSS("position", "fixed");
   await chat.click();
-  const chatBox = page.getByRole("dialog", { name: "Fråga Agneta" });
-  expect(await css(chatBox, "box-shadow")).toContain(FLOAT_SHADOW);
+  const panel = page.getByRole("region", { name: "Agneta" });
+  await expect(panel).toHaveCSS("position", "fixed");
+  await expect(panel).toHaveCSS("width", "352px");
+  await expect(panel).toHaveCSS("border-left-width", "1px");
+  await panel.getByLabel("Din fråga").fill("Hej");
+  await panel.getByLabel("Din fråga").press("Enter");
+  const mineBubble = panel.getByRole("log").locator("> div").nth(1);
+  await expect(mineBubble).toContainText("Hej");
+  await expect(mineBubble).toHaveCSS("background-color", ACCENT);
+  expect(contrast(await css(mineBubble, "color"), ACCENT)).toBeGreaterThanOrEqual(4.5);
+  const hers = panel.getByRole("log").locator("> div").first();
+  expect(contrast(INK, await backgroundOf(hers))).toBeGreaterThanOrEqual(4.5);
   await page.keyboard.press("Escape");
 
   await page.goto("/charter/chernobyl-pripyat");

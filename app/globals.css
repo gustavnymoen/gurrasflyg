@@ -200,3 +200,16 @@
     }
   }
 }
+
+/* Chattpanelen (TRIP-032-R4) är fast till höger på breda skärmar; när den är öppen får sidan
+   marginal lika bred, så att den trycks ihop i stället för att täckas. Panelens bredd är en
+   variabel som app/components/Chat.tsx också använder. */
+@theme static {
+  --agneta-panel-width: clamp(22rem, 20vw, 28rem);
+}
+
+@media (min-width: 64rem) {
+  html[data-agneta-panel] body {
+    margin-right: var(--agneta-panel-width);
+  }
+}
