@@ -1,0 +1,27 @@
+import type { NextRequest } from "next/server";
+import { askAgneta } from "@/lib/chat";
+import { parseMessages } from "@/lib/chat-rules";
+import { apiLimitResponse, CHAT_LIMIT } from "@/lib/flow-limits";
+
+// Svaret är inte strömmat och kan ta flera sekunder; 60 är mer än klientens 50 sekunder
+export const maxDuration = 60;
+
+// POST /api/chat  { messages: [{ role, content }, …] }  ->  { reply }
+// Allt kontrolleras här (TRIP-017-R8). Felen är korta och utan något från API:et eller nyckeln.
+export async function POST(request: NextRequest) {
+  const body = await request.json().catch(() => null);
+  const messages = parseMessages(body);
+  if (!messages) return Response.json({ error: "Fel form på frågan." }, { status: 400 });
+
+  const limited = await apiLimitResponse("chat", CHAT_LIMIT);
+  if (limited) return limited;
+
+  try {
+    const reply = await askAgneta(messages);
+    if (reply) return Response.json({ reply });
+  } catch (error) {
+    // Bara slaget av fel: felobjektet kan innehålla svar från API:et
+    console.error("chat failed", error instanceof Error ? error.name : "unknown");
+  }
+  return Response.json({ error: "Agneta kunde inte svara." }, { status: 502 });
+}

@@ -42,8 +42,15 @@ type Part = { timetable_id: string; value: string };
 
 // Alla tidtabeller mellan två flygplatser, med veckodagar, flightnummer och
 // byten. Ett fåtal rader per rutt; vilka som går en viss dag avgör runsOn (TRIP-014-R2, R3).
-export async function readTimetables(from: string, to: string, ex?: Executor): Promise<Timetable[]> {
-  const route = [from, to];
+export const readTimetables = (from: string, to: string, ex?: Executor) =>
+  readTimetablesWhere("t.from_airport = ? AND t.to_airport = ?", [from, to], ex);
+
+// Alla tidtabeller från eller till Arlanda och Köpenhamn, för chattens kunskap (TRIP-017-R1)
+export const readDepartureTimetables = () =>
+  readTimetablesWhere("(t.from_airport IN (?, ?) OR t.to_airport IN (?, ?))", [...DEPARTURE_AIRPORTS, ...DEPARTURE_AIRPORTS]);
+
+// where gäller tabellen charter_timetables som t och kommer bara från anropen ovan
+async function readTimetablesWhere(where: string, route: string[], ex?: Executor): Promise<Timetable[]> {
   // Efter varandra, inte samtidigt: en transaktion kör en fråga i taget
   const rows = await all<Row>(
     `SELECT t.id, t.airline, t.valid_from AS validFrom, t.valid_to AS validTo, t.departs,
@@ -53,12 +60,12 @@ export async function readTimetables(from: string, to: string, ex?: Executor): P
      FROM charter_timetables t
      JOIN charter_airports f ON f.iata = t.from_airport
      JOIN charter_airports a ON a.iata = t.to_airport
-     WHERE t.from_airport = ? AND t.to_airport = ?
-     ORDER BY t.departs, t.id`,
+     WHERE ${where}
+     ORDER BY t.departs, t.id`, // nosemgrep: semgrep.sql-built-from-text
     route,
     ex,
   );
-  const ofRoute = "timetable_id IN (SELECT id FROM charter_timetables WHERE from_airport = ? AND to_airport = ?)";
+  const ofRoute = `timetable_id IN (SELECT t.id FROM charter_timetables t WHERE ${where})`;
   const days = await all<Part>(
     `SELECT timetable_id, weekday AS value FROM charter_timetable_days WHERE ${ofRoute}`, // nosemgrep: semgrep.sql-built-from-text
     route,

@@ -103,7 +103,7 @@ async function readDestinations(id?: string): Promise<Destination[]> {
 export const getDestinations = () => readDestinations();
 
 // Billigaste pris dit från Arlanda eller Köpenhamn och hem därifrån, per flygplats, över hela tidtabellernas period
-async function getFares(): Promise<Fares> {
+export async function getFares(): Promise<Fares> {
   const marks = DEPARTURE_AIRPORTS.map(() => "?").join(", ");
   const [out, back] = await Promise.all([
     all<{ airport: string; price: number }>(

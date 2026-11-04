@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { listReviews } from "@/lib/reviews";
 import { buttonClass } from "./components/Button";
 import Card from "./components/Card";
+import Chat from "./components/Chat";
 import ReviewCarousel from "./components/ReviewCarousel";
 import SearchForm from "./components/SearchForm";
 import Tabs from "./components/Tabs";
@@ -36,6 +37,7 @@ export default function Home() {
           </Suspense>
         </section>
       </main>
+      <Chat />
     </>
   );
 }

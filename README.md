@@ -16,6 +16,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 - **Git and Vercel:** the code is on GitHub. A push to `main` builds and publishes the site on Vercel; other branches get preview deployments.
 - **Pipeline:** GitHub Actions checks every pull request, tests its preview deployment before merge, and tests the live site after every deploy. See [Pipeline](#pipeline).
 - **Tests:** Playwright, one file per feature (design checks are in one shared file). `npm test` runs against the live site, as the course prescribes; `npm run test:local` against a local production build with its own test database. See [Tests](#tests).
+- **Chatbot:** Agneta on the start page and the charter pages answers questions about the destinations from our own data, through the Anthropic API (`LLM_API_KEY`; see `wiki/system/charter-chatbot.md`).
 - **Admin:** `/admin`, protected by a password (`ADMIN_PASSWORD`). Manage cabin classes, add-ons, aircraft and reviews.
 
 `wiki/system/architecture.md` describes the parts in more detail.
@@ -23,7 +24,7 @@ The live site is <https://gurrasflyg.vercel.app>.
 ## Getting started
 
 1. `npm install` installs the dependencies and downloads the browser Playwright uses (`scripts/postinstall.mjs`).
-2. Copy `.env.example` to `.env.local` and fill in `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET`. Then close the file to other users of the computer: `chmod 600 .env.local`.
+2. Copy `.env.example` to `.env.local` and fill in `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` (and `LLM_API_KEY` to try the chat with Agneta; the tests use a fake model and need no key). Then close the file to other users of the computer: `chmod 600 .env.local`.
 3. `npm run dev` creates or updates the local database and starts the site on <http://localhost:3000>.
 
 ## Way of working

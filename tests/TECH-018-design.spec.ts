@@ -515,7 +515,7 @@ test("TRIP-013-R5 and R8 and TRIP-028-R2 the charter list: every category and ac
   expect(contrast(DANGER, await backgroundOf(notice))).toBeGreaterThanOrEqual(4.5);
 });
 
-test("TRIP-013-R7 and R8 and TRIP-014-R1 the destination page: a large photo with the search beside it, and a red alert without a box when there are no flights", async ({
+test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a large photo with the search beside it, and a red alert without a box when there are no flights", async ({
   page,
 }) => {
   await page.goto("/charter/teufelsberg");
@@ -528,6 +528,14 @@ test("TRIP-013-R7 and R8 and TRIP-014-R1 the destination page: a large photo wit
   const form = (await page.getByRole("region", { name: "Sök resa" }).boundingBox())!;
   expect(form.x).toBeGreaterThan(box.x + box.width);
   expect(form.y).toBeLessThan(box.y + box.height);
+
+  // TRIP-017-R7: the chat button floats at the bottom right, and the chat is a floating card
+  const chat = page.getByRole("button", { name: "Fråga Agneta" });
+  await expect(chat).toHaveCSS("position", "fixed");
+  await chat.click();
+  const chatBox = page.getByRole("dialog", { name: "Fråga Agneta" });
+  expect(await css(chatBox, "box-shadow")).toContain(FLOAT_SHADOW);
+  await page.keyboard.press("Escape");
 
   await page.goto("/charter/chernobyl-pripyat");
   const alert = page.getByRole("alert").filter({ hasText: NO_FLIGHTS });

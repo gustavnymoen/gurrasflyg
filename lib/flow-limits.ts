@@ -8,6 +8,8 @@ import { type Limit, MINUTE_MS, minutesLeft, registerAttempt, tooManyMessage } f
 // Räknas på Vercel bakom en annan proxy måste både detta och clientIp() ses över.
 export const BOOKING_LIMIT: Limit = { max: 10, windowMs: 15 * MINUTE_MS, fixedWindow: true };
 export const API_LIMIT: Limit = { max: 60, windowMs: MINUTE_MS, fixedWindow: true };
+// Varje fråga till Agneta kostar pengar i kursens tak (TRIP-017-R8)
+export const CHAT_LIMIT: Limit = { max: 10, windowMs: 5 * MINUTE_MS, fixedWindow: true };
 
 // Räknar ett tryck på Betala (R1) och ger felet att visa om adressen är låst, annars null
 export async function bookingLimitError() {
@@ -18,10 +20,10 @@ export async function bookingLimitError() {
 }
 
 // Räknar ett anrop av API-routen (R3) och ger svaret 429 om adressen är låst, annars null
-export async function apiLimitResponse(route: string) {
+export async function apiLimitResponse(route: string, limit: Limit = API_LIMIT) {
   const ip = await clientIp();
   if (ip === LOCAL_IP) return null;
-  const locked = await registerAttempt(`api:${route}:${ip}`, API_LIMIT);
+  const locked = await registerAttempt(`api:${route}:${ip}`, limit);
   if (!locked) return null;
   const seconds = Math.ceil(locked.msLeft / 1000);
   return Response.json(

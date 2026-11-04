@@ -10,16 +10,19 @@ import { floatingCardClass } from "./Card";
 // stänger också. Själva <dialog> är det svävande kortet.
 // role: alertdialog för en varning, t.ex. att ta bort en rad, och dialog för
 // en vanlig fråga, t.ex. att avbryta resan (TRIP-018-R4).
+// wide: en bredare ruta med vänsterställd text och fält, för chatten (TRIP-017-R9)
 export default function Dialog({
   title,
   detail,
   role = "alertdialog",
+  wide = false,
   onClose,
   children,
 }: {
   title: string;
   detail?: string;
   role?: "dialog" | "alertdialog";
+  wide?: boolean;
   onClose: () => void;
   children: React.ReactNode; // knapparna
 }) {
@@ -51,10 +54,10 @@ export default function Dialog({
         onClose();
       }}
       onKeyDown={(e) => {
-        // Fokus går runt bland knapparna i stället för ut ur sidan till
+        // Fokus går runt bland knapparna och fälten i stället för ut ur sidan till
         // webbläsarens egna fält (WCAG 2.4.3)
         if (e.key !== "Tab") return;
-        const buttons = [...e.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled)")];
+        const buttons = [...e.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled), [tabindex='0']")];
         const edge = buttons[e.shiftKey ? 0 : buttons.length - 1];
         if (document.activeElement !== edge) return;
         e.preventDefault();
@@ -69,13 +72,13 @@ export default function Dialog({
           e.clientX < box.left || e.clientX > box.right || e.clientY < box.top || e.clientY > box.bottom;
         if (outside) onClose();
       }}
-      className={`${floatingCardClass} m-auto w-[calc(100%-2rem)] max-w-sm text-center text-ink backdrop:bg-ground/80`}
+      className={`${floatingCardClass} m-auto w-[calc(100%-2rem)] text-ink backdrop:bg-ground/80 ${wide ? "max-w-lg" : "max-w-sm text-center"}`}
     >
       <h2 id={titleId} className="text-lg font-semibold">
         {title}
       </h2>
       {detail && <p className="mt-2 text-sm text-ink-muted">{detail}</p>}
-      <div className="mt-6 flex justify-center gap-3">{children}</div>
+      <div className={wide ? "mt-4" : "mt-6 flex justify-center gap-3"}>{children}</div>
     </dialog>
   );
 }

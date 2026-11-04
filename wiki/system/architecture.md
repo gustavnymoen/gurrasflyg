@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-11-04T12:00:00+01:00
+  at: 2026-11-04T13:20:00+01:00
 ---
 
 # Architecture
@@ -35,6 +35,7 @@ flowchart LR
 | `app/min-bokning/` | `/min-bokning`: find a booking by number and last name and cancel parts of it, with the server actions `lookUpAction` and `cancelAction` ([my booking](my-booking.md)). |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
+| `app/api/chat/` | `POST /api/chat`, the chat with Agneta ([Charter chatbot Agneta](charter-chatbot.md)); `lib/chat.ts`, `lib/chat-prompt.ts` and `lib/chat-rules.ts` hold the model call, the system prompt and the shared rules, and `app/components/Chat.tsx` the chat. |
 | `proxy.ts` | Runs before every `/admin` request and sends visitors without a valid sign-in to `/admin/login`. |
 | `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`) and airport search. |
 | `lib/admin.ts` | Cabin classes, add-ons and aircraft, with their factors: validation and database changes. |

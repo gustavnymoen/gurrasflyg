@@ -21,6 +21,7 @@
     "db:backup": "node scripts/db-setup.mjs --backup"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.4.0",
     "@libsql/client": "^0.18.0",
     "next": "16.4.2",
     "react": "19.3.0",

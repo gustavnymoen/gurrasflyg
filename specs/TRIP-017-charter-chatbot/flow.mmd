@@ -1,0 +1,18 @@
+%% TRIP-017 Charter chatbot Agneta
+flowchart TD
+    A[Visitor presses Fråga Agneta] --> B[Chat dialog, focus in the field]
+    B --> C{Question blank?}
+    C -- yes --> B
+    C -- no --> D["POST /api/chat with the last 6 messages (R7)"]
+    D --> E{"Valid? at most 500 characters, alternating, ends with a question (R8)"}
+    E -- no --> X[400, chat shows Agneta's error message]
+    E -- yes --> F{"Over 10 questions in 5 minutes? (R8)"}
+    F -- yes --> G[429 with Retry-After, chat says how long to wait]
+    F -- no --> H["Build the system prompt from the database (R1)"]
+    H --> I["Messages API: claude-sonnet-5-5, cache_control, max_tokens 600 (R6)"]
+    I --> J{Answer?}
+    J -- fails, slow, refusal, empty --> X
+    J -- text --> K[Chat shows Agneta's answer, usage is logged]
+    K --> B
+    X --> B
+    G --> B
