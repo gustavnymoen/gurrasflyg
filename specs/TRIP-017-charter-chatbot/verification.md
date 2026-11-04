@@ -25,7 +25,7 @@ How each requirement was checked. Create this file when work starts and fill it 
 |---|---|---|---|---|
 | Unit tests | `lib/chat-rules.test.ts`, `lib/chat-prompt.test.ts`, `lib/chat.test.ts` | local | Pass | 2026-11-04 |
 | Browser tests | `tests/TRIP-017-charter-chatbot.spec.ts` (7 tests), one added check in `tests/TECH-018-design.spec.ts` | local | Pass | 2026-11-04 |
-| Smoke test | `TRIP-017-R7 @smoke` (no question is sent) | preview, live | Not run yet (after the pull request and the deploy) | – |
+| Smoke test | `TRIP-017-R7 @smoke` (no question is sent) | preview, live | Pass: Preview tests green on the pull request; Live tests on `c842c2c` (the merge): 14 passed, including this one | 2026-11-04 |
 | Accessibility | axe in the browser tests; the checklist in `wiki/system/accessibility.md` on the live site: not checked yet | local | axe pass, checklist not checked | 2026-11-04 |
 | Security | Security points in the review; `/security-review` run: no findings | local | Pass | 2026-11-04 |
 | Real model by hand | Cache, price and booking questions, weather and book-for-me refusals on the preview; bundle search on a local build. Weather, flight and book-for-me refusals done. Poem with "ignore your instructions" and the Rome question done. Showing the prompt refused. Not repeated on the live site | preview | Done | 2026-11-04 |
@@ -42,7 +42,7 @@ How each requirement was checked. Create this file when work starts and fill it 
 
 - [x] Tests: every check in the card's test plan that can run locally is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by less than 25 %
-- [ ] Deployed, and the smoke tests pass against production (Live tests)
+- [x] Deployed, and the smoke tests pass against production (Live tests)
 - [ ] Accessibility: axe passes; the manual checklist on the live site is not done
 - [x] Requirements in the card match what was built (copied below); `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
