@@ -1,0 +1,13 @@
+%% TRIP-034 Styled multi-choice charter filters
+%% The main flow: open a filter, choose, and the list and the other panels follow.
+flowchart TD
+    A[Visitor presses a filter button] --> B[Panel opens with checkboxes and counts]
+    B --> C{Check or uncheck an option}
+    C --> D[Choices written to the address - R3]
+    D --> E{Continent changed?}
+    E -- yes --> F[Countries outside the chosen continents are unchecked - R4]
+    E -- no --> G[List filtered: any-of within, all-of between - R2]
+    F --> G
+    G --> H[Panels list only options with hits, and the chosen ones - R4]
+    H --> C
+    B --> I[Escape, click outside or another filter closes it - R1]

@@ -11,6 +11,7 @@ import {
   parseFilters,
   suggestDestinations,
   tripTo,
+  withChoices,
   type DestinationCard,
   type Fares,
   type Filters,
@@ -52,28 +53,29 @@ test("TRIP-013-R1 the suggestions are at most five, those starting with the text
 });
 
 test("TRIP-013-R2 filters work alone and together with the search", () => {
-  expect(applyFilters(cards, filters({ continent: "Europe" }))).toHaveLength(47);
-  const europeGermany = applyFilters(cards, filters({ continent: "Europe", country: "DE" }));
+  expect(applyFilters(cards, filters({ continent: ["Europe"] }))).toHaveLength(47);
+  const europeGermany = applyFilters(cards, filters({ continent: ["Europe"], country: ["DE"] }));
   expect(europeGermany.every((c) => c.country === "DE")).toBe(true);
-  const withSearch = applyFilters(cards, filters({ continent: "Europe", q: "berlin" }));
+  const withSearch = applyFilters(cards, filters({ continent: ["Europe"], q: "berlin" }));
   expect(withSearch.every((c) => c.continent === "Europe")).toBe(true);
-  expect(applyFilters(cards, filters({ continent: "Asia", q: "berlin" }))).toEqual([]);
+  expect(applyFilters(cards, filters({ continent: ["Asia"], q: "berlin" }))).toEqual([]);
 });
 
-test("TRIP-013-R2 the countries to choose are those of the chosen continent, and Antarctica leaves them unchanged", () => {
-  const europe = filterOptions(cards, filters({ continent: "Europe" }), "country");
+test("TRIP-013-R2 the countries to choose are those of the chosen continent, and Antarctica has no countries of its own", () => {
+  const europe = filterOptions(cards, filters({ continent: ["Europe"] }), "country");
   const countriesInEurope = new Set(cards.filter((c) => c.continent === "Europe").map((c) => c.country));
   expect(new Set(europe.map((o) => o.value))).toEqual(countriesInEurope);
 
-  const all = filterOptions(cards, NO_FILTERS, "country").map((o) => o.value);
-  expect(filterOptions(cards, filters({ continent: "Antarctica" }), "country").map((o) => o.value)).toEqual(all);
+  // Antarktis begränsar inte listan över länder; med dolda tomma val återstår de som har resmål där
+  const antarctica = filterOptions(cards, filters({ continent: ["Antarctica"] }), "country").map((o) => o.value);
+  expect(new Set(antarctica)).toEqual(new Set(cards.filter((c) => c.continent === "Antarctica").map((c) => c.country)));
 });
 
 test("TRIP-013-R2 a choice's count is what it gives together with the other filters and the search", () => {
-  const selected = filters({ continent: "Europe", q: "berlin" });
+  const selected = filters({ continent: ["Europe"], q: "berlin" });
   for (const key of ["continent", "country", "access", "category"] as const) {
     for (const option of filterOptions(cards, selected, key)) {
-      const given = applyFilters(cards, { ...selected, [key]: option.value });
+      const given = applyFilters(cards, { ...selected, [key]: [option.value] });
       expect(option.count).toBe(given.length);
     }
   }
@@ -82,11 +84,64 @@ test("TRIP-013-R2 a choice's count is what it gives together with the other filt
 });
 
 test("TRIP-013-R2 the search and filters are written to and read from the address", () => {
-  const selected = filters({ q: "berlin", continent: "Europe", country: "DE", access: "Open", category: "Prison" });
+  const selected = filters({ q: "berlin", continent: ["Europe"], country: ["DE"], access: ["Open"], category: ["Prison"] });
   const params = filtersToParams(selected);
   expect(params.toString()).toBe("sok=berlin&varldsdel=Europe&land=DE&tillgang=Open&kategori=Prison");
   expect(parseFilters(params, cards)).toEqual(selected);
   expect(filtersToParams(NO_FILTERS).toString()).toBe("");
+});
+
+test("TRIP-034-R2 several choices in a filter are any-of, between filters all-of", () => {
+  const europe = applyFilters(cards, filters({ continent: ["Europe"] }));
+  const asia = applyFilters(cards, filters({ continent: ["Asia"] }));
+  expect(ids(applyFilters(cards, filters({ continent: ["Europe", "Asia"] })))).toEqual(ids(cards.filter((c) => [...europe, ...asia].includes(c))));
+  const sites = applyFilters(cards, filters({ continent: ["Europe"], category: ["Industrial site"] }));
+  expect(sites.length).toBeGreaterThan(0);
+  expect(sites.every((c) => c.continent === "Europe" && c.category === "Industrial site")).toBe(true);
+  expect(applyFilters(cards, filters({ continent: [] }))).toHaveLength(cards.length);
+});
+
+test("TRIP-034-R3 several choices are repeated parameters, an old single one reads the same, and unknown values are dropped", () => {
+  const several = filters({ country: ["DE", "FR"], continent: ["Europe"] });
+  const params = filtersToParams(several);
+  expect(params.toString()).toBe("varldsdel=Europe&land=DE&land=FR");
+  expect(parseFilters(params, cards)).toEqual(several);
+  expect(parseFilters(new URLSearchParams("land=DE"), cards)).toEqual(filters({ country: ["DE"] }));
+  expect(parseFilters(new URLSearchParams("land=DE&land=XX&land=DE&land=FR"), cards)).toEqual(filters({ country: ["DE", "FR"] }));
+});
+
+test("TRIP-034-R3 the link back to the list keeps every choice", () => {
+  expect(listHref({ land: ["DE", "FR"], varldsdel: "Europe", sok: "berlin" })).toBe("/charter?sok=berlin&varldsdel=Europe&land=DE&land=FR");
+});
+
+test("TRIP-034-R4 a panel lists only options with hits, and the chosen ones even without", () => {
+  const selected = filters({ access: ["Open"], continent: ["Antarctica"] });
+  for (const key of ["continent", "country", "access", "category"] as const) {
+    for (const option of filterOptions(cards, selected, key)) {
+      expect(option.count > 0 || selected[key].includes(option.value)).toBe(true);
+    }
+  }
+  // Ett val som de andra filtren gjort tomt visas ändå, så att det går att ta bort
+  const empty = filters({ continent: ["Antarctica"], country: ["DE"] });
+  expect(filterOptions(cards, empty, "country").find((o) => o.value === "DE")?.count).toBe(0);
+});
+
+test("TRIP-034-R4 a country outside the chosen continents is unchecked, the other choices stay", () => {
+  const before = filters({ continent: ["Europe", "Asia"], country: ["DE", "JP"], access: ["Open"] });
+  const after = withChoices(cards, before, "continent", ["Europe"]);
+  expect(after).toEqual(filters({ continent: ["Europe"], country: ["DE"], access: ["Open"] }));
+  // Bara Antarktis (inga länder): länderna står kvar
+  expect(withChoices(cards, before, "continent", ["Antarctica"]).country).toEqual(["DE", "JP"]);
+  expect(withChoices(cards, before, "access", [])).toEqual({ ...before, access: [] });
+});
+
+test("TRIP-034-R4 no combination reached by the options is empty", () => {
+  let current = NO_FILTERS;
+  for (const key of ["continent", "country", "category", "access"] as const) {
+    const [first] = filterOptions(cards, current, key);
+    current = withChoices(cards, current, key, [first.value]);
+    expect(applyFilters(cards, current).length).toBeGreaterThan(0);
+  }
 });
 
 test("TRIP-013-R2 an unknown value in the address is ignored", () => {
@@ -141,6 +196,7 @@ test("TRIP-013-R7 the link back to the list keeps the search and filters", () =>
   expect(listHref({ sok: "berlin", varldsdel: "Europe", other: "x" })).toBe("/charter?sok=berlin&varldsdel=Europe");
   expect(listHref({})).toBe("/charter");
   expect(listHref({ sok: ["a", "b"] })).toBe("/charter");
+  expect(listHref({ land: "DE" })).toBe("/charter?land=DE");
 });
 
 test("TECH-029-R1 one destination read gives the same destination as the whole list, and null for an unknown id", async () => {

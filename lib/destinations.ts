@@ -82,20 +82,23 @@ export function toCard(d: Destination, trip: Trip | null): DestinationCard {
   };
 }
 
-// Sökningen och filtren, och deras adress (TRIP-013-R2)
+// Sökningen och filtren, och deras adress (TRIP-013-R2). Ett filter har inga,
+// ett eller flera val (TRIP-034-R2): "något av" inom ett filter, "alla" mellan filter.
 export type Filters = {
   q: string;
-  continent: string | null;
-  country: string | null;
-  access: string | null;
-  category: string | null;
+  continent: string[];
+  country: string[];
+  access: string[];
+  category: string[];
 };
 
-export const NO_FILTERS: Filters = { q: "", continent: null, country: null, access: null, category: null };
+export const NO_FILTERS: Filters = { q: "", continent: [], country: [], access: [], category: [] };
 
 export type FilterKey = Exclude<keyof Filters, "q">;
 
-// Parametrarnas namn i adressen, t.ex. /charter?sok=berlin&varldsdel=Europe
+const FILTER_KEYS: FilterKey[] = ["continent", "country", "access", "category"];
+
+// Parametrarnas namn i adressen, t.ex. /charter?sok=berlin&varldsdel=Europe&varldsdel=Asia
 const PARAM_NAMES: Record<keyof Filters, string> = {
   q: "sok",
   continent: "varldsdel",
@@ -106,10 +109,8 @@ const PARAM_NAMES: Record<keyof Filters, string> = {
 
 export function filtersToParams(filters: Filters) {
   const params = new URLSearchParams();
-  for (const key of Object.keys(PARAM_NAMES) as (keyof Filters)[]) {
-    const value = filters[key];
-    if (value) params.set(PARAM_NAMES[key], value);
-  }
+  if (filters.q) params.set(PARAM_NAMES.q, filters.q);
+  for (const key of FILTER_KEYS) for (const value of filters[key]) params.append(PARAM_NAMES[key], value);
   return params;
 }
 
@@ -118,10 +119,7 @@ export const hasFilters = (filters: Filters) => filtersToParams(filters).size > 
 // Adressen är aldrig att lita på: ett värde som inget resmål har ignoreras
 export function parseFilters(params: URLSearchParams, cards: DestinationCard[]): Filters {
   const known = (key: FilterKey) => new Set(cards.map((card) => card[key]));
-  const read = (key: FilterKey) => {
-    const value = params.get(PARAM_NAMES[key]);
-    return value !== null && known(key).has(value) ? value : null;
-  };
+  const read = (key: FilterKey) => [...new Set(params.getAll(PARAM_NAMES[key]))].filter((value) => known(key).has(value));
   return {
     q: params.get(PARAM_NAMES.q)?.trim() ?? "",
     continent: read("continent"),
@@ -155,9 +153,7 @@ export function applyFilters(cards: DestinationCard[], filters: Filters, except?
   return cards.filter(
     (card) =>
       matchesSearch(card, filters.q) &&
-      (["continent", "country", "access", "category"] as const).every(
-        (key) => key === except || filters[key] === null || card[key] === filters[key],
-      ),
+      FILTER_KEYS.every((key) => key === except || filters[key].length === 0 || filters[key].includes(card[key])),
   );
 }
 
@@ -168,12 +164,23 @@ export function facetCounts(cards: DestinationCard[], filters: Filters, key: Fil
   return counts;
 }
 
-// Länderna under Land: bara de som har resmål i vald världsdel (alla länder
-// när ingen världsdel är vald, och för Antarktis som inte har några länder)
-function countriesToChoose(cards: DestinationCard[], continent: string | null) {
-  const inContinent =
-    continent && continent !== CONTINENT_WITHOUT_COUNTRIES ? cards.filter((c) => c.continent === continent) : cards;
-  return [...new Set(inContinent.map((card) => card.country))];
+// Länderna under Land: bara de som har resmål i valda världsdelar (alla länder
+// när ingen världsdel är vald, och när bara Antarktis är vald, som inte har några länder)
+function countriesToChoose(cards: DestinationCard[], continents: string[]) {
+  const withCountries = continents.filter((continent) => continent !== CONTINENT_WITHOUT_COUNTRIES);
+  const inContinents = withCountries.length > 0 ? cards.filter((c) => withCountries.includes(c.continent)) : cards;
+  return [...new Set(inContinents.map((card) => card.country))];
+}
+
+// Filtren när besökaren ändrar valen i ett filter. Ett land som inte hör till de
+// valda världsdelarna väljs bort, de övriga valen står kvar (TRIP-034-R4).
+export function withChoices(cards: DestinationCard[], filters: Filters, key: FilterKey, values: string[]): Filters {
+  const next = { ...filters, [key]: values };
+  if (key === "continent") {
+    const countries = countriesToChoose(cards, values);
+    next.country = filters.country.filter((country) => countries.includes(country));
+  }
+  return next;
 }
 
 const NAMES: Record<FilterKey, (value: string) => string> = {
@@ -183,13 +190,14 @@ const NAMES: Record<FilterKey, (value: string) => string> = {
   category: (value) => swedishName(CATEGORY_NAMES, value),
 };
 
-// Valen i ett filter med antal, i namnordning (TRIP-013-R2). Det valda valet
-// finns alltid med, också när det inte ger något.
+// Valen i ett filter med antal, i namnordning (TRIP-013-R2). Bara val som ger
+// minst ett resmål visas (TRIP-034-R4), och de valda finns alltid med, också
+// när de inte ger något, så att de går att välja bort.
 export function filterOptions(cards: DestinationCard[], filters: Filters, key: FilterKey) {
   const counts = facetCounts(cards, filters, key);
   const values = key === "country" ? countriesToChoose(cards, filters.continent) : cards.map((card) => card[key]);
-  const selected = filters[key];
-  return [...new Set(selected ? [...values, selected] : values)]
+  return [...new Set([...values, ...filters[key]])]
+    .filter((value) => counts.has(value) || filters[key].includes(value))
     .map((value) => ({ value, name: NAMES[key](value), count: counts.get(value) ?? 0 }))
     .toSorted((a, b) => bySwedish(a.name, b.name));
 }
@@ -206,12 +214,13 @@ export function suggestDestinations(cards: DestinationCard[], q: string, limit =
 }
 
 // Länken tillbaka till listan från ett resmåls sida: sökningen och filtren i
-// adressen följer med, och bara de (TRIP-013-R7)
+// adressen följer med, och bara de (TRIP-013-R7). Ett filter kan ha flera värden.
 export function listHref(params: Record<string, string | string[] | undefined>) {
   const kept = new URLSearchParams();
-  for (const name of Object.values(PARAM_NAMES)) {
-    const value = params[name];
-    if (typeof value === "string" && value !== "") kept.set(name, value);
+  for (const [key, name] of Object.entries(PARAM_NAMES)) {
+    // Söktexten är en enda text, filtren kan vara flera
+    const values = key === "q" ? [params[name]].filter((v) => typeof v === "string") : [params[name]].flat();
+    for (const value of values) if (value) kept.append(name, value);
   }
   return kept.size > 0 ? `/charter?${kept}` : "/charter";
 }

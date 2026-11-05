@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import Autocomplete from "@/app/components/Autocomplete";
 import Button from "@/app/components/Button";
 import Field, { fieldInputClass } from "@/app/components/Field";
+import MultiSelect from "@/app/components/MultiSelect";
 import {
   applyFilters,
   filterOptions,
@@ -15,6 +16,7 @@ import {
   type DestinationCard as DestinationCardData,
   type FilterKey,
   type Filters,
+  withChoices,
 } from "@/lib/destinations";
 import DestinationCard from "./DestinationCard";
 
@@ -97,26 +99,16 @@ export default function DestinationBrowser({ cards }: { cards: DestinationCardDa
         </Button>
       </form>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
         {(Object.keys(FILTER_LABELS) as FilterKey[]).map((key) => (
-          <Field key={key} label={FILTER_LABELS[key]} htmlFor={`filter-${key}`}>
-            <select
-              id={`filter-${key}`}
-              value={filters[key] ?? ""}
-              onChange={(e) =>
-                // Ett annat land hör inte till en ny världsdel: landet väljs om
-                go({ ...filters, [key]: e.target.value || null, ...(key === "continent" && { country: null }) })
-              }
-              className={fieldInputClass}
-            >
-              <option value="">Alla</option>
-              {filterOptions(cards, filters, key).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.name} ({option.count})
-                </option>
-              ))}
-            </select>
-          </Field>
+          <MultiSelect
+            key={key}
+            label={FILTER_LABELS[key]}
+            options={filterOptions(cards, filters, key)}
+            selected={filters[key]}
+            // Ett land som inte hör till de valda världsdelarna väljs bort
+            onChange={(values) => go(withChoices(cards, filters, key, values))}
+          />
         ))}
       </div>
 

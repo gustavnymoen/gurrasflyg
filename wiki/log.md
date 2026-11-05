@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-05
+
+- TRIP-034: the four charter filters are `MultiSelect` controls in the site's look (a button that opens a panel of checkboxes) instead of native `<select>`s. Several choices per filter (any-of within, all-of between), kept as repeated address parameters (`?land=DE&land=FR`; old single-value links work), options without hits are hidden (chosen ones stay), and changing the continent unchecks countries outside it. Updated [Charter destinations](system/charter-destinations.md) and [Hitta ett charterresmål](manual/charter-resmal.md).
+
 ## 2026-11-04
 
 - TRIP-033: Agneta polish. The chat header shows "Kundtjänstmedarbetare" and a green dot with "Live"; the greeting is only "Vad vill du?!"; the tone is asked for from the first answer; `MAX_TOKENS` is 1000 and an answer that still stops at the limit is cut at the last whole bullet and logged (`cutToWhole`), and the reader never shows a half link; every destination she names is linked on every page, as one bullet with one sub-bullet (airport and price from); the panel is 26 to 36 rem wide. Updated [Charter chatbot Agneta](system/charter-chatbot.md) and [Fråga Agneta](manual/fraga-agneta.md). Not yet tried with the real model on the preview. Follow-up: the live log showed 902 of 1 000 output tokens going to thinking, so `MAX_TOKENS` is now 3000 (turning thinking off was tried and the API refused it, so it was reverted); the route also logs the HTTP status of a failure.

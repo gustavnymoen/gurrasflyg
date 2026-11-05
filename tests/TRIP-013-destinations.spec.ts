@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectNoA11yViolations } from "./helpers";
+import { expectNoA11yViolations, filterButton, filterOption, filterPanel, toggleFilterOption } from "./helpers";
 
 // Destination pages and search (TRIP-013). The rules (matching, counts, prices,
 // names) are unit tests in lib/destinations.test.ts; these tests show that the
@@ -10,7 +10,6 @@ const search = (page: Page) => page.getByRole("combobox", { name: "Sök resmål"
 const heading = (page: Page, text: string | RegExp) => page.getByRole("heading", { name: text, exact: typeof text === "string" });
 const card = (page: Page, title: string) =>
   page.locator("section").filter({ has: page.getByRole("heading", { level: 3, name: title, exact: true }) });
-const filter = (page: Page, label: "Världsdel" | "Land" | "Tillträde" | "Kategori") => page.getByLabel(label, { exact: true });
 // "47 destinationer" -> 47
 const resultCount = async (page: Page) =>
   Number((await page.getByRole("heading", { level: 2, name: /^\d+ destination(er)?$/ }).innerText()).match(/\d+/)![0]);
@@ -55,45 +54,53 @@ test("TRIP-013-R2 a continent lists its destinations and limits the countries, a
   page,
 }) => {
   await page.goto("/charter");
-  await filter(page, "Världsdel").selectOption("Europe");
+  await page.waitForLoadState("networkidle"); // hydrated, so the panel opens when clicked
+  await toggleFilterOption(page, "Världsdel", "Europa");
   await expect(heading(page, "47 destinationer")).toBeVisible();
   await expect(page).toHaveURL(/varldsdel=Europe/);
-  await expect(filter(page, "Land").locator("option", { hasText: "Japan" })).toHaveCount(0);
+  await filterButton(page, "Land").click();
+  await expect(filterOption(page, "Land", "Tyskland")).toBeVisible();
+  await expect(filterOption(page, "Land", "Japan")).toHaveCount(0);
 
-  await filter(page, "Land").selectOption("DE");
-  await filter(page, "Tillträde").selectOption("Open");
+  await toggleFilterOption(page, "Land", "Tyskland");
+  await toggleFilterOption(page, "Tillträde", "Öppen");
   await expect(page).toHaveURL(/varldsdel=Europe&land=DE&tillgang=Open/);
+  await expect(filterButton(page, "Tillträde")).toHaveText("Tillträde: Öppen");
   const count = await resultCount(page);
 
   await page.reload();
   expect(await resultCount(page)).toBe(count);
-  await expect(filter(page, "Land")).toHaveValue("DE");
-  await expect(filter(page, "Tillträde")).toHaveValue("Open");
+  await expect(filterButton(page, "Land")).toHaveText("Land: Tyskland");
+  await expect(filterButton(page, "Tillträde")).toHaveText("Tillträde: Öppen");
 
   // Back goes to the state before the last choice
   await page.goBack();
-  await expect(filter(page, "Tillträde")).toHaveValue("");
-  await expect(filter(page, "Land")).toHaveValue("DE");
+  await expect(filterButton(page, "Tillträde")).toHaveText("Tillträde: Alla");
+  await expect(filterButton(page, "Land")).toHaveText("Land: Tyskland");
 });
 
-test("TRIP-013-R2 a choice shows how many destinations it gives, Antarctica leaves the countries unchanged, and an unknown address value is ignored", async ({ page }) => {
+test("TRIP-013-R2 a choice shows how many destinations it gives, Antarctica has no countries, and an unknown address value is ignored", async ({ page }) => {
   await page.goto("/charter?sok=berlin&varldsdel=Europe");
-  const option = filter(page, "Tillträde").locator("option", { hasText: /^Öppen \(\d+\)$/ });
-  const shown = Number((await option.innerText()).match(/\((\d+)\)/)![1]);
-  await filter(page, "Tillträde").selectOption("Open");
+  await page.waitForLoadState("networkidle");
+  await filterButton(page, "Tillträde").click();
+  const label = await filterOption(page, "Tillträde", "Öppen").evaluate((el) => (el as HTMLInputElement).labels![0].textContent!);
+  const shown = Number(label.match(/\((\d+)\)/)![1]);
+  await filterOption(page, "Tillträde", "Öppen").click();
   // Wait for the list to change before reading it
   await expect(heading(page, new RegExp(`^${shown} destination(er)?$`))).toBeVisible();
   expect(await resultCount(page)).toBe(shown);
   await page.goto("/charter");
-  const before = await filter(page, "Land").locator("option").count();
-  await filter(page, "Världsdel").selectOption("Antarctica");
+  await page.waitForLoadState("networkidle");
+  await toggleFilterOption(page, "Världsdel", "Antarktis");
   await expect(heading(page, "2 destinationer")).toBeVisible();
-  expect(await filter(page, "Land").locator("option").count()).toBe(before);
+  // Only countries with a destination in Antarctica are left to choose
+  await filterButton(page, "Land").click();
+  await expect(filterPanel(page, "Land").getByRole("checkbox")).toHaveCount(2);
   await page.goto("/charter?sok=berlin");
   const count = await resultCount(page);
   await page.goto("/charter?sok=berlin&varldsdel=Atlantis&land=XX&tillgang=Free&kategori=Zoo");
   expect(await resultCount(page)).toBe(count);
-  await expect(filter(page, "Världsdel")).toHaveValue("");
+  await expect(filterButton(page, "Världsdel")).toHaveText("Världsdel: Alla");
 });
 
 test("TRIP-013-R1 R2 R9 and TRIP-028-R1 a search without a match says so and offers to clear, and Rensa clears the search and the filters, and there are no start cards", async ({ page }) => {
@@ -202,7 +209,7 @@ test("TRIP-013-R7 the link back keeps the search and filters", async ({ page }) 
   await page.getByRole("link", { name: "← Tillbaka till listan" }).click();
   await expect(page).toHaveURL(/\/charter\?sok=berlin&varldsdel=Europe$/);
   await expect(search(page)).toHaveValue("berlin");
-  await expect(filter(page, "Världsdel")).toHaveValue("Europe");
+  await expect(filterButton(page, "Världsdel")).toHaveText("Världsdel: Europa");
 });
 
 const NO_FLIGHTS = "Inga flyg dit just nu, luftrummet är stängt. Du får ta dig dit på egen hand.";
@@ -225,10 +232,9 @@ test("TRIP-013-R8 R9 a destination without flights has the notice instead of a p
 test("TRIP-013-R9 a filter keeps focus and the new number of results is announced", async ({ page }) => {
   await page.goto("/charter?sok=berlin");
   await page.waitForLoadState("networkidle"); // hydrated, so the page doesn't rebuild under the focus
-  await filter(page, "Världsdel").focus();
-  await filter(page, "Världsdel").selectOption("Europe");
+  await toggleFilterOption(page, "Världsdel", "Europa");
   await expect(page).toHaveURL(/varldsdel=Europe/);
-  await expect(filter(page, "Världsdel")).toBeFocused();
+  await expect(filterOption(page, "Världsdel", "Europa")).toBeFocused();
   const count = await resultCount(page);
   await expect(page.getByRole("status")).toHaveText(`${count} ${count === 1 ? "destination" : "destinationer"} matchar`);
 });

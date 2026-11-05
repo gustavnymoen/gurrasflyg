@@ -7,7 +7,7 @@ feature: TRIP-013
 tags: [charter, destinations, search, filters, prices, accessibility]
 generated:
   by: claude
-  at: 2026-11-04T12:00:00+01:00
+  at: 2026-11-05T10:30:00+01:00
 ---
 
 # Charter destinations
@@ -21,8 +21,8 @@ A destination page and a charter booking read only their own destination (`getCh
 `app/charter/page.tsx` reads all destinations as cards (`getDestinationCards()` in `lib/travel.ts`) and hands them to `DestinationBrowser`, a client component. The browser filters them itself with the functions of `lib/destinations.ts`, so every choice answers at once.
 
 - **Search:** the field "Sök resmål" is the shared `Autocomplete` with `enterSearches`. Suggestions come from `GET /api/destination-search?q=` (at most five; titles starting with the text first; more than 60 calls a minute from one address get 429, see [Rate limits](rate-limits.md)). A suggestion opens its page; Enter or **Sök** lists every match. The search finds title, other names, locality, region, country (Swedish and English) and tags; every word must be somewhere, and case and accents don't matter.
-- **Filters:** Världsdel, Land, Tillträde and Kategori are `<select>`s. Each choice shows the count it would give with the other filters and the search (`filterOptions`). Land offers the countries of the chosen continent; for Antarktis it is unchanged, and changing the continent clears the country.
-- **Address:** `?sok=berlin&varldsdel=Europe&land=DE&tillgang=Open&kategori=Prison`, written with `window.history.pushState` and read with `useSearchParams`, so reload, sharing and Back work. A value that no destination has is ignored (`parseFilters`).
+- **Filters (TRIP-034):** Världsdel, Land, Tillträde and Kategori are `MultiSelect` controls (`app/components/MultiSelect.tsx`): a button "Land: Alla" / "Land: Tyskland" / "Land: 2 valda" that opens a panel with one checkbox per option and its count. Within a filter the choices are any-of, between filters and the search all-of (`applyFilters`). `filterOptions` lists only options that give at least one destination with the other filters and the search, plus the chosen ones (so they can be removed). Land offers the countries of the chosen continents (all of them when none, or only Antarktis, is chosen); `withChoices` unchecks a country that no longer belongs to a chosen continent and keeps the other choices. The panel closes with Escape (focus returns to the button), a click outside, or Tab out; opening another filter closes it. There is no native picker on a phone: the same control is used everywhere.
+- **Address:** `?sok=berlin&varldsdel=Europe&varldsdel=Asia&land=DE&tillgang=Open&kategori=Prison`, one repeated parameter per choice (an old link with one value reads the same), written with `window.history.pushState` and read with `useSearchParams`, so reload, sharing and Back work. A value that no destination has is ignored (`parseFilters`), and `listHref` keeps every choice for the link back from a destination page.
 - **Rensa** clears everything. With no match the page says "Inga destinationer matchar" and offers "Rensa sökning och filter".
 - **Focus and announcements:** a filter keeps focus; Rensa moves focus to the search field. The number of results is announced ("N destinationer matchar") and so is the number of suggestions ("N förslag").
 
