@@ -23,7 +23,7 @@ test("TRIP-017-R8 more than 6 messages, a wrong order, a wrong last message or a
   expect(parse([a(), q()])).toBeNull();
   expect(parse([q(), q()])).toBeNull();
   expect(parse([q(), a()])).toBeNull();
-  expect(parse([q(), a("x".repeat(6001)), q()])).toBeNull();
+  expect(parse([q(), a("x".repeat(12001)), q()])).toBeNull();
   expect(parse([])).toBeNull();
 });
 

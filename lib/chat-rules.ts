@@ -6,8 +6,8 @@ import { HALF_LINK } from "./markdown";
 export const MAX_QUESTION_LENGTH = 500;
 // Så många meddelanden följer med varje fråga (R7) och så många tar routen emot (R8)
 export const MAX_MESSAGES = 6;
-// Agnetas svar är högst 1 000 tokens (cirka 4 000 tecken); 6 000 är en vid gräns. Historiken får aldrig mer förtroende än en fråga.
-export const MAX_ANSWER_LENGTH = 6000;
+// Agnetas svar är högst 3 000 tokens, tänkandet inräknat, så texten är långt under 12 000 tecken; det är en vid gräns. Historiken får aldrig mer förtroende än en fråga.
+export const MAX_ANSWER_LENGTH = 12000;
 // Frågan och svaren har bara de här två rollerna
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 

@@ -7,7 +7,7 @@ feature: TRIP-017, TRIP-032, TRIP-033
 tags: [charter, chatbot, llm, api, rate-limit]
 generated:
   by: claude
-  at: 2026-11-05T09:00:00+01:00
+  at: 2026-11-05T10:00:00+01:00
 ---
 
 # Charter chatbot Agneta
@@ -42,11 +42,11 @@ Each question sends the last 6 messages (never starting with an answer). A faile
 
 | Status | When |
 |---|---|
-| 400 | `parseMessages` refuses the body: not 1 to 6 messages, a first message that is not a question, roles that do not alternate, a last message that is not a question, an empty text, a question over 500 or an answer over 6 000 characters. Nothing is sent to the API. |
+| 400 | `parseMessages` refuses the body: not 1 to 6 messages, a first message that is not a question, roles that do not alternate, a last message that is not a question, an empty text, a question over 500 or an answer over 12 000 characters. Nothing is sent to the API. |
 | 429 | More than 10 questions in 5 minutes from one IP address (`CHAT_LIMIT`, counted in the database like the other [rate limits](rate-limits.md), not applied to a local run). `Retry-After` in seconds. |
 | 502 | The API fails, takes over 50 seconds, refuses or answers with nothing. |
 
-The chat shows the same in-character Swedish text for every failure and a "come back in N minutes" text for 429; never a status code, an API message or the key. The route logs only the class name of an error, never the error.
+The chat shows the same in-character Swedish text for every failure and a "come back in N minutes" text for 429; never a status code, an API message or the key. The route logs only the class name of an error and its HTTP status, never the error.
 
 ## The system prompt
 
@@ -54,7 +54,7 @@ The chat shows the same in-character Swedish text for every failure and a "come 
 
 ## The model call
 
-`askAgneta()` in `lib/chat.ts` is the one place that reads `LLM_API_KEY`. It calls the official SDK with model `claude-sonnet-5-5`, `max_tokens` 1000, thinking turned off (`thinking: { type: "disabled" }`; otherwise hidden reasoning used up the 1 000 tokens and the visible answer stopped after about 60), the system prompt, a top-level `cache_control: { type: "ephemeral" }`, and writes the `usage` of every response to the log. If the model stops at the limit (`stop_reason: "max_tokens"`) the event is logged too and the answer is cut by `cutToWhole` at the last whole bullet (with its sub-bullet), paragraph or word, so it never ends in a name or a link. The usage log shows that the cache works when `cache_read_input_tokens` is above 0 on a second question within five minutes. The key is only in Vercel (Production and Preview) and `.env.local`, never in the browser, a log or an error.
+`askAgneta()` in `lib/chat.ts` is the one place that reads `LLM_API_KEY`. It calls the official SDK with model `claude-sonnet-5-5`, `max_tokens` 3000 (the model thinks before it writes and the thinking counts against the limit: 902 of 1 000 tokens in one live log, which left about 60 words of answer), the system prompt, a top-level `cache_control: { type: "ephemeral" }`, and writes the `usage` of every response to the log. If the model stops at the limit (`stop_reason: "max_tokens"`) the event is logged too and the answer is cut by `cutToWhole` at the last whole bullet (with its sub-bullet), paragraph or word, so it never ends in a name or a link. The usage log shows that the cache works when `cache_read_input_tokens` is above 0 on a second question within five minutes. The key is only in Vercel (Production and Preview) and `.env.local`, never in the browser, a log or an error.
 
 ## Tests
 
