@@ -5,31 +5,39 @@
 
 import {
   ADULT_AGE,
+  type BookingLeg,
+  chosenAddons,
   collectProblems,
   type Contact,
   contactProblems,
+  fieldIds,
+  firstClasses,
+  fitPassengerLegs,
   fitsForm,
+  fitsLeg,
   fitsPerson,
+  hasBeer,
+  isAdult,
   isAge,
   type Payment,
   PAYMENTS,
+  type PassengerLeg,
   type Person,
   passengerProblems,
   type Problems,
   QUESTIONS,
+  seatCost,
 } from "./booking-rules";
-import { arrival, instant } from "./fare-rules";
+import { arrival, type FleetAircraft, instant, type PlanFlight, seatingText } from "./fare-rules";
 import { DEPARTURE_AIRPORTS } from "./destinations";
 import { isDate, MAX_TRAVELLERS, MIN_TRAVELLERS, type Params } from "./search";
+import { LEG_NAMES, parsePlan, type PlanChoice, setPlanParams } from "./trip";
 
 export const CHARTER_PATH = "/charter";
 export const CHARTER_BOOKED_PATH = "/charter/bokad";
 
-// Utresan först, sedan hemresan
-export const TRIP_NAMES = [
-  { title: "Utresa", of: "utresan" },
-  { title: "Hemresa", of: "hemresan" },
-];
+// Utresan först, sedan hemresan: samma namn som på flygen
+export const TRIP_NAMES = LEG_NAMES;
 
 // Flygplatserna man kan resa från (TRIP-014-R1)
 export const DEPARTURES = [
@@ -42,13 +50,14 @@ export const DEPARTURES = [
 // Man reser tur och retur från en flygplats och tillbaka till den. Datumen är "YYYY-MM-DD".
 export type CharterSearch = { from: string; outbound: string; return: string; travellers: number };
 
-// De valda resorna: tidtabellernas id. null = inte valt än.
-export type CharterChoice = { out: string | null; back: string | null };
+// De valda resorna (tidtabellernas id, null = inte valt än) och planet och antalen per klass för var och en (TRIP-039)
+export type CharterChoice = { out: string | null; back: string | null; plans: PlanChoice[] };
 
-export const NO_CHOICE: CharterChoice = { out: null, back: null };
+export const NO_PLAN: PlanChoice = { aircraftId: null, seating: null };
+export const NO_CHOICE: CharterChoice = { out: null, back: null, plans: [NO_PLAN, NO_PLAN] };
 
 // Sökningen och valen som parametrar i en adress, t.ex.
-// /charter/teufelsberg/resor?fran=ARN&utresa=2027-01-11&hemresa=2027-01-16&resenarer=2&ut=ARN-BER-EW488
+// /charter/teufelsberg/resor?fran=ARN&utresa=2027-01-11&hemresa=2027-01-16&resenarer=2&ut=ARN-BER-EW488&ut-plan=3&ut-klasser=1:2
 export function charterParams(search: CharterSearch, choice: CharterChoice = NO_CHOICE) {
   const params = new URLSearchParams({
     fran: search.from,
@@ -58,12 +67,15 @@ export function charterParams(search: CharterSearch, choice: CharterChoice = NO_
   });
   if (choice.out) params.set("ut", choice.out);
   if (choice.back) params.set("hem", choice.back);
+  choice.plans.forEach((plan, i) => setPlanParams(params, LEG_NAMES[i].key, plan));
   return params;
 }
 
-// Sidorna i flödet: resorna, resenärerna och betalningen
+// Sidorna i flödet: resorna, plan och klass, resenärerna och betalningen
 export const resultsUrl = (id: string, search: CharterSearch, choice?: CharterChoice) =>
   `${CHARTER_PATH}/${id}/resor?${charterParams(search, choice)}`;
+export const planUrl = (id: string, search: CharterSearch, choice?: CharterChoice) =>
+  `${CHARTER_PATH}/${id}/plan?${charterParams(search, choice)}`;
 export const travellersUrl = (id: string, search: CharterSearch, choice?: CharterChoice) =>
   `${CHARTER_PATH}/${id}/boka?${charterParams(search, choice)}`;
 export const paymentUrl = (id: string, search: CharterSearch, choice?: CharterChoice) =>
@@ -81,10 +93,10 @@ export function parseCharterSearch(params: Params): CharterSearch | null {
   return { from, outbound, return: back, travellers: count };
 }
 
-// De valda resorna i adressen. Att de finns och passar avgör sidan.
+// De valda resorna, planen och antalen i adressen. Att de finns och passar avgör sidan.
 export function parseChoice(params: Params): CharterChoice {
   const text = (name: string) => (typeof params[name] === "string" ? params[name] : null);
-  return { out: text("ut"), back: text("hem") };
+  return { out: text("ut"), back: text("hem"), plans: LEG_NAMES.map(({ key }) => parsePlan(params, key)) };
 }
 
 // ---------------------------------------------------------------- Resorna
@@ -183,6 +195,38 @@ export function chosenTrips(choice: CharterChoice, out: CharterTrip[], back: Cha
   return { outbound, home };
 }
 
+// En annan utresa tar bort dess plan och klasser, och hemresan om den inte passar den nya utresan (TRIP-014-R5, TRIP-039-R3).
+// Samma resa igen ändrar inget, som keepChoice på flygen.
+export function chooseOutbound(choice: CharterChoice, tripId: string, out: CharterTrip[], back: CharterTrip[]): CharterChoice {
+  const home = chosenTrips({ ...choice, out: tripId }, out, back).home;
+  return {
+    out: tripId,
+    back: home?.id ?? null,
+    plans: [choice.out === tripId ? choice.plans[0] : NO_PLAN, home?.id === choice.back ? choice.plans[1] : NO_PLAN],
+  };
+}
+
+export const chooseHome = (choice: CharterChoice, tripId: string): CharterChoice => ({
+  ...choice,
+  back: tripId,
+  plans: [choice.plans[0], choice.back === tripId ? choice.plans[1] : NO_PLAN],
+});
+
+// En charterresa som flyg för plan och klass: avgångens pris är basen och flygtiden och
+// ankomsten är avgångens egna (TRIP-039-R2, R3)
+export const toPlanFlight = (trip: CharterTrip): PlanFlight => ({ ...trip, routeMinutes: trip.minutes });
+
+// Planet och antalen per klass för en resa som en rad i Din resa: "Hindenburg · Ekonomi: 2 · Business: 1",
+// eller null när inget plan är valt (TRIP-039-R3)
+export function planText(plan: PlanChoice, fleet: FleetAircraft[]) {
+  const aircraft = fleet.find((a) => a.id === plan.aircraftId);
+  if (!aircraft) return null;
+  return [aircraft.name, plan.seating && seatingText(aircraft, plan.seating)].filter(Boolean).join(" · ");
+}
+
+// Samma rad för en resa i en bokning, där planet och antalen per klass är valda
+export const legText = (leg: BookingLeg) => `${leg.aircraft.name} · ${seatingText(leg.aircraft, leg.seating)}`;
+
 // ---------------------------------------------------------------- Tilläggen
 
 export const MINOR_TEXT = "Går inte att välja när någon resenär är under 18 år";
@@ -230,18 +274,29 @@ export function extraRows(codes: string[], travellers: number) {
   }));
 }
 
-// Priset för hela resan: ut- och hemresan per person, och tilläggen per person (R5, R7)
-export function charterTotal(tripPrices: number[], extras: string[], travellers: number) {
+// Priset innan plan och klass är valda: ut- och hemresans pris per person och tilläggen (TRIP-014-R5, R7)
+export function departuresTotal(tripPrices: number[], extras: string[], travellers: number) {
   const perPerson = tripPrices.reduce((sum, p) => sum + p, 0) + extraRows(extras, 1).reduce((s, e) => s + e.sum, 0);
   return perPerson * travellers;
 }
 
+// Priset för hela resan: varje resenärs plats och tillägg på båda resorna, och tilläggen för hela bokningen (TRIP-039-R3, R4)
+export function charterTotal(legs: BookingLeg[], form: Pick<CharterForm, "passengers" | "extras">) {
+  const seats = form.passengers.reduce((sum, p) => sum + legs.reduce((s, leg, i) => s + seatCost(leg, p.legs[i]), 0), 0);
+  return seats + extraRows(form.extras, 1).reduce((s, e) => s + e.sum, 0) * form.passengers.length;
+}
+
 // ---------------------------------------------------------------- Formuläret
 
+// En resenär med klass och tillägg på varje resa (TRIP-039-R3, R4, R8)
+export type CharterPassenger = Person & { legs: PassengerLeg[] };
+
 // Allt besökaren fyller i, från resenärerna till betalningen (R6). Tilläggen är koderna ur EXTRAS.
+// legKeys säger vilka resor, plan och antal klasserna och tilläggen gäller (TRIP-039-R8).
 export type CharterForm = {
   requestId: string;
-  passengers: Person[];
+  legKeys: string[];
+  passengers: CharterPassenger[];
   contact: Contact;
   checks: boolean[];
   extras: string[];
@@ -250,6 +305,7 @@ export type CharterForm = {
 
 export const emptyCharterForm = (requestId: string): CharterForm => ({
   requestId,
+  legKeys: [],
   passengers: [],
   contact: { firstName: "", lastName: "", email: "", phone: "", address: "" },
   checks: QUESTIONS.map(() => false),
@@ -263,6 +319,7 @@ export function asCharterForm(value: unknown): CharterForm | null {
     typeof form === "object" &&
     form !== null &&
     typeof form.requestId === "string" &&
+    Array.isArray(form.legKeys) &&
     Array.isArray(form.passengers) &&
     Array.isArray(form.extras) &&
     typeof form.contact === "object" &&
@@ -271,24 +328,50 @@ export function asCharterForm(value: unknown): CharterForm | null {
   return ok ? form : null;
 }
 
-// Formuläret för resan som den ser ut nu: ett ändrat antal resenärer lägger till
-// eller tar bort resenärer och resten finns kvar (R6). Ett tillägg som inte går
-// att välja med de resenärerna tas bort (R7).
-export function fitCharterForm(form: CharterForm, travellers: number): CharterForm {
-  const passengers = Array.from({ length: travellers }, (_, i) => form.passengers[i] ?? emptyPerson());
+// Formuläret för resan som den ser ut nu, utan resornas klasser: ett ändrat antal resenärer
+// lägger till eller tar bort resenärer och resten finns kvar (R6). Ett tillägg för hela resan
+// som inte går att välja med de resenärerna tas bort (R7).
+export function fitTravellers(form: CharterForm, travellers: number): CharterForm {
+  const passengers = Array.from({ length: travellers }, (_, p) => form.passengers[p] ?? emptyPerson());
   return { ...form, passengers, extras: withoutUnavailable(form.extras, passengers) };
+}
+
+// Som fitTravellers, och resenärerna får klasser i ordning efter antalen per klass; ändras en
+// resas plan eller antal börjar dess klasser om och dess tillägg tas bort (TRIP-039-R8)
+export function fitCharterForm(form: CharterForm, legs: BookingLeg[], travellers: number): CharterForm {
+  const fitted = fitTravellers(form, travellers);
+  const passengers = fitted.passengers.map((person, p) => ({ ...person, legs: fitPassengerLegs(person.legs, form.legKeys, legs, p) }));
+  return { ...fitted, legKeys: legs.map((leg) => leg.key), passengers };
+}
+
+// Tilläggen i klasserna som tas bort när en resas plan eller antal ändrats: "Passagerare 2, utresan: Öl (2 st)" (TRIP-039-R8).
+// names är tilläggens namn efter id, eftersom det gamla planet inte längre finns bland resans.
+export function removedAddons(form: CharterForm, legs: BookingLeg[], travellers: number, names: Record<number, string>) {
+  return form.passengers.slice(0, travellers).flatMap((person, p) =>
+    legs.flatMap((leg, i) =>
+      form.legKeys[i] === leg.key
+        ? []
+        : Object.entries(person.legs?.[i]?.addons ?? {})
+            .filter(([, count]) => count > 0)
+            .map(([id, count]) => `Passagerare ${p + 1}, ${leg.of}: ${names[Number(id)] ?? "tillägg"}${count > 1 ? ` (${count} st)` : ""}`),
+    ),
+  );
 }
 
 // Tilläggen som går att ha när de här resenärerna reser: vuxentilläggen försvinner om någon är under 18
 export const withoutUnavailable = (extras: string[], passengers: Pick<Person, "age">[]) =>
   anyMinor(passengers) ? extras.filter((code) => !extraByCode(code)?.adultsOnly) : extras;
 
-const emptyPerson = (): Person => ({ firstName: "", lastName: "", age: "" });
+const emptyPerson = (): CharterPassenger => ({ firstName: "", lastName: "", age: "", legs: [] });
 
 // Det som måste stämma för att gå vidare till betalningen (R6)
-export function charterProblems(form: CharterForm): Problems {
+export function charterProblems(form: CharterForm, legs: BookingLeg[]): Problems {
   return collectProblems((add) => {
     passengerProblems(form.passengers, add);
+    // Formuläret tar bort ölen när åldern blir under 18; servern godtar den inte heller (TRIP-029-R3)
+    form.passengers.forEach((p, i) => {
+      if (hasBeer(p, legs) && !isAdult(p.age)) add(fieldIds.age(i), "Öl går bara att köpa från 18 år.");
+    });
     contactProblems(form.contact, form.checks, add);
   });
 }
@@ -303,13 +386,23 @@ export function extrasProblem(form: { extras: string[]; passengers: Pick<Person,
 }
 
 // Har formuläret rätt form för resan? Servern kontrollerar det innan något
-// annat, eftersom vad som helst kan skickas till den (R8).
-export function fitsCharterForm(form: CharterForm, travellers: number) {
+// annat, eftersom vad som helst kan skickas till den (R8): rätt antal resenärer,
+// klasserna som antalen per klass ger i ordning, och bara tillägg som går att
+// köpa i resenärens klass, högst 10 av varje (TRIP-039-R5).
+// legKeys är bara ett minne för webbläsaren (fitCharterForm); servern använder det inte, utan jämför klasserna med planet.
+export function fitsCharterForm(form: CharterForm, legs: BookingLeg[], travellers: number) {
+  const inOrder = legs.map((leg) => firstClasses(leg.aircraft, leg.seating));
   return (
     fitsForm(form) &&
     Array.isArray(form.passengers) &&
     form.passengers.length === travellers &&
-    form.passengers.every(fitsPerson) &&
+    form.passengers.every(
+      (p, n) =>
+        fitsPerson(p) &&
+        Array.isArray(p.legs) &&
+        p.legs.length === legs.length &&
+        legs.every((leg, i) => fitsLeg(leg, p.legs[i]) && p.legs[i].classId === inOrder[i][n]),
+    ) &&
     Array.isArray(form.extras) &&
     form.extras.every((code) => typeof code === "string")
   );
@@ -317,12 +410,13 @@ export function fitsCharterForm(form: CharterForm, travellers: number) {
 
 // ---------------------------------------------------------------- Sammanfattningen
 
-// Det som visas direkt efter bokningen (R9)
+// Det som visas direkt efter bokningen (R9, TRIP-039-R5): per resa planet och antalen per klass,
+// och för varje resenär klassen och tilläggen på varje resa
 export type CharterSummary = {
   bookingNumber: string;
   destination: string;
-  trips: { title: string; trip: CharterTrip }[];
-  passengers: { name: string; age: string }[];
+  trips: { title: string; trip: CharterTrip; aircraft: string; seating: string }[];
+  passengers: { name: string; age: string; legs: { className: string; addons: { name: string; count: number }[] }[] }[];
   extras: { name: string; sum: number }[];
   contact: Contact;
   payment: string;
@@ -334,19 +428,28 @@ export function charterSummary(
   destination: string,
   form: CharterForm,
   trips: CharterTrip[],
+  legs: BookingLeg[],
 ): CharterSummary {
   return {
     bookingNumber,
     destination,
-    trips: trips.map((trip, i) => ({ title: TRIP_NAMES[i].title, trip })),
-    passengers: form.passengers.map((p) => ({ name: `${p.firstName.trim()} ${p.lastName.trim()}`, age: p.age })),
+    trips: trips.map((trip, i) => ({
+      title: TRIP_NAMES[i].title,
+      trip,
+      aircraft: legs[i].aircraft.name,
+      seating: seatingText(legs[i].aircraft, legs[i].seating),
+    })),
+    passengers: form.passengers.map((p) => ({
+      name: `${p.firstName.trim()} ${p.lastName.trim()}`,
+      age: p.age,
+      legs: legs.map((leg, i) => ({
+        className: leg.aircraft.classes.find((c) => c.id === p.legs[i].classId)?.name ?? "",
+        addons: chosenAddons(leg, p.legs[i]).map(({ addon, count }) => ({ name: addon.name, count })),
+      })),
+    })),
     extras: extraRows(form.extras, form.passengers.length).map(({ name, sum }) => ({ name, sum })),
     contact: form.contact,
     payment: PAYMENTS.find((p) => p.value === form.payment)?.label ?? "",
-    total: charterTotal(
-      trips.map((t) => t.price),
-      form.extras,
-      form.passengers.length,
-    ),
+    total: charterTotal(legs, form),
   };
 }

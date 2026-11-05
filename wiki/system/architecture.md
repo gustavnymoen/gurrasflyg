@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-11-04T16:30:00+01:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # Architecture
@@ -27,7 +27,7 @@ flowchart LR
 | Folder | Content |
 |---|---|
 | `app/layout.tsx` | Every page: the header with the wordmark, in a flow Avbryt, and the menu (Start, Min bokning, Admin), and the footer (with the photo credit on the start page). See [flows](flows.md). |
-| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)); `app/flyg/boka/` the booking's steps Resenärer and Betala with the server action `bookAction`, and `app/flyg/bokad/` the summary ([booking](booking.md)). `Steps`, `FlightLine`, `TripOverview` and `Problem` are shared. |
+| `app/flyg/` | The results page `/flyg`: the search from the address, the simulated search, flight cards, sorting and choosing flights ([search results](search-results.md)). `app/flyg/plan/` is `/flyg/plan`, choosing aircraft and classes ([aircraft and classes](aircraft-and-classes.md)); its `PlanBuilder` and cards are shared with the charter plan step; `app/flyg/boka/` the booking's steps Resenärer and Betala with the server action `bookAction`, and `app/flyg/bokad/` the summary ([booking](booking.md)). `Steps`, `FlightLine`, `TripOverview` and `Problem` are shared. |
 | `app/page.tsx` | Start page: background photo, heading, the tabs Flyg (search form) and Charter, and review carousel. `app/charter/` is `/charter` and `/charter/<id>` ([Charter destinations](charter-destinations.md)). The photo is `public/brand/skymning.jpg`; `public/brand/` holds the site's own images, `public/images/` the course's. |
 | `app/globals.css` | The design tokens (colours, font, radii, shadows, motion) as a Tailwind theme, and base styles. See [`DESIGN.md`](../../DESIGN.md). |
 | `app/components/` | Shared interface parts: the design's components (`Button`, `RoundButton`, `Field`, `Checkbox`, `Switch`, `Card`, `ChoiceCard`, `Message`, `Stars`, `Wordmark`, `Tabs`, `Dialog`, `AbortFlow`, see [`DESIGN.md`](../../DESIGN.md)), `PhotoCredit`, `SearchForm`, `Autocomplete`, `DatePicker` and `Calendar` ([the date picker](date-picker.md)), `ReviewCarousel` and icons. |
@@ -49,7 +49,7 @@ flowchart LR
 | `lib/session.ts`, `lib/auth.ts` | Admin sign-in: a signed cookie, checked on every admin page and action. |
 | `lib/travel.ts` | The course's destinations (charter), read from the database, with the "från" price and airport. |
 | `lib/destinations.ts`, `lib/destination-names.ts`, `lib/markdown.ts` | Charter search, filters, address, price rule, Swedish names and text parsing, without a database (usable in the browser). |
-| `lib/charter-rules.ts`, `lib/charter.ts`, `lib/charter-bookings.ts` | Charter booking (TRIP-014): the rules for both the page and the server (search and address, which trips run, arrival, extras, the form, prices, summary), reading timetables and trips, and saving a booking in one write transaction with everything checked and priced from the database. Only `charter-rules.ts` is without `server-only`. See [Charter booking](charter-booking.md). |
+| `lib/charter-rules.ts`, `lib/charter.ts`, `lib/charter-bookings.ts` | Charter booking (TRIP-014, TRIP-039): the rules for both the page and the server (search and address, which trips run, arrival, aircraft and classes, extras, the form, prices, summary), reading timetables, trips and the fleet, and saving a booking in one write transaction with everything checked and priced from the database. Only `charter-rules.ts` is without `server-only`. See [Charter booking](charter-booking.md). |
 | `lib/cancel-rules.ts`, `lib/my-booking.ts` | Min bokning (TRIP-023): the rules for both the page and the server (booking numbers, the 24 hour rule, the lottery, amounts, ticking), and looking up, reading and cancelling bookings with everything checked in one write transaction. Only `cancel-rules.ts` is without `server-only`. See [My booking](my-booking.md). |
 | `lib/format.ts` | Price formatting (whole kronor to "1 290 kr") and durations ("9 h 20 min"). |
 | `lib/dates.ts` | Which dates can be booked (today up to `MAX_MONTHS_AHEAD` months ahead, in local time), the return limits (`MAX_TRIP_MONTHS`), reading typed dates, the messages and Swedish date formats, for both the search form and the server. |
@@ -77,7 +77,7 @@ On Vercel the build stops if `TURSO_DATABASE_URL` is missing, so the site can't 
 - **Airports and routes:** `airports` (with `city`), `routes` (from, to, flight time; one for every ordered pair of airports) and `route_departures` (times of day, each with its price per person).
 - **Fleet:** `aircraft`, `classes`, `aircraft_capacity` (seats per class on an aircraft), `addons` and `aircraft_class_addons` (which add-ons can be bought in which class on which aircraft).
 - **Cancellations:** `booking_cancellations` and `charter_booking_cancellations` (the outcome of the lottery, the amount and the refund), and a `cancellation_id` on `booking_seats` and `charter_booking_passengers`. See [My booking](my-booking.md).
-- **Charter bookings:** `charter_bookings`, `charter_booking_passengers`, `charter_booking_trips` (the timetable, the date and the price) and `charter_booking_extras`. Separate from the flight booking's tables. See [Charter booking](charter-booking.md).
+- **Charter bookings:** `charter_bookings`, `charter_booking_passengers`, `charter_booking_trips` (the timetable, the date, the price and the aircraft), `charter_booking_seats` and `charter_booking_addons` (each traveller's class and add-ons per trip, TRIP-039) and `charter_booking_extras`. Separate from the flight booking's tables. See [Charter booking](charter-booking.md).
 - **Bookings:** `bookings` (the booking number, the contact, the payment method and the total), `booking_passengers`, `booking_flights` (route, date, departure, aircraft and price per flight), `booking_seats` (a passenger's class and price on a flight) and `booking_addons`. See [Booking](booking.md).
 - **Reviews:** `reviews`.
 - **Charter** (the course data): `charter_airports`, `destinations` with their aliases, tags, ways of getting there, pages and photos, and `charter_timetables` with their days, flights and stops. Separate from the airline's tables. See [Charter data](data-charter.md).
@@ -102,6 +102,7 @@ A new database is built from `db/schema.sql` and `db/seed.sql`. Changes after th
 | `010_login_attempts.sql` | The table `login_attempts`, the admin sign-in attempts per IP address (TECH-017). |
 | `011_charter_bookings.sql` | The charter booking tables (TRIP-014). |
 | `012_cancellations.sql` | The cancellation tables and `cancellation_id` on seats and charter passengers (TRIP-023); only adds. |
+| `013_charter_aircraft.sql` | The aircraft of a charter trip and the seats and add-ons of the travellers (TRIP-039); only adds. |
 
 ## Admin sign-in
 

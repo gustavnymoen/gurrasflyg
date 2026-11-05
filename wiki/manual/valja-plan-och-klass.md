@@ -3,11 +3,11 @@ type: Guide
 title: Välja plan och klass
 description: Så väljer du, ett flyg i taget, plan och hur många resenärer som sitter i varje klass, och ser vad resan kostar och hur lång tid den tar.
 resource: app/flyg/plan/
-feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012
+feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012, TRIP-039
 tags: [resenär, plan, klass, pris, flygtid, ankomst]
 generated:
   by: claude
-  at: 2026-10-24T20:12:51+02:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # Välja plan och klass
@@ -52,6 +52,10 @@ När alla resenärer har en klass på varje flyg och du tryckt **Klar** på varj
 - Klicka på ett **hopfällt kort** för att öppna det igen och ändra klasserna. Det andra flyget påverkas inte.
 - Klicka på **planet överst i kortet** för att se planen igen. Trycker du **Välj** på samma plan finns klasserna kvar; väljer du **ett annat plan** börjar klasserna för det flyget om från 0.
 - Klicka på **Flyg** bland stegen överst för att gå tillbaka till flygen. Ändrar du inget finns allt kvar när du går vidare igen. Väljer du **ett annat flyg** får du välja plan och klasser för det flyget igen.
+
+## I charter
+
+Samma steg finns när du bokar en charterresa, se [Boka en charterresa](boka-charter.md). Där är avgångens pris grunden och flygtiden och ankomsten är alltid resans egna, så planets tidsfaktor syns inte.
 
 ## Vanliga frågor
 

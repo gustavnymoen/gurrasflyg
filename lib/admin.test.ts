@@ -74,3 +74,41 @@ test("TRIP-016-R1 a class and add-on shared with another aircraft stay in use", 
   expect(await exists("classes", names.cls)).toBe(true);
   expect(await exists("addons", names.addon)).toBe(true);
 });
+
+test("TRIP-039-R5 an aircraft, class and add-on used by a charter booking cannot be deleted", async () => {
+  await planeWith(names.planeA, names.cls, names.addon);
+  const [aircraft, classId, addonId] = [
+    await idOf("aircraft", names.planeA),
+    await idOf("classes", names.cls),
+    await idOf("addons", names.addon),
+  ];
+  const [pair] = await queryUnitDb<{ timetable: string; destination: string }>(
+    `SELECT t.id AS timetable, d.id AS destination FROM charter_timetables t
+     JOIN destinations d ON d.nearest_airport = t.to_airport WHERE t.from_airport = 'ARN' LIMIT 1`,
+  );
+  // Bokningen skrivs direkt i enhetstesternas databas och städas bort nedan
+  const { openUnitDb } = await import("../db/test-db");
+  const db = openUnitDb();
+  try {
+    await db.execute("PRAGMA foreign_keys = ON");
+    await db.executeMultiple(`
+      INSERT INTO charter_bookings (booking_number, request_id, destination_id, first_name, last_name, email, phone, address, payment, total)
+        VALUES ('CH-KMNPQ4', 'unit-admin-charter', '${pair.destination}', 'A', 'B', 'a@b.se', '0701234567', 'Gatan 1', 'cash', 1000);
+      INSERT INTO charter_booking_passengers (booking_id, position, first_name, last_name, age)
+        VALUES ((SELECT id FROM charter_bookings WHERE request_id = 'unit-admin-charter'), 0, 'A', 'B', 40);
+      INSERT INTO charter_booking_trips (booking_id, position, timetable_id, date, price, aircraft_id)
+        VALUES ((SELECT id FROM charter_bookings WHERE request_id = 'unit-admin-charter'), 0, '${pair.timetable}', '2030-01-10', 1000, ${aircraft});
+      INSERT INTO charter_booking_seats (booking_trip_id, passenger_id, class_id, price)
+        VALUES ((SELECT id FROM charter_booking_trips WHERE aircraft_id = ${aircraft}),
+                (SELECT id FROM charter_booking_passengers WHERE first_name = 'A' AND booking_id IN (SELECT id FROM charter_bookings WHERE request_id = 'unit-admin-charter')), ${classId}, 1000);
+      INSERT INTO charter_booking_addons (booking_seat_id, addon_id, name, count, price)
+        VALUES ((SELECT id FROM charter_booking_seats WHERE class_id = ${classId}), ${addonId}, 'Unit', 1, 10);
+    `);
+    await expect(admin.deleteAircraft(aircraft)).rejects.toThrow("Du kan ej ta bort");
+    await expect(admin.deleteClass(classId)).rejects.toThrow("Du kan ej ta bort");
+    await expect(admin.deleteAddon(addonId)).rejects.toThrow("Du kan ej ta bort");
+  } finally {
+    await db.execute("DELETE FROM charter_bookings WHERE request_id = 'unit-admin-charter'");
+    db.close();
+  }
+});

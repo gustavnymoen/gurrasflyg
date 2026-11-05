@@ -14,7 +14,7 @@ Gurras Flyg is a fictional airline's booking site. It has two separate product a
 - **Flight booking:** the airline's own scheduled flights. A traveller searches for a flight from airport A to airport B on a date and books it. Built on the airline's own data: airports, routes, aircraft, cabin classes and add-ons, managed in admin.
 - **Charter:** trips to urban exploration destinations (abandoned towns, industrial sites, Cold War relics and more) from Stockholm Arlanda (ARN) and Copenhagen (CPH). Built on the course's sample data: destinations, destination pages, photos and timetables.
 
-The two areas share the site, the design, the database and the reviews, but not their data: flight booking never uses the charter data, and charter never uses the airline's routes and aircraft.
+The two areas share the site, the design, the database and the reviews, but not their data: flight booking never uses the charter data, and charter never uses the airline's routes. A charter trip is flown with the airline's aircraft, classes and add-ons (TRIP-039), chosen as in flight booking.
 
 An administrator manages the airline's data and the reviews shown on the start page.
 
@@ -72,7 +72,7 @@ The steps from card to deploy are in `CLAUDE.md`; how each kind of requirement i
 | Trip | One timetable on one date, for example `ARN-BER-EW488` on 2027-01-11. This is what a traveller books. |
 | Charter airport | An airport in `data/airports.json`, used by the timetables and destinations. |
 | Extra | One of three things a charter traveller can add to the whole booking (Den ultimata upplevelsen, Bear Grylls Experience, Dryckespaket XXXL), with a price per person. Defined in the code, not in admin. |
-| Charter booking | A round trip to a destination: an outbound and a return trip, travellers and extras, saved with a booking number that starts with `CH-`. |
+| Charter booking | A round trip to a destination: an outbound and a return trip, each with an aircraft and the travellers' classes, travellers, add-ons and extras, saved with a booking number that starts with `CH-`. |
 
 ## Scope
 
@@ -158,6 +158,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-033 | Agneta polish: a customer-service header with a green "Live" dot, the greeting "Vad vill du?!", the tone from the first answer, whole answers (cut at the last whole bullet, no half links), a link to each destination on every page as one bullet with one sub-bullet, and a wider panel | Charter | Review |
 | TRIP-030 | Booking agent: a "Hjälp mig" button turns on an agent mode where Agneta, with tools, finds destinations and trips, steers the page, writes extras and payment to the form and takes the visitor to a booking that the visitor completes with the button "Boka och betala" | Charter | Review |
 | TRIP-034 | Styled multi-choice charter filters: Världsdel, Land, Tillträde and Kategori are buttons that open a panel of checkboxes in the site's look, several choices per filter kept in the address, and no options that give an empty result | Charter | Review |
+| TRIP-039 | Choose aircraft and classes in charter: the step `/charter/<id>/plan` with the cards and counters of the flight plan step (the shared `PlanBuilder`), any aircraft with room on any departure, the departure's price as the base, no time factor, the class of each traveller only shown on Resenärer with the add-ons of the class next to the charter extras, an address without an aircraft sent to the plan step, aircraft, seats and add-ons saved and shown on the booked page, old bookings unchanged | Charter | Done |
 
 ## Decisions for charter
 

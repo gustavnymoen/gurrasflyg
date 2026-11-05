@@ -1,12 +1,16 @@
 import "server-only";
 import { connection } from "next/server";
+import { type BookingLeg, bookingLegs } from "./booking-rules";
 import { all, type Executor } from "./db";
+import type { FleetAircraft } from "./fare-rules";
+import { readAddons, readFleet } from "./flights";
 import {
   type CharterChoice,
   type CharterSearch,
   type CharterTrip,
   chosenTrips,
   makeTrip,
+  NO_PLAN,
   parseCharterSearch,
   parseChoice,
   runsOn,
@@ -17,6 +21,7 @@ import { bookableRange, dateError, fromDateString } from "./dates";
 import { DEPARTURE_AIRPORTS } from "./destinations";
 import { localNow } from "./flight-rules";
 import type { Params } from "./search";
+import { checkChoice } from "./trip";
 import { getDestinationAirport } from "./travel";
 
 // Datumen räknas i Sverige och Danmark, som har samma tid
@@ -115,10 +120,13 @@ export type CharterData = {
   search: CharterSearch;
   out: CharterTrip[];
   back: CharterTrip[];
-  // De valda resorna som finns och passar ihop (R5)
+  // De valda resorna som finns och passar ihop (R5), och plan och klasser som passar resan (TRIP-039-R3)
   choice: CharterChoice;
   outbound: CharterTrip | undefined;
   home: CharterTrip | undefined;
+  fleet: FleetAircraft[];
+  // Resorna med plan, klasser och tillägg, när båda är valda och alla resenärer har en klass på varje (TRIP-039-R6)
+  legs: BookingLeg[] | null;
 };
 
 // Sökningen och valen kontrollerade mot databasen: datumen går att boka och
@@ -137,15 +145,41 @@ export async function readCharter(
     await findTrips(destination.airport, search.from, search.return, now, ex),
   ];
   const { outbound, home } = chosenTrips(choice, out, back);
+  // Tidsfaktorn gäller bara flygen: en charterresa går när tidtabellen säger (TRIP-039-R2)
+  const fleet = (await readFleet(ex)).map((a) => ({ ...a, timePercent: 100 }));
+  const chosen = [outbound, home];
+  const plans = chosen.map((trip, i) => (trip ? checkChoice(choice.plans[i], fleet, search.travellers) : NO_PLAN));
   return {
     destination,
     search,
     out,
     back,
-    choice: { out: outbound?.id ?? null, back: home?.id ?? null },
+    choice: { out: outbound?.id ?? null, back: home?.id ?? null, plans },
     outbound,
     home,
+    fleet,
+    legs: outbound && home ? await readLegs(destination, search, [outbound, home], plans, fleet, ex) : null,
   };
+}
+
+// Resorna som bokningen behöver dem, med priserna från databasen: avgångens pris är basen för platserna.
+// Nyckeln är resans id i stället för avgångstiden, som på flygen.
+async function readLegs(
+  destination: CharterData["destination"],
+  search: CharterSearch,
+  trips: CharterTrip[],
+  plans: CharterChoice["plans"],
+  fleet: FleetAircraft[],
+  ex?: Executor,
+) {
+  const ids = plans.flatMap((plan) => (plan.aircraftId === null ? [] : [plan.aircraftId]));
+  return bookingLegs(
+    { ...search, to: destination.airport, return: search.return },
+    plans.map((plan, i) => ({ ...plan, time: trips[i].id })),
+    trips.map((t) => t.price),
+    fleet,
+    await readAddons(ids, ex),
+  );
 }
 
 // Sidans sökning och val ur adressen. "address" när något saknas eller är fel,

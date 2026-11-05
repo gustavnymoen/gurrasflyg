@@ -146,20 +146,29 @@ export function firstClasses(aircraft: FleetAircraft, seating: Seating): number[
     .flatMap((c) => Array<number>(seating[c.id] ?? 0).fill(c.id));
 }
 
+// Passagerarens klass och tillägg på varje flyg (R10): finns flygets nyckel
+// kvar behålls de, annars är klassen den som antalen per klass ger
+// passagerare p, och tilläggen är borta. Flyg och charter (TRIP-039-R8) fyller i klasserna lika.
+export function fitPassengerLegs(
+  passengerLegs: PassengerLeg[] | undefined,
+  formKeys: string[],
+  legs: BookingLeg[],
+  p: number,
+): PassengerLeg[] {
+  return legs.map((leg, i) => {
+    const kept = formKeys[i] === leg.key ? passengerLegs?.[i] : undefined;
+    return kept ?? { classId: firstClasses(leg.aircraft, leg.seating)[p], addons: {} };
+  });
+}
+
 // Formuläret för resan som den ser ut nu (R10). Namn, åldrar, Dåliga nerver
 // och kontaktpersonen finns kvar. Är ett flyg, dess plan eller antalen per
 // klass ändrade börjar flygets klasser om och dess tillägg tas bort; de
 // andra flygen ändras inte.
 export function fitForm(form: BookingForm, legs: BookingLeg[], travellers: number): BookingForm {
-  const classes = legs.map((leg) => firstClasses(leg.aircraft, leg.seating));
   const passengers = Array.from({ length: travellers }, (_, p) => {
     const passenger = form.passengers[p] ?? emptyPassenger();
-    return {
-      ...passenger,
-      legs: legs.map((leg, i) =>
-        form.legKeys[i] === leg.key && passenger.legs[i] ? passenger.legs[i] : { classId: classes[i][p], addons: {} },
-      ),
-    };
+    return { ...passenger, legs: fitPassengerLegs(passenger.legs, form.legKeys, legs, p) };
   });
   return { ...form, legKeys: legs.map((leg) => leg.key), passengers };
 }
@@ -188,12 +197,15 @@ export function chosenAddons(leg: BookingLeg, passengerLeg: PassengerLeg) {
     .filter(({ count }) => count > 0);
 }
 
-// En passagerares pris på ett flyg: platsen, tilläggen och Dåliga nerver (R3, R4)
-export function passengerLegPrice(leg: BookingLeg, passenger: Passenger, legIndex: number) {
-  const passengerLeg = passenger.legs[legIndex];
+// Platsen och tilläggen för en passagerare på ett flyg, utan Dåliga nerver (R3), också charterns (TRIP-039-R3, R4)
+export function seatCost(leg: BookingLeg, passengerLeg: PassengerLeg) {
   const addons = chosenAddons(leg, passengerLeg).reduce((sum, { addon, count }) => sum + addon.price * count, 0);
-  return seatPrice(leg, passengerLeg.classId) + addons + (passenger.nerves ? NERVES_PRICE : 0);
+  return seatPrice(leg, passengerLeg.classId) + addons;
 }
+
+// En passagerares pris på ett flyg: platsen, tilläggen och Dåliga nerver (R3, R4)
+export const passengerLegPrice = (leg: BookingLeg, passenger: Passenger, legIndex: number) =>
+  seatCost(leg, passenger.legs[legIndex]) + (passenger.nerves ? NERVES_PRICE : 0);
 
 // Priset för hela resan, som räknas om direkt när något väljs (R1)
 export const bookingTotal = (form: BookingForm, legs: BookingLeg[]) =>
@@ -348,18 +360,21 @@ export const ADULT_AGE = 18;
 export const isBeer = (addon: Pick<AddonOption, "name">) => addon.name.trim().toLocaleLowerCase("sv") === "öl";
 export const isAdult = (age: string) => isAge(age) && Number(age) >= ADULT_AGE;
 
+// Det som ölreglerna behöver av en passagerare, också charterns
+export type SeatedPerson = Pick<Passenger, "age" | "legs">;
+
 // Id:na för ölen som går att köpa i passagerarens klass på ett flyg
-function beerIdsOn(passenger: Passenger, legs: BookingLeg[], legIndex: number) {
+function beerIdsOn(passenger: SeatedPerson, legs: BookingLeg[], legIndex: number) {
   const passengerLeg = passenger.legs[legIndex];
   return (legs[legIndex].addons[passengerLeg.classId] ?? []).filter(isBeer).map((addon) => addon.id);
 }
 
-const hasBeer = (passenger: Passenger, legs: BookingLeg[]) =>
+export const hasBeer = (passenger: SeatedPerson, legs: BookingLeg[]) =>
   legs.some((_, i) => beerIdsOn(passenger, legs, i).some((id) => (passenger.legs[i].addons[id] ?? 0) > 0));
 
 // Passageraren utan öl på alla flyg, när hen inte är 18 år eller äldre, och
 // om något togs bort (TRIP-029-R4)
-export function withoutBeerUnder18(passenger: Passenger, legs: BookingLeg[]) {
+export function withoutBeerUnder18<P extends SeatedPerson>(passenger: P, legs: BookingLeg[]) {
   if (isAdult(passenger.age) || !hasBeer(passenger, legs)) return { passenger, removed: false };
   const cleaned = passenger.legs.map((passengerLeg, i) => {
     const addons = { ...passengerLeg.addons };
@@ -409,7 +424,7 @@ export function fitsForm(form: { requestId: string; contact: Contact; checks: bo
   );
 }
 
-function fitsLeg(leg: BookingLeg, passengerLeg: PassengerLeg | undefined) {
+export function fitsLeg(leg: BookingLeg, passengerLeg: PassengerLeg | undefined) {
   if (!passengerLeg || !leg.aircraft.classes.some((c) => c.id === passengerLeg.classId)) return false;
   if (typeof passengerLeg.addons !== "object" || passengerLeg.addons === null) return false;
   const allowed = leg.addons[passengerLeg.classId] ?? [];

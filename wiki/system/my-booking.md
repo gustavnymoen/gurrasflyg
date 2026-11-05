@@ -7,7 +7,7 @@ feature: TRIP-023, TECH-026
 tags: [booking, cancel, lottery, menu, personal-data, security, server-actions, accessibility]
 generated:
   by: claude
-  at: 2026-10-30T12:00:00+01:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # My booking
@@ -61,7 +61,7 @@ Under the cards, **Avboka** (`CancelPanel`) tells the rules before any click: th
 
 1. Counts the attempt and checks the number and last name again. A mismatch is refused and counts as a wrong attempt.
 2. Reads the whole booking again and refuses (message "Det du valde går inte att avboka. Ladda om sidan och försök igen.", nothing changed) an empty selection, an id that is not in the booking, one already cancelled, one on a flight that is too late, or duplicates.
-3. Sums the amount: seats with their add-ons, or travellers with both trips and the extras (`seatAmount`, `travellerAmount`).
+3. Sums the amount: seats with their add-ons, or travellers with both trips and the extras (`seatAmount`, `travellerAmount`). A charter traveller on a booking with aircraft and classes (TRIP-039) is worth their seats and add-ons on both trips plus the extras; a booking from before has no seats and is worth the trips' price per person plus the extras, as it was.
 4. Draws: `winsLottery(random)` with a random number from `crypto.randomInt`: below one half wins. A win refunds the amount.
 5. Inserts the cancellation (time, outcome, amount, refunded) and marks the parts.
 

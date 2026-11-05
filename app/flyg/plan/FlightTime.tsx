@@ -1,9 +1,8 @@
-import { arrival, type FleetAircraft, flightMinutes } from "@/lib/fare-rules";
-import type { Flight } from "@/lib/flight-rules";
+import { arrival, type FleetAircraft, flightMinutes, type PlanFlight } from "@/lib/fare-rules";
 import { formatDuration } from "@/lib/format";
 
 // Flygtiden och ankomsten för ett flyg med ett plan, i Din resa (TRIP-024-R1) och i korten för flygen (TRIP-026)
-export default function AircraftTime({ flight, aircraft }: { flight: Flight; aircraft: FleetAircraft }) {
+export default function AircraftTime({ flight, aircraft }: { flight: PlanFlight; aircraft: FleetAircraft }) {
   const minutes = flightMinutes(flight.routeMinutes, aircraft.timePercent);
   return <FlightTime minutes={minutes} arrival={arrival(flight, minutes)} />;
 }

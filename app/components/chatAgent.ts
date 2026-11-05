@@ -6,7 +6,7 @@ import {
   asCharterForm,
   charterProblems,
   emptyCharterForm,
-  fitCharterForm,
+  fitTravellers,
   parseCharterSearch,
   parseChoice,
   withoutUnavailable,
@@ -28,12 +28,12 @@ export function readContext(): AgentContext {
   const url = location.pathname + location.search;
   const form = savedForm();
   const search = searchOf();
-  const fitted = form && search ? fitCharterForm(form, search.travellers) : null;
+  const fitted = form && search ? fitTravellers(form, search.travellers) : null;
   return {
     url: url.length > MAX_URL_LENGTH ? "/okand" : url,
     extras: form?.extras ?? [],
     payment: form?.payment ?? null,
-    valid: !!fitted && Object.keys(charterProblems(fitted)).length === 0,
+    valid: !!fitted && Object.keys(charterProblems(fitted, [])).length === 0,
   };
 }
 
@@ -57,8 +57,8 @@ export async function bookNow(router: Router): Promise<{ error: string } | { boo
   const search = searchOf();
   const choice = parseChoice(Object.fromEntries(new URLSearchParams(location.search)));
   const form = savedForm();
-  const fitted = form && search ? fitCharterForm(form, search.travellers) : null;
-  if (step !== "boka" || !id || !search || !choice.out || !choice.back || !fitted || !fitted.payment || Object.keys(charterProblems(fitted)).length > 0) {
+  const fitted = form && search ? fitTravellers(form, search.travellers) : null;
+  if (step !== "boka" || !id || !search || !choice.out || !choice.back || !fitted || !fitted.payment || Object.keys(charterProblems(fitted, [])).length > 0) {
     return { error: NOT_READY_TEXT };
   }
   // Ett id för bokningen, så att två tryck blir en bokning

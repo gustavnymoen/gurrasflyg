@@ -7,7 +7,7 @@ feature: TRIP-003, TRIP-004, TRIP-005, TRIP-016, TRIP-019
 tags: [admin, classes, add-ons, aircraft, routes, server-actions, validation, database]
 generated:
   by: claude
-  at: 2026-10-27T13:15:00+01:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # Administration
@@ -59,9 +59,9 @@ The trash can on a class, an add-on or an aircraft always asks "Är du säker?" 
 
 | Row | In use when |
 |---|---|
-| Class | an aircraft has seats in it (`aircraft_capacity`) or a booking has (`booking_seats`) |
-| Add-on | an aircraft sells it in a class (`aircraft_class_addons`) or a booking has it (`booking_addons`) |
-| Aircraft | a booked flight uses it (`booking_flights`); its classes and add-ons are deleted with it |
+| Class | an aircraft has seats in it (`aircraft_capacity`) or a booking has (`booking_seats`, `charter_booking_seats`) |
+| Add-on | an aircraft sells it in a class (`aircraft_class_addons`) or a booking has it (`booking_addons`, `charter_booking_addons`) |
+| Aircraft | a booked flight (`booking_flights`) or a booked charter trip (`charter_booking_trips`, TRIP-039) uses it; its classes and add-ons are deleted with it |
 
 Deleting an aircraft removes its `aircraft_capacity` and `aircraft_class_addons` rows, so a class or add-on that only that aircraft used can be deleted straight after.
 

@@ -23,7 +23,7 @@ How the site works, for developers. Start with the architecture.
 - [Security headers](security-headers.md): The Content Security Policy, Permissions-Policy and HSTS that every response carries, why the policy keeps 'unsafe-inline' (Next's experimental SRI was tried and does not remove the need), and what a strict policy would need.
 - [Rate limits](rate-limits.md): The limits per IP address on sign-in, Min bokning, Betala and the API routes, how they are counted in the database, and what is not limited.
 - [Charter chatbot Agneta](charter-chatbot.md): The chat "Fråga Agneta" on the start page and the charter pages (a side panel on wide screens, a dialog on small ones, kept in the session), the agent mode "Hjälp mig" with tools that steer the page and a button that books, the route POST /api/chat, how the system prompt is built from the database, the limits on questions, and how the model is called and tested.
-- [Charter booking](charter-booking.md): The search form on a destination page, the results, the steps Resenärer and Betala, the three extras, the summary, how a charter booking is checked and saved, and the charter booking tables.
+- [Charter booking](charter-booking.md): The search form on a destination page, the results, the step Plan och klass, the steps Resenärer and Betala, the three extras and the add-ons of the classes, the summary, how a charter booking is checked and saved, and the charter booking tables.
 
 ## Data
 
@@ -65,5 +65,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-028 Clickable destination cards, no start cards | Charter | `specs/TRIP-028-clickable-cards/` |
 | TRIP-013 Charter: Destination pages and search | Charter | `specs/TRIP-013-destination-pages/` |
 | TRIP-014 Search and book charter trips | Charter | `specs/TRIP-014-charter-booking/` |
+| TRIP-039 Choose aircraft and classes in charter | Charter | `specs/TRIP-039-charter-aircraft/` |
 
 [Wiki](../index.md)

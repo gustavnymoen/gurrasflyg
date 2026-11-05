@@ -1,5 +1,4 @@
-import { canAdd, classOptions, type FleetAircraft, legTotal, placed, type Seating, seatingCounter, seatingProblem } from "@/lib/fare-rules";
-import type { Flight } from "@/lib/flight-rules";
+import { canAdd, classOptions, type FleetAircraft, legTotal, placed, type PlanFlight, type Seating, seatingCounter, seatingProblem } from "@/lib/fare-rules";
 import { formatPrice } from "@/lib/format";
 import Button from "../../components/Button";
 import { CheckIcon } from "../../components/icons";
@@ -28,7 +27,7 @@ export default function ClassList({
   headingId: string;
   title: string;
   totalLabel: string;
-  flight: Flight;
+  flight: PlanFlight;
   aircraft: FleetAircraft;
   travellers: number;
   seating: Seating;

@@ -3,12 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { fieldIds, paymentProblems } from "@/lib/booking-rules";
-import {
-  charterProblems,
-  charterTotal,
-  extraRows,
-  travellersUrl,
-} from "@/lib/charter-rules";
+import { charterProblems, charterTotal, extraRows, legText, travellersUrl } from "@/lib/charter-rules";
 import Problem from "../flyg/Problem";
 import { PayCard, PaymentMethodCard } from "../flyg/boka/PaymentParts";
 import Steps from "../flyg/Steps";
@@ -19,9 +14,9 @@ import { type CharterStepProps, charterSteps } from "./steps";
 
 // Betalsättet och Betala (TRIP-014-R8). Tillbaka till resenärerna finns allt kvar, eftersom
 // det är sparat i fliken. Betala sparar bokningen på servern och visar sammanfattningen (R9).
-export default function CharterPaymentForm({ id, title, search, choice, outbound, home }: CharterStepProps) {
+export default function CharterPaymentForm({ id, title, search, choice, outbound, home, legs }: CharterStepProps) {
   const router = useRouter();
-  const form = useCharterForm(search.travellers);
+  const form = useCharterForm(search.travellers, legs)?.form;
   // Försök att betala utan betalsätt; varje försök flyttar fokus igen
   const [attempts, setAttempts] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -39,11 +34,11 @@ export default function CharterPaymentForm({ id, title, search, choice, outbound
   if (!form) return null;
   if (booked) return <p role="status">Bokningen är sparad.</p>;
   // Utan ifyllda resenärer, t.ex. om sidan öppnas direkt, finns inget att betala
-  if (Object.keys(charterProblems(form)).length > 0) {
+  if (Object.keys(charterProblems(form, legs)).length > 0) {
     return <Problem text="Fyll i resenärerna först." href={travellersUrl(id, search, choice)} link="Till resenärerna" />;
   }
 
-  const total = charterTotal([outbound.price, home.price], form.extras, search.travellers);
+  const total = charterTotal(legs, form);
   const problem = attempts > 0 ? (paymentProblems(form)[fieldIds.payment] ?? null) : null;
 
   function pay() {
@@ -70,7 +65,7 @@ export default function CharterPaymentForm({ id, title, search, choice, outbound
       }}
       className="flex flex-col gap-8"
     >
-      <Steps steps={charterSteps(id, search, choice)} current={2} />
+      <Steps steps={charterSteps(id, search, choice)} current={3} />
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex flex-col gap-8">
           <PaymentMethodCard
@@ -91,6 +86,7 @@ export default function CharterPaymentForm({ id, title, search, choice, outbound
           <CharterOverview
             destination={title}
             trips={[outbound, home]}
+            plans={legs.map(legText)}
             travellers={search.travellers}
             extras={extraRows(form.extras, search.travellers)}
             total={total}

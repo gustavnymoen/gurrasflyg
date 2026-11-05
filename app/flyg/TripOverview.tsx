@@ -1,7 +1,7 @@
 import { type FleetAircraft, seatingText } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { travellersText } from "@/lib/format";
-import { LEG_NAMES, type LegChoice } from "@/lib/trip";
+import { LEG_NAMES, type PlanChoice } from "@/lib/trip";
 import Card from "../components/Card";
 import FlightLine from "./FlightLine";
 import AircraftTime from "./plan/FlightTime";
@@ -17,7 +17,7 @@ export default function TripOverview({
   classes = false,
 }: {
   flights: Flight[];
-  legs: LegChoice[];
+  legs: PlanChoice[];
   fleet: FleetAircraft[];
   travellers: number;
   classes?: boolean;

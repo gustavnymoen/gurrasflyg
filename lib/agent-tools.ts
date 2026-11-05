@@ -4,7 +4,7 @@ import { type AgentAction } from "./agent-rules";
 import { readPage, tripLine, tripText } from "./agent-page";
 import { type CharterData, readCharter } from "./charter";
 import {
-  charterTotal,
+  departuresTotal,
   EXTRAS,
   extraByCode,
   extraRows,
@@ -211,7 +211,7 @@ async function findTrips(input: Record<string, unknown>) {
 
 // Resultatsidan, eller Resenärer direkt (R3, R4). Valda resor måste finnas och passa ihop: det avgör sidans egen regel.
 async function showTrip(input: Record<string, unknown>, state: AgentState, step: "results" | "travellers") {
-  const choice = { out: text(input.outbound_trip) ?? null, back: text(input.return_trip) ?? null };
+  const choice = { ...NO_CHOICE, out: text(input.outbound_trip) ?? null, back: text(input.return_trip) ?? null };
   const data = await charterOf(input, choice);
   if (data.out.length === 0 || data.back.length === 0) {
     throw new ToolError("No trip runs on one of the dates, so nothing was opened. Tell the visitor and suggest other dates.");
@@ -250,7 +250,7 @@ async function summary(state: AgentState) {
   }
   const { data } = info;
   const rows = extraRows(state.extras, data.search.travellers);
-  const total = charterTotal([data.outbound!.price, data.home!.price], state.extras, data.search.travellers);
+  const total = departuresTotal([data.outbound!.price, data.home!.price], state.extras, data.search.travellers);
   return [
     tripText(data),
     `Extras: ${rows.map((e) => `${e.name} (${formatPrice(e.sum)})`).join(", ") || "none"}`,

@@ -1,5 +1,4 @@
-import { aircraftFare, type FleetAircraft, legTotal, type Seating, seatingText } from "@/lib/fare-rules";
-import type { Flight } from "@/lib/flight-rules";
+import { aircraftFare, type FleetAircraft, legTotal, type PlanFlight, type Seating, seatingText } from "@/lib/fare-rules";
 import { formatPrice } from "@/lib/format";
 import type { LegView } from "@/lib/trip";
 import Card from "../../components/Card";
@@ -31,7 +30,7 @@ export default function LegCard({
   seating,
   travellers,
   tried,
-  flightsHref,
+  emptyLink,
   onChoose,
   onShowAircraft,
   onChangeSeating,
@@ -42,13 +41,13 @@ export default function LegCard({
   title: string;
   of: string;
   view: Exclude<LegView, "hidden">;
-  flight: Flight;
+  flight: PlanFlight;
   fleet: FleetAircraft[];
   aircraft: FleetAircraft | undefined;
   seating: Seating;
   travellers: number;
   tried: boolean;
-  flightsHref: string;
+  emptyLink: { href: string; label: string };
   onChoose: (aircraftId: number) => void;
   onShowAircraft: () => void;
   onChangeSeating: (seating: Seating) => void;
@@ -75,7 +74,7 @@ export default function LegCard({
           flight={flight}
           fleet={fleet}
           travellers={travellers}
-          flightsHref={flightsHref}
+          emptyLink={emptyLink}
           onChoose={onChoose}
         />
       )}

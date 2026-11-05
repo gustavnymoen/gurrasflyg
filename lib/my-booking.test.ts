@@ -20,6 +20,8 @@ const IP = "203.0.113.7";
 const FLIGHT = { number: "UNIT23", lastName: "Testsson", total: 1000 + 1240 + 1800 + 1800 };
 const OTHER = { number: "UNIT24", lastName: "Annansson" };
 const CHARTER = { number: "CH-KMNPQ2", lastName: "Charterson" };
+// Charterbokningen med plan och platser (TRIP-039): en resenär, 1 000 + 900 för platserna, Måltid 2 × 120 och ett tillägg för 1 000
+const PLANNED = { number: "CH-KMNPQ3", lastName: "Planson", amount: 1000 + 900 + 2 * 120 + 1000 };
 
 const ids = { out: 0, back: 0, seats: [] as number[], otherSeat: 0, passengers: [] as number[], charterPassengers: [] as number[] };
 let perPerson = 0;
@@ -135,6 +137,37 @@ beforeAll(async () => {
     await insert(db, "INSERT INTO charter_booking_extras (booking_id, code, name, price) VALUES (?, 'ultimate', 'Den ultimata upplevelsen', 1000)", [charterId]);
     await insert(db, "INSERT INTO charter_booking_extras (booking_id, code, name, price) VALUES (?, 'grylls', 'Bear Grylls Experience', 2000)", [charterId]);
     perPerson = 3000 + 2500 + 1000 + 2000;
+
+    const plannedId = await insert(
+      db,
+      `INSERT INTO charter_bookings (booking_number, request_id, destination_id, first_name, last_name, email, phone, address, payment, total)
+       VALUES (?, 'unit-min-planned', ?, 'Petra', ?, 'unit-min@exempel.se', '070-123 45 67', 'Gatan 1', 'collect', ?)`,
+      [PLANNED.number, pair.destination, PLANNED.lastName, PLANNED.amount],
+    );
+    const plannedPassenger = await insert(
+      db,
+      "INSERT INTO charter_booking_passengers (booking_id, position, first_name, last_name, age) VALUES (?, 0, 'Petra', 'Planson', 30)",
+      [plannedId],
+    );
+    for (const [position, timetable, date, seat] of [
+      [0, pair.out, "2030-01-10", 1000],
+      [1, pair.back, "2030-01-17", 900],
+    ] as const) {
+      const tripId = await insert(
+        db,
+        "INSERT INTO charter_booking_trips (booking_id, position, timetable_id, date, price, aircraft_id) VALUES (?, ?, ?, ?, 3000, ?)",
+        [plannedId, position, timetable, date, aircraft],
+      );
+      const seatId = await insert(
+        db,
+        "INSERT INTO charter_booking_seats (booking_trip_id, passenger_id, class_id, price) VALUES (?, ?, ?, ?)",
+        [tripId, plannedPassenger, economy, seat],
+      );
+      if (position === 0) {
+        await insert(db, "INSERT INTO charter_booking_addons (booking_seat_id, name, count, price) VALUES (?, 'Måltid', 2, 120)", [seatId]);
+      }
+    }
+    await insert(db, "INSERT INTO charter_booking_extras (booking_id, code, name, price) VALUES (?, 'ultimate', 'Den ultimata upplevelsen', 1000)", [plannedId]);
   } finally {
     db.close();
   }
@@ -229,6 +262,15 @@ test("TRIP-023-R2 R5 a charter booking is found by its CH- number, with trips, p
     { name: "Bear Grylls Experience", price: 2000 },
   ]);
   expect(booking.total).toBe(2 * perPerson);
+});
+
+test("TRIP-039-R3 R7 a charter booking with a plane is worth its seats, add-ons and extras per traveller, and one from before it is unchanged", async () => {
+  const found = await mine.lookUpBooking(IP, { bookingNumber: PLANNED.number, lastName: PLANNED.lastName }, NOW);
+  const booking = (found as { booking: CharterBooking }).booking;
+  expect(booking.passengers.map((p) => [p.name, p.amount])).toEqual([["Petra Planson", PLANNED.amount]]);
+  // The booking from before the plan step (above) has no seats and is worth the trips' price per person as before
+  const old = (await mine.lookUpBooking(IP, charterCredentials, NOW)) as { booking: CharterBooking };
+  expect(old.booking.passengers.map((p) => p.amount)).toEqual([perPerson, perPerson]);
 });
 
 // ---------------------------------------------------------------- Gränsen

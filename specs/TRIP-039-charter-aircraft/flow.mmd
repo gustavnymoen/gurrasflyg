@@ -1,0 +1,20 @@
+%% TRIP-039 Choose aircraft and classes in charter
+%% From the departures to the booking: the plan step, the checks of the address and the server, and going back to change the classes.
+flowchart TD
+    A[Results: outbound and return chosen] -->|Fortsätt| B[Plan step: aircraft and travellers per class for each trip]
+    B --> B1{Aircraft seats the party?}
+    B1 -- none --> B2[No aircraft: Ändra antal resenärer]
+    B1 -- yes --> C[Choose aircraft, place everyone, Klar - R1 R3]
+    C --> D[Price from the departure, the aircraft and the class - R2 R3]
+    D -->|both trips done: Fortsätt| E[Resenärer: class as text, add-ons of the class, charter extras - R4 R8]
+    E -->|Ändra plan och klasser| B
+    B -->|changed numbers: Fortsätt| F[Resenärer tells which add-ons were removed - R8]
+    F --> E
+    E --> G[Betala]
+    X[Address to Resenärer or Betala] --> Y{Aircraft and classes valid for both trips?}
+    Y -- no --> B
+    Y -- yes --> E
+    G --> H[Server: reads aircraft and prices from the database, checks the form - R5]
+    H -- does not fit --> I[Message, nothing saved]
+    H -- ok --> J[Booking with aircraft, seats and add-ons, and the booked page - R5]
+    K[Old booking: no aircraft, no seats] --> L[Shown and cancelled as before - R7]

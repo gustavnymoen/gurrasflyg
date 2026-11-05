@@ -1,7 +1,7 @@
 import "server-only";
 import type { Transaction } from "@libsql/client";
 import { BookingError, findBookingByRequestId, INVALID, newBookingNumber } from "./booking-common";
-import { paymentProblems } from "./booking-rules";
+import { type BookingLeg, chosenAddons, paymentProblems, seatPrice } from "./booking-rules";
 import { type CharterData, readCharter } from "./charter";
 import {
   type CharterChoice,
@@ -31,26 +31,28 @@ export class CharterBookingError extends BookingError {}
 
 export const CHANGED = "Något i resan har ändrats sedan du valde den. Gå tillbaka till Resa och välj igen.";
 
-// Sparar bokningen och returnerar bokningsnumret och resorna den gäller (R8).
+// Sparar bokningen och returnerar bokningsnumret, resorna och planen med klasserna den gäller (R8, TRIP-039-R5).
 // Allt kontrolleras och alla priser räknas här, i transaktionen, från
-// databasen. Samma request_id igen (två tryck på Betala) ger den bokning som
-// redan finns.
+// databasen: ett plan som inte finns eller är för litet, klasser som inte går ihop och
+// ett pris från webbläsaren som avviker godtas inte. Samma request_id igen (två tryck på
+// Betala) ger den bokning som redan finns.
 export async function createCharterBooking(request: CharterRequest, now = new Date()) {
   const { destination, search, choice, form } = request;
   return withTransaction(async (tx) => {
     const existing = await findBookingByRequestId(tx, "charter_bookings", form?.requestId);
 
     const data = await readCharter(destination, search, choice, now, tx);
-    if (!data?.outbound || !data.home || data.choice.out !== choice.out || data.choice.back !== choice.back) {
+    const { legs } = data ?? {};
+    if (!data?.outbound || !data.home || !legs || data.choice.out !== choice.out || data.choice.back !== choice.back) {
       throw new CharterBookingError(CHANGED);
     }
     const trips = [data.outbound, data.home];
     const valid =
-      fitsCharterForm(form, search.travellers) &&
+      fitsCharterForm(form, legs, search.travellers) &&
       extrasProblem(form) === null &&
-      Object.keys({ ...charterProblems(form), ...paymentProblems(form) }).length === 0;
+      Object.keys({ ...charterProblems(form, legs), ...paymentProblems(form) }).length === 0;
     if (!valid) throw new CharterBookingError(INVALID);
-    if (existing) return { bookingNumber: existing.bookingNumber, trips };
+    if (existing) return { bookingNumber: existing.bookingNumber, trips, legs };
 
     const bookingNumber = await newBookingNumber(tx, "charter_bookings", "CH-");
     const { contact } = form;
@@ -68,22 +70,20 @@ export async function createCharterBooking(request: CharterRequest, now = new Da
         contact.phone.trim(),
         contact.address.trim(),
         form.payment,
-        charterTotal(
-          trips.map((t) => t.price),
-          form.extras,
-          search.travellers,
-        ),
+        charterTotal(legs, form),
       ],
       tx,
     );
+    const passengerIds = [];
     for (const [position, p] of form.passengers.entries()) {
-      await run(
+      const { lastId } = await run(
         "INSERT INTO charter_booking_passengers (booking_id, position, first_name, last_name, age) VALUES (?, ?, ?, ?, ?)",
         [bookingId, position, p.firstName.trim(), p.lastName.trim(), Number(p.age)],
         tx,
       );
+      passengerIds.push(lastId);
     }
-    await saveTrips(tx, bookingId, trips);
+    await saveTrips(tx, bookingId, trips, legs, form, passengerIds);
     for (const code of form.extras) {
       // Koden är kontrollerad av extrasProblem, så tillägget finns
       const extra = extraByCode(code)!;
@@ -93,16 +93,41 @@ export async function createCharterBooking(request: CharterRequest, now = new Da
         tx,
       );
     }
-    return { bookingNumber, trips };
+    return { bookingNumber, trips, legs };
   });
 }
 
-async function saveTrips(tx: Transaction, bookingId: number, trips: CharterTrip[]) {
+// Resorna med planet, och varje resenärs plats och tillägg på dem. Platsens pris är avgångens pris
+// gånger planets och klassens faktor; tilläggens pris per styck som när de bokades.
+async function saveTrips(
+  tx: Transaction,
+  bookingId: number,
+  trips: CharterTrip[],
+  legs: BookingLeg[],
+  form: CharterForm,
+  passengerIds: number[],
+) {
   for (const [position, trip] of trips.entries()) {
-    await run(
-      "INSERT INTO charter_booking_trips (booking_id, position, timetable_id, date, price) VALUES (?, ?, ?, ?, ?)",
-      [bookingId, position, trip.id, trip.date, trip.price],
+    const leg = legs[position];
+    const { lastId: tripId } = await run(
+      "INSERT INTO charter_booking_trips (booking_id, position, timetable_id, date, price, aircraft_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [bookingId, position, trip.id, trip.date, trip.price, leg.aircraft.id],
       tx,
     );
+    for (const [p, passenger] of form.passengers.entries()) {
+      const passengerLeg = passenger.legs[position];
+      const { lastId: seatId } = await run(
+        "INSERT INTO charter_booking_seats (booking_trip_id, passenger_id, class_id, price) VALUES (?, ?, ?, ?)",
+        [tripId, passengerIds[p], passengerLeg.classId, seatPrice(leg, passengerLeg.classId)],
+        tx,
+      );
+      for (const { addon, count } of chosenAddons(leg, passengerLeg)) {
+        await run(
+          "INSERT INTO charter_booking_addons (booking_seat_id, addon_id, name, count, price) VALUES (?, ?, ?, ?, ?)",
+          [seatId, addon.id, addon.name, count, addon.price],
+          tx,
+        );
+      }
+    }
   }
 }

@@ -125,6 +125,12 @@ export async function readAddons(aircraftIds: number[], ex?: Executor): Promise<
   );
 }
 
+// Tilläggens namn efter id, för att berätta vilka som togs bort när planet ändrats (TRIP-039-R8)
+export async function readAddonNames(): Promise<Record<number, string>> {
+  const rows = await all<{ id: number; name: string }>("SELECT id, name FROM addons");
+  return Object.fromEntries(rows.map((r) => [r.id, r.name]));
+}
+
 // Resan i adressen efter sökningen (TRIP-011, TRIP-012): sökningen, valen och
 // de valda avgångarna och planen från databasen. Priserna och tiderna räknas
 // alltid från databasen, aldrig från adressen.

@@ -1,14 +1,21 @@
 import {
+  type BookingLeg,
   type Contact,
   fieldIds,
+  isAdult,
+  isBeer,
+  MAX_ADDONS,
   MAX_AGE,
   MIN_AGE,
+  type PassengerLeg,
   type Person,
   QUESTIONS,
 } from "@/lib/booking-rules";
+import { formatPrice } from "@/lib/format";
 import Card from "../../components/Card";
 import Checkbox from "../../components/Checkbox";
 import Field, { fieldInputClass } from "../../components/Field";
+import RoundButton from "../../components/RoundButton";
 
 // Delarna av formuläret för resenärerna som flygbokningen (TRIP-012) och
 // charterbokningen (TRIP-014) har gemensamma: namn och ålder, kontaktpersonen
@@ -179,5 +186,57 @@ export function TextField({
         className={fieldInputClass}
       />
     </Field>
+  );
+}
+
+// Tilläggen som går att köpa i resenärens klass på en resa, med − och + för antalet (TRIP-012-R3).
+// Öl bara från 18 år (TRIP-029-R3). Flyg och charter (TRIP-039-R4) har samma lista.
+export function AddonList({
+  leg,
+  passengerLeg,
+  age,
+  onCount,
+}: {
+  leg: BookingLeg;
+  passengerLeg: PassengerLeg;
+  age: string;
+  onCount: (addonId: number, count: number) => void;
+}) {
+  const addons = leg.addons[passengerLeg.classId] ?? [];
+  if (addons.length === 0) return <p className="text-small text-ink-muted">Inga tillägg i den här klassen.</p>;
+  return (
+    <ul aria-label={`Tillägg på ${leg.of}`} className="flex flex-col divide-y divide-line">
+      {addons.map((addon) => {
+        const count = passengerLeg.addons[addon.id] ?? 0;
+        const tooYoung = isBeer(addon) && !isAdult(age);
+        return (
+          <li key={addon.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3 first:pt-0">
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <span className="font-bold">{addon.name}</span>
+              <span className="text-small text-ink-muted">{addon.description}</span>
+              <span className="text-small">{formatPrice(addon.price)} / st</span>
+              {tooYoung && <span className="text-small text-ink-muted">Från 18 år</span>}
+            </div>
+            <div className="flex items-center gap-3">
+              <RoundButton label={`Färre ${addon.name}`} disabled={count === 0} onClick={() => onCount(addon.id, count - 1)}>
+                −
+              </RoundButton>
+              {/* Antalet läses upp när det ändras */}
+              <span aria-live="polite" className="w-6 text-center text-lg font-bold tabular-nums">
+                {count}
+                <span className="sr-only"> {addon.name}</span>
+              </span>
+              <RoundButton
+                label={`Fler ${addon.name}`}
+                disabled={count >= MAX_ADDONS || tooYoung}
+                onClick={() => onCount(addon.id, count + 1)}
+              >
+                +
+              </RoundButton>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -1,7 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { travellersUrl } from "../lib/charter-rules";
-import { charterTripDays, expectNoA11yViolations, runsLocally } from "./helpers";
-import { fillAll, inTestDb } from "./plan";
+import { expect } from "@playwright/test";
+import { expectNoA11yViolations, runsLocally } from "./helpers";
+import { fillAll, inTestDb, openCharterBooking, test } from "./plan";
 
 // The rules (the numbers, the window, the cleanup, the length of the address) are unit tests in
 // lib/rate-limit.test.ts and app/flyg/boka/actions.test.ts. Here the pages use them. Each test
@@ -19,16 +18,14 @@ const lockKey = (key: string) =>
 const unlock = (keys: string[]) =>
   inTestDb((db) => db.execute({ sql: `DELETE FROM login_attempts WHERE ip IN (${keys.map(() => "?").join(",")})`, args: keys }));
 
-test("TECH-025-R1 a locked address that presses Betala is told how long to wait, and no booking is saved", async ({ browser }) => {
+test("TECH-025-R1 a locked address that presses Betala is told how long to wait, and no booking is saved", async ({ browser, fleet }) => {
   const ip = address(Date.now() % 100);
   const email = "e2e-limit@exempel.se";
-  const { monday, saturday } = charterTripDays();
-  const choice = { out: "ARN-BER-SK1122", back: "BER-ARN-SK1123" };
   await lockKey(`bokning:${ip}`);
   const context = await browser.newContext({ extraHTTPHeaders: { "x-forwarded-for": ip } });
   try {
     const page = await context.newPage();
-    await page.goto(travellersUrl("teufelsberg", { from: "ARN", outbound: monday, return: saturday, travellers: 1 }, choice));
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 1 });
     await fillAll(page, 1, email);
     await page.getByRole("button", { name: "Till betalning" }).click();
     await page.getByRole("radio", { name: "Cash till piloten" }).check();
