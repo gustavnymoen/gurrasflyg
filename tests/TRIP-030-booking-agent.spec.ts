@@ -1,8 +1,7 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { bookedText, CHANGED_TEXT } from "../lib/agent-rules";
-import { type CharterChoice, type CharterSearch, travellersUrl } from "../lib/charter-rules";
 import { agnetaGreeted, charterTripDays, daysFromToday, expectNoA11yViolations, runsLocally } from "./helpers";
-import { fillAll, inTestDb } from "./plan";
+import { fillAll, inTestDb, openCharterBooking, test } from "./plan";
 
 // Agneta as an agent (TRIP-030). The rules (action and context checks, the tool-call cap, the tools, the
 // offer of the booking button) are unit tests in lib/agent-rules.test.ts and lib/agent.test.ts; here the
@@ -13,10 +12,9 @@ import { fillAll, inTestDb } from "./plan";
 test.skip(!runsLocally, "the fake agent is only in the local test server");
 
 const { monday, saturday } = charterTripDays();
-const search: CharterSearch = { from: "ARN", outbound: monday, return: saturday, travellers: 2 };
-// The same trips the TRIP-014 tests choose: ARN-BER-SK1122 06:50 and BER-ARN-SK1123 09:15
-const choice: CharterChoice = { out: "ARN-BER-SK1122", back: "BER-ARN-SK1123" };
-const travellersPage = travellersUrl("teufelsberg", search, choice);
+// Since TRIP-039 Resenärer comes after the plan step: the tests that need it plan the TRIP-014 trips
+// (ARN-BER-SK1122 06:50 and BER-ARN-SK1123 09:15) with the tests' own aircraft. Agneta does not know the plan
+// step until TRIP-040: a shortcut to Resenärer ends on the plan step (TRIP-039-R6).
 const dates = `ut=${monday} hem=${saturday}`;
 
 // Each test has an address of its own, so that its questions do not count with the other tests' (10 in 5 minutes)
@@ -161,8 +159,8 @@ test("TRIP-030-R4 R5 destination, dates and travellers in one sentence go straig
   await agentOn(page);
   await page.goto("/charter/teufelsberg");
   await ask(page, `GENVAG id=teufelsberg fran=ARN ${dates} antal=2`);
-  await expect(page).toHaveURL(new RegExp(`/charter/teufelsberg/boka\\?fran=ARN&utresa=${monday}&hemresa=${saturday}&resenarer=2&ut=ARN-BER-[\\w]+&hem=BER-ARN-[\\w]+$`));
-  await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/charter/teufelsberg/plan\\?fran=ARN&utresa=${monday}&hemresa=${saturday}&resenarer=2&ut=ARN-BER-[\\w]+&hem=BER-ARN-[\\w]+$`));
+  await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
   await expect(panel(page)).toContainText("Jag tog de första, de är minst dåliga. Fyll i dig själv.");
   await expectNoA11yViolations(page);
 
@@ -209,9 +207,9 @@ test("TRIP-030-R4 what the visitor changed on the page is what the next answer i
   expect(bodies.at(-1)!.agent).toMatchObject({ url: "/charter/teufelsberg" });
 });
 
-test("TRIP-030-R6 extras and the payment method are written to the form and shown; the drinks package is not set with a traveller under 18", async ({ page }) => {
+test("TRIP-030-R6 extras and the payment method are written to the form and shown; the drinks package is not set with a traveller under 18", async ({ page, fleet }) => {
   await agentOn(page);
-  await page.goto(travellersPage);
+  await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
   await ask(page, "TILLAGG tillagg=ultimate");
   await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked();
   await expect(page.getByRole("status").filter({ hasText: "Agneta hjälper dig nu." })).toBeAttached();
@@ -226,12 +224,12 @@ test("TRIP-030-R6 extras and the payment method are written to the form and show
   expect(await page.evaluate(() => JSON.parse(sessionStorage.getItem("gurrasflyg-charter")!).extras)).toEqual(["ultimate"]);
 });
 
-test("TRIP-030-R7 R8 nothing personal reaches the model; the button comes with a valid form only, books once with the same action as Betala, and the chat says the number", async ({ page }) => {
+test("TRIP-030-R7 R8 nothing personal reaches the model; the button comes with a valid form only, books once with the same action as Betala, and the chat says the number", async ({ page, fleet }) => {
   const email = "agent@exempel.se";
   const bodies = recordQuestions(page);
   try {
     await agentOn(page);
-    await page.goto(travellersPage);
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
     await ask(page, "TILLAGG tillagg=ultimate");
     await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked();
 
@@ -265,11 +263,11 @@ test("TRIP-030-R7 R8 nothing personal reaches the model; the button comes with a
   }
 });
 
-test("TRIP-030-R8 a booking that fails shows the action's message under the button and books nothing", async ({ page }) => {
+test("TRIP-030-R8 a booking that fails shows the action's message under the button and books nothing", async ({ page, fleet }) => {
   const email = "agent-fail@exempel.se";
   try {
     await agentOn(page);
-    await page.goto(travellersPage);
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
     await ask(page, "TILLAGG tillagg=ultimate");
     await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked(); // answer done before the form is touched
     await fillAll(page, 2, email);

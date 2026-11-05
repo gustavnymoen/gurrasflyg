@@ -12,8 +12,6 @@ import {
   fieldIds,
   fitForm,
   isAdult,
-  isBeer,
-  MAX_ADDONS,
   NERVES,
   NERVES_PRICE,
   type Passenger,
@@ -31,9 +29,8 @@ import Card, { floatClass } from "../../components/Card";
 import Checkbox from "../../components/Checkbox";
 import Field, { fieldInputClass } from "../../components/Field";
 import Message from "../../components/Message";
-import RoundButton from "../../components/RoundButton";
 import Steps, { tripSteps } from "../Steps";
-import { ContactCard, PersonFields, QuestionsCard } from "./FormParts";
+import { AddonList, ContactCard, PersonFields, QuestionsCard } from "./FormParts";
 import TripOverview from "../TripOverview";
 import { FORM_KEY, store, useStored } from "./store";
 
@@ -231,7 +228,6 @@ function PassengerLegFields({
   onChange: (passenger: Passenger) => void;
 }) {
   const passengerLeg = passenger.legs[legIndex];
-  const addons = leg.addons[passengerLeg.classId] ?? [];
   const id = classId(index, legIndex);
   const setCount = (addonId: number, count: number) =>
     onChange({
@@ -258,48 +254,7 @@ function PassengerLegFields({
           ))}
         </select>
       </Field>
-      {addons.length === 0 ? (
-        <p className="text-small text-ink-muted">Inga tillägg i den här klassen.</p>
-      ) : (
-        <ul aria-label={`Tillägg på ${leg.of}`} className="flex flex-col divide-y divide-line">
-          {addons.map((addon) => {
-            const count = passengerLeg.addons[addon.id] ?? 0;
-            // Öl bara från 18 år (TRIP-029-R3)
-            const tooYoung = isBeer(addon) && !isAdult(passenger.age);
-            return (
-              <li key={addon.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-3 first:pt-0">
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="font-bold">{addon.name}</span>
-                  <span className="text-small text-ink-muted">{addon.description}</span>
-                  <span className="text-small">{formatPrice(addon.price)} / st</span>
-                  {tooYoung && <span className="text-small text-ink-muted">Från 18 år</span>}
-                </div>
-                <div className="flex items-center gap-3">
-                  <RoundButton
-                    label={`Färre ${addon.name}`}
-                    disabled={count === 0}
-                    onClick={() => setCount(addon.id, count - 1)}
-                  >
-                    −
-                  </RoundButton>
-                  {/* Antalet läses upp när det ändras */}
-                  <span aria-live="polite" className="w-6 text-center text-lg font-bold tabular-nums">
-                    {count}
-                    <span className="sr-only"> {addon.name}</span>
-                  </span>
-                  <RoundButton
-                    label={`Fler ${addon.name}`}
-                    disabled={count >= MAX_ADDONS || tooYoung}
-                    onClick={() => setCount(addon.id, count + 1)}
-                  >
-                    +
-                  </RoundButton>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <AddonList leg={leg} passengerLeg={passengerLeg} age={passenger.age} onCount={setCount} />
     </fieldset>
   );
 }

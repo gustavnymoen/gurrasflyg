@@ -7,14 +7,16 @@ import {
   type CharterSearch,
   type CharterTrip,
   charterParams,
-  charterTotal,
+  chooseHome as chooseHomeTrip,
+  chooseOutbound as chooseOutboundTrip,
   chosenTrips,
   CHARTER_PATH,
+  departuresTotal,
+  planUrl,
   type SortBy,
   sortTrips,
   stopsText,
   tripsAfter,
-  travellersUrl,
 } from "@/lib/charter-rules";
 import { formatDay } from "@/lib/dates";
 import { formatDuration, formatPrice } from "@/lib/format";
@@ -27,8 +29,9 @@ import CharterOverview from "./CharterOverview";
 import { charterSteps } from "./steps";
 
 // Resorna att välja bland: först utresan, sedan hemresan som går efter att
-// utresan har landat, och Din resa med Fortsätt när båda är valda (TRIP-014-R3, R5).
-// Valen står i adressen, så att sidan går att ladda om och dela.
+// utresan har landat, och Din resa med Fortsätt till plan och klass när båda är valda (TRIP-014-R3, R5,
+// TRIP-039). Valen står i adressen, så att sidan går att ladda om och dela. En annan resa tar bort
+// planet och klasserna för den resan; samma resa igen låter dem vara.
 export default function CharterResults({
   id,
   title,
@@ -62,22 +65,21 @@ export default function CharterResults({
       first.current = false;
       return;
     }
-    const params = charterParams(search, { out: outbound?.id ?? null, back: home?.id ?? null });
+    const params = charterParams(search, { out: outbound?.id ?? null, back: home?.id ?? null, plans: choice.plans });
     window.history.replaceState(null, "", `${CHARTER_PATH}/${id}/resor?${params}`);
-  }, [id, search, outbound, home]);
+  }, [id, search, outbound, home, choice.plans]);
 
-  const chosen = { out: outbound?.id ?? null, back: home?.id ?? null };
+  const chosen = { out: outbound?.id ?? null, back: home?.id ?? null, plans: choice.plans };
   const label = (trip: CharterTrip) => `${trip.flights.join(", ")} kl ${trip.time}`;
 
   function chooseOutbound(trip: CharterTrip) {
     // Hemresan som inte passar den nya utresan tas bort (R5)
-    const kept = chosenTrips({ out: trip.id, back: choice.back }, out, back).home;
-    setChoice({ out: trip.id, back: kept?.id ?? null });
+    setChoice(chooseOutboundTrip(choice, trip.id, out, back));
     setAnnouncement(`Utresa vald: ${label(trip)}. Välj nu hemresa.`);
   }
 
   function chooseHome(trip: CharterTrip) {
-    setChoice({ ...choice, back: trip.id });
+    setChoice(chooseHomeTrip(choice, trip.id));
     setAnnouncement(`Hemresa vald: ${label(trip)}. Fortsätt är nu möjlig.`);
   }
 
@@ -133,10 +135,10 @@ export default function CharterResults({
             destination={title}
             trips={[outbound, home]}
             travellers={search.travellers}
-            total={charterTotal(prices, [], search.travellers)}
+            total={departuresTotal(prices, [], search.travellers)}
           >
             {outbound && home && (
-              <Link href={travellersUrl(id, search, chosen)} className={`${buttonClass()} self-start`}>
+              <Link href={planUrl(id, search, chosen)} className={`${buttonClass()} self-start`}>
                 Fortsätt
               </Link>
             )}

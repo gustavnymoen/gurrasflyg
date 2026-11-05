@@ -3,11 +3,14 @@ import { formatPrice, travellersText } from "@/lib/format";
 import Card from "../components/Card";
 import TripFacts from "./TripFacts";
 
-// Din resa: de valda resorna, antalet resenärer, tilläggen och priset så här långt (TRIP-014-R5, R7, R8).
-// trips är utresan och hemresan, undefined när de inte är valda än. children står under priset (t.ex. Fortsätt).
+// Din resa: de valda resorna med planet och antalen per klass, antalet resenärer, tilläggen och priset så här långt
+// (TRIP-014-R5, R7, R8, TRIP-039-R3). trips är utresan och hemresan, undefined när de inte är valda än; plans är
+// planen och klasserna som text (planText), null när inget plan är valt. Utan total visas inget pris (plan och klass
+// har sitt eget). children står under priset (t.ex. Fortsätt).
 export default function CharterOverview({
   destination,
   trips,
+  plans = [],
   travellers,
   extras = [],
   total,
@@ -15,9 +18,10 @@ export default function CharterOverview({
 }: {
   destination: string;
   trips: (CharterTrip | undefined)[];
+  plans?: (string | null)[];
   travellers: number;
   extras?: { name: string; sum: number }[];
-  total: number;
+  total?: number;
   children?: React.ReactNode;
 }) {
   return (
@@ -31,6 +35,7 @@ export default function CharterOverview({
           <li key={title} className="py-2 first:pt-0 last:pb-0">
             <p className="text-small text-ink-muted">{title}</p>
             {trips[i] ? <TripFacts trip={trips[i]} /> : <p className="text-ink-muted">Inte vald än</p>}
+            {plans[i] && <p className="text-small text-ink-muted">{plans[i]}</p>}
           </li>
         ))}
       </ul>
@@ -44,12 +49,16 @@ export default function CharterOverview({
           ))}
         </ul>
       )}
-      <p className="flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-3">
-        <span className="text-ink-muted">Totalt för resan, {travellersText(travellers)}</span>
-        <span aria-live="polite" className="text-xl font-bold">
-          {formatPrice(total)}
-        </span>
-      </p>
+      {total === undefined ? (
+        <p className="border-t border-line pt-3 text-small text-ink-muted">{travellersText(travellers)}</p>
+      ) : (
+        <p className="flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-3">
+          <span className="text-ink-muted">Totalt för resan, {travellersText(travellers)}</span>
+          <span aria-live="polite" className="text-xl font-bold">
+            {formatPrice(total)}
+          </span>
+        </p>
+      )}
       {children}
     </Card>
   );

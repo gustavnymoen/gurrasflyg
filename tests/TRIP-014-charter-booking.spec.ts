@@ -1,8 +1,8 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
-import { type CharterChoice, type CharterSearch, paymentUrl, resultsUrl, travellersUrl } from "../lib/charter-rules";
+import { expect, type Locator, type Page } from "@playwright/test";
+import { type CharterChoice, type CharterSearch, resultsUrl } from "../lib/charter-rules";
 import { addDays, formatShort } from "../lib/dates";
 import { charterTripDays, daysFromToday, expectNoA11yViolations, runsLocally } from "./helpers";
-import { amount, fillAll, inTestDb } from "./plan";
+import { amount, fillAll, inTestDb, openCharterBooking, SK1122, SK1123, test } from "./plan";
 
 // The rules behind the pages (the search and its address, which trips run, the arrival,
 // the extras, the prices, saving) are unit tests in lib/charter-rules.test.ts,
@@ -22,10 +22,8 @@ const search = (over: Partial<CharterSearch> = {}): CharterSearch => ({
 const resultsPage = (id: string, over?: Partial<CharterSearch>, choice?: CharterChoice) =>
   resultsUrl(id, search(over), choice);
 
-// The trips' ids: ARN-BER-SK1122 leaves 06:50 and BER-ARN-SK1123 09:15; both cost less than a day's pay
-const SK1122 = "ARN-BER-SK1122";
-const SK1123 = "BER-ARN-SK1123";
-
+// Since TRIP-039 Resenärer and Betala come after the plan step: the tests below plan the trips with the
+// tests' own aircraft (tests/plan.ts) at 1,00 and 1,00, so the prices are still the departures' own.
 const region = (page: Page, name: string) => page.getByRole("region", { name, exact: true });
 const outbound = (page: Page) => region(page, "Utresa ARN – BER");
 const homeward = (page: Page) => region(page, "Hemresa BER – ARN");
@@ -188,7 +186,7 @@ test.describe("the results", () => {
     await expect(homeward(page)).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Fortsätt" })).toHaveCount(0);
     const steps = page.getByRole("list", { name: "Steg" }).getByRole("listitem");
-    await expect(steps).toHaveText([/Resa/, /Resenärer/, /Betala/]);
+    await expect(steps).toHaveText([/Resa/, /Plan och klass/, /Resenärer/, /Betala/]);
     await expect(steps.nth(0)).toHaveAttribute("aria-current", "step");
 
     // The outbound trip opens the return list; Fortsätt waits for the return trip
@@ -201,7 +199,8 @@ test.describe("the results", () => {
     await expect(yourTrip(page)).toContainText("Inte vald än");
 
     await choose(homeward(page), "SK1123", "09:15").click();
-    await expect(page.getByRole("link", { name: "Fortsätt" })).toBeVisible();
+    // Fortsätt goes on to the plan step (TRIP-039)
+    await expect(page.getByRole("link", { name: "Fortsätt" })).toHaveAttribute("href", /\/charter\/teufelsberg\/plan\?.*ut=ARN-BER-SK1122&hem=BER-ARN-SK1123$/);
     // (1 190 + 1 090) kr per person, two travellers
     expect(await total(page)).toBe((1190 + 1090) * 2);
     await expect(page).toHaveURL(new RegExp(`ut=${SK1122}&hem=${SK1123}$`));
@@ -235,19 +234,18 @@ test.describe("the results", () => {
 });
 
 test.describe("Resenärer and the extras", () => {
-  const choice = { out: SK1122, back: SK1123 };
-  const bookingPage = (travellers = 2) => travellersUrl("teufelsberg", search({ travellers }), choice);
   const passenger = (page: Page, n: number) => region(page, `Passagerare ${n}`);
   const extra = (page: Page, name: string) => page.getByRole("checkbox", { name });
 
   test("TRIP-014-R5 R6 the steps link back, and the page has the passengers, the contact and the three questions", async ({
     page,
+    fleet,
   }) => {
-    await page.goto(bookingPage());
-    await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
     const steps = page.getByRole("list", { name: "Steg" }).getByRole("listitem");
-    await expect(steps.nth(1)).toHaveAttribute("aria-current", "step");
-    await expect(steps.nth(0).getByRole("link", { name: "Resa" })).toHaveAttribute("href", /\/resor\?.*ut=ARN-BER-SK1122&hem=BER-ARN-SK1123$/);
+    await expect(steps.nth(2)).toHaveAttribute("aria-current", "step");
+    await expect(steps.nth(0).getByRole("link", { name: "Resa" })).toHaveAttribute("href", /\/resor\?.*ut=ARN-BER-SK1122&hem=BER-ARN-SK1123&ut-plan=\d+/);
+    await expect(steps.nth(1).getByRole("link", { name: "Plan och klass" })).toHaveAttribute("href", /\/plan\?.*ut-klasser=/);
     await expect(passenger(page, 1)).toBeVisible();
     await expect(passenger(page, 2)).toBeVisible();
     await expect(region(page, "Kontaktperson")).toBeVisible();
@@ -267,8 +265,9 @@ test.describe("Resenärer and the extras", () => {
 
   test("TRIP-014-R7 the extras add up for every traveller, Dryckespaket XXXL waits for adults, and it is removed when a traveller turns out to be a child", async ({
     page,
+    fleet,
   }) => {
-    await page.goto(bookingPage());
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
     const base = (1190 + 1090) * 2;
     await extra(page, "Den ultimata upplevelsen").check();
     await extra(page, "Bear Grylls Experience").check();
@@ -307,8 +306,9 @@ test.describe("Resenärer and the extras", () => {
 
   test("TRIP-014-R6 R10 the form is kept in the tab only, fitted to the number of travellers, and Avbryt asks before throwing it away", async ({
     page,
+    fleet,
   }) => {
-    await page.goto(bookingPage());
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
     await passenger(page, 1).getByLabel("Förnamn").fill("E2E Anna");
     await passenger(page, 2).getByLabel("Förnamn").fill("E2E Bo");
     await page.reload();
@@ -317,10 +317,10 @@ test.describe("Resenärer and the extras", () => {
     expect(await page.evaluate(() => sessionStorage.getItem("gurrasflyg-charter"))).toContain("E2E Anna");
 
     // Three travellers add one, one removes two; the first is kept
-    await page.goto(bookingPage(3));
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 3 });
     await expect(passenger(page, 3).getByLabel("Förnamn")).toHaveValue("");
     await expect(passenger(page, 1).getByLabel("Förnamn")).toHaveValue("E2E Anna");
-    await page.goto(bookingPage(1));
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 1 });
     await expect(passenger(page, 2)).toHaveCount(0);
     await expect(passenger(page, 1).getByLabel("Förnamn")).toHaveValue("E2E Anna");
 
@@ -338,19 +338,19 @@ test.describe("Resenärer and the extras", () => {
 });
 
 test.describe("Betala and the summary", () => {
-  const choice = { out: SK1122, back: SK1123 };
   const email = "e2e-charter@exempel.se";
 
-  test("TRIP-014-R8 R9 R10 TRIP-029-R1 Betala asks for a payment method, saves the booking with the booking number CH-, and the summary shows it once", async ({
+  test("TRIP-014-R8 R9 R10 TRIP-029-R1 TRIP-039-R5 Betala asks for a payment method, saves the booking with the booking number CH-, and the summary shows it once", async ({
     page,
+    fleet,
   }) => {
     test.skip(!runsLocally, "saves a booking, and deletes it from the test database");
-    await page.goto(travellersUrl("teufelsberg", search({ travellers: 1 }), choice));
+    await openCharterBooking(page, fleet.large, { [fleet.base]: 1 });
     await fillAll(page, 1, email);
     await page.getByRole("checkbox", { name: "Bear Grylls Experience" }).check();
     await page.getByRole("button", { name: "Till betalning" }).click();
     await expect(page.getByRole("heading", { name: "Betala", level: 1 })).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`${paymentUrl("teufelsberg", search({ travellers: 1 }), choice)}$`.replace("?", "\\?")));
+    await expect(page).toHaveURL(/\/charter\/teufelsberg\/boka\/betala\?fran=ARN&.*ut=ARN-BER-SK1122&hem=BER-ARN-SK1123&ut-plan=\d+&ut-klasser=/);
 
     // The price list splits "Att betala" in charter's five rows, without closing the airspace, that add up
     const toPay = (1190 + 1090 + 2000) * 1;
@@ -376,6 +376,9 @@ test.describe("Betala and the summary", () => {
       await expect(page.getByRole("main")).toContainText("Bear Grylls Experience");
       await expect(page.getByRole("main")).toContainText(email);
       await expect(region(page, "Resor")).toContainText("SK1122");
+      // TRIP-039-R5: the booked page shows each trip's aircraft and the travellers per class, and the traveller's class
+      await expect(region(page, "Resor")).toContainText(`${fleet.large} · ${fleet.base}: 1`);
+      await expect(region(page, "Resenärer")).toContainText(`Utresa: ${fleet.base}`);
       await expect(page.getByRole("main")).toContainText(new RegExp(`${String(toPay).replace(/(\d)(?=(\d{3})$)/, "$1\\s")}\\skr`));
       await expectNoA11yViolations(page);
 
@@ -384,9 +387,20 @@ test.describe("Betala and the summary", () => {
         const booking = (await db.execute({ sql: "SELECT id, total FROM charter_bookings WHERE booking_number = ?", args: [number] })).rows[0];
         const trips = await db.execute({ sql: "SELECT timetable_id, price FROM charter_booking_trips WHERE booking_id = ? ORDER BY position", args: [booking.id] });
         const extras = await db.execute({ sql: "SELECT code, price FROM charter_booking_extras WHERE booking_id = ?", args: [booking.id] });
-        return { total: booking.total, trips: trips.rows.map((r) => [r.timetable_id, r.price]), extras: extras.rows.map((r) => [r.code, r.price]) };
+        // TRIP-039-R5: every trip has the aircraft, and every traveller a seat on every trip, priced by the database
+        const seats = await db.execute({
+          sql: `SELECT s.price FROM charter_booking_seats s JOIN charter_booking_trips t ON t.id = s.booking_trip_id
+                WHERE t.booking_id = ? AND t.aircraft_id IS NOT NULL ORDER BY t.position`,
+          args: [booking.id],
+        });
+        return {
+          total: booking.total,
+          trips: trips.rows.map((r) => [r.timetable_id, r.price]),
+          extras: extras.rows.map((r) => [r.code, r.price]),
+          seats: seats.rows.map((r) => r.price),
+        };
       });
-      expect(saved).toEqual({ total: toPay, trips: [[SK1122, 1190], [SK1123, 1090]], extras: [["grylls", 2000]] });
+      expect(saved).toEqual({ total: toPay, trips: [[SK1122, 1190], [SK1123, 1090]], extras: [["grylls", 2000]], seats: [1190, 1090] });
 
       // The summary is shown only in the tab where the booking was made
       await page.context().newPage().then(async (other) => {
@@ -404,7 +418,7 @@ test.describe("Betala and the summary", () => {
 // Read-only, so it also runs against the preview and the live site: the form on a destination page leads
 // to results with trips that can be chosen. It never pays. The date is a week from today (not before the
 // timetables start), so it needs today to be inside the timetables' period, which ends on 30 April 2027.
-test("TRIP-014-R1 @smoke a destination's form leads to results with trips that can be chosen", async ({ page }) => {
+test("TRIP-014-R1 TRIP-039-R1 @smoke a destination's form leads to results with trips that can be chosen, and to aircraft for them", async ({ page }) => {
   const start = daysFromToday(7) < "2026-11-02" ? "2026-11-02" : daysFromToday(7);
   await page.goto("/charter/teufelsberg");
   const form = region(page, "Sök resa");
@@ -416,5 +430,9 @@ test("TRIP-014-R1 @smoke a destination's form leads to results with trips that c
   await expect(page.getByRole("heading", { name: "Välj din resa", level: 1 })).toBeVisible();
   await expect(outbound(page).getByRole("button", { name: /^Välj / }).first()).toBeVisible();
   await outbound(page).getByRole("button", { name: /^Välj / }).first().click();
-  await expect(homeward(page).getByRole("button", { name: /^Välj / }).first()).toBeVisible();
+  await homeward(page).getByRole("button", { name: /^Välj / }).first().click();
+  // TRIP-039: Fortsätt leads to the plan step, which lists aircraft for the outbound trip
+  await page.getByRole("link", { name: "Fortsätt" }).click();
+  await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
+  await expect(region(page, "Plan för utresan").getByRole("button", { expanded: false }).first()).toBeVisible();
 });

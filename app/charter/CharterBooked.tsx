@@ -41,10 +41,15 @@ export default function CharterBooked() {
           Resor
         </h2>
         <ul className="flex flex-col divide-y divide-line">
-          {summary.trips.map(({ title, trip }) => (
+          {summary.trips.map(({ title, trip, aircraft, seating }) => (
             <li key={title} className="py-2 first:pt-0 last:pb-0">
               <p className="text-small text-ink-muted">{title}</p>
               <TripFacts trip={trip} />
+              {aircraft && (
+                <p className="text-small text-ink-muted">
+                  {aircraft} · {seating}
+                </p>
+              )}
             </li>
           ))}
         </ul>
@@ -54,10 +59,20 @@ export default function CharterBooked() {
         <h2 id="resenarer" className="text-section font-bold">
           Resenärer
         </h2>
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col divide-y divide-line">
           {summary.passengers.map((p, i) => (
-            <li key={i} className="font-bold">
-              {p.name}, {p.age} år
+            <li key={i} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+              <p className="font-bold">
+                {p.name}, {p.age} år
+              </p>
+              {/* En sammanfattning sparad före plan och klass (TRIP-039-R7) har inga klasser */}
+              {(p.legs ?? []).map((leg, j) => (
+                <p key={j} className="text-small">
+                  {summary.trips[j].title}: {leg.className}
+                  {leg.addons.length > 0 &&
+                    ` · ${leg.addons.map((a) => (a.count > 1 ? `${a.count} × ${a.name}` : a.name)).join(", ")}`}
+                </p>
+              ))}
             </li>
           ))}
         </ul>

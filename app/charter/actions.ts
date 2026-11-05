@@ -25,13 +25,13 @@ export async function bookCharterAction(id: string, query: string, form: Charter
   const destination = search ? await getDestinationAirport(id) : null;
   if (!search || !destination) return { ok: false, error: CHANGED };
   try {
-    const { bookingNumber, trips } = await createCharterBooking({
+    const { bookingNumber, trips, legs } = await createCharterBooking({
       destination,
       search,
       choice: parseChoice(params),
       form,
     });
-    return { ok: true, summary: charterSummary(bookingNumber, destination.title, form, trips) };
+    return { ok: true, summary: charterSummary(bookingNumber, destination.title, form, trips, legs) };
   } catch (e) {
     return bookingFailure(e);
   }

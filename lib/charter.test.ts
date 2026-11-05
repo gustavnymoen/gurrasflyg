@@ -1,4 +1,5 @@
 import { beforeAll, expect, test } from "vitest";
+import { NO_CHOICE } from "./charter-rules";
 import { unitTestDbFile } from "./local-db.mjs";
 
 // Läser tidtabellerna i enhetstesternas databas (vitest.global-setup.mjs).
@@ -61,18 +62,18 @@ test("TRIP-014-R4 the arrival is worked out from the departure and the travel ti
 test("TRIP-014-R5 a chosen return that doesn't fit the outbound trip is dropped, and the outbound is kept", async () => {
   const destination = { id: "teufelsberg", title: "Teufelsberg", airport: "BER" };
   const same = { from: "ARN", outbound: "2027-01-11", return: "2027-01-11", travellers: 1 };
-  const open = await charter.readCharter(destination, same, { out: null, back: null }, EARLY);
+  const open = await charter.readCharter(destination, same, NO_CHOICE, EARLY);
   const latestOut = open!.out.at(-1)!;
   const earliestBack = open!.back[0];
-  const data = await charter.readCharter(destination, same, { out: latestOut.id, back: earliestBack.id }, EARLY);
-  expect(data!.choice).toEqual({ out: latestOut.id, back: null });
-  const first = await charter.readCharter(destination, same, { out: open!.out[0].id, back: open!.back.at(-1)!.id }, EARLY);
+  const data = await charter.readCharter(destination, same, { ...NO_CHOICE, out: latestOut.id, back: earliestBack.id }, EARLY);
+  expect(data!.choice).toMatchObject({ out: latestOut.id, back: null });
+  const first = await charter.readCharter(destination, same, { ...NO_CHOICE, out: open!.out[0].id, back: open!.back.at(-1)!.id }, EARLY);
   expect(first!.choice.back).toBe(open!.back.at(-1)!.id);
 });
 
 test("TRIP-014-R2 dates beyond six months, or a return beyond two months, are not bookable", async () => {
   const destination = { id: "teufelsberg", title: "Teufelsberg", airport: "BER" };
-  const none = { out: null, back: null };
+  const none = NO_CHOICE;
   const base = { from: "ARN", outbound: "2027-01-11", return: "2027-01-16", travellers: 1 };
   expect(await charter.readCharter(destination, base, none, EARLY)).not.toBeNull();
   expect(await charter.readCharter(destination, base, none, new Date("2026-06-01T10:00:00Z"))).toBeNull();

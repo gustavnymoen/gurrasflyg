@@ -51,10 +51,12 @@ export class AdminError extends Error {}
 // till vad som används, eftersom det kan ha ändrats sedan den lästes (TRIP-016).
 const CLASS_IN_USE = `
   EXISTS (SELECT 1 FROM aircraft_capacity WHERE class_id = c.id)
-  OR EXISTS (SELECT 1 FROM booking_seats WHERE class_id = c.id)`;
+  OR EXISTS (SELECT 1 FROM booking_seats WHERE class_id = c.id)
+  OR EXISTS (SELECT 1 FROM charter_booking_seats WHERE class_id = c.id)`;
 const ADDON_IN_USE = `
   EXISTS (SELECT 1 FROM aircraft_class_addons WHERE addon_id = a.id)
-  OR EXISTS (SELECT 1 FROM booking_addons WHERE addon_id = a.id)`;
+  OR EXISTS (SELECT 1 FROM booking_addons WHERE addon_id = a.id)
+  OR EXISTS (SELECT 1 FROM charter_booking_addons WHERE addon_id = a.id)`;
 
 // ---------------------------------------------------------------- Läsa
 
@@ -256,8 +258,11 @@ export async function updateAircraft(id: number, input: AircraftInput) {
       if (!kept) {
         const used = await get(
           `SELECT 1 FROM booking_seats s JOIN booking_flights f ON f.id = s.booking_flight_id
-           WHERE f.aircraft_id = ? AND s.class_id = ?`,
-          [id, old.classId],
+           WHERE f.aircraft_id = ? AND s.class_id = ?
+           UNION ALL
+           SELECT 1 FROM charter_booking_seats s JOIN charter_booking_trips t ON t.id = s.booking_trip_id
+           WHERE t.aircraft_id = ? AND s.class_id = ?`,
+          [id, old.classId, id, old.classId],
           tx,
         );
         if (used) {
@@ -269,8 +274,11 @@ export async function updateAircraft(id: number, input: AircraftInput) {
         `SELECT COALESCE(MAX(n), 0) AS booked FROM (
            SELECT COUNT(*) AS n FROM booking_seats s JOIN booking_flights f ON f.id = s.booking_flight_id
            WHERE f.aircraft_id = ? AND s.class_id = ? GROUP BY s.booking_flight_id
+           UNION ALL
+           SELECT COUNT(*) AS n FROM charter_booking_seats s JOIN charter_booking_trips t ON t.id = s.booking_trip_id
+           WHERE t.aircraft_id = ? AND s.class_id = ? GROUP BY s.booking_trip_id
          )`,
-        [id, old.classId],
+        [id, old.classId, id, old.classId],
         tx,
       );
       const booked = row?.booked ?? 0;
@@ -293,7 +301,10 @@ export async function updateAircraft(id: number, input: AircraftInput) {
 
 export async function deleteAircraft(id: number) {
   await withTransaction(async (tx) => {
-    if (await get("SELECT 1 FROM booking_flights WHERE aircraft_id = ?", [id], tx)) {
+    if (
+      (await get("SELECT 1 FROM booking_flights WHERE aircraft_id = ?", [id], tx)) ||
+      (await get("SELECT 1 FROM charter_booking_trips WHERE aircraft_id = ?", [id], tx))
+    ) {
       throw new AdminError("Du kan ej ta bort planet, det används av bokningar.");
     }
     await run("DELETE FROM aircraft_class_addons WHERE aircraft_id = ?", [id], tx);

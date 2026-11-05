@@ -67,6 +67,13 @@ export function instant(date: string, time: string, timeZone: string) {
   return asUtc - offset(asUtc - offset(asUtc));
 }
 
+// Ett flyg eller en charterresa som planet väljs för: avgången med flygplatserna (TRIP-039)
+export type PlanFlight = Leg & {
+  id: string;
+  from: { iata: string; city: string };
+  to: { iata: string; city: string };
+};
+
 export type AircraftOption = {
   aircraft: FleetAircraft;
   // Per person i planets billigaste klass

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { resultsUrl, travellersUrl } from "../lib/charter-rules";
+import { NO_CHOICE, planUrl, resultsUrl } from "../lib/charter-rules";
 import {
   ACCENT,
   ACCENT_SOFT,
@@ -630,18 +630,18 @@ test.describe("on a phone", () => {
   test.describe("320 px wide", () => {
     test.use({ viewport: { width: 320, height: 640 } });
 
-    test("TRIP-013-R5 and R9 and TRIP-014-R11 the charter list, the destination pages and the booking pages fit a 320 px screen", async ({
+    test("TRIP-013-R5 and R9 and TRIP-014-R11 the charter list, the destination pages, the results and the plan step fit a 320 px screen", async ({
       page,
     }) => {
       const search = { from: "ARN", outbound: "2027-01-11", return: "2027-01-16", travellers: 2 };
-      const choice = { out: "ARN-BER-SK1122", back: "BER-ARN-SK1123" };
+      const choice = { ...NO_CHOICE, out: "ARN-BER-SK1122", back: "BER-ARN-SK1123" };
       for (const path of [
         "/charter",
         "/charter?varldsdel=Antarctica",
         "/charter/chernobyl-pripyat",
         "/charter/teufelsberg",
         resultsUrl("teufelsberg", search, choice),
-        travellersUrl("teufelsberg", search, choice),
+        planUrl("teufelsberg", search, choice),
         "/charter/bokad",
       ]) {
         await page.goto(path);

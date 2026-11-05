@@ -268,6 +268,16 @@ export async function readCharterBooking(id: number, now: Date, ex?: Executor): 
     [id],
     ex,
   );
+  // Vad varje resenärs platser och tillägg på resorna kostade (TRIP-039). Bokningar från före
+  // planen har inga platser; där är resenären värd resornas pris per person.
+  const seats = await all<{ passengerId: number; amount: number }>(
+    `SELECT s.passenger_id AS passengerId,
+            s.price + COALESCE((SELECT SUM(a.price * a.count) FROM charter_booking_addons a WHERE a.booking_seat_id = s.id), 0) AS amount
+     FROM charter_booking_seats s JOIN charter_booking_trips bt ON bt.id = s.booking_trip_id
+     WHERE bt.booking_id = ?`,
+    [id],
+    ex,
+  );
   const extras = await all<{ name: string; price: number }>(
     "SELECT name, price FROM charter_booking_extras WHERE booking_id = ? ORDER BY id",
     [id],
@@ -285,10 +295,8 @@ export async function readCharterBooking(id: number, now: Date, ex?: Executor): 
     const timetable = (await readTimetables(row.from, row.to, ex)).find((t) => t.id === row.timetableId)!;
     trips.push({ title: TRIP_NAMES[position].title, trip: { ...makeTrip(timetable, row.date), price: row.price } });
   }
-  const perPerson = travellerAmount(
-    trips.map((t) => t.trip.price),
-    extras.map((e) => e.price),
-  );
+  const tripPrices = trips.map((t) => t.trip.price);
+  const extraPrices = extras.map((e) => e.price);
   return {
     kind: "charter",
     bookingNumber: header.bookingNumber,
@@ -304,7 +312,12 @@ export async function readCharterBooking(id: number, now: Date, ex?: Executor): 
       id: p.id,
       name: `${p.firstName} ${p.lastName}`,
       age: p.age,
-      amount: perPerson,
+      amount: travellerAmount(
+        seats.some((seat) => seat.passengerId === p.id)
+          ? seats.filter((seat) => seat.passengerId === p.id).map((seat) => seat.amount)
+          : tripPrices,
+        extraPrices,
+      ),
       cancelled: p.cancellationId !== null,
     })),
     extras,

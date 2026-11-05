@@ -14,7 +14,8 @@ export const PAYMENT_PATH = "/flyg/boka/betala";
 
 // Ett valt flyg (avgångstiden; rutten följer av sökningen) och planet och
 // antalen per klass för det. null = inte valt än.
-export type LegChoice = { time: string; aircraftId: number | null; seating: Seating | null };
+export type PlanChoice = { aircraftId: number | null; seating: Seating | null };
+export type LegChoice = PlanChoice & { time: string };
 
 // Hur ett flygs kort på /flyg/plan visas (TRIP-026): inte än (ett tidigare
 // flyg är inte klart), öppet med planen, öppet med det valda planet och
@@ -35,10 +36,27 @@ function tripParams(search: Search, legs: LegChoice[]) {
   legs.forEach((leg, i) => {
     const name = LEGS[i];
     params.set(name, leg.time);
-    if (leg.aircraftId !== null) params.set(`${name}-plan`, String(leg.aircraftId));
-    if (leg.seating !== null) params.set(`${name}-klasser`, writeSeating(leg.seating));
+    setPlanParams(params, name, leg);
   });
   return params;
+}
+
+// Planet och antalen per klass för ett flyg eller en charterresa (name är "ut" eller "hem"),
+// också i charterns adress (TRIP-039-R3)
+export function setPlanParams(params: URLSearchParams, name: string, plan: PlanChoice) {
+  if (plan.aircraftId !== null) params.set(`${name}-plan`, String(plan.aircraftId));
+  if (plan.seating !== null) params.set(`${name}-klasser`, writeSeating(plan.seating));
+}
+
+// Planet och antalen i adressen för "ut" eller "hem". Ett fel plan eller fel antal blir "inte valt".
+export function parsePlan(params: Params, name: string): PlanChoice {
+  const text = (key: string) => (typeof params[key] === "string" ? params[key] : undefined);
+  const aircraft = text(`${name}-plan`);
+  const seating = text(`${name}-klasser`);
+  return {
+    aircraftId: aircraft && /^\d+$/.test(aircraft) ? Number(aircraft) : null,
+    seating: seating === undefined ? null : readSeating(seating),
+  };
 }
 
 // Sidan för plan och klasser
@@ -68,13 +86,7 @@ export function parseLegs(params: Params, search: Search): LegChoice[] | null {
   const legs = names.map((name) => {
     const time = text(name);
     if (!time || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return null;
-    const aircraft = text(`${name}-plan`);
-    const seating = text(`${name}-klasser`);
-    return {
-      time,
-      aircraftId: aircraft && /^\d+$/.test(aircraft) ? Number(aircraft) : null,
-      seating: seating === undefined ? null : readSeating(seating),
-    };
+    return { time, ...parsePlan(params, name) };
   });
   return legs.every((leg) => leg !== null) ? legs : null;
 }
@@ -82,7 +94,7 @@ export function parseLegs(params: Params, search: Search): LegChoice[] | null {
 // Valen för ett flyg, kontrollerade mot planen: ett plan som inte finns eller
 // inte har plats för alla blir "inget plan", antal som inte går på planet
 // blir "inga antal" (t.ex. efter en ändrad adress eller ett ändrat plan)
-export function checkChoice(leg: LegChoice, fleet: FleetAircraft[], travellers: number): LegChoice {
+export function checkChoice<T extends PlanChoice>(leg: T, fleet: FleetAircraft[], travellers: number): T {
   const aircraft = fleet.find((a) => a.id === leg.aircraftId);
   if (!aircraft || !canSeat(aircraft, travellers)) return { ...leg, aircraftId: null, seating: null };
   const seating = leg.seating && validSeating(aircraft, leg.seating, travellers) ? leg.seating : null;
@@ -90,7 +102,7 @@ export function checkChoice(leg: LegChoice, fleet: FleetAircraft[], travellers: 
 }
 
 // Ett annat plan tar bort antalen per klass; samma plan igen ändrar inget (R10)
-export function chooseAircraft(leg: LegChoice, aircraftId: number): LegChoice {
+export function chooseAircraft<T extends PlanChoice>(leg: T, aircraftId: number): T {
   return leg.aircraftId === aircraftId ? leg : { ...leg, aircraftId, seating: null };
 }
 
@@ -101,13 +113,13 @@ export function keepChoice(previous: LegChoice | undefined, time: string): LegCh
 }
 
 // Ett flyg är klart när det har ett plan och alla resenärer har en klass (TRIP-026-R3)
-export const legDone = (leg: LegChoice, travellers: number) =>
+export const legDone = <T extends PlanChoice>(leg: T, travellers: number) =>
   leg.aircraftId !== null && leg.seating !== null && placed(leg.seating) === travellers;
 
 // Korten när sidan öppnas (TRIP-026-R5): de klara är hopfällda, det första
 // som inte är klart är öppet, med planen eller, om ett plan är valt, med
 // klasserna, och korten efter det visas inte än
-export function firstViews(legs: LegChoice[], travellers: number): LegView[] {
+export function firstViews<T extends PlanChoice>(legs: T[], travellers: number): LegView[] {
   const open = legs.findIndex((leg) => !legDone(leg, travellers));
   return legs.map((leg, i) => {
     if (legDone(leg, travellers)) return "folded";

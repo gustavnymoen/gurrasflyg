@@ -7,7 +7,7 @@ feature: TRIP-012
 tags: [booking, passengers, add-ons, payment, personal-data, flight-booking, accessibility, security]
 generated:
   by: claude
-  at: 2026-11-04T12:00:00+01:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # Booking
@@ -70,7 +70,7 @@ Migration `009_bookings.sql` replaced the old flight and booking tables, built f
 | `booking_seats` | `booking_flight_id`, `passenger_id`, `class_id`, `price` |
 | `booking_addons` | `booking_seat_id`, `addon_id` (NULL for Dåliga nerver), `name`, `count` (1–10), `price` per item |
 
-Everything below `bookings` is deleted with it (`ON DELETE CASCADE`). Admin (`lib/admin.ts`) treats an aircraft, class or add-on used by a booking as in use: an aircraft in a booking can't be deleted ("Du kan ej ta bort planet, det används av bokningar."), a class can't be removed from an aircraft its bookings use it on, nor get fewer seats than one booking has in it.
+Everything below `bookings` is deleted with it (`ON DELETE CASCADE`). Admin (`lib/admin.ts`) treats an aircraft, class or add-on used by a booking, flight or [charter](charter-booking.md), as in use: an aircraft in a booking can't be deleted ("Du kan ej ta bort planet, det används av bokningar."), a class can't be removed from an aircraft its bookings use it on, nor get fewer seats than one booking has in it.
 
 ## Tests
 

@@ -3,11 +3,11 @@ type: Feature
 title: Aircraft and classes
 description: The page /flyg/plan, where the traveller chooses an aircraft and the travellers per class for each chosen flight, and the price and time factors behind its prices, flight times and the "från" price.
 resource: app/flyg/plan/
-feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012
+feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012, TRIP-039
 tags: [aircraft, classes, prices, flight-time, factors, flight-booking, admin, accessibility]
 generated:
   by: claude
-  at: 2026-10-27T13:16:25+01:00
+  at: 2026-11-05T18:00:00+01:00
 ---
 
 # Aircraft and classes
@@ -64,6 +64,10 @@ Which card shows what is page state (`views`, a `LegView` per flight). When the 
 **Focus** moves to the heading of the part that opened, and is never lost: to "Klasser på utresan" after Välj and when a folded card opens, to "Plan för utresan" after a click on the chosen aircraft, to the next card's heading ("Hemresa") after Klar, and to the folded card itself when no card is left to open. `TripBuilder` keeps the id to focus until the element exists, since the address with a new aircraft can come back a render later.
 
 Changing an earlier choice clears only what depends on it: Välj on another aircraft clears that flight's classes (`chooseAircraft()`), so they start over at 0, while the same aircraft keeps them; another flight on the results page clears its aircraft and classes (`keepChoice()`). The other flight is not affected. Going back to the flights and on without a change keeps everything.
+
+## In charter (TRIP-039)
+
+The charter booking has the same step, `/charter/<id>/plan` ([Charter booking](charter-booking.md)). The page parts and the rules are these: `PlanBuilder` (the cards, the counters, Klar, the total and Fortsätt, moved out of `TripBuilder` and shared), `AircraftList`, `ClassList`, `LegCard`, `AddonList` and the rules in `lib/fare-rules.ts`, `lib/trip.ts` and `lib/booking-rules.ts`. A charter trip is a `PlanFlight` (`toPlanFlight()`): the departure's price is the base of `fare()`, and the flight time and arrival are the departure's own, because `readCharter()` sets every aircraft's time factor to 100. Any aircraft can be chosen on any departure; only the seats decide. The choices are in the address as `ut-plan`, `ut-klasser`, `hem-plan` and `hem-klasser`, as on the flights.
 
 ## Tests
 

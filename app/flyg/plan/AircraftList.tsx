@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { type AircraftOption, aircraftOptions, type FleetAircraft } from "@/lib/fare-rules";
-import type { Flight } from "@/lib/flight-rules";
+import { type AircraftOption, aircraftOptions, type FleetAircraft, type PlanFlight } from "@/lib/fare-rules";
 import { formatDuration, formatPrice, travellersText } from "@/lib/format";
 import { buttonClass } from "../../components/Button";
 import ChoiceCard from "../../components/ChoiceCard";
@@ -17,15 +16,15 @@ export default function AircraftList({
   flight,
   fleet,
   travellers,
-  flightsHref,
+  emptyLink,
   onChoose,
 }: {
   headingId: string;
   title: string;
-  flight: Flight;
+  flight: PlanFlight;
   fleet: FleetAircraft[];
   travellers: number;
-  flightsHref: string;
+  emptyLink: { href: string; label: string };
   onChoose: (aircraftId: number) => void;
 }) {
   const options = aircraftOptions(fleet, flight, travellers);
@@ -40,8 +39,8 @@ export default function AircraftList({
           <p>
             Inget plan har plats för {travellersText(travellers)}.
           </p>
-          <Link href={flightsHref} className={buttonClass("secondary")}>
-            Till flygen
+          <Link href={emptyLink.href} className={buttonClass("secondary")}>
+            {emptyLink.label}
           </Link>
         </div>
       ) : (

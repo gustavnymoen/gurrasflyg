@@ -1,7 +1,9 @@
 import { createClient } from "@libsql/client";
 import { testDbFile } from "../lib/local-db.mjs";
 import { test as base, expect, type Locator, type Page } from "@playwright/test";
+import { type CharterSearch, NO_CHOICE, resultsUrl } from "../lib/charter-rules";
 import {
+  charterTripDays,
   createAddon,
   createAircraft,
   createClass,
@@ -181,6 +183,41 @@ export async function openBooking(page: Page, aircraft: string, seating: Record<
   const travellers = Object.values(seating).reduce((sum, n) => sum + n, 0);
   await openPlan(page, travellers, roundTrip);
   for (const leg of roundTrip ? (["utresan", "hemresan"] as const) : (["utresan"] as const)) {
+    await chooseAircraft(page, leg, aircraft);
+    for (const [name, n] of Object.entries(seating)) await place(page, leg, name, n);
+    await done(page, leg);
+  }
+  await page.getByRole("link", { name: "Fortsätt" }).click();
+  await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
+}
+
+// Charter (TRIP-039): the plan step is the same page parts as /flyg/plan, so the helpers above
+// (chooseAircraft, place, done, the cards) work on it too. The trips are those of the TRIP-014 tests:
+// ARN-BER-SK1122 06:50 for 1 190 kr and BER-ARN-SK1123 09:15 for 1 090 kr, a Monday out and the Saturday after back.
+export const SK1122 = "ARN-BER-SK1122";
+export const SK1123 = "BER-ARN-SK1123";
+export const charterSearch = (travellers = 2): CharterSearch => ({
+  from: "ARN",
+  outbound: charterTripDays().monday,
+  return: charterTripDays().saturday,
+  travellers,
+});
+// The results of Teufelsberg with both trips chosen
+export const charterTripsUrl = (travellers = 2) =>
+  resultsUrl("teufelsberg", charterSearch(travellers), { ...NO_CHOICE, out: SK1122, back: SK1123 });
+
+// Both trips chosen, and Fortsätt to the plan step
+export async function openCharterPlan(page: Page, travellers = 2) {
+  await page.goto(charterTripsUrl(travellers));
+  await page.getByRole("link", { name: "Fortsätt" }).click();
+  await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeVisible();
+}
+
+// The plan step done the same way for both trips (the aircraft, the travellers per class and Klar),
+// and Fortsätt to Resenärer. Charter has no travellers per class on that page: they are placed in order.
+export async function openCharterBooking(page: Page, aircraft: string, seating: Record<string, number>) {
+  await openCharterPlan(page, Object.values(seating).reduce((sum, n) => sum + n, 0));
+  for (const leg of ["utresan", "hemresan"] as const) {
     await chooseAircraft(page, leg, aircraft);
     for (const [name, n] of Object.entries(seating)) await place(page, leg, name, n);
     await done(page, leg);

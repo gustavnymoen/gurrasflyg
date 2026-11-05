@@ -49,8 +49,11 @@ test.describe("in the browser", () => {
   });
 
   test("TRIP-009-R2 Arrow down moves focus to today in the calendar", async ({ page }) => {
-    await outboundField(page).press("ArrowDown");
-    await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused();
+    // A key pressed before the page has hydrated is lost, so the press is repeated until the calendar has it
+    await expect(async () => {
+      await outboundField(page).press("ArrowDown");
+      await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused({ timeout: 500 });
+    }).toPass();
   });
 
   test("TRIP-009-R3 and R4 two months from this month, only today to the last bookable day can be chosen", async ({ page }) => {
