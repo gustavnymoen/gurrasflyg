@@ -271,6 +271,7 @@ test("TRIP-030-R8 a booking that fails shows the action's message under the butt
     await agentOn(page);
     await page.goto(travellersPage);
     await ask(page, "TILLAGG tillagg=ultimate");
+    await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked(); // answer done before the form is touched
     await fillAll(page, 2, email);
     await ask(page, "BOKA");
     await expect(bookButton(page)).toBeVisible();
