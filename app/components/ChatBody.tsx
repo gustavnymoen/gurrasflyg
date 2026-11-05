@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { applyActions, bookNow, readContext, sameContext } from "./chatAgent";
+import { bookedText, CHANGED_TEXT } from "@/lib/agent-rules";
 import {
   FAIL_TEXT,
   GREETING,
@@ -64,16 +67,22 @@ export function ChatHeader({
 // Samtalet, hälsningen och fältet. tall: panelen, där loggen fyller höjden; dialogen har en högsta höjd.
 export default function ChatBody({
   entries,
+  agent,
   waiting,
   setWaiting,
   tall,
 }: {
   entries: Entry[];
+  agent: boolean;
   waiting: boolean;
   setWaiting: (waiting: boolean) => void;
   tall: boolean;
 }) {
+  const router = useRouter();
   const [question, setQuestion] = useState("");
+  // Boka och betala: medan bokningen sparas, och felet om den inte gick
+  const [booking, setBooking] = useState(false);
+  const [bookError, setBookError] = useState<string | null>(null);
   const labelId = useId();
   const root = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -115,6 +124,8 @@ export default function ChatBody({
     setQuestion("");
     setWaiting(true);
     const history = [...entries, asked].filter((e) => !e.failed && !e.notice);
+    // I agentläget följer sidan och det icke-personliga som valts med frågan (TRIP-030-R4)
+    const context = agent ? readContext() : undefined;
     // Rensas chatten medan frågan väntar (Stäng) händer inget mer med den: Chat har redan nollställt väntan
     const epoch = chatEpoch();
     const current = (change: () => void) => epoch === chatEpoch() && change();
@@ -124,13 +135,22 @@ export default function ChatBody({
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: lastMessages(history) }),
+        body: JSON.stringify({ messages: lastMessages(history), ...(context && { agent: context }) }),
       });
       if (response.status === 429) {
         notice(waitText(Number(response.headers.get("Retry-After")) || 60));
       } else if (response.ok) {
-        const { reply } = await response.json();
-        current(() => setEntries((list) => [...list, { role: "assistant", content: reply }]));
+        const { reply, help, book, actions } = await response.json();
+        current(() => {
+          // Har besökaren ändrat något medan Agneta svarade släpps åtgärderna och knappen, och hon säger det (R4)
+          const changed = !!context && !sameContext(context, readContext());
+          setEntries((list) => [
+            ...list,
+            { role: "assistant", content: reply, ...(help === true && !changed && { help: true }), ...(book === true && !changed && { book: true }) },
+            ...(changed ? [{ role: "assistant" as const, content: CHANGED_TEXT, notice: true }] : []),
+          ]);
+          if (context && !changed && Array.isArray(actions)) applyActions(actions, router);
+        });
       } else {
         notice(FAIL_TEXT);
       }
@@ -141,12 +161,30 @@ export default function ChatBody({
     }
   }
 
+  function startAgent(on: boolean) {
+    updateChat((saved) => ({ ...saved, agent: on }));
+    fieldRef.current?.focus();
+  }
+
+  async function book() {
+    if (booking) return;
+    setBooking(true);
+    setBookError(null);
+    const result = await bookNow(router);
+    if ("error" in result) setBookError(result.error);
+    else setEntries((list) => [...list, { role: "assistant", content: bookedText(result.bookingNumber), notice: true }]);
+    setBooking(false);
+  }
+
   const left = MAX_QUESTION_LENGTH - question.length;
   return (
     <div ref={root} className={`flex flex-col text-left ${tall ? "min-h-0 flex-1" : ""}`}>
       <p className="mt-3 text-small text-ink-muted">
         Agneta svarar bara om våra charterresmål och hur du bokar. Skriv inga personuppgifter: frågorna skickas till
-        Anthropic.
+        Anthropic.{agent && " Namn och kontaktuppgifter fyller du i på sidan, aldrig här."}
+      </p>
+      <p role="status" className="sr-only">
+        {agent ? "Agneta hjälper dig nu." : ""}
       </p>
       {connecting ? (
         <div role="status" tabIndex={-1} data-autofocus className="mt-4 flex items-center gap-3 text-ink-muted">
@@ -158,6 +196,14 @@ export default function ChatBody({
         </div>
       ) : (
         <>
+          {agent && (
+            <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-surface-sunk px-3 py-2">
+              <span className="font-medium">Agneta hjälper dig</span>
+              <Button size="compact" variant="secondary" onClick={() => startAgent(false)}>
+                Sluta
+              </Button>
+            </div>
+          )}
           <div
             ref={logRef}
             tabIndex={0}
@@ -169,6 +215,27 @@ export default function ChatBody({
               <Bubble key={i} mine={e.role === "user"}>
                 <span className="sr-only">{e.role === "user" ? "Du: " : "Agneta: "}</span>
                 {e.role === "user" ? e.content : <Answer text={e.content} />}
+                {i === entries.length - 1 && !waiting && (
+                  <>
+                    {e.help && !agent && (
+                      <Button size="compact" className="mt-2" onClick={() => startAgent(true)}>
+                        Hjälp mig
+                      </Button>
+                    )}
+                    {e.book && agent && (
+                      <div className="mt-2 flex flex-col gap-2">
+                        <Button size="compact" disabled={booking} onClick={book}>
+                          Boka och betala
+                        </Button>
+                        {bookError && (
+                          <p role="alert" className="text-small font-medium">
+                            {bookError}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </Bubble>
             ))}
             {waiting && (

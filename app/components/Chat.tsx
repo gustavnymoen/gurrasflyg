@@ -28,7 +28,7 @@ function useWide() {
 // Minimera döljer chatten men behåller samtalet; Stäng frågar först och rensar samtalet, så att nästa
 // öppning är en ny chatt med ny inkoppling och hälsning.
 export default function Chat() {
-  const { open, entries } = useSavedChat();
+  const { open, agent, entries } = useSavedChat();
   const wide = useWide();
   // Här och inte i rutan: stängs rutan medan Agneta tänker ska en ny fråga inte kunna skickas samtidigt
   const [waiting, setWaiting] = useState(false);
@@ -89,7 +89,7 @@ export default function Chat() {
           className="fixed top-0 right-0 z-30 flex h-dvh w-(--agneta-panel-width) flex-col border-l border-line bg-surface-float p-4 text-ink"
         >
           <ChatHeader connected={connected} onMinimise={minimise} onClose={() => setAsking(true)} />
-          <ChatBody entries={entries} waiting={waiting} setWaiting={setWaiting} tall />
+          <ChatBody entries={entries} agent={agent} waiting={waiting} setWaiting={setWaiting} tall />
         </section>
       )}
       {open && !wide && (
@@ -99,7 +99,7 @@ export default function Chat() {
           wide
           onClose={minimise}
         >
-          <ChatBody entries={entries} waiting={waiting} setWaiting={setWaiting} tall={false} />
+          <ChatBody entries={entries} agent={agent} waiting={waiting} setWaiting={setWaiting} tall={false} />
         </Dialog>
       )}
       {asking && (

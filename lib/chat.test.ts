@@ -23,7 +23,7 @@ afterEach(() => {
 
 test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 3000 and the messages", async () => {
   const { client, create } = clientOf(reply([{ type: "text", text: "Dyrt." }]));
-  expect(await askAgneta(question, client)).toBe("Dyrt.");
+  expect(await askAgneta(question, client)).toEqual({ reply: "Dyrt.", help: false });
   expect(MODEL).toBe("claude-sonnet-5-5");
   expect(create).toHaveBeenCalledWith({
     model: "claude-sonnet-5-5",
@@ -48,7 +48,7 @@ test("TRIP-017-R6 LLM_MOCK=1 uses the fake client: the answer comes back and no 
   process.env.LLM_MOCK = "1";
   vi.spyOn(console, "log").mockImplementation(() => {});
   const fetchSpy = vi.spyOn(globalThis, "fetch");
-  expect(await askAgneta(question)).toContain("Vad kostar Teufelsberg?");
+  expect((await askAgneta(question))?.reply).toContain("Vad kostar Teufelsberg?");
   expect(fetchSpy).not.toHaveBeenCalled();
 });
 
@@ -60,15 +60,15 @@ test("TRIP-017-R8 a refusal or an answer with nothing gives null, an answer cut 
   vi.spyOn(console, "log").mockImplementation(() => {});
   expect(await askAgneta(question, clientOf(reply([], "refusal")).client)).toBeNull();
   expect(await askAgneta(question, clientOf(reply([{ type: "text", text: "  " }])).client)).toBeNull();
-  expect(await askAgneta(question, clientOf(reply([{ type: "text", text: "Avbru" }], "max_tokens")).client)).toBe("Avbru");
+  expect((await askAgneta(question, clientOf(reply([{ type: "text", text: "Avbru" }], "max_tokens")).client))?.reply).toBe("Avbru");
 });
 
 test("TRIP-033-R4 an answer that stopped at the limit is cut at the last whole bullet and the event is logged", async () => {
   const log = vi.spyOn(console, "log").mockImplementation(() => {});
   const text = "- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person\n- [B](/charter/b";
-  expect(await askAgneta(question, clientOf(reply([{ type: "text", text }], "max_tokens")).client)).toBe("- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person");
+  expect((await askAgneta(question, clientOf(reply([{ type: "text", text }], "max_tokens")).client))?.reply).toBe("- [A](/charter/a): Ett.\n  - ARN, från 100 kr per person");
   expect(log).toHaveBeenCalledWith("chat cut at the token limit", JSON.stringify(usage));
-  expect(await askAgneta(question, clientOf(reply([{ type: "text", text }])).client)).toBe(text); // inte kapad: oförändrad
+  expect((await askAgneta(question, clientOf(reply([{ type: "text", text }])).client))?.reply).toBe(text); // inte kapad: oförändrad
 });
 
 test("TRIP-017-R8 an API failure is thrown to the route", async () => {
@@ -83,4 +83,19 @@ test("TRIP-017-R8 the 10 first questions within 5 minutes are counted, the 11th 
   const locked = await registerAttempt("api:chat:9.9.9.9", CHAT_LIMIT, now + 10_000);
   expect(locked?.msLeft).toBeGreaterThan(0);
   expect(await registerAttempt("api:chat:9.9.9.9", CHAT_LIMIT, now + CHAT_LIMIT.windowMs)).toBeNull();
+});
+
+test("TRIP-030-R1 the marker [[HELP]] is taken out of the answer and reported, so the button can be shown", async () => {
+  const answer = await askAgneta(question, clientOf(reply([{ type: "text", text: "Jaha, hjälp.\n[[HELP]]" }])).client);
+  expect(answer).toEqual({ reply: "Jaha, hjälp.", help: true });
+  // Fake client: a question asking for help gets the marker, a plain question does not
+  process.env.LLM_MOCK = "1";
+  expect((await askAgneta([{ role: "user", content: "Kan du hjälpa mig att boka åt mig?" }]))?.help).toBe(true);
+  expect((await askAgneta(question))?.help).toBe(false);
+});
+
+test("TRIP-030-R1 the system prompt tells the model when to add the marker, and when not to", async () => {
+  const prompt = await buildSystemPrompt();
+  expect(prompt).toContain("[[HELP]]");
+  expect(prompt).toContain("Never add that line to an answer to a plain question");
 });

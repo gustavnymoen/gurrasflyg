@@ -27,6 +27,16 @@ function read(key: string) {
   }
 }
 
+// Det som sparats under nyckeln just nu, utan att följa med när det ändras: för chatten, som läser formuläret
+// när en fråga skickas och när en åtgärd utförs (TRIP-030)
+export function getStored(key: string): unknown {
+  try {
+    return JSON.parse(read(key) ?? "null");
+  } catch {
+    return null;
+  }
+}
+
 // Det som sparats under nyckeln: undefined innan sidan läst det (på servern
 // och vid första renderingen), null om inget finns
 export function useStored(key: string): unknown {

@@ -1,0 +1,22 @@
+%% TRIP-030 Booking agent
+%% The agent mode: a question, the tool loop on the server, actions carried out by the chat, and the booking by a button.
+flowchart TD
+    A[Visitor asks Agneta to do something] --> B[Answer ends with HELP marker]
+    B --> C[Chat shows Hjälp mig]
+    C -->|pressed| D[Agent mode on: Agneta hjälper dig, Sluta]
+    D --> E[Question + page url, extras, payment, form valid]
+    E --> F[POST /api/chat with agent]
+    F --> G{Model answers with tool calls?}
+    G -- yes, at most 6 --> H[Server runs the tool: reads the database, adds an action]
+    H --> G
+    G -- no or cap reached --> I[Answer text + actions + book flag]
+    I --> J{Page and choices unchanged since the question?}
+    J -- no --> K[Actions dropped, Agneta says they changed something]
+    J -- yes --> L[Chat opens the page and writes extras and payment to the form]
+    L --> M[Visitor fills in names and contact details on the page]
+    M --> N{Form valid, trips and payment set, BOOK marker?}
+    N -- yes --> O[Chat shows Boka och betala]
+    O -->|pressed| P[bookCharterAction: same checks and rate limit as Betala]
+    P -->|ok| Q[/charter/bokad and the booking number in the chat]
+    P -->|error| R[The action's message under the button]
+    N -- no --> S[No button]
