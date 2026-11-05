@@ -19,8 +19,8 @@ title: Styled multi-choice charter filters
 |---|---|---|---|---|
 | Unit tests | 6 new tests and 4 rewritten in `lib/destinations.test.ts` | local | Pass | 2026-11-05 |
 | Browser tests | `tests/TRIP-034-charter-filters.spec.ts` (5 tests); the selects in `tests/TRIP-013-destinations.spec.ts` rewritten to the new control | local | Pass | 2026-11-05 |
-| Smoke test | None new; the `/charter` smoke test (TRIP-013-R7) passes locally | local | Pass | 2026-11-05 |
-| Accessibility | axe in the TRIP-034 test (closed, panel open, with choices); the checklist on the live site: not checked yet (needs the deploy) | local | axe pass; checklist not checked | 2026-11-05 |
+| Smoke test | None new; the `/charter` smoke test (TRIP-013-R7) passes locally and in Live tests after the merge | local, live | Pass | 2026-11-05 |
+| Accessibility | axe in the TRIP-034 test (closed, panel open, with choices); the checklist on the live site: not checked | local | axe pass; checklist not checked | 2026-11-05 |
 | Security | Not needed (card); values from the address are checked against the data as before | – | Not applicable | 2026-11-05 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-05 |
 
@@ -39,7 +39,7 @@ Within the budgets; +13 % in total. The slowest, `TRIP-013-R2 a choice shows …
 
 - [x] Tests: every check in the card's test plan that can run locally is done; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, total time grown by 13 %, the new tests follow the quality rules
-- [ ] Deployed, and the smoke tests pass against production (Live tests): not done yet
+- [x] Deployed, and the smoke tests pass against production (Live tests): passed 2026-11-05
 - [ ] Accessibility: axe passes; the checklist on the live site is not checked yet
 - [x] Requirements in the card match what was built, no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual, system docs and `wiki/log.md` updated
