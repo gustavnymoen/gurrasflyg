@@ -211,6 +211,7 @@ test.describe("in the browser", () => {
 
   test("TRIP-009-R12 the keyboard moves between days and months and chooses a day", async ({ page }) => {
     await outboundField(page).press("ArrowDown");
+    await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused(); // the calendar has taken focus before the next key
     await page.keyboard.press("PageDown");
     await expect(day(page, "lördag 21 november 2026")).toBeFocused();
     await page.keyboard.press("PageDown");
@@ -235,6 +236,7 @@ test.describe("in the browser", () => {
 
   test("TRIP-009-R12 the month buttons work with the keyboard, and focus stays in the calendar", async ({ page }) => {
     await outboundField(page).press("ArrowDown");
+    await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused(); // the calendar has taken focus before the next key
     // From the day back past the switch to Nästa månad (Föregående is disabled)
     await page.keyboard.press("Shift+Tab");
     await page.keyboard.press("Shift+Tab");
