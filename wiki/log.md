@@ -2,6 +2,8 @@
 
 ## 2026-11-05
 
+- TRIP-030: **Agneta as a booking agent**. A request for something done gives the button **Hjälp mig**, which turns on the agent mode (saved with the conversation, **Sluta** ends it). In the mode the route runs the model with tools in a loop on the server (at most 6 calls per question): list with filters, a destination, the trips and prices (`find_trips`), the results page or straight to Resenärer, extras, payment method and a summary. The tools only read; the answer is `{ reply, actions, book }` and the chat carries the actions out if the page is unchanged since the question. The visitor fills in names and contact details on the page (nothing personal goes to the model) and books with the button **Boka och betala**, which calls `bookCharterAction()` like Betala. New `lib/agent*.ts`, `lib/chat-mock.ts` (fake agent for `LLM_MOCK=1`), `app/charter/book.ts` (shared by Betala and the button). Updated [Charter chatbot Agneta](system/charter-chatbot.md), [Fråga Agneta](manual/fraga-agneta.md) and the architecture page. Not yet tried with the real model.
+
 - TRIP-034: the four charter filters are `MultiSelect` controls in the site's look (a button that opens a panel of checkboxes) instead of native `<select>`s. Several choices per filter (any-of within, all-of between), kept as repeated address parameters (`?land=DE&land=FR`; old single-value links work), options without hits are hidden (chosen ones stay), and changing the continent unchecks countries outside it. Updated [Charter destinations](system/charter-destinations.md) and [Hitta ett charterresmål](manual/charter-resmal.md).
 
 ## 2026-11-04

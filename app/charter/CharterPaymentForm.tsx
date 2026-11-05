@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { fieldIds, paymentProblems } from "@/lib/booking-rules";
 import {
-  CHARTER_BOOKED_PATH,
-  charterParams,
   charterProblems,
   charterTotal,
   extraRows,
@@ -14,8 +12,7 @@ import {
 import Problem from "../flyg/Problem";
 import { PayCard, PaymentMethodCard } from "../flyg/boka/PaymentParts";
 import Steps from "../flyg/Steps";
-import { CHARTER_BOOKED_KEY, CHARTER_FORM_KEY, store } from "../flyg/boka/store";
-import { bookCharterAction } from "./actions";
+import { bookCharter } from "./book";
 import CharterOverview from "./CharterOverview";
 import { saveCharterForm, useCharterForm } from "./form";
 import { type CharterStepProps, charterSteps } from "./steps";
@@ -58,16 +55,9 @@ export default function CharterPaymentForm({ id, title, search, choice, outbound
     }
     setError(null);
     startTransition(async () => {
-      const result = await bookCharterAction(id, charterParams(search, choice).toString(), form!);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      // Sammanfattningen visas bara i den här fliken, och formuläret töms
-      setBooked(true);
-      store(CHARTER_BOOKED_KEY, result.summary);
-      store(CHARTER_FORM_KEY, null);
-      router.replace(CHARTER_BOOKED_PATH);
+      const result = await bookCharter(router, id, search, choice, form!);
+      if ("error" in result) setError(result.error);
+      else setBooked(true);
     });
   }
 

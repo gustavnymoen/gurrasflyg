@@ -4,8 +4,11 @@ import { EMPTY_CHAT, parseSaved } from "./chat-saved";
 test("TRIP-032-R5 a saved conversation is read back as it was written", () => {
   const saved = {
     open: true,
+    agent: true,
     entries: [
       { role: "assistant", content: "Hej." },
+      { role: "assistant", content: "Vill du?", help: true },
+      { role: "assistant", content: "Tryck.", book: true },
       { role: "user", content: "Fråga", failed: true },
       { role: "assistant", content: "Krångel", notice: true },
     ],
@@ -21,5 +24,11 @@ test("TRIP-032-R5 nothing saved, damaged or old data gives an empty chat", () =>
 
 test("TRIP-032-R5 only known fields are kept", () => {
   const raw = JSON.stringify({ open: false, entries: [{ role: "user", content: "x", html: "<b>", failed: "yes" }] });
-  expect(parseSaved(raw)).toEqual({ open: false, entries: [{ role: "user", content: "x" }] });
+  expect(parseSaved(raw)).toEqual({ open: false, agent: false, entries: [{ role: "user", content: "x" }] });
+});
+
+test("TRIP-030-R1 the agent mode is saved with the conversation; saved data from before has it off", () => {
+  expect(parseSaved('{"open":true,"agent":true,"entries":[]}').agent).toBe(true);
+  expect(parseSaved('{"open":true,"entries":[]}').agent).toBe(false);
+  expect(parseSaved('{"open":true,"agent":"ja","entries":[]}').agent).toBe(false);
 });
