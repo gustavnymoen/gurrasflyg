@@ -7,7 +7,7 @@ feature: TRIP-013
 tags: [resenär, charter, resmål, sök, filter]
 generated:
   by: claude
-  at: 2026-10-26T15:38:12+01:00
+  at: 2026-11-05T10:30:00+01:00
 ---
 
 # Hitta ett charterresmål
@@ -24,7 +24,7 @@ Finns ingen träff står det "Inga destinationer matchar", och du kan trycka **R
 
 ## Filtrera
 
-Under sökfältet finns fyra val: **Världsdel**, **Land**, **Tillträde** och **Kategori**. Bredvid varje alternativ står hur många resmål du får om du väljer det, tillsammans med det du redan valt och sökt. Under **Land** visas bara länderna i den världsdel du valt. Välj **Alla** för att ta bort ett val, eller tryck **Rensa** för att ta bort allt.
+Under sökfältet finns fyra knappar: **Världsdel**, **Land**, **Tillträde** och **Kategori**. Knappen visar ditt val: "Land: Alla", "Land: Tyskland" eller "Land: 2 valda". Tryck på knappen (eller **Enter** eller **Mellanslag**) så öppnas en lista med en kryssruta per alternativ. Du kan kryssa i flera i samma lista: du får då resmål som passar något av dem. Mellan listorna gäller alla val på en gång, till exempel Europa och Asien tillsammans med Kategori Industriplats. Bredvid varje alternativ står hur många resmål du får om du väljer det, tillsammans med det du redan valt och sökt, och alternativ som inte ger några resmål visas inte. Under **Land** visas bara länderna i de världsdelar du valt. Ta bort en kryssruta för att ta bort ett val; är ingen ikryssad står det "Alla" igen. Listan stängs med **Escape**, med ett klick utanför eller när du öppnar en annan lista. Tryck **Rensa** för att ta bort allt.
 
 Sökningen och valen står i sidans adress, så du kan ladda om sidan eller skicka länken, och **Tillbaka** i webbläsaren går till det förra läget.
 

@@ -294,3 +294,19 @@ export async function agnetaGreeted(page: Page, open = false) {
     sessionStorage.setItem("agneta-chat", JSON.stringify({ open: isOpen, entries: [greeting] }));
   }, open);
 }
+
+// Filtren på /charter (TRIP-034): knappen, panelen och ett val i den
+export type CharterFilter = "Världsdel" | "Land" | "Tillträde" | "Kategori";
+export const filterButton = (page: Page, label: CharterFilter) =>
+  page.getByRole("button", { name: new RegExp(`^${label}:`) });
+export const filterPanel = (page: Page, label: CharterFilter) => page.getByRole("group", { name: label });
+// Valet "Europa" heter "Europa (47)" i panelen: namnet följs av antalet
+export const filterOption = (page: Page, label: CharterFilter, name: string) =>
+  filterPanel(page, label).getByRole("checkbox", { name: new RegExp(`^${name} \\(\\d+\\)$`) });
+
+// Öppnar panelen om den är stängd och kryssar i eller ur ett val
+export async function toggleFilterOption(page: Page, label: CharterFilter, name: string) {
+  const button = filterButton(page, label);
+  if ((await button.getAttribute("aria-expanded")) !== "true") await button.click();
+  await filterOption(page, label, name).click();
+}

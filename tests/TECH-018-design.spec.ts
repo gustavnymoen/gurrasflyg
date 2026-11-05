@@ -15,6 +15,9 @@ import {
   DANGER,
   expectNoA11yViolations,
   expectTextMessage,
+  filterButton,
+  filterOption,
+  filterPanel,
   FLOAT_SHADOW,
   INK,
   layer,
@@ -516,6 +519,34 @@ test("TRIP-013-R5 and R8 and TRIP-028-R2 the charter list: every category and ac
   expect(contrast(DANGER, await backgroundOf(notice))).toBeGreaterThanOrEqual(4.5);
 });
 
+test("TRIP-034-R1 R5 the charter filters: field border, accent focus ring, a floating panel with readable text, accent checkboxes and tappable rows", async ({
+  page,
+}) => {
+  await page.goto("/charter");
+  await page.waitForLoadState("networkidle");
+  const button = filterButton(page, "Land");
+
+  // R1: a button in the fields' look, with the accent border and ring when focused
+  await expect(button).toHaveCSS("border-top-color", LINE_STRONG);
+  await button.focus();
+  await expect(button).toHaveCSS("border-top-color", ACCENT_STRONG);
+  expect(await css(button, "box-shadow")).not.toBe("none");
+
+  // R1: the open panel floats like the menus, with text that meets 4.5:1 against it
+  await button.click();
+  const panel = filterPanel(page, "Land");
+  expect(await css(panel, "box-shadow")).toContain(FLOAT_SHADOW);
+  const option = filterOption(page, "Land", "Tyskland");
+  const panelBackground = await backgroundOf(panel);
+  expect(contrast(await css(option.locator("xpath=following-sibling::label"), "color"), panelBackground)).toBeGreaterThanOrEqual(4.5);
+  await expect(option).toHaveCSS("accent-color", ACCENT_STRONG);
+
+  // R5: every row is at least 24 px tall (WCAG 2.5.8)
+  for (const row of await panel.getByRole("checkbox").locator("xpath=ancestor::li").all()) {
+    expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(24);
+  }
+});
+
 test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a large photo with the search beside it, and a red alert without a box when there are no flights", async ({
   page,
 }) => {
@@ -616,6 +647,18 @@ test.describe("on a phone", () => {
         await page.goto(path);
         await expect(page.getByRole("main").getByRole("heading").first()).toBeVisible();
         expect(await scrollsSideways(page), path).toBe(false);
+      }
+
+      // TRIP-034-R5: the four filters and an open panel fit the screen too
+      await page.goto("/charter");
+      await page.waitForLoadState("networkidle");
+      for (const label of ["Världsdel", "Land", "Tillträde", "Kategori"] as const) {
+        await filterButton(page, label).click();
+        const box = (await filterPanel(page, label).boundingBox())!;
+        expect(box.x, label).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width, label).toBeLessThanOrEqual(320);
+        expect(await scrollsSideways(page), label).toBe(false);
+        await page.keyboard.press("Escape"); // the open panel covers the next button
       }
     });
   });
