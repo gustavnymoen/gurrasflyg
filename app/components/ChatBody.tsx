@@ -206,8 +206,8 @@ export default function ChatBody({
 
 // En pratbubbla (R3): besökarens till höger, Agnetas till vänster, med ett kantigt hörn mot avsändaren
 function Bubble({ mine, children }: { mine: boolean; children: React.ReactNode }) {
-  const side = mine ? "self-end rounded-br-sm bg-accent text-on-accent" : "self-start rounded-bl-sm border border-line bg-surface-sunk";
-  return <div className={`max-w-[85%] rounded-2xl px-3 py-2 wrap-break-word ${side}`}>{children}</div>;
+  const side = mine ? "max-w-[85%] self-end rounded-br-sm bg-accent text-on-accent" : "max-w-full self-start rounded-bl-sm border border-line bg-surface-sunk";
+  return <div className={`rounded-2xl px-3 py-2 wrap-break-word ${side}`}>{children}</div>;
 }
 
 function HeaderButton({ label, onClick, path }: { label: string; onClick: () => void; path: string }) {

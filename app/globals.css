@@ -209,7 +209,13 @@
 }
 
 @media (min-width: 64rem) {
+  /* Sidan rullar i body, så att dess rullist hamnar i skarven mot panelen och inte bredvid chattens egen */
+  html[data-agneta-panel] {
+    overflow: hidden;
+  }
   html[data-agneta-panel] body {
+    height: 100dvh;
+    overflow-y: auto;
     margin-right: var(--agneta-panel-width);
   }
 }
