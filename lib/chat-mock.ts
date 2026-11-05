@@ -39,6 +39,23 @@ function progress(messages: Anthropic.MessageParam[]) {
   return { question, steps: resultTexts.length, last: resultTexts.at(-1) ?? "" };
 }
 
+// set_plan för båda resorna ur svaret från list_aircraft: första planet i varje lista, med resenärerna
+// utdelade på klasserna i ordning efter vad de rymmer
+function planCalls(list: string, travellers: number) {
+  const section = list.split("\n").filter((line) => line.startsWith("- aircraft") || /^(Outbound|Return) trip/.test(line));
+  return ["Outbound", "Return"].map((title, i) => {
+    const start = section.findIndex((line) => line.startsWith(title));
+    const row = section.slice(start + 1).find((line) => line.startsWith("- aircraft")) ?? "";
+    let left = travellers;
+    const classes = [...row.matchAll(/class (\d+) [^(]*\(room for (\d+)\)/g)].map(([, id, room]) => {
+      const count = Math.min(left, Number(room));
+      left -= count;
+      return { class_id: Number(id), count };
+    });
+    return call("set_plan", { trip: i === 0 ? "outbound" : "return", aircraft_id: Number(row.match(/aircraft (\d+)/)?.[1]), classes }, `plan${i}`);
+  });
+}
+
 // Den manusstyrda agenten: fasta verktygsanrop efter nyckelord i frågan, med värden som "id=teufelsberg"
 // i frågan. Den skriver samma in-character-svar som modellen ska.
 function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
@@ -64,10 +81,24 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
       // Första utresan och första hemresan ur svaret, med deras id
       const ids = [...last.matchAll(/^- ((?:ARN|CPH)-[\w-]+|[A-Z]{3}-[\w-]+):/gm)].map((m) => m[1]);
       const [out, back] = [ids.find((id) => id.startsWith(trip.from)), ids.find((id) => !id.startsWith(trip.from))];
-      return answer([call("show_travellers", { ...trip, outbound_trip: out, return_trip: back })], "tool_use");
+      return answer([call("show_plan", { ...trip, outbound_trip: out, return_trip: back })], "tool_use");
     }
-    return say(last.startsWith("Opened") ? "Jag tog de första, de är minst dåliga. Fyll i dig själv." : `Det gick inte: ${last}`);
+    if (steps === 2 && last.startsWith("Opened")) return answer([call("list_aircraft", {})], "tool_use");
+    if (steps === 3) return answer(planCalls(last, trip.travellers), "tool_use");
+    if (steps === 5) return answer([call("show_travellers", {})], "tool_use");
+    return say(last.startsWith("Opened the Resen") ? "Jag tog de första och billigaste planen, de är minst dåliga. Fyll i dig själv." : `Det gick inte: ${last}`);
   }
+  if (question.includes("PLAN") && steps === 0) return answer([call("list_aircraft", {})], "tool_use");
+  if (question.includes("PLAN") && steps === 1) return answer(planCalls(last, trip.travellers), "tool_use");
+  if (question.includes("OGILTIGT") && steps === 0) return answer([call("set_plan", { trip: "outbound", aircraft_id: 999999, classes: [] })], "tool_use");
+  if (question.includes("FORSTORA") && steps === 0) return answer([call("list_aircraft", {})], "tool_use");
+  if (question.includes("FORSTORA") && steps === 1) {
+    // Fler resenärer i en klass än den rymmer
+    const [, aircraft, cls] = last.match(/aircraft (\d+) .*?class (\d+) /) ?? [];
+    return answer([call("set_plan", { trip: "outbound", aircraft_id: Number(aircraft), classes: [{ class_id: Number(cls), count: 99 }] })], "tool_use");
+  }
+  if (question.includes("TILLAGGSLISTA") && steps === 0) return answer([call("list_addons", {})], "tool_use");
+  if (question.includes("KLASSTILLAGG") && steps === 0) return answer([call("set_addons", { addons: [{ name: question.match(/namn=(.+?)(?: antal=|$)/)?.[1] ?? "", count: Number(arg("antal") || 1) }] })], "tool_use");
   if (question.includes("RESULTAT") && steps === 0) return answer([call("show_results", { ...trip, outbound_trip: arg("utresa") || undefined })], "tool_use");
   if (question.includes("TILLAGG") && steps === 0) {
     return answer([call("set_extras", { extras: [arg("tillagg") || "ultimate"] }, "a"), call("set_payment", { payment: "cash" }, "b")], "tool_use");

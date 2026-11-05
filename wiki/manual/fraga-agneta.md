@@ -7,7 +7,7 @@ feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030
 tags: [resenär, charter, chatt, agneta]
 generated:
   by: claude
-  at: 2026-11-05T12:00:00+01:00
+  at: 2026-11-05T17:00:00+01:00
 ---
 
 # Fråga Agneta
@@ -39,9 +39,10 @@ Ber du henne göra något och inte bara svara ("kan du boka åt mig?", "hjälp m
 
 I det här läget kan hon:
 
-- **Visa sidor åt dig.** Säger du "visa gruvor i Europa" öppnar hon listan med de filtren. Säger du resmål, datum och hur många ni är (till exempel "vi är tre, till Teufelsberg mellan dessa datum") och det finns resor både ut och hem, tar hon dig direkt till sidan **Resenärer** med en utresa och en hemresa vald, och berättar vilka hon valde och varför. Du kan byta resor på sidan. Frågar hon efter flygplats (Arlanda eller Köpenhamn) svarar du en gång.
+- **Visa sidor åt dig.** Säger du "visa gruvor i Europa" öppnar hon listan med de filtren. Säger du resmål, datum och hur många ni är (till exempel "vi är tre, till Teufelsberg mellan dessa datum") och det finns resor både ut och hem, tar hon dig direkt till sidan **Plan och klass** med en utresa och en hemresa vald, och berättar vilka hon valde och varför. Du kan byta resor på sidan. Frågar hon efter flygplats (Arlanda eller Köpenhamn) svarar du en gång.
 - **Berätta om resorna.** Hon får samma resor och priser som resultatsidan visar, och nämner inga andra. Går ingen resa de dagarna säger hon det och föreslår andra datum.
-- **Välja tillägg och betalsätt.** Hon frågar en gång om du ser något tillägg du gillar, och hur du vill betala, och fyller i dem på sidan. Dryckespaketet väljs aldrig när någon resenär är under 18.
+- **Hjälpa dig välja plan och klass.** På sidan Plan och klass går hon igenom vilka plan som har plats för er och vad en plats i varje klass kostar, och tycker något om dem. Vill du ha hennes förslag säger du det, och hon fyller i plan och antal per klass för båda resorna. Går det inte (planet är för litet eller antalen stämmer inte) säger hon vad som var fel och föreslår något annat. Hon nämner ingen flygtid för planen: en charterresa går när tidtabellen säger. Hon tar dig vidare till **Resenärer** först när plan och klasser är valda för båda resorna.
+- **Välja tillägg och betalsätt.** Hon frågar en gång om du ser något tillägg i klasserna du valt (till exempel måltid) och sätter det åt alla resenärer på båda resorna; vill du ha olika ändrar du på sidan. Öl väljer du alltid själv. Hon frågar också en gång om du ser något av charterns extra tillägg och hur du vill betala, och fyller i dem på sidan. Dryckespaketet väljs aldrig när någon resenär är under 18.
 
 Du styr själv hela tiden. Klickar du på sidan medan hon svarar, eller ändrar datum, filter, resa, tillägg eller betalsätt, utgår hon från det du gjorde, och ändrar sig inget över ditt huvud: har du hunnit ändra något innan hennes svar kommer säger hon det och frågar hur du vill ha det.
 
