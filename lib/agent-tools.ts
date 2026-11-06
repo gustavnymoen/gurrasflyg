@@ -345,7 +345,7 @@ async function flightsOf(input: Record<string, unknown>) {
 }
 
 async function findAirportsTool(input: Record<string, unknown>) {
-  const airports = await findAirports(text(input.q)?.trim() ?? "");
+  const airports = await findAirports((text(input.q) ?? "").trim().slice(0, 50));
   return airports.length > 0 ? airports.map((a) => `- ${a.iata}: ${a.name}, ${a.city}, ${a.country}`).join("\n") : "No airport matches. Try a city or a country.";
 }
 

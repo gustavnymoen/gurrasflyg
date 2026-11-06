@@ -5,7 +5,7 @@ import type { BookingForm } from "@/lib/booking-rules";
 import { bookAction } from "./actions";
 import { BOOKED_KEY, FORM_KEY, store } from "./store";
 
-export const BOOKED_PATH = "/flyg/bokad";
+const BOOKED_PATH = "/flyg/bokad";
 
 // Bokar och går till sammanfattningen. Både Betala och knappen i chatten (TRIP-036-R6) använder den:
 // samma åtgärd, samma kontroller. query är resans adress efter "?". Svarar med felet, eller bokningsnumret när det gick.
