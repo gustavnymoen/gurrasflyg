@@ -17,6 +17,7 @@ export default function AircraftList({
   fleet,
   travellers,
   emptyLink,
+  compareTime,
   onChoose,
 }: {
   headingId: string;
@@ -25,6 +26,7 @@ export default function AircraftList({
   fleet: FleetAircraft[];
   travellers: number;
   emptyLink: { href: string; label: string };
+  compareTime: boolean;
   onChoose: (aircraftId: number) => void;
 }) {
   const options = aircraftOptions(fleet, flight, travellers);
@@ -46,7 +48,12 @@ export default function AircraftList({
       ) : (
         <ul className="flex flex-col gap-3">
           {options.map((option) => (
-            <AircraftCard key={option.aircraft.id} option={option} onChoose={() => onChoose(option.aircraft.id)} />
+            <AircraftCard
+              key={option.aircraft.id}
+              option={option}
+              compareTime={compareTime}
+              onChoose={() => onChoose(option.aircraft.id)}
+            />
           ))}
         </ul>
       )}
@@ -55,7 +62,15 @@ export default function AircraftList({
 }
 
 // Ett plan i listan. Hela kortet är en knapp som fäller ut klasserna och Välj.
-function AircraftCard({ option, onChoose }: { option: AircraftOption; onChoose: () => void }) {
+function AircraftCard({
+  option,
+  compareTime,
+  onChoose,
+}: {
+  option: AircraftOption;
+  compareTime: boolean;
+  onChoose: () => void;
+}) {
   const { aircraft } = option;
 
   return (
@@ -81,7 +96,9 @@ function AircraftCard({ option, onChoose }: { option: AircraftOption; onChoose: 
                 bestLabel="Billigast"
                 diff={`+${formatPrice(option.priceDiff)} / person`}
               />
-              <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
+              {compareTime && (
+                <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
+              )}
             </span>
           </>
         }

@@ -7,7 +7,7 @@ feature: TRIP-011, TRIP-024, TRIP-026, TRIP-012, TRIP-039
 tags: [resenär, plan, klass, pris, flygtid, ankomst]
 generated:
   by: claude
-  at: 2026-11-05T18:00:00+01:00
+  at: 2026-11-06T14:00:00+01:00
 ---
 
 # Välja plan och klass
@@ -27,7 +27,7 @@ Gurras Flyg har allt från luftskepp till stridsflygplan, och du väljer själv.
 - **flygtiden** med just det planet, till exempel "9 h 20 min",
 - **när du landar**, i lokal tid där du landar. "+1" betyder att du landar dagen efter,
 - **priset per person** i planets billigaste klass,
-- **hur det står sig**: det billigaste planet är märkt **Billigast** och det snabbaste **Snabbast**. De andra visar hur mycket dyrare och långsammare de är, till exempel "+4 500 kr / person" och "+3 h 10 min".
+- **hur det står sig**: det billigaste planet är märkt **Billigast** och, när du bokar flyg, det snabbaste **Snabbast**. De andra visar hur mycket dyrare och långsammare de är, till exempel "+4 500 kr / person" och "+3 h 10 min". I charter flyger alla plan på samma tid, så där märks bara det billigaste planet.
 
 Klicka på ett plan för att se dess klasser och antal platser, och tryck **Välj** för att välja det. Du kan välja olika plan för utresan och hemresan. Andra resenärers bokningar spelar ingen roll: varje bokning får ett eget plan.
 

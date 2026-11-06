@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- TRIP-042: **no "Snabbast" in the charter plan step**. `PlanBuilder` has a setting `compareTime` (default true, passed to `LegCard`, `AircraftList` and the cards) and charter sets it to false, since the time factor is ignored there and every aircraft has the departure's own flight time; flights keep "Snabbast". Updated [Aircraft and classes](system/aircraft-and-classes.md) and [Välja plan och klass](manual/valja-plan-och-klass.md).
+
 - TECH-031: **smaller Vercel functions**. `lib/db.ts` uses the web client of libsql for Turso and the regular client only for local `file:` databases, and `outputFileTracingExcludes` removes libsql's native binaries from the function traces (the trace follows every import, so the exclude is what removes them, and the web client is what makes that safe). Local trace: 19 of 24 functions had the binary; none has now, total 589 MB to 447 MB. Updated the architecture page.
 
 ## 2026-11-05

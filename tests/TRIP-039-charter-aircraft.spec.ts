@@ -48,7 +48,7 @@ const tripTotal = (page: Page) =>
 const region = (page: Page, name: string) => page.getByRole("region", { name, exact: true });
 const overview = (page: Page) => region(page, "Din resa");
 
-test("TRIP-039-R1 R2 R3 the plan step: only aircraft with room, the departure's own flight time whatever the time factor, prices from both factors, and the choices in the address", async ({
+test("TRIP-039-R1 R2 R3 TRIP-042-R1 the plan step: only aircraft with room, the departure's own flight time whatever the time factor, prices from both factors, and the choices in the address", async ({
   page,
   fleet,
 }) => {
@@ -68,6 +68,9 @@ test("TRIP-039-R1 R2 R3 the plan step: only aircraft with room, the departure's 
   expect(await cardMinutes(snabb)).toBe(100);
   await expect(stor).toContainText(FLIGHT_TIME);
   await expect(snabb).toContainText(FLIGHT_TIME);
+  // TRIP-042-R1: every card has the same time, so none is "Snabbast"; "Billigast" stays
+  await expect(aircraftCards(page, "utresan").filter({ hasText: "Snabbast" })).toHaveCount(0);
+  await expect(stor).toContainText("Billigast");
   // R3: the departure's price with the aircraft's factor in the cheapest class: 1 190 × 1,00 and 1 190 × 3,00
   expect(await cardPrice(stor)).toBe(1190);
   expect(await cardPrice(snabb)).toBe(3570);

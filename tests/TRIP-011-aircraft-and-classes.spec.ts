@@ -64,7 +64,7 @@ test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 
   // That an aircraft without room is not shown is TRIP-026-R1
-  test("TRIP-011-R2 R9 each aircraft shows its price, time, arrival and how it compares, and the från price in the results is the cheapest with room for everyone", async ({
+  test("TRIP-011-R2 R9 TRIP-042-R1 each aircraft shows its price, time, arrival and how it compares, and the från price in the results is the cheapest with room for everyone", async ({
     page,
     fleet,
   }) => {
@@ -80,7 +80,7 @@ test.describe("with the tests' own aircraft", () => {
     expect(await cardMinutes(aircraftCard(page, "utresan", fleet.fast))).toBe(Math.round(route * 0.3));
     expect(await cardPrice(aircraftCard(page, "utresan", fleet.fast))).toBe(Math.round((await cardPrice(large)) * 3));
 
-    // Every aircraft is compared with the cheapest and the fastest of them
+    // Every aircraft is compared with the cheapest and the fastest of them (TRIP-042-R1: flights keep "Snabbast", charter doesn't)
     const shown = [];
     for (const card of await aircraftCards(page, "utresan").all()) shown.push({ card, price: await cardPrice(card), time: await cardMinutes(card) });
     const cheapest = Math.min(...shown.map((s) => s.price));

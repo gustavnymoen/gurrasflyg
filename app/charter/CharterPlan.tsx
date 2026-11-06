@@ -48,6 +48,7 @@ export default function CharterPlan({
       flights={[outbound, home].map(toPlanFlight)}
       fleet={fleet}
       travellers={search.travellers}
+      compareTime={false}
       urlFor={(next) => `${CHARTER_PATH}/${id}/plan?${charterParams(search, { ...choice, plans: next })}`}
       emptyLink={{ href: `${CHARTER_PATH}/${id}`, label: "Ändra antal resenärer" }}
       nextHref={travellersUrl(id, search, current)}
