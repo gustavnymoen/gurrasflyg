@@ -7,7 +7,7 @@ title: Stabilise the flaky browser tests
 
 **Result:** Passed
 **Date:** 2026-11-06, review run 1
-**Summary:** The change fixes the three flaky tests at their likely cause and meets R1 to R5: `hydrated()` replaces the repeated key press, `expectNoA11yViolations` waits for all finite animations and transitions, and the rule is in `testing.md`. No must-fix findings.
+**Summary:** The change fixes the three flaky tests at their likely cause and meets R1 to R5: the tests wait for the page to hydrate instead of pressing a key again and again, the axe helper waits for every finite animation and transition, and the rule is in `testing.md`. No must-fix findings.
 **Security:** Passed. Only tests, helpers and wiki changed; `/security-review` not needed.
 
 How the review works: `wiki/system/code-review.md`. The reviewer read the diff and code only and ran no tests.
