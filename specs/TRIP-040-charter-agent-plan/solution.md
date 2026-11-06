@@ -37,3 +37,4 @@ No new page. Agneta's tools, the page text and the actions know the plan step `/
 - **Beer is not set by her.** The age rule needs the travellers' ages, which she never sees (TRIP-030-R7); the tool refuses it and the visitor chooses beer in the form.
 - **Add-ons per traveller, on both trips.** One answer from the visitor ("two meals") becomes the same count for everybody where it exists; anything finer is done on the page.
 - **Known bug on the plan step, not here.** Every card shows "Snabbast" because the flight times are equal: card TRIP-042.
+- **Since TRIP-036 (flights).** The tools above now work on both kinds of booking: `chosenPage()` returns a `Booking` built by `charterBooking()` or `flightBooking()` (`lib/agent-tools.ts`), and `summarise` counts the seats with `seatsTotal()` (`lib/booking-rules.ts`), which `charterTotal()` uses too. The text above describes charter's part as it was built; see `specs/TRIP-036-flight-agent/solution.md`.
