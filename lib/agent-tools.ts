@@ -16,6 +16,7 @@ import {
   planText,
   planUrl,
   resultsUrl,
+  paymentUrl,
   travellersUrl,
 } from "./charter-rules";
 import { MAX_MONTHS_AHEAD, MAX_TRIP_MONTHS } from "./dates";
@@ -145,6 +146,12 @@ export const TOOLS: Anthropic.Tool[] = [
     name: "show_travellers",
     description:
       "Open the Resenärer page for the page the visitor is on, with the chosen trips, aircraft and classes. Refused until aircraft and classes are set for both trips. The visitor fills in names, ages and contact details there; you cannot and must not.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "show_payment",
+    description:
+      "Open the payment page, where the visitor chooses how to pay and checks the booking, with the chosen trips, aircraft and classes. Refused until the traveller form is valid; the visitor fills it in on Resenärer.",
     input_schema: { type: "object", properties: {} },
   },
   {
@@ -356,6 +363,13 @@ async function showTravellers(state: AgentState) {
   return `Opened the Resenärer page.\n${tripText(data)}`;
 }
 
+async function showPayment(state: AgentState) {
+  const { data } = await readyPage(state);
+  if (!state.valid) throw new ToolError("The traveller form is not valid yet. Tell the visitor to fill it in on the Resenärer page.");
+  go(state, paymentUrl(data.destination.id, data.search, data.choice));
+  return `Opened the payment page.\n${tripText(data)}`;
+}
+
 function setExtras(input: Record<string, unknown>, state: AgentState) {
   const codes = strings(input.extras);
   const unknown = codes.filter((code) => !extraByCode(code));
@@ -419,6 +433,8 @@ export async function runTool(name: string, input: unknown, state: AgentState): 
       return setAddons(args, state);
     case "show_travellers":
       return showTravellers(state);
+    case "show_payment":
+      return showPayment(state);
     case "set_extras":
       return setExtras(args, state);
     case "set_payment":

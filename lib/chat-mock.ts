@@ -107,8 +107,11 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
   if (question.includes("KLASSTILLAGG") && steps === 0) return answer([call("set_addons", { addons: [{ name: question.match(/namn=(.+?)(?: antal=|$)/)?.[1] ?? "", count: Number(arg("antal") || 1) }] })], "tool_use");
   if (question.includes("RESULTAT") && steps === 0) return answer([call("show_results", { ...trip, outbound_trip: arg("utresa") || undefined })], "tool_use");
   if (question.includes("TILLAGG") && steps === 0) {
-    return answer([call("set_extras", { extras: [arg("tillagg") || "ultimate"] }, "a"), call("set_payment", { payment: "cash" }, "b")], "tool_use");
+    return answer([call("set_extras", { extras: [arg("tillagg") || "ultimate"] })], "tool_use");
   }
+  // Från Resenärer till betalsidan (TRIP-038-R1), där betalsättet sätts
+  if (question.includes("BETALSIDAN") && steps === 0) return answer([call("show_payment", {})], "tool_use");
+  if (question.includes("BETALSATT") && steps === 0) return answer([call("set_payment", { payment: "cash" })], "tool_use");
   if (question.includes("BOKA")) return say("Du är klar. Det blir 12 000 kr. Tryck på knappen, om du måste.\n[[BOOK]]");
   return say(steps > 0 ? `Det blev så här: ${last.split("\n")[0]}` : `Svar från Agneta på: ${question}`);
 }
