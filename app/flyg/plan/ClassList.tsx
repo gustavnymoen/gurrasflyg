@@ -1,57 +1,44 @@
-import { canAdd, classOptions, type FleetAircraft, legTotal, placed, type PlanFlight, type Seating, seatingCounter, seatingProblem } from "@/lib/fare-rules";
+import { useId } from "react";
+import { canAdd, classOptions, type FleetAircraft, legTotal, placed, type PlanFlight, type Seating, seatingCounter, seatingLeft } from "@/lib/fare-rules";
 import { formatPrice } from "@/lib/format";
 import Button from "../../components/Button";
 import { CheckIcon } from "../../components/icons";
-import Message from "../../components/Message";
 import RoundButton from "../../components/RoundButton";
 import Comparison from "./Comparison";
 
-// Klasserna på det valda planet för ett flyg (R3): pris per person, skillnaden
-// mot den billigaste klassen och hur många resenärer som sitter i varje.
-// Priset för flyget räknas om direkt när ett antal ändras (R4) och är summan
-// för de resenärer som har en klass hittills (TRIP-024-R3). En räknare säger
-// hur många som är kvar att placera, och Klar fäller ihop kortet; saknar
-// någon en klass står det i stället vad som saknas (TRIP-026-R3).
+// Klasserna på ett plan i dess öppna rad (R3, TRIP-043-R5): pris per person, antalet
+// platser, skillnaden mot den billigaste klassen och hur många resenärer som sitter i
+// varje. Priset för flyget räknas om direkt när ett antal ändras (R4) och är summan för
+// de resenärer som har en klass hittills (TRIP-024-R3). Räknaren säger hur många som är
+// placerade (TRIP-043-R9). Fortsätt tänds när alla har en klass; innan dess står det
+// hur många som är kvar (TRIP-043-R7).
 export default function ClassList({
-  headingId,
-  title,
-  totalLabel,
+  of,
   flight,
   aircraft,
   travellers,
   seating,
-  tried,
   onChange,
-  onDone,
+  onContinue,
 }: {
-  headingId: string;
-  title: string;
-  totalLabel: string;
+  of: string;
   flight: PlanFlight;
   aircraft: FleetAircraft;
   travellers: number;
   seating: Seating;
-  tried: boolean;
-  onChange: (seating: Seating) => void;
-  onDone: () => void;
+  onChange: (classId: number, by: number) => void;
+  onContinue: () => void;
 }) {
-  const problem = tried ? seatingProblem(seating, travellers) : null;
-  const everyone = placed(seating) === travellers;
-  const change = (classId: number, by: number) =>
-    onChange({ ...seating, [classId]: (seating[classId] ?? 0) + by });
+  const left = seatingLeft(seating, travellers);
+  const leftId = useId();
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 id={headingId} tabIndex={-1} className="text-lg font-bold outline-none">
-          {title}
-        </h3>
-        {/* Skärmläsare hör när antalet kvar ändras */}
-        <p aria-live="polite" className={`flex items-center gap-1.5 text-small font-medium ${everyone ? "text-success" : ""}`}>
-          {everyone && <CheckIcon />}
-          {seatingCounter(seating, travellers)}
-        </p>
-      </div>
+    <section aria-label={`Klasser på ${of}`} className="flex flex-col gap-4">
+      {/* Skärmläsare hör när antalet placerade ändras */}
+      <p aria-live="polite" className={`flex items-center gap-1.5 text-small font-medium ${left ? "" : "text-success"}`}>
+        {!left && <CheckIcon />}
+        {seatingCounter(seating, travellers)}
+      </p>
       <ul className="flex flex-col divide-y divide-line">
         {classOptions(aircraft, flight.price).map(({ cabinClass, price, priceDiff }) => {
           const count = seating[cabinClass.id] ?? 0;
@@ -74,7 +61,7 @@ export default function ClassList({
                 <RoundButton
                   label={`Färre i ${cabinClass.name}`}
                   disabled={count === 0}
-                  onClick={() => change(cabinClass.id, -1)}
+                  onClick={() => onChange(cabinClass.id, -1)}
                 >
                   −
                 </RoundButton>
@@ -86,7 +73,7 @@ export default function ClassList({
                 <RoundButton
                   label={`Fler i ${cabinClass.name}`}
                   disabled={!canAdd(cabinClass, seating, travellers)}
-                  onClick={() => change(cabinClass.id, 1)}
+                  onClick={() => onChange(cabinClass.id, 1)}
                 >
                   +
                 </RoundButton>
@@ -96,13 +83,19 @@ export default function ClassList({
         })}
       </ul>
       <p className="flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-4">
-        <span className="text-ink-muted">{totalLabel}</span>
+        <span className="text-ink-muted">Totalt för {of}</span>
         <span className="text-lg font-bold">{formatPrice(legTotal(aircraft, flight.price, seating))}</span>
       </p>
-      {problem && <Message kind="error">{problem}</Message>}
-      <Button onClick={onDone} className="self-start">
-        Klar
-      </Button>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Button onClick={onContinue} disabled={placed(seating) !== travellers} aria-describedby={left ? leftId : undefined}>
+          Fortsätt
+        </Button>
+        {left && (
+          <p id={leftId} className="text-small text-ink-muted">
+            {left}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

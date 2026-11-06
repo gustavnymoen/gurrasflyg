@@ -9,8 +9,9 @@ test.use({ reducedMotion: "no-preference" });
 
 const roundTrip = `/flyg?fran=ARN&till=LHR&utresa=${daysFromToday(1)}&hemresa=${daysFromToday(7)}&resenarer=1`;
 
-const cards = (page: Page) => page.getByRole("listitem").filter({ has: page.getByRole("button", { name: /^\d\d:\d\d / }) });
-const firstButton = (page: Page) => page.getByRole("button", { name: /^\d\d:\d\d / }).first();
+const chooseButton = (page: Page) => page.getByRole("button", { name: /^Välj .* kl \d\d:\d\d$/ });
+const cards = (page: Page) => page.getByRole("listitem").filter({ has: chooseButton(page) });
+const firstButton = (page: Page) => chooseButton(page).first();
 
 // The animation of each card as the style gives it: its name and when it starts.
 // Read from the style, not from the running animations, since a finished
@@ -42,7 +43,6 @@ test("TRIP-025-R1 the cards of the outbound and the return list fill in one afte
   await expectFillIn(page);
 
   await firstButton(page).click();
-  await page.getByRole("button", { name: "Välj" }).click();
   await expect(page.getByRole("heading", { level: 2, name: /^Hemresa/ })).toBeVisible();
   await expectFillIn(page);
 });
@@ -50,8 +50,6 @@ test("TRIP-025-R1 the cards of the outbound and the return list fill in one afte
 test("TRIP-025-R2 a card can be chosen with the keyboard while the cards fill in", async ({ page }) => {
   await openResults(page, roundTrip);
   await firstButton(page).focus();
-  await page.keyboard.press("Enter");
-  await page.getByRole("button", { name: "Välj" }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { level: 2, name: /^Hemresa/ })).toBeVisible();
 });

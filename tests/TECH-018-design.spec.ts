@@ -23,11 +23,13 @@ import {
   layer,
   LINE,
   LINE_STRONG,
+  openResults,
   requireAdminPassword,
   runsLocally,
   signIn,
 } from "./helpers";
 import { removeSeed, seedFlightBooking } from "./my-booking-data";
+import { openPlan, place, searchUrl, test as fleetTest } from "./plan";
 
 // De designfunktionernas tester (TRIP-008, TRIP-020, TRIP-022, TRIP-023), ihopslagna per
 // sida och tillstånd så att varje sida laddas så få gånger som möjligt (TECH-018).
@@ -591,6 +593,48 @@ test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a
   const alert = page.getByRole("alert").filter({ hasText: NO_FLIGHTS });
   await expectTextMessage(alert, DANGER);
   expect(contrast(DANGER, await backgroundOf(alert))).toBeGreaterThanOrEqual(4.5);
+});
+
+test("TRIP-043-R1 R2 the departure rows: Välj and the unfold button are big enough to tap, and nothing scrolls sideways at 320 px, also with a row unfolded", async ({
+  page,
+}) => {
+  // A departure row: Välj is a compact button and the chevron a round target of its own
+  await openResults(page, searchUrl(2, false));
+  const choose = page.getByRole("button", { name: /^Välj .* kl \d\d:\d\d$/ }).first();
+  const more = page.getByRole("button", { name: /^Visa mer om / }).first();
+  expect((await choose.boundingBox())!.height).toBeGreaterThanOrEqual(34);
+  const target = (await more.boundingBox())!;
+  expect(Math.min(target.width, target.height)).toBeGreaterThanOrEqual(24);
+  await page.setViewportSize({ width: 320, height: 640 });
+  expect(await scrollsSideways(page)).toBe(false);
+  await more.click();
+  expect(await scrollsSideways(page)).toBe(false);
+});
+
+fleetTest.describe("with the tests' own aircraft", () => {
+  fleetTest.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
+
+  fleetTest("TRIP-043-R4 R5 R7 the aircraft rows: the open row has the accent ring, Fortsätt is faded until everyone has a class, and nothing scrolls sideways at 320 px", async ({
+    page,
+    fleet,
+  }) => {
+    await openPlan(page, 2);
+    const row = page.getByRole("region", { name: "Plan för utresan" }).getByRole("listitem").filter({ hasText: fleet.large });
+    await expect(row).toHaveCSS("border-top-color", LINE_STRONG);
+    await row.getByRole("button", { name: /^Välj / }).click();
+    await expect(row).toHaveCSS("border-top-color", ACCENT_STRONG);
+    const next = row.getByRole("button", { name: "Fortsätt" });
+    await expect(next).toBeDisabled();
+    await expect(next).toHaveCSS("opacity", "0.45");
+    const wide = page.viewportSize()!;
+    await page.setViewportSize({ width: 320, height: 640 });
+    expect(await scrollsSideways(page)).toBe(false);
+    await page.setViewportSize(wide);
+    await place(page, "utresan", fleet.base, 2);
+    await expect(next).toBeEnabled();
+    await expect(next).toHaveCSS("opacity", "1");
+    await expectNoA11yViolations(page);
+  });
 });
 
 test.describe("on a phone", () => {

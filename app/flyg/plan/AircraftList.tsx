@@ -1,39 +1,52 @@
 import Link from "next/link";
-import { type AircraftOption, aircraftOptions, type FleetAircraft, type PlanFlight } from "@/lib/fare-rules";
+import { type AircraftOption, aircraftOptions, type FleetAircraft, firstSeating, type PlanFlight, type Seating, totalSeats } from "@/lib/fare-rules";
 import { formatDuration, formatPrice, travellersText } from "@/lib/format";
-import { buttonClass } from "../../components/Button";
-import ChoiceCard from "../../components/ChoiceCard";
-import { FlightTime } from "./FlightTime";
+import Button, { buttonClass } from "../../components/Button";
+import ClassList from "./ClassList";
 import Comparison from "./Comparison";
+import { FlightTime } from "./FlightTime";
 
-// Planen att välja bland för ett flyg (R2): pris per person i billigaste
-// klassen, flygtid och ankomst (R7), och skillnaden mot det billigaste och det
-// snabbaste. Bara planen med plats för alla visas (TRIP-026-R1). Ett plan
-// öppnas med ett klick och väljs med Välj, som ett flyg på /flyg (TRIP-026-R2).
+// Planen att välja bland för ett flyg (R2, TRIP-043-R4): en rad per plan med pris per
+// person i billigaste klassen, flygtid och ankomst (R7) och skillnaden mot det billigaste
+// och det snabbaste. Bara planen med plats för alla visas (TRIP-026-R1). Välj öppnar
+// radens klasser; bara en rad är öppen i taget (TRIP-043-R5). seating är antalen på
+// planet som har resenärer (holder), de andra planen har inga (TRIP-043-R6).
 export default function AircraftList({
   headingId,
   title,
+  of,
   flight,
   fleet,
   travellers,
+  open,
+  holder,
+  seating,
   emptyLink,
   compareTime,
-  onChoose,
+  onOpen,
+  onChange,
+  onContinue,
 }: {
   headingId: string;
   title: string;
+  of: string;
   flight: PlanFlight;
   fleet: FleetAircraft[];
   travellers: number;
+  open: number | null;
+  holder: number | null;
+  seating: Seating;
   emptyLink: { href: string; label: string };
   compareTime: boolean;
-  onChoose: (aircraftId: number) => void;
+  onOpen: (aircraftId: number) => void;
+  onChange: (aircraft: FleetAircraft, classId: number, by: number) => void;
+  onContinue: () => void;
 }) {
   const options = aircraftOptions(fleet, flight, travellers);
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <h3 id={headingId} tabIndex={-1} className="text-lg font-bold outline-none">
+      <h3 id={headingId} className="text-lg font-bold">
         {title}
       </h3>
       {options.length === 0 ? (
@@ -47,70 +60,90 @@ export default function AircraftList({
         </div>
       ) : (
         <ul className="flex flex-col gap-3">
-          {options.map((option) => (
-            <AircraftCard
-              key={option.aircraft.id}
-              option={option}
-              compareTime={compareTime}
-              onChoose={() => onChoose(option.aircraft.id)}
-            />
-          ))}
+          {options.map((option) => {
+            const isOpen = option.aircraft.id === open;
+            // Ett plan utan resenärer visar noll i varje klass
+            const rowSeating = option.aircraft.id === holder ? seating : firstSeating(option.aircraft);
+            return (
+              <AircraftRow
+                key={option.aircraft.id}
+                option={option}
+                compareTime={compareTime}
+                open={isOpen}
+                onOpen={() => onOpen(option.aircraft.id)}
+              >
+                <ClassList
+                  of={of}
+                  flight={flight}
+                  aircraft={option.aircraft}
+                  travellers={travellers}
+                  seating={rowSeating}
+                  onChange={(classId, by) => onChange(option.aircraft, classId, by)}
+                  onContinue={onContinue}
+                />
+              </AircraftRow>
+            );
+          })}
         </ul>
       )}
     </section>
   );
 }
 
-// Ett plan i listan. Hela kortet är en knapp som fäller ut klasserna och Välj.
-function AircraftCard({
+// Ett plan i listan. Välj öppnar raden, som då visar planets klasser (TRIP-043-R5).
+function AircraftRow({
   option,
   compareTime,
-  onChoose,
+  open,
+  onOpen,
+  children,
 }: {
   option: AircraftOption;
   compareTime: boolean;
-  onChoose: () => void;
+  open: boolean;
+  onOpen: () => void;
+  children: React.ReactNode;
 }) {
   const { aircraft } = option;
 
   return (
-    <li className="rounded-card-compact border border-line-strong">
-      <ChoiceCard
-        onChoose={onChoose}
-        summaryClassName="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-1 sm:grid-cols-[1fr_auto_auto]"
-        chevronClassName="col-start-2 row-start-1 mt-1 sm:col-start-3"
-        summary={
-          <>
-            <span className="col-start-1 row-start-1 min-w-0">
-              <span className="block font-bold">{aircraft.name}</span>
-              <span className="block text-small text-ink-muted">
-                <FlightTime minutes={option.minutes} arrival={option.arrival} />
-              </span>
-            </span>
-            <span className="col-start-1 row-start-2 flex flex-col gap-1 text-small sm:col-start-2 sm:row-start-1 sm:items-end sm:text-right">
-              <span>
-                <span className="text-base font-bold">{formatPrice(option.price)}</span> / person
-              </span>
-              <Comparison
-                best={option.cheapest}
-                bestLabel="Billigast"
-                diff={`+${formatPrice(option.priceDiff)} / person`}
-              />
-              {compareTime && (
-                <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
-              )}
-            </span>
-          </>
-        }
-      >
-        <ul className="flex flex-col gap-1 text-sm">
-          {aircraft.classes.map((c) => (
-            <li key={c.id}>
-              {c.name}: {c.capacity} {c.capacity === 1 ? "plats" : "platser"}
-            </li>
-          ))}
-        </ul>
-      </ChoiceCard>
+    <li className={`rounded-card-compact border ${open ? "border-accent-strong ring-2 ring-accent-strong" : "border-line-strong"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-3 px-5 py-4">
+        <div className="min-w-0 flex-1 basis-56">
+          <p className="font-bold">{aircraft.name}</p>
+          <p className="text-small text-ink-muted">
+            <FlightTime minutes={option.minutes} arrival={option.arrival} />
+          </p>
+          <p className="text-small text-ink-muted">{totalSeats(aircraft)} platser</p>
+        </div>
+        <div className="flex flex-col gap-1 text-small sm:items-end sm:text-right">
+          <p>
+            <span className="text-base font-bold">{formatPrice(option.price)}</span> / person
+          </p>
+          <Comparison
+            best={option.cheapest}
+            bestLabel="Billigast"
+            diff={`+${formatPrice(option.priceDiff)} / person`}
+          />
+          {compareTime && (
+            <Comparison best={option.fastest} bestLabel="Snabbast" diff={`+${formatDuration(option.timeDiff)}`} />
+          )}
+        </div>
+        <Button
+          variant={open ? "primary" : "secondary"}
+          size="compact"
+          aria-pressed={open}
+          aria-label={`Välj ${aircraft.name}`}
+          onClick={onOpen}
+        >
+          Välj
+        </Button>
+      </div>
+      {open && (
+        <div className="border-t border-line px-5 py-4">
+          {children}
+        </div>
+      )}
     </li>
   );
 }

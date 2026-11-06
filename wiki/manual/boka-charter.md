@@ -7,7 +7,7 @@ feature: TRIP-014, TRIP-039
 tags: [resenär, charter, bokning, plan, klass, tillägg, betalning, bokningsnummer]
 generated:
   by: claude
-  at: 2026-11-05T18:00:00+01:00
+  at: 2026-11-06T16:00:00+01:00
 ---
 
 # Boka en charterresa
@@ -27,7 +27,7 @@ Sökningen står i webbadressen, så du kan ladda om sidan eller skicka länken.
 
 ## Välja resor (steget Resa)
 
-Först väljer du **utresa**. Varje resa visar när den går och landar (med **+1** om du landar nästa dag; tiden är lokal tid där du landar), flygbolag och flygnummer, restiden, om den är **Direkt** eller har byten ("1 byte i Frankfurt") och priset per person. Du kan sortera på **Avgångstid** eller **Pris**; är priset lika kommer den tidigaste först. Tryck **Välj** på resan du vill ha.
+Först väljer du **utresa**. Varje resa visar när den går och landar (med **+1** om du landar nästa dag; tiden är lokal tid där du landar), restiden och priset per person. Pilen längst till höger fäller ut resten: flygbolag, flygnummer, om resan är **Direkt** eller har byten ("1 byte i Frankfurt") och datumet. Du kan sortera på **Avgångstid** eller **Pris**; är priset lika kommer den tidigaste först. Tryck **Välj** på resan du vill ha; du behöver inte fälla ut något först.
 
 Då öppnas listan med **hemresor**. Där finns bara resor som går efter att din utresa har landat. Välj en hemresa på samma sätt.
 
@@ -39,7 +39,7 @@ Byter du utresa och hemresan inte längre passar tas den bort, och du väljer en
 
 Steget **Plan och klass** är samma som när du bokar flyg, se [Välja plan och klass](valja-plan-och-klass.md): du väljer ett plan för utresan och ett för hemresan, och hur många resenärer som sitter i varje klass. Alla plan går på alla resor, så det är bara antalet platser som avgör vilka som visas. Skillnaden mot flygbokningen är att **flygtiden och ankomsten alltid är resans egna**, vilket plan du än väljer.
 
-Priset per person är resans pris gånger planets och klassens prisfaktor. Överst står **Din resa** med planet och antalet i varje klass, och längst ned **Totalt för resan**. Har inget plan plats för så många resenärer står det "Inget plan har plats för N resenärer."; tryck då **Ändra antal resenärer** och sök för färre. Tryck **Klar** på varje resa och sedan **Fortsätt**.
+Priset per person är resans pris gånger planets och klassens prisfaktor. Överst står **Din resa** med planet och antalet i varje klass, och längst ned **Totalt för resan**. Har inget plan plats för så många resenärer står det "Inget plan har plats för N resenärer."; tryck då **Ändra antal resenärer** och sök för färre. Tryck **Fortsätt** när alla resenärer har en klass: på utresan visas hemresan, och på hemresan kommer du vidare till resenärerna.
 
 Kommer du till Resenärer eller Betala utan plan och klasser, till exempel med en gammal länk, hamnar du här. Resorna finns kvar, men planen väljer du själv.
 

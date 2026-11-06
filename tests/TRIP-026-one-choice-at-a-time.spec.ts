@@ -3,16 +3,14 @@ import { expectNoA11yViolations } from "./helpers";
 import {
   aircraftCard,
   aircraftList,
-  alert,
   chooseAircraft,
-  chosenAircraft,
   classList,
   classRow,
+  continueButton,
   count,
   counter,
   done,
   folded,
-  legCard,
   openPlan,
   place,
   test,
@@ -26,7 +24,7 @@ import {
 
 const heading = (page: Page, name: string) => page.getByRole("heading", { name, exact: true });
 
-// Chooses the aircraft, puts every traveller in the cheapest class and presses Klar
+// Chooses the aircraft, puts every traveller in the cheapest class and presses Fortsätt
 async function finish(page: Page, leg: "utresan" | "hemresan", aircraft: string, base: string, travellers: number) {
   await chooseAircraft(page, leg, aircraft);
   await place(page, leg, base, travellers);
@@ -46,7 +44,7 @@ test.describe("with the tests' own aircraft", () => {
     await expect(page.getByText(/För få platser|Inget plan har plats/)).toHaveCount(0);
   });
 
-  test("TRIP-026-R2 R3 one card per flight: Välj puts the aircraft at the top and its classes below, the counter counts down, Klar says who is missing or folds the card", async ({
+  test("TRIP-026-R2 R3 one card per flight, changed by TRIP-043: Välj opens the aircraft's classes in its row, the counter counts up, Fortsätt waits for everyone and folds the card", async ({
     page,
     fleet,
   }) => {
@@ -55,61 +53,37 @@ test.describe("with the tests' own aircraft", () => {
     await expect(heading(page, "Utresa")).toBeVisible();
     await expect(heading(page, "Hemresa")).toHaveCount(0);
 
-    // Opening an aircraft chooses nothing
+    // Opening an aircraft chooses nothing; the classes are in its row
     const card = aircraftCard(page, "utresan", fleet.fast);
-    const open = card.getByRole("button", { name: new RegExp(fleet.fast) });
-    await open.focus();
+    const choose = card.getByRole("button", { name: "Välj" });
+    await choose.focus();
     await page.keyboard.press("Enter");
-    await expect(open).toHaveAttribute("aria-expanded", "true");
-    await expect(card).toContainText(`${fleet.base}: 3 platser`);
-    await expect(classList(page, "utresan")).toHaveCount(0);
+    await expect(choose).toHaveAttribute("aria-pressed", "true");
+    await expect(card.getByRole("region", { name: "Klasser på utresan" })).toBeVisible();
+    await expect(card).toContainText(`${fleet.base}`);
     await expect(page).not.toHaveURL(/ut-plan=/);
     await expectNoA11yViolations(page);
 
-    // Välj with the keyboard: Tab from the card to Välj, then Enter
-    const fastTime = (await card.getByText(/landar/).textContent()) ?? "";
-    await page.keyboard.press("Tab");
-    await expect(card.getByRole("button", { name: "Välj" })).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expect(heading(page, "Klasser på utresan")).toBeFocused();
-    await expect(page).toHaveURL(/ut-plan=/);
-
-    // The summary at the top of the card: name, time, arrival and price, no comparison
-    const chosen = chosenAircraft(page, "utresan");
-    await expect(chosen).toContainText(fleet.fast);
-    await expect(chosen).toContainText(fastTime);
-    await expect(chosen).toContainText(/\d\skr \/ person/);
-    await expect(chosen).not.toContainText(/Billigast|Snabbast/);
-    await expect(aircraftList(page, "utresan")).toHaveCount(0);
-    await expect(legCard(page, "utresan").getByRole("region", { name: "Klasser på utresan" })).toBeVisible();
-    await expectNoA11yViolations(page);
-
-    // R3: the counter counts down
-    await expect(counter(page, "utresan")).toHaveText("Placera ut 3 resenärer");
+    // R3: the counter counts up
+    await expect(counter(page, "utresan")).toHaveText("0 av 3 placerade");
     await expect(counter(page, "utresan")).toHaveAttribute("aria-live", "polite");
-    await expect(alert(page)).toHaveCount(0);
 
-    // Klar with one of three placed
+    // Fortsätt with one of three placed is disabled and says who is missing
     await place(page, "utresan", fleet.base, 1);
-    await expect(counter(page, "utresan")).toHaveText("Placera ut 2 resenärer");
-    const klar = classList(page, "utresan").getByRole("button", { name: "Klar" });
-    await klar.focus();
-    await page.keyboard.press("Enter");
-    await expect(alert(page)).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
-    await expect(klar).toBeFocused();
+    await expect(counter(page, "utresan")).toHaveText("1 av 3 placerade");
+    await expect(continueButton(page, "utresan")).toBeDisabled();
+    await expect(classList(page, "utresan")).toContainText("Placera ut 2 resenärer till");
     await expect(heading(page, "Hemresa")).toHaveCount(0);
-    await expectNoA11yViolations(page);
 
     await place(page, "utresan", fleet.base, 1);
-    await expect(counter(page, "utresan")).toHaveText("Placera ut 1 resenär");
+    await expect(counter(page, "utresan")).toHaveText("2 av 3 placerade");
     await place(page, "utresan", fleet.luxury, 1);
-    await expect(counter(page, "utresan")).toHaveText("Alla resenärer har en klass");
+    await expect(counter(page, "utresan")).toHaveText("3 av 3 placerade");
     await expect(counter(page, "utresan").locator("svg")).toBeVisible();
-    await expect(alert(page)).toHaveCount(0);
     const total = (await classList(page, "utresan").getByText(/^\d[\d\s]*\skr$/).textContent()) ?? "";
 
-    // Klar with everyone placed: the card folds and the return card opens
-    await klar.focus();
+    // Fortsätt with everyone placed: the card folds and the return card opens
+    await continueButton(page, "utresan").focus();
     await page.keyboard.press("Enter");
     await expect(heading(page, "Hemresa")).toBeFocused();
     await expect(aircraftList(page, "hemresan")).toBeVisible();
@@ -132,47 +106,40 @@ test.describe("with the tests' own aircraft", () => {
     await expect(folded(page, "utresan")).toContainText(fleet.large);
     await expect(aircraftList(page, "hemresan")).toBeVisible();
 
-    // With an aircraft chosen, the card opens with it and the classes
+    // With an aircraft chosen, the card opens with its row open
     await chooseAircraft(page, "hemresan", fleet.fast);
     await place(page, "hemresan", fleet.base, 1);
     await page.reload();
     await expect(folded(page, "utresan")).toBeVisible();
-    await expect(chosenAircraft(page, "hemresan")).toContainText(fleet.fast);
     await expect(count(classRow(page, "hemresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
 
+    // R4: the last Fortsätt goes on to Resenärer; going back, both cards are folded
     await place(page, "hemresan", fleet.base, 1);
     await done(page, "hemresan");
+    await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
+    await page.goBack();
+    await page.reload();
+    await expect(folded(page, "utresan")).toBeVisible();
     await expect(folded(page, "hemresan")).toBeVisible();
-    // R4: both folded, focus on the last one's summary
-    await expect(folded(page, "hemresan")).toBeFocused();
-    await expectNoA11yViolations(page);
     const returnSummary = (await folded(page, "hemresan").textContent()) ?? "";
 
-    // Opening the outbound card with the keyboard shows its classes
+    // Opening the outbound card with the keyboard shows its row with the classes
     await folded(page, "utresan").focus();
     await page.keyboard.press("Enter");
-    await expect(heading(page, "Klasser på utresan")).toBeFocused();
+    await expect(heading(page, "Utresa")).toBeFocused();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`2 i ${fleet.base}`);
     await expect(folded(page, "hemresan")).toHaveText(returnSummary);
 
-    // The same aircraft again keeps the classes
-    await chosenAircraft(page, "utresan").click();
-    await expect(heading(page, "Plan för utresan")).toBeFocused();
-    await chooseAircraft(page, "utresan", fleet.large);
-    await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`2 i ${fleet.base}`);
-
-    // Another aircraft starts its classes from 0; the return card is unchanged
-    await chosenAircraft(page, "utresan").click();
+    // Another aircraft starts its classes from 0 once someone is placed there; the return card is unchanged
     await chooseAircraft(page, "utresan", fleet.fast);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
-    await expect(counter(page, "utresan")).toHaveText("Placera ut 2 resenärer");
+    await expect(counter(page, "utresan")).toHaveText("0 av 2 placerade");
     await expect(folded(page, "hemresan")).toHaveText(returnSummary);
 
-    // Klar folds it again
+    // Fortsätt folds it again; the return card is already folded, so it goes on
     await place(page, "utresan", fleet.base, 2);
     await done(page, "utresan");
-    await expect(folded(page, "utresan")).toContainText(fleet.fast);
-    await expect(folded(page, "utresan")).toBeFocused();
+    await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
   });
 });
 

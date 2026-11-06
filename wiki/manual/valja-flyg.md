@@ -7,7 +7,7 @@ feature: TRIP-010
 tags: [resenär, sökresultat, flyg, pris, utresa, hemresa]
 generated:
   by: claude
-  at: 2026-10-26T10:34:11+01:00
+  at: 2026-11-06T16:00:00+01:00
 ---
 
 # Välja flyg
@@ -28,7 +28,7 @@ Varje flyg är ett kort med avgångstiden (lokal tid där planet lyfter), flygpl
 
 Flygtiden och ankomsttiden står inte här. De beror på vilket plan du väljer, och Gurras Flyg har allt från luftskepp till stridsflygplan.
 
-Klicka på ett kort (eller tryck **Enter** eller **mellanslag** när det har fokus) för att se mer: flygnumret, flygplatsernas hela namn och länder, datumet och vad det kostar för alla resenärer. Klicka igen för att fälla ihop kortet.
+Varje flyg har en knapp **Välj** på raden. Vill du veta mer klickar du på pilen längst till höger (eller trycker **Enter** eller **mellanslag** när den har fokus): då visas flygnumret, flygplatsernas hela namn och länder, datumet och vad det kostar för alla resenärer. Klicka igen för att fälla ihop. Du behöver aldrig fälla ut något för att välja.
 
 ## Sortera
 
@@ -36,7 +36,7 @@ Flygen står i avgångsordning, tidigast först. Välj **Pris** vid **Sortera p�
 
 ## Välja utresa och hemresa
 
-1. Fäll ut kortet för det flyg du vill ha och klicka på **Välj**.
+1. Klicka på **Välj** på raden för det flyg du vill ha.
 2. Reser du tur och retur visas sedan hemresorna, och din valda utresa står överst. Välj en hemresa på samma sätt.
 3. Till sist visas **Din resa**: flygen du valt och vad resan kostar totalt för alla resenärer.
 4. Klicka på **Fortsätt** för att [välja plan och klass](valja-plan-och-klass.md).
