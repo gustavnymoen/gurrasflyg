@@ -1,0 +1,8 @@
+%% TRIP-042 No "Snabbast" in the charter plan step
+%% Where the setting comes from and what it hides (R1).
+flowchart TD
+    A[CharterPlan] -->|compareTime = false| P[PlanBuilder]
+    B[TripBuilder, flights] -->|nothing: true| P
+    P --> L[LegCard] --> C[AircraftList] --> D{compareTime?}
+    D -- true --> E[Billigast and Snabbast]
+    D -- false --> F[Billigast only]

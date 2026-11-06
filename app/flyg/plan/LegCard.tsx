@@ -31,6 +31,7 @@ export default function LegCard({
   travellers,
   tried,
   emptyLink,
+  compareTime,
   onChoose,
   onShowAircraft,
   onChangeSeating,
@@ -48,6 +49,7 @@ export default function LegCard({
   travellers: number;
   tried: boolean;
   emptyLink: { href: string; label: string };
+  compareTime: boolean;
   onChoose: (aircraftId: number) => void;
   onShowAircraft: () => void;
   onChangeSeating: (seating: Seating) => void;
@@ -75,6 +77,7 @@ export default function LegCard({
           fleet={fleet}
           travellers={travellers}
           emptyLink={emptyLink}
+          compareTime={compareTime}
           onChoose={onChoose}
         />
       )}

@@ -25,6 +25,7 @@ export default function PlanBuilder({
   nextHref,
   steps,
   overview,
+  compareTime = true,
 }: {
   legs: PlanChoice[];
   flights: PlanFlight[];
@@ -35,6 +36,8 @@ export default function PlanBuilder({
   nextHref: string;
   steps: ReactNode;
   overview: ReactNode;
+  // Charter ignorerar tidsfaktorn (TRIP-039-R2), så alla plan har samma flygtid och "Snabbast" säger inget (TRIP-042)
+  compareTime?: boolean;
 }) {
   const aircraftOf = (leg: PlanChoice) => fleet.find((a) => a.id === leg.aircraftId);
   // Saknas antalen (första gången, efter ett annat plan eller i en ändrad
@@ -119,6 +122,7 @@ export default function PlanBuilder({
             travellers={travellers}
             tried={tried[i]}
             emptyLink={emptyLink}
+            compareTime={compareTime}
             onChoose={(id) => choose(i, id)}
             onShowAircraft={() => setView(i, "aircraft", ids.aircraft)}
             onChangeSeating={(seating) => save(i, { ...legs[i], seating })}
