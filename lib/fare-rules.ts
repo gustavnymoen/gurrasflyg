@@ -134,29 +134,20 @@ export const seatingText = (aircraft: FleetAircraft, seating: Seating) =>
 
 export const placed = (seating: Seating) => Object.values(seating).reduce((sum, n) => sum + n, 0);
 
-// Hur många resenärer som är kvar att placera på ett flyg, eller att alla har en klass (TRIP-026-R3)
-export function seatingCounter(seating: Seating, travellers: number) {
+// "1 av 2 placerade": hur många resenärer som har en klass på flyget (TRIP-043-R9)
+export const seatingCounter = (seating: Seating, travellers: number) =>
+  `${placed(seating)} av ${travellers} placerade`;
+
+// Vad som saknas för att gå vidare, eller null när alla har en klass (TRIP-043-R7)
+export function seatingLeft(seating: Seating, travellers: number) {
   const left = travellers - placed(seating);
-  if (left <= 0) return "Alla resenärer har en klass";
-  return `Placera ut ${travellersText(left)}`;
+  return left > 0 ? `Placera ut ${travellersText(left)} till` : null;
 }
 
 // Går det att lägga till en resenär i klassen? Inte fler än platserna, och
 // inte fler än resenärerna sammanlagt (R3)
 export const canAdd = (cabinClass: FleetClass, seating: Seating, travellers: number) =>
   (seating[cabinClass.id] ?? 0) < cabinClass.capacity && placed(seating) < travellers;
-
-// Vad besökaren behöver göra när antalen inte går ihop, eller null (R3)
-export function seatingProblem(seating: Seating, travellers: number) {
-  const missing = travellers - placed(seating);
-  if (missing > 0) {
-    return missing === 1
-      ? "1 resenär har ingen klass. Lägg till den i en klass."
-      : `${missing} resenärer har ingen klass. Lägg till dem i en klass.`;
-  }
-  if (missing < 0) return "Det är fler resenärer i klasserna än i sökningen. Ta bort några.";
-  return null;
-}
 
 // Är antalen per klass möjliga på planet? Klasser som planet inte har, för
 // många i en klass eller fler än resenärerna räknas inte (t.ex. en ändrad adress).

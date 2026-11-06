@@ -12,7 +12,7 @@ import {
   type Leg,
   legTotal,
   seatingCounter,
-  seatingProblem,
+  seatingLeft,
   validSeating,
 } from "./fare-rules";
 
@@ -122,7 +122,6 @@ test("TRIP-011-R3 each class shows its price and the difference to the cheapest 
 test("TRIP-024-R2 at first every class has 0 travellers", () => {
   const seating = firstSeating(ZEPPELIN);
   expect(seating).toEqual({ [ECONOMY.id]: 0, [BUSINESS.id]: 0, [FIRST.id]: 0 });
-  expect(seatingProblem(seating, 2)).toBe("2 resenärer har ingen klass. Lägg till dem i en klass.");
 });
 
 test("TRIP-024-R3 the totals are the sum for the travellers placed so far", () => {
@@ -137,17 +136,16 @@ test("TRIP-011-R3 a class takes at most its seats, and the classes at most the t
   expect(canAdd(BUSINESS, { [ECONOMY.id]: 3 }, 3)).toBe(false);
 });
 
-test("TRIP-011-R3 a message says how many travellers have no class", () => {
-  expect(seatingProblem({ [ECONOMY.id]: 2 }, 3)).toBe("1 resenär har ingen klass. Lägg till den i en klass.");
-  expect(seatingProblem({}, 3)).toBe("3 resenärer har ingen klass. Lägg till dem i en klass.");
-  expect(seatingProblem({ [ECONOMY.id]: 2, [BUSINESS.id]: 1 }, 3)).toBeNull();
-  expect(seatingProblem({ [ECONOMY.id]: 4 }, 3)).toMatch(/fler resenärer/);
+test("TRIP-043-R9 the counter says how many travellers are placed", () => {
+  expect(seatingCounter(firstSeating(ZEPPELIN), 3)).toBe("0 av 3 placerade");
+  expect(seatingCounter({ [ECONOMY.id]: 2 }, 3)).toBe("2 av 3 placerade");
+  expect(seatingCounter({ [ECONOMY.id]: 2, [FIRST.id]: 1 }, 3)).toBe("3 av 3 placerade");
 });
 
-test("TRIP-026-R3 the counter says how many travellers are left to place", () => {
-  expect(seatingCounter(firstSeating(ZEPPELIN), 3)).toBe("Placera ut 3 resenärer");
-  expect(seatingCounter({ [ECONOMY.id]: 2 }, 3)).toBe("Placera ut 1 resenär");
-  expect(seatingCounter({ [ECONOMY.id]: 2, [FIRST.id]: 1 }, 3)).toBe("Alla resenärer har en klass");
+test("TRIP-043-R7 Fortsätt says how many travellers are left, and nothing when everyone has a class", () => {
+  expect(seatingLeft({ [ECONOMY.id]: 2 }, 3)).toBe("Placera ut 1 resenär till");
+  expect(seatingLeft({}, 3)).toBe("Placera ut 3 resenärer till");
+  expect(seatingLeft({ [ECONOMY.id]: 2, [FIRST.id]: 1 }, 3)).toBeNull();
 });
 
 test("TRIP-011-R3 numbers that are impossible on the aircraft are not accepted", () => {

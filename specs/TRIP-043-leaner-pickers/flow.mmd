@@ -1,0 +1,15 @@
+%% TRIP-043 Leaner departure and aircraft pickers
+%% The departure lists and the aircraft step. Steps are labelled with requirement IDs.
+flowchart TD
+    A[Departure list] -->|R1 Välj on the row| B[Departure chosen]
+    A -->|R2 chevron, optional| A2[Details unfolded]
+    A2 --> A
+    B -->|R3 outbound chosen| C[Return list] -->|Välj| D[Aircraft step, outbound]
+    B -->|one way| D
+    D -->|R5 Välj on a row| E[Row open with its classes, one row at a time]
+    E -->|+ in a class, R6| F[This aircraft holds the travellers, any others lose theirs]
+    F -->|R7 not everyone placed| E
+    F -->|R7 everyone placed| G[Fortsätt enabled]
+    G -->|R8 outbound| H[Outbound folded, return flight shown] --> E
+    G -->|last flight| I[Resenärer]
+    H -.->|change the outbound, return choices stay| E

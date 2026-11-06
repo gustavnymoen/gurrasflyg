@@ -3,11 +3,11 @@ type: Feature
 title: Charter booking
 description: The search form on a destination page, the results, the step Plan och klass, the steps Resenärer and Betala, the three extras and the add-ons of the classes, the summary, how a charter booking is checked and saved, and the charter booking tables.
 resource: app/charter/
-feature: TRIP-014, TRIP-039
+feature: TRIP-014, TRIP-039, TRIP-043
 tags: [charter, booking, search, timetables, aircraft, classes, extras, payment, personal-data, accessibility, security]
 generated:
   by: claude
-  at: 2026-11-05T18:00:00+01:00
+  at: 2026-11-06T16:00:00+01:00
 ---
 
 # Charter booking
@@ -35,7 +35,7 @@ flowchart LR
 
 - **Which trips run.** `readTimetables()` (`lib/charter.ts`) reads the timetables of a route with their weekdays, flights and changes; `findTrips()` keeps those where `runsOn()` is true for the date and drops trips that have already left (the departure instant is not after now; for today that is local time at the departure airport).
 - **The arrival** is worked out by `makeTrip()` (`lib/charter-rules.ts`): the departure date and time in the departure airport's time zone, plus the travel time, read in the arrival airport's time zone (`instant()` and `arrival()` from `lib/fare-rules.ts`). The course data's `arrives` is never used, since it doesn't follow summer time (see [Charter data](data-charter.md)). Example: `ARN-WDH-LH1570`, 06:25 and 840 min, lands 21:25 in Windhoek in winter and 20:25 after 28 March 2027.
-- **The cards.** Each trip shows departure and arrival (with "+1" for a later day, "nästa dag" for screen readers), the airline and flight numbers, the travel time, "Direkt" or "1 byte i Frankfurt" / "2 byten i Frankfurt och Wien" (`stopsText()`), the price per person and **Välj** (`aria-pressed`, the chosen card has a ring and "✓ Vald").
+- **The cards** (`TripCard` on the shared `ChoiceCard`, TRIP-043). The row shows departure and arrival (with "+1" for a later day, "nästa dag" for screen readers), the travel time, the price per person and **Välj** (`aria-pressed`, the chosen card has a ring and "✓ Vald"). A chevron button unfolds the rest: the airline, the flight numbers, "Direkt" or "1 byte i Frankfurt" / "2 byten i Frankfurt och Wien" (`stopsText()`) and the date. Unfolding chooses nothing and Välj needs no unfolding.
 - **Sorting.** `SortChoice` (shared with `/flyg`), by departure time or price (equal prices by time). The change is read out ("Sorterat på pris.") and doesn't search again.
 - **Choosing.** Choosing an outbound trip opens the return list, which has only trips that depart after the outbound has landed (`tripsAfter()`: departure instant after arrival instant, so also across time zones and midnight). Choosing another outbound clears a return that no longer fits and keeps the rest. A day without trips says "Inga resor den här dagen." with a link back to the search; a return list that is empty only because of the outbound says "Inga hemresor går efter att utresan har landat.".
 - **Din resa** (`CharterOverview`): the chosen trips ("Inte vald än" for the rest), the number of travellers and "Totalt för resan": (outbound price + return price) × travellers, the departures' own prices before aircraft and classes are chosen. **Fortsätt** appears when both are chosen and goes to the plan step.
@@ -43,7 +43,7 @@ flowchart LR
 
 ## Plan och klass
 
-`/charter/<id>/plan` (`CharterPlan`, TRIP-039), between the trips and the travellers. It is the page parts of `/flyg/plan` ([Aircraft and classes](aircraft-and-classes.md)): `PlanBuilder` with its cards for the outbound and the return trip, **Välj** on an aircraft, the counters per class, **Klar**, the total for the trip and **Fortsätt**. Only the address, the steps, Din resa and the link when no aircraft seats the party are charter's.
+`/charter/<id>/plan` (`CharterPlan`, TRIP-039), between the trips and the travellers. It is the page parts of `/flyg/plan` ([Aircraft and classes](aircraft-and-classes.md)): `PlanBuilder` with its cards for the outbound and the return trip, **Välj** on an aircraft row, the classes and counters in the open row, **Fortsätt** per trip (the last one goes on to the travellers) and the total for the trip. Only the address, the steps, Din resa and the link when no aircraft seats the party are charter's.
 
 - **Any aircraft on any departure.** An aircraft is offered when the seats of all its classes are enough for the party (`canSeat()`); the others are not shown (as on `/flyg/plan`). When none is, the step says "Inget plan har plats för N resenärer." with **Ändra antal resenärer**, a link to the destination's search.
 - **The price** of a trip is the departure's price per person with the aircraft's and the class's price factor (`fare()`), per traveller: the cards show the cheapest class, the class rows each class, and the total follows every change. The time factor is ignored: `readCharter()` sets every aircraft's `timePercent` to 100, so the cards show the departure's own flight time and arrival.

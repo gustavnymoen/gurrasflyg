@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Locator, test, type Page } from "@playwright/test";
 import { formatDay, formatShort } from "../lib/dates";
 import {
   chooseAirport,
@@ -22,7 +22,10 @@ const oneWay = (date = TOMORROW, travellers = 1) =>
   `/flyg?fran=ARN&till=LHR&utresa=${date}&resenarer=${travellers}`;
 const roundTrip = `/flyg?fran=ARN&till=LHR&utresa=${TOMORROW}&hemresa=${IN_A_WEEK}&resenarer=2`;
 
-const flightButtons = (page: Page) => page.getByRole("button", { name: /^\d\d:\d\d / });
+// Every flight has a Välj on its row, named "Välj GF 123 kl 07:20" (TRIP-043-R1)
+const flightButtons = (page: Page) => page.getByRole("button", { name: /^Välj .* kl \d\d:\d\d$/ });
+const flightRows = (page: Page) => page.getByRole("listitem").filter({ has: flightButtons(page) });
+const showMore = (row: Locator) => row.getByRole("button", { name: /^Visa mer om / });
 const listHeading = (page: Page) => page.getByRole("heading", { level: 2 });
 // The summary "Din resa" and its total price
 const summary = (page: Page) =>
@@ -32,10 +35,10 @@ const summaryTotal = async (page: Page) => kronor((await summary(page).getByText
 const sortBy = (page: Page, label: "Pris" | "Avgångstid") => page.getByText(label, { exact: true }).click();
 
 async function timesShown(page: Page) {
-  return (await flightButtons(page).allTextContents()).map((t) => t.slice(0, 5));
+  return (await flightRows(page).allTextContents()).map((t) => t.slice(0, 5));
 }
 async function pricesShown(page: Page) {
-  return (await flightButtons(page).allTextContents()).map(kronor);
+  return (await flightRows(page).allTextContents()).map(kronor);
 }
 
 // axe waits on the browser's timers. With the clock stopped during the search,
@@ -188,8 +191,10 @@ test("TRIP-010-R2 R4 R5 R7 every departure is shown with the airports and the pr
   await expectNoA11yViolations(page);
 
   // R5: the card shows the departure, the airports and the price, no flight time
-  const card = flightButtons(page).first();
-  await expect(card).toHaveAccessibleName(/^\d\d:\d\d ARN Stockholm till LHR London från [\d\s]+kr \/ person$/);
+  const card = flightRows(page).first();
+  await expect(card).toContainText("ARN Stockholm");
+  await expect(card).toContainText("LHR London");
+  await expect(card).toContainText(/från [\d\s]+kr \/ person/);
   await expect(card).not.toContainText(/min|tim|ankomst/i);
 
   // R7: sorted by departure first, by price on request, at once
@@ -209,37 +214,39 @@ test("TRIP-010-R2 R4 R5 R7 every departure is shown with the airports and the pr
   expect(await pricesShown(other)).toEqual(await pricesShown(page));
 });
 
-test("TRIP-010-R6 R9 a card expands with the details and Välj, collapses again, and a one-way trip ends with the chosen flight and its total price", async ({
+test("TRIP-010-R6 R9 TRIP-043-R2 a row unfolds with the details, folds again without choosing, and Välj ends a one-way trip with the chosen flight and its total price", async ({
   page,
 }) => {
   await openResults(page, oneWay(TOMORROW, 3));
-  const card = flightButtons(page).first();
-  const price = kronor((await card.textContent()) ?? "");
+  const row = flightRows(page).first();
+  const price = kronor((await row.textContent()) ?? "");
 
-  await card.click();
-  await expect(card).toHaveAttribute("aria-expanded", "true");
-  const details = page.locator(`[id="${await card.getAttribute("aria-controls")}"]`);
+  const more = showMore(row);
+  await more.click();
+  await expect(more).toHaveAttribute("aria-expanded", "true");
+  const details = page.locator(`[id="${await more.getAttribute("aria-controls")}"]`);
   await expect(details).toContainText(/Flygnummer\s*GF \d+/);
   await expect(details).toContainText("Stockholm Arlanda, Sverige");
   await expect(details).toContainText("London Heathrow, Storbritannien");
   await expect(details).toContainText(/Totalt för 3 resenärer/);
   expect(kronor((await details.textContent()) ?? "")).toBe(3 * price);
-  await expect(details.getByRole("button", { name: "Välj" })).toBeVisible();
+  // Unfolding chose nothing, and Välj is on the row, not in the unfold
+  await expect(page.getByRole("heading", { name: "Din resa" })).toHaveCount(0);
+  await expect(details.getByRole("button", { name: /^Välj / })).toHaveCount(0);
   await expectNoA11yViolations(page);
 
-  await card.click();
-  await expect(card).toHaveAttribute("aria-expanded", "false");
+  await more.click();
+  await expect(more).toHaveAttribute("aria-expanded", "false");
   await expect(details).toBeHidden();
 
   // Enter and Space work too
-  await card.press("Enter");
-  await expect(card).toHaveAttribute("aria-expanded", "true");
-  await card.press(" ");
-  await expect(card).toHaveAttribute("aria-expanded", "false");
+  await more.press("Enter");
+  await expect(more).toHaveAttribute("aria-expanded", "true");
+  await more.press(" ");
+  await expect(more).toHaveAttribute("aria-expanded", "false");
 
   // R9: Välj ends the trip with the flight and its total price
-  await card.click();
-  await details.getByRole("button", { name: "Välj" }).click();
+  await flightButtons(page).first().click();
   await expect(page.getByRole("heading", { name: "Din resa" })).toBeFocused();
   await expect(summary(page).getByText("Totalt för 3 resenärer")).toBeVisible();
   expect(await summaryTotal(page)).toBe(3 * price);
@@ -270,22 +277,21 @@ test("TRIP-010-R2 R6 R8 R9 the results page shows the search in the form and a n
   await expect(page.getByRole("listitem").filter({ hasText: "Utresa" })).toHaveAttribute("aria-current", "step");
   const wide = page.viewportSize()!;
   const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  const first = flightButtons(page).first();
+  const first = flightRows(page).first();
   const outboundTime = ((await first.textContent()) ?? "").slice(0, 5);
-  await first.click();
-  await expect(page.getByRole("button", { name: "Välj" })).toBeVisible();
-  // R6: an expanded card fits at 320 px
+  // R6: a row with its unfold open fits at 320 px
+  await showMore(first).click();
   await page.setViewportSize({ width: 320, height: 640 });
   expect(await overflow()).toBeLessThanOrEqual(0);
   await page.setViewportSize(wide);
-  await page.getByRole("button", { name: "Välj" }).click();
+  await flightButtons(page).first().click();
 
   await expect(listHeading(page)).toHaveText("Hemresa London – Stockholm");
   await expect(listHeading(page)).toBeFocused();
   await expect(page.getByRole("listitem").filter({ hasText: "Hemresa" })).toHaveAttribute("aria-current", "step");
   await expect(page.getByText("Vald utresa")).toBeVisible();
   await expect(page.getByText(new RegExp(`${outboundTime} ARN Stockholm – LHR London`))).toBeVisible();
-  await expect(flightButtons(page).first()).toHaveAccessibleName(/^\d\d:\d\d LHR London till ARN Stockholm/);
+  await expect(flightRows(page).first()).toContainText(/\d\d:\d\d\s*LHR London\s*–till\s*ARN Stockholm/);
   await expectNoA11yViolations(page);
 
   // R8: changing the outbound starts over
@@ -296,10 +302,8 @@ test("TRIP-010-R2 R6 R8 R9 the results page shows the search in the form and a n
   // R9: both flights are chosen, and the summary adds their prices
   const prices: number[] = [];
   for (let step = 0; step < 2; step++) {
-    const flight = flightButtons(page).first();
-    prices.push(kronor((await flight.textContent()) ?? ""));
-    await flight.click();
-    await page.getByRole("button", { name: "Välj" }).click();
+    prices.push(kronor((await flightRows(page).first().textContent()) ?? ""));
+    await flightButtons(page).first().click();
   }
   await expect(summary(page).getByText("Utresa", { exact: true })).toBeVisible();
   await expect(summary(page).getByText("Hemresa", { exact: true })).toBeVisible();

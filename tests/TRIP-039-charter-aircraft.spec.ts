@@ -78,12 +78,12 @@ test("TRIP-039-R1 R2 R3 TRIP-042-R1 the plan step: only aircraft with room, the 
 
   // The classes under the chosen aircraft: 1 190 and 2 380, three in the first and two in the second
   await chooseAircraft(page, "utresan", fleet.large);
-  await expect(overview(page)).toContainText(fleet.large);
   await expect(classRow(page, "utresan", fleet.luxury)).toContainText(/2\s380\skr \/ person/);
   await place(page, "utresan", fleet.base, 3);
-  await expect(counter(page, "utresan")).toHaveText("Placera ut 2 resenärer");
+  await expect(overview(page)).toContainText(fleet.large);
+  await expect(counter(page, "utresan")).toHaveText("3 av 5 placerade");
   await place(page, "utresan", fleet.luxury, 2);
-  await expect(counter(page, "utresan")).toHaveText("Alla resenärer har en klass");
+  await expect(counter(page, "utresan")).toHaveText("5 av 5 placerade");
   await expect(overview(page)).toContainText(`${fleet.large} · ${fleet.base}: 3 · ${fleet.luxury}: 2`);
   await expectNoA11yViolations(page);
   // The address has the choice (the trips are kept), and it survives a reload with the card open
@@ -96,15 +96,17 @@ test("TRIP-039-R1 R2 R3 TRIP-042-R1 the plan step: only aircraft with room, the 
   await chooseAircraft(page, "hemresan", fleet.large);
   await place(page, "hemresan", fleet.base, 3);
   await place(page, "hemresan", fleet.luxury, 2);
-  await done(page, "hemresan");
   await tripTotal(page).toBe(3 * 1190 + 2 * 2380 + 3 * 1090 + 2 * 2180);
   await page.reload();
   await expect(folded(page, "utresan")).toBeVisible();
   await expect(folded(page, "hemresan")).toBeVisible();
   await tripTotal(page).toBe(3 * 1190 + 2 * 2380 + 3 * 1090 + 2 * 2180);
   await expectNoA11yViolations(page);
-  const next = page.getByRole("link", { name: "Fortsätt" });
-  await expect(next).toHaveAttribute("href", new RegExp(`/charter/teufelsberg/boka\\?.*ut-plan=\\d+&ut-klasser=.*hem-plan=\\d+&hem-klasser=`));
+  // Fortsätt on the last trip goes on with both choices in the address (TRIP-043-R7)
+  await folded(page, "hemresan").click();
+  await done(page, "hemresan");
+  await expect(page).toHaveURL(new RegExp(`/charter/teufelsberg/boka\\?.*ut-plan=\\d+&ut-klasser=.*hem-plan=\\d+&hem-klasser=`));
+  await page.goBack();
 
   // R3: an address with an aircraft that doesn't exist, or with numbers that don't fit, is not trusted
   const url = new URL(page.url());
@@ -162,7 +164,7 @@ test("TRIP-039-R4 R5 R8 the class is only text on Resenärer, the class add-ons 
     await expect(first.getByRole("group", { name: "Hemresa" })).toContainText(`Klass: ${fleet.luxury}`);
     await expect(second.getByRole("group", { name: "Utresa" })).toContainText(`Klass: ${fleet.base}`);
     // No choice of class, and a link back to the plan step
-    await expect(page.getByLabel("Klass")).toHaveCount(0);
+    await expect(page.getByLabel("Klass", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("combobox", { name: "Klass" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Ändra plan och klasser" })).toHaveAttribute("href", /\/plan\?.*ut-plan=\d+/);
     // The add-ons are those of the traveller's class: Lounge only in the dearest class, Bagage only in the cheapest
@@ -190,13 +192,15 @@ test("TRIP-039-R4 R5 R8 the class is only text on Resenärer, the class add-ons 
     // R8: back to the plan step, move the first traveller to the cheapest class on the outbound trip
     await fillPassenger(page, 1, "E2E Anna");
     await page.getByRole("link", { name: "Ändra plan och klasser" }).click();
+    await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
+    // After a reload every done trip is folded, so Fortsätt on the outbound goes on to Resenärer
+    await page.reload();
     await expect(folded(page, "utresan")).toBeVisible();
     await folded(page, "utresan").click();
     await classRow(page, "utresan", fleet.luxury).getByRole("button", { name: `Färre i ${fleet.luxury}` }).click();
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`0 i ${fleet.luxury}`);
     await place(page, "utresan", fleet.base, 1);
     await done(page, "utresan");
-    await page.getByRole("link", { name: "Fortsätt" }).click();
     await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
 
     // The page tells which add-ons of the classes were removed, the rest of the form is kept

@@ -11,12 +11,12 @@ import {
   cardPrice,
   chooseAircraft,
   chooseFlights,
-  chosenAircraft,
   classList,
   classRow,
+  continueButton,
   count,
   done,
-  flightButtons,
+  flightRow,
   folded,
   openPlan,
   place,
@@ -69,7 +69,7 @@ test.describe("with the tests' own aircraft", () => {
     fleet,
   }) => {
     await openResults(page, searchUrl(5, false));
-    const from = kronor((await flightButtons(page).first().textContent()) ?? "");
+    const from = kronor((await flightRow(page, 0).textContent()) ?? "");
     const [departure] = await chooseFlights(page, false);
     await page.getByRole("link", { name: "Fortsätt" }).click();
     await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeVisible();
@@ -120,19 +120,20 @@ test.describe("with the tests' own aircraft", () => {
     // The class has two seats: a third traveller can't be put there
     await expect(more(luxury, fleet.luxury)).toHaveAttribute("aria-disabled", "true");
 
-    // The message comes at Klar (TRIP-026-R3)
-    await done(page, "utresan");
-    const message = classList(page, "utresan").getByRole("alert");
-    await expect(message).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
+    // Fortsätt waits until everyone has a class, and says how many are left (TRIP-043-R7)
+    await expect(continueButton(page, "utresan")).toBeDisabled();
+    await expect(classList(page, "utresan")).toContainText("Placera ut 1 resenär till");
     await expectNoA11yViolations(page);
     await more(basic, fleet.base).click();
-    await expect(message).toHaveCount(0);
+    await expect(continueButton(page, "utresan")).toBeEnabled();
     // All three are placed, so no class takes more
     await expect(more(basic, fleet.base)).toHaveAttribute("aria-disabled", "true");
 
-    // Klar folds the card, which also fits at 320 px
+    // Fortsätt goes on to Resenärer, and the open row with all its classes fits at 320 px too
+    await page.setViewportSize({ width: 320, height: 640 });
+    expect(await overflow()).toBeLessThanOrEqual(0);
     await done(page, "utresan");
-    await expect(folded(page, "utresan")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
     await page.setViewportSize({ width: 320, height: 640 });
     expect(await overflow()).toBeLessThanOrEqual(0);
   });
@@ -169,26 +170,25 @@ test.describe("with the tests' own aircraft", () => {
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
     await page.getByRole("link", { name: "Fortsätt" }).click();
     await expect(folded(page, "utresan")).toContainText(`${fleet.base}: 2`);
-    await expect(chosenAircraft(page, "hemresan")).toContainText(fleet.fast);
+    // The page comes back as it was left: the return flight's row is still open with its numbers
+    await expect(count(classRow(page, "hemresan", fleet.base))).toHaveText(`2 i ${fleet.base}`);
     await folded(page, "utresan").click();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`2 i ${fleet.base}`);
 
     // R10: another aircraft, and every class starts at 0 again (TRIP-024-R2)
-    await chosenAircraft(page, "utresan").click();
     await chooseAircraft(page, "utresan", fleet.fast);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`0 i ${fleet.luxury}`);
 
     // R10: another flight clears its aircraft and classes, and keeps the other flight's
     await place(page, "utresan", fleet.base, 3);
-    await done(page, "utresan");
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
     await page.getByRole("button", { name: "Ändra hemresa" }).click();
     await chooseFlights(page, false, [1]);
     await page.getByRole("link", { name: "Fortsätt" }).click();
-    await expect(folded(page, "utresan")).toContainText(fleet.fast);
+    await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`3 i ${fleet.base}`);
     await expect(aircraftList(page, "hemresan")).toBeVisible();
-    await expect(chosenAircraft(page, "hemresan")).toHaveCount(0);
+    expect(new URL(page.url()).searchParams.get("hem-plan")).toBeNull();
   });
 
   test.describe("in admin", () => {
@@ -277,5 +277,5 @@ test.describe("with the tests' own aircraft", () => {
 
 test("TRIP-011-R1 @smoke the page for a chosen flight loads and lists aircraft", async ({ page }) => {
   await openPlan(page, 1);
-  await expect(aircraftList(page, "utresan").getByRole("button", { expanded: false }).first()).toBeVisible();
+  await expect(aircraftList(page, "utresan").getByRole("button", { name: /^Välj / }).first()).toBeVisible();
 });

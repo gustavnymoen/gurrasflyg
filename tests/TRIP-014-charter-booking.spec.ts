@@ -139,12 +139,15 @@ test.describe("the results", () => {
       await expect(choose(outbound(page), flight, time)).toBeVisible();
     }
     const card = outbound(page).getByRole("listitem").filter({ has: page.getByRole("button", { name: "Välj SK1122 kl 06:50" }) });
-    await expect(card).toContainText("SAS · SK1122");
     await expect(card).toContainText("06:50");
     await expect(card).toContainText("08:30");
     await expect(card).toContainText("1 h 40 min");
-    await expect(card).toContainText("Direkt");
     await expect(card).toContainText(/1\s190\skr \/ person/);
+    // The airline, the numbers and the changes are in the unfold (TRIP-043-R2)
+    await card.getByRole("button", { name: "Visa mer om SK1122 kl 06:50" }).click();
+    await expect(card).toContainText("SAS");
+    await expect(card).toContainText("SK1122");
+    await expect(card).toContainText("Direkt");
     await expectNoA11yViolations(page);
 
     // Sorted by price, without a new search, and read out; equal prices by time
@@ -172,6 +175,7 @@ test.describe("the results", () => {
     await expect(list).toContainText("06:25");
     await expect(list).toContainText(winter ? "21:25" : "20:25");
     await expect(list).toContainText("14 h");
+    await list.getByRole("button", { name: /^Visa mer om / }).click();
     await expect(list).toContainText("1 byte i Frankfurt");
 
     // The day after has no trip (ARN–WDH runs on Mondays, Wednesdays, Fridays and Sundays)
@@ -251,7 +255,7 @@ test.describe("Resenärer and the extras", () => {
     await expect(region(page, "Kontaktperson")).toBeVisible();
     await expect(region(page, "Tre viktiga frågor")).toBeVisible();
     await expect(page.getByText("Dåliga nerver")).toHaveCount(0);
-    await expect(page.getByLabel("Klass")).toHaveCount(0);
+    await expect(page.getByLabel("Klass", { exact: true })).toHaveCount(0);
 
     // Something missing: marked, read out, and focus on the first
     await page.getByRole("button", { name: "Till betalning" }).click();
@@ -434,5 +438,5 @@ test("TRIP-014-R1 TRIP-039-R1 @smoke a destination's form leads to results with 
   // TRIP-039: Fortsätt leads to the plan step, which lists aircraft for the outbound trip
   await page.getByRole("link", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
-  await expect(region(page, "Plan för utresan").getByRole("button", { expanded: false }).first()).toBeVisible();
+  await expect(region(page, "Plan för utresan").getByRole("button", { name: /^Välj / }).first()).toBeVisible();
 });
