@@ -173,13 +173,23 @@ export function fitForm(form: BookingForm, legs: BookingLeg[], travellers: numbe
   return { ...form, legKeys: legs.map((leg) => leg.key), passengers };
 }
 
-// Ny klass för en passagerare på ett flyg: tillägg som inte går att köpa i
-// den nya klassen tas bort (R3)
-export function changeClass(passenger: Passenger, legIndex: number, leg: BookingLeg, classId: number): Passenger {
-  const allowed = new Set((leg.addons[classId] ?? []).map((a) => a.id));
-  const old = passenger.legs[legIndex];
-  const addons = Object.fromEntries(Object.entries(old.addons).filter(([id]) => allowed.has(Number(id))));
-  return { ...passenger, legs: passenger.legs.with(legIndex, { classId, addons }) };
+// Tilläggen i klasserna som tas bort när ett flygs plan eller antal ändrats: "Passagerare 2, utresan: Öl (2 st)"
+// (TRIP-041-R2, TRIP-039-R8). names är tilläggens namn efter id, eftersom det gamla planet inte längre finns bland resans.
+export function removedAddons(
+  form: { legKeys: string[]; passengers: { legs?: PassengerLeg[] }[] },
+  legs: BookingLeg[],
+  travellers: number,
+  names: Record<number, string>,
+) {
+  return form.passengers.slice(0, travellers).flatMap((person, p) =>
+    legs.flatMap((leg, i) =>
+      form.legKeys[i] === leg.key
+        ? []
+        : Object.entries(person.legs?.[i]?.addons ?? {})
+            .filter(([, count]) => count > 0)
+            .map(([id, count]) => `Passagerare ${p + 1}, ${leg.of}: ${names[Number(id)] ?? "tillägg"}${count > 1 ? ` (${count} st)` : ""}`),
+    ),
+  );
 }
 
 // ---------------------------------------------------------------- Priset
@@ -261,7 +271,6 @@ export const fieldIds = {
   firstName: (p: number) => `p${p}-fornamn`,
   lastName: (p: number) => `p${p}-efternamn`,
   age: (p: number) => `p${p}-alder`,
-  classes: (legIndex: number) => `klasser-${legIndex}`,
   contact: (field: keyof Contact) => `kontakt-${field}`,
   question: (i: number) => `fraga-${i}`,
   payment: "betalning",
@@ -274,18 +283,6 @@ export const isPhone = (text: string) => /^\+?[\d\s-]+$/.test(text.trim()) && te
 function textProblem(text: string, max: number, missing: string) {
   if (text.trim() === "") return missing;
   if (text.length > max) return `Högst ${max} tecken.`;
-  return null;
-}
-
-// Stämmer antalen per klass på ett flyg med plan och klass? Annars vad som är fel (R2)
-function classProblem(form: BookingForm, leg: BookingLeg, legIndex: number) {
-  for (const c of leg.aircraft.classes) {
-    const wanted = leg.seating[c.id] ?? 0;
-    const has = form.passengers.filter((p) => p.legs[legIndex]?.classId === c.id).length;
-    if (has !== wanted) {
-      return `På ${leg.of} ska ${wanted} sitta i ${c.name}, men ${has} gör det. Byt klass för någon passagerare.`;
-    }
-  }
   return null;
 }
 
@@ -331,7 +328,7 @@ export function collectProblems(check: (add: Add) => void): Problems {
   return problems;
 }
 
-// Det som måste stämma för att gå vidare till betalningen (R2, R5, R6)
+// Det som måste stämma för att gå vidare till betalningen (R5, R6)
 export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Problems {
   return collectProblems((add) => {
     passengerProblems(form.passengers, add);
@@ -339,7 +336,6 @@ export function travellerProblems(form: BookingForm, legs: BookingLeg[]): Proble
     form.passengers.forEach((p, i) => {
       if (hasBeer(p, legs) && !isAdult(p.age)) add(fieldIds.age(i), "Öl går bara att köpa från 18 år.");
     });
-    legs.forEach((leg, i) => add(fieldIds.classes(i), classProblem(form, leg, i)));
     contactProblems(form.contact, form.checks, add);
   });
 }
@@ -386,20 +382,21 @@ export function withoutBeerUnder18<P extends SeatedPerson>(passenger: P, legs: B
 
 // Har formuläret rätt form för resan? Servern kontrollerar det innan något
 // annat, eftersom vad som helst kan skickas till den: rätt antal passagerare
-// och flyg, klasser som finns på planet, och bara tillägg som går att köpa i
-// passagerarens klass, högst 10 av varje (R3, R8).
+// och flyg, klasserna som antalen per klass ger i ordning (TRIP-041-R3), och
+// bara tillägg som går att köpa i passagerarens klass, högst 10 av varje (R3, R8).
 export function fitsTrip(form: BookingForm, legs: BookingLeg[], travellers: number) {
+  const inOrder = legs.map((leg) => firstClasses(leg.aircraft, leg.seating));
   return (
     fitsForm(form) &&
     Array.isArray(form.passengers) &&
     form.passengers.length === travellers &&
     form.passengers.every(
-      (p) =>
+      (p, n) =>
         fitsPerson(p) &&
         typeof p.nerves === "boolean" &&
         Array.isArray(p.legs) &&
         p.legs.length === legs.length &&
-        legs.every((leg, i) => fitsLeg(leg, p.legs[i])),
+        legs.every((leg, i) => fitsLeg(leg, p.legs[i]) && p.legs[i].classId === inOrder[i][n]),
     )
   );
 }

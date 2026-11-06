@@ -88,6 +88,12 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
     if (steps === 5) return answer([call("show_travellers", {})], "tool_use");
     return say(last.startsWith("Opened the Resen") ? "Jag tog de första och billigaste planen, de är minst dåliga. Fyll i dig själv." : `Det gick inte: ${last}`);
   }
+  if (question.includes("ANNANKLASS")) {
+    // Vill besökaren ha en annan klass på Resenärer skickas hen tillbaka till planen (TRIP-041-R4)
+    if (steps === 0) return answer([call("list_aircraft", {})], "tool_use");
+    if (steps === 1) return answer(planCalls(last, trip.travellers), "tool_use");
+    return say("Klassen går inte att byta på Resenärer, bara i planen. Jag skickade dig tillbaka dit.");
+  }
   if (question.includes("PLAN") && steps === 0) return answer([call("list_aircraft", {})], "tool_use");
   if (question.includes("PLAN") && steps === 1) return answer(planCalls(last, trip.travellers), "tool_use");
   if (question.includes("OGILTIGT") && steps === 0) return answer([call("set_plan", { trip: "outbound", aircraft_id: 999999, classes: [] })], "tool_use");

@@ -1,7 +1,7 @@
 "use client";
 
-import type { BookingLeg } from "@/lib/booking-rules";
-import { asCharterForm, type CharterForm, emptyCharterForm, fitCharterForm, removedAddons } from "@/lib/charter-rules";
+import { type BookingLeg, removedAddons } from "@/lib/booking-rules";
+import { asCharterForm, type CharterForm, emptyCharterForm, fitCharterForm } from "@/lib/charter-rules";
 import { CHARTER_FORM_KEY, store, useStored } from "../flyg/boka/store";
 
 // Formuläret som det är sparat i fliken (aldrig i adressen: det är personuppgifter),

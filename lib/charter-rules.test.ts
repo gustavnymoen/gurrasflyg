@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { BookingLeg } from "./booking-rules";
+import { type BookingLeg, removedAddons } from "./booking-rules";
 import {
   anyMinor,
   asCharterForm,
@@ -29,7 +29,6 @@ import {
   parseChoice,
   planText,
   planUrl,
-  removedAddons,
   resultsUrl,
   runsOn,
   sortTrips,

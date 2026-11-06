@@ -98,12 +98,12 @@ test.describe("with the tests' own aircraft", () => {
     await addonRow(card, "Hemresa", fleet.bag).getByRole("button", { name: `Fler ${fleet.bag}` }).click();
 
     // Back to Plan och klass and on without a change keeps everything
-    await page.getByRole("link", { name: "Plan och klass" }).click();
+    await page.getByRole("link", { name: "Plan och klass", exact: true }).click();
     await page.getByRole("link", { name: "Fortsätt" }).click();
     await expect(addonRow(card, "Utresa", fleet.meal).locator("[aria-live]")).toHaveText(`1 ${fleet.meal}`);
 
     // Another aircraft on the outbound flight
-    await page.getByRole("link", { name: "Plan och klass" }).click();
+    await page.getByRole("link", { name: "Plan och klass", exact: true }).click();
     await folded(page, "utresan").click();
     await chosenAircraft(page, "utresan").click();
     await chooseAircraft(page, "utresan", fleet.fast);
@@ -147,11 +147,11 @@ test.describe("with the tests' own aircraft", () => {
     fleet,
   }) => {
     await openBooking(page, fleet.large, twoAndOne(fleet));
-    const classOf = (n: number) => legGroup(passenger(page, n), "Utresa").getByLabel("Klass");
+    const classOf = (n: number) => legGroup(passenger(page, n), "Utresa").getByText(/^Klass:/);
     // The most expensive class first
-    await expect(classOf(1).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
-    await expect(classOf(2).locator("option:checked")).toHaveText(new RegExp(fleet.luxury));
-    await expect(classOf(3).locator("option:checked")).toHaveText(new RegExp(fleet.base));
+    await expect(classOf(1)).toContainText(fleet.luxury);
+    await expect(classOf(2)).toContainText(fleet.luxury);
+    await expect(classOf(3)).toContainText(fleet.base);
 
     // R3: Passagerare 3 sits in the 1,00 class: Måltid and Bagage, not Lounge
     const third = passenger(page, 3);
@@ -188,15 +188,7 @@ test.describe("with the tests' own aircraft", () => {
     await addonRow(third, "Utresa", fleet.bag).getByRole("button", { name: `Färre ${fleet.bag}` }).click();
     await expect(meal.locator("[aria-live]")).toHaveText(`0 ${fleet.meal}`);
 
-    // R2: swapping only Passagerare 1 gives the wrong numbers; swapping 3 too makes them match
-    // The classes are listed cheapest first
-    await classOf(1).selectOption({ index: 0 });
-    await goOn(page);
-    const wrong = `På utresan ska 1 sitta i ${fleet.base}, men 2 gör det. Byt klass för någon passagerare.`;
-    await expect(alert(page).filter({ hasText: wrong })).toBeVisible();
-    await expect(classOf(1)).toBeFocused();
-    await classOf(3).selectOption({ index: 1 });
-    await expect(alert(page)).toHaveCount(0);
+    // The classes are set, so the numbers always match the plan
     await goOn(page);
     await expect(page).toHaveURL(/\/flyg\/boka\/betala\?/);
   });

@@ -2,6 +2,8 @@
 
 ## 2026-11-06
 
+- TRIP-041: **the class is chosen once**. The passengers page of flight booking shows each traveller's class as text ("Klass: Business, 4 560 kr", `LegFields`, now shared with charter) and has no class choice; **Ändra plan och klasser** (`ClassesNote`, also shared) goes back to the plan step, and after a changed plan the page lists the removed add-ons (`removedAddons()` moved to `lib/booking-rules.ts`). The server checks that the classes are those the numbers per class give in order (`fitsTrip()`); `changeClass()`, `classProblem()` and the old message are gone. Agneta's rules and page text say the class is decided in the plan step only, and the fake agent answers `ANNANKLASS`. See [Booking](system/booking.md), [Charter chatbot](system/charter-chatbot.md) and [Boka resan](manual/boka-resan.md).
+
 - TRIP-042: **no "Snabbast" in the charter plan step**. `PlanBuilder` has a setting `compareTime` (default true, passed to `LegCard`, `AircraftList` and the cards) and charter sets it to false, since the time factor is ignored there and every aircraft has the departure's own flight time; flights keep "Snabbast". Updated [Aircraft and classes](system/aircraft-and-classes.md) and [Välja plan och klass](manual/valja-plan-och-klass.md).
 
 - TECH-031: **smaller Vercel functions**. `lib/db.ts` uses the web client of libsql for Turso and the regular client only for local `file:` databases, and `outputFileTracingExcludes` removes libsql's native binaries from the function traces (the trace follows every import, so the exclude is what removes them, and the web client is what makes that safe). Local trace: 19 of 24 functions had the binary; none has now, total 589 MB to 447 MB. Updated the architecture page.

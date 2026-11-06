@@ -7,15 +7,13 @@ import {
   type BookingForm,
   type BookingLeg,
   bookingTotal,
-  changeClass,
   emptyForm,
-  fieldIds,
   fitForm,
   isAdult,
   NERVES,
   NERVES_PRICE,
   type Passenger,
-  seatPrice,
+  removedAddons,
   travellerProblems,
   withoutBeerUnder18,
 } from "@/lib/booking-rules";
@@ -23,14 +21,13 @@ import type { FleetAircraft } from "@/lib/fare-rules";
 import type { Flight } from "@/lib/flight-rules";
 import { formatPrice, travellersText } from "@/lib/format";
 import type { Search } from "@/lib/search";
-import { LEG_NAMES, type LegChoice, paymentUrl } from "@/lib/trip";
+import { LEG_NAMES, type LegChoice, paymentUrl, planUrl } from "@/lib/trip";
 import Button from "../../components/Button";
 import Card, { floatClass } from "../../components/Card";
 import Checkbox from "../../components/Checkbox";
-import Field, { fieldInputClass } from "../../components/Field";
 import Message from "../../components/Message";
 import Steps, { tripSteps } from "../Steps";
-import { AddonList, ContactCard, PersonFields, QuestionsCard } from "./FormParts";
+import { ClassesNote, ContactCard, LegFields, PersonFields, QuestionsCard } from "./FormParts";
 import TripOverview from "../TripOverview";
 import { FORM_KEY, store, useStored } from "./store";
 
@@ -41,32 +38,38 @@ export type BookingProps = {
   flights: Flight[];
   fleet: FleetAircraft[];
   booking: BookingLeg[];
+  // Tilläggens namn efter id, för att berätta vilka som togs bort (bara Resenärer)
+  addonNames?: Record<number, string>;
 };
 
 // Formuläret som det är sparat i fliken, anpassat till resan som den ser ut
-// nu (R10), eller undefined innan sidan har läst det
-export function useBookingForm({ search, booking }: Pick<BookingProps, "search" | "booking">) {
+// nu (R10), eller undefined innan sidan har läst det. removed är tilläggen som
+// togs bort för att planet eller antalen per klass ändrats (TRIP-041-R2).
+export function useBookingForm({ search, booking, addonNames = {} }: Pick<BookingProps, "search" | "booking" | "addonNames">) {
   const stored = useStored(FORM_KEY);
   if (stored === undefined) return undefined;
-  return fitForm(asForm(stored) ?? emptyForm(""), booking, search.travellers);
+  const saved = asForm(stored) ?? emptyForm("");
+  return { form: fitForm(saved, booking, search.travellers), removed: removedAddons(saved, booking, search.travellers, addonNames) };
 }
 
 export const saveForm = (form: BookingForm) => store(FORM_KEY, form);
 
-// Klassen för en passagerare på ett flyg. Den första passagerarens får fokus
-// när antalen per klass inte stämmer (R2).
-const classId = (p: number, legIndex: number) => `p${p}-klass-${legIndex}`;
-
-// Resenärerna, deras tillägg, kontaktpersonen och de tre frågorna (R1–R6).
+// Resenärerna, deras tillägg, kontaktpersonen och de tre frågorna (R1–R6). Klassen är vald i
+// steget Plan och klass och visas bara som text (TRIP-041-R1).
 // Allt sparas i fliken medan det fylls i. Till betalning går det först när
 // allt stämmer; annars blir fälten som saknas röda med vad som ska göras, och
 // fokus flyttas till det första.
-export default function TravellersForm({ search, legs, flights, fleet, booking }: BookingProps) {
+export default function TravellersForm({ search, legs, flights, fleet, booking, addonNames }: BookingProps) {
   const router = useRouter();
-  const form = useBookingForm({ search, booking });
+  const state = useBookingForm({ search, booking, addonNames });
+  const form = state?.form;
   // Hur många gånger besökaren försökt gå vidare med något som saknas. Varje
   // försök ritar om sidan, så att fokus flyttas även när felen redan syns.
   const [attempts, setAttempts] = useState(0);
+  // Tilläggen som togs bort av ett ändrat plan: de står kvar efter första ändringen i
+  // formuläret, som sparar den nya formen (TRIP-041-R2)
+  const [kept, setKept] = useState<string[]>([]);
+  const removed = state && state.removed.length > 0 ? state.removed : kept;
 
   // Fältet som ska få fokus när något saknas, när felen syns på sidan
   const focusId = useRef<string | null>(null);
@@ -81,19 +84,23 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
 
   const problems = attempts > 0 ? travellerProblems(form, booking) : {};
   const error = (id: string) => problems[id] ?? null;
+  // Sparar formuläret och minns vilka tillägg som togs bort av ett ändrat plan
+  function save(changed: BookingForm) {
+    if (state && state.removed.length > 0) setKept(state.removed);
+    saveForm(changed);
+  }
   const setPassenger = (p: number, passenger: Passenger) =>
-    saveForm({ ...form, passengers: form.passengers.with(p, passenger) });
+    save({ ...form, passengers: form.passengers.with(p, passenger) });
 
   function next() {
     const first = Object.keys(travellerProblems(form!, booking))[0];
     if (first) {
       setAttempts((n) => n + 1);
-      // Stämmer inte antalen på ett flyg får den första passagerarens klass fokus
-      focusId.current = first.startsWith("klasser-") ? classId(0, Number(first.split("-")[1])) : first;
+      focusId.current = first;
       return;
     }
     // Ett id för bokningen, så att två tryck på Betala blir en bokning (R8)
-    saveForm({ ...form!, requestId: form!.requestId || crypto.randomUUID() });
+    save({ ...form!, requestId: form!.requestId || crypto.randomUUID() });
     router.push(paymentUrl(search, legs));
   }
 
@@ -108,6 +115,7 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
     >
       <Steps steps={tripSteps(search, legs)} current={2} />
       <TripOverview flights={flights} legs={legs} fleet={fleet} travellers={search.travellers} classes />
+      <ClassesNote removed={removed} planHref={planUrl(search, legs)} />
 
       {form.passengers.map((passenger, p) => (
         <PassengerCard
@@ -119,21 +127,13 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
           onChange={(changed) => setPassenger(p, changed)}
         />
       ))}
-      {booking.map(
-        (_, i) =>
-          error(fieldIds.classes(i)) && (
-            <Message key={i} kind="error" id={fieldIds.classes(i)}>
-              {error(fieldIds.classes(i))}
-            </Message>
-          ),
-      )}
 
       <ContactCard
         contact={form.contact}
         error={error}
-        onChange={(contact) => saveForm({ ...form, contact })}
+        onChange={(contact) => save({ ...form, contact })}
       />
-      <QuestionsCard checks={form.checks} error={error} onChange={(checks) => saveForm({ ...form, checks })} />
+      <QuestionsCard checks={form.checks} error={error} onChange={(checks) => save({ ...form, checks })} />
 
       <Card className="flex flex-col gap-3">
         <p className="flex flex-wrap items-baseline justify-between gap-2">
@@ -153,7 +153,7 @@ export default function TravellersForm({ search, legs, flights, fleet, booking }
   );
 }
 
-// En passagerare: namn, ålder, Dåliga nerver och klass och tillägg på varje flyg (R2–R4).
+// En passagerare: namn, ålder, Dåliga nerver och klass (bara text) och tillägg på varje flyg (R2–R4).
 // Blir åldern under 18 tas ölen bort, och kortet säger varför (TRIP-029-R4).
 function PassengerCard({
   index,
@@ -197,65 +197,20 @@ function PassengerCard({
         onChange={(nerves) => onChange({ ...passenger, nerves })}
       />
       {booking.map((leg, i) => (
-        <PassengerLegFields
+        <LegFields
           key={leg.key}
-          passenger={passenger}
-          index={index}
           leg={leg}
-          legIndex={i}
-          error={error(fieldIds.classes(i))}
-          onChange={onChange}
+          title={LEG_NAMES[i].title}
+          passengerLeg={passenger.legs[i]}
+          age={passenger.age}
+          onCount={(addonId, count) => {
+            const passengerLeg = passenger.legs[i];
+            const changed = { ...passengerLeg, addons: { ...passengerLeg.addons, [addonId]: count } };
+            onChange({ ...passenger, legs: passenger.legs.with(i, changed) });
+          }}
         />
       ))}
     </Card>
-  );
-}
-
-// Klassen och tilläggen för en passagerare på ett flyg (R2, R3)
-function PassengerLegFields({
-  passenger,
-  index,
-  leg,
-  legIndex,
-  error,
-  onChange,
-}: {
-  passenger: Passenger;
-  index: number;
-  leg: BookingLeg;
-  legIndex: number;
-  error: string | null;
-  onChange: (passenger: Passenger) => void;
-}) {
-  const passengerLeg = passenger.legs[legIndex];
-  const id = classId(index, legIndex);
-  const setCount = (addonId: number, count: number) =>
-    onChange({
-      ...passenger,
-      legs: passenger.legs.with(legIndex, { ...passengerLeg, addons: { ...passengerLeg.addons, [addonId]: count } }),
-    });
-
-  return (
-    <fieldset className="flex flex-col gap-3 border-t border-line pt-4">
-      <legend className="float-left mb-3 w-full font-bold">{LEG_NAMES[legIndex].title}</legend>
-      <Field label="Klass" htmlFor={id} className="sm:max-w-sm">
-        <select
-          id={id}
-          value={passengerLeg.classId}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? fieldIds.classes(legIndex) : undefined}
-          onChange={(e) => onChange(changeClass(passenger, legIndex, leg, Number(e.target.value)))}
-          className={fieldInputClass}
-        >
-          {leg.aircraft.classes.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}, {formatPrice(seatPrice(leg, c.id))}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <AddonList leg={leg} passengerLeg={passengerLeg} age={passenger.age} onCount={setCount} />
-    </fieldset>
   );
 }
 
