@@ -7,10 +7,10 @@ title: Smaller Vercel functions
 
 | Requirement | How it was checked | Where | Result | Date |
 |---|---|---|---|---|
-| TECH-031-R1 | Code review of `lib/db.ts`; `file:` path exercised by all unit and browser tests; the web client on a `libsql://` URL **not checked yet**: needs the preview deployment (a booking by hand, see R3) | local | Partly checked | 2026-11-06 |
-| TECH-031-R2 | Manual (needs a build): `npm run build` into a separate folder, then every `*.nft.json` under `server/` read for `@libsql/darwin-*`, `linux-*` and `win32-*`. Before: 19 of 24 functions list it. After: 0 of 24. The Vercel build log **not checked yet** (needs the preview) | local | Pass locally | 2026-11-06 |
-| TECH-031-R3 | The existing unit tests (317) and browser tests (223) pass unchanged; "Preview tests", the pages and chat on the preview, and one booking made and cancelled by hand **not checked yet** | local | Partly checked | 2026-11-06 |
-| TECH-031-R4 | Sizes below (local trace). The Vercel build log and the account's Functions Storage **not checked yet** | local | Partly checked | 2026-11-06 |
+| TECH-031-R1 | Code review of `lib/db.ts`; `file:` path exercised by all unit and browser tests; the web client on a `libsql://` URL by "Preview tests" (the smoke tests against the preview's Turso), "Live tests" after the merge, and the booking below | local, preview, live | Pass | 2026-11-06 |
+| TECH-031-R2 | Manual (needs a build): `npm run build` into a separate folder, then every `*.nft.json` under `server/` read for `@libsql/darwin-*`, `linux-*` and `win32-*`. Before: 19 of 24 functions list it. After: 0 of 24. The Vercel build log was not read (the Vercel CLI is not installed); the owner looks at the sizes in the dashboard | local | Pass locally, Vercel log not checked | 2026-11-06 |
+| TECH-031-R3 | The existing unit tests (317) and browser tests (223) pass unchanged; "Preview tests" and "Live tests" pass; a booking was made and cancelled by hand by the owner (transactions with the web client), which worked | local, preview, live | Pass | 2026-11-06 |
+| TECH-031-R4 | Sizes below (local trace). The Vercel build log and the account's Functions Storage not checked | local | Local trace only | 2026-11-06 |
 
 ## Sizes (R4)
 
@@ -22,7 +22,7 @@ Local trace: the files each function's `*.nft.json` lists, summed, after `npm ru
 | After | 0 of 24 | about 2.9 MB | 23.1 MB | 447.2 MB |
 | After, without the exclude (the web client alone) | 19 of 24 | about 10.4 MB | 30.6 MB | 589.2 MB |
 
-The sums are not the size on Vercel: shared files are counted once per function, and most of the sum is the local backups. The real sizes come from the Vercel build log of the preview (not checked yet).
+The sums are not the size on Vercel: shared files are counted once per function, and most of the sum is the local backups. The real sizes are in the Vercel dashboard for a deployment (not recorded here).
 
 ## The test plan
 
@@ -30,7 +30,7 @@ The sums are not the size on Vercel: shared files are counted once per function,
 |---|---|---|---|---|
 | Unit tests | `npm run test:unit`, no new tests: 317 passed | local | Pass | 2026-11-06 |
 | Browser tests | `npm run test:local`, no new tests: 223 passed | local | Pass | 2026-11-06 |
-| Smoke test | Not checked yet: the existing ones on the preview and on production | preview, live | Not checked | |
+| Smoke test | The existing smoke tests: "Preview tests" on the preview and "Live tests" on main after the merge | preview, live | Pass | 2026-11-06 |
 | Accessibility | Not applicable: nothing visible changes | | | |
 | Security | The security points in the review passed; `/security-review` run: no finding of confidence 8 or higher | local | Pass | 2026-11-06 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-06 |
@@ -48,7 +48,7 @@ The browser tests are 11 s over the 3 minute budget in `wiki/system/testing.md`.
 
 ## Definition of Done
 
-Not all checked: the deploy, the review and the preview checks are left.
+Done, except that the sizes on Vercel (R4) were not recorded: the owner reads them in the dashboard. The browser tests are over their time budget because of earlier changes (see above).
 
 ## Requirements as built
 
