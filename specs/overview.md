@@ -163,6 +163,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-040 | Booking agent: aircraft and classes in charter: Agneta knows the plan step; she lists the aircraft that seat the party with the price per class, recommends one in her voice, sets aircraft and numbers per class for each trip (refused as the step refuses), asks once about the add-ons of the chosen classes and writes them into the form, and her shortcut goes through the plan step | Charter | Review |
 | TRIP-042 | No "Snabbast" badge in the charter plan step, since the time factor is ignored there; flights keep it | Charter | Review |
 | TRIP-041 | Fix: the class is chosen once, in the plan step; the passengers page shows it, offers no choice and a way back to the plan step, and says which add-ons a changed plan removed | Flight booking | Review |
+| TRIP-038 | Fix: the agent takes the visitor to the payment step, asks how to pay there and asks for a check before the button, which is offered on the payment page only | Charter | Review |
 | TRIP-043 | Leaner departure and aircraft pickers: a visible Välj on every departure (flights and charter) with an optional unfold; the aircraft step is one compact row per aircraft with its classes in the open row, a counter, one aircraft holding the travellers and Fortsätt instead of Klar | Flight booking, Charter | Review |
 
 ## Decisions for charter

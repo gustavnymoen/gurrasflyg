@@ -87,7 +87,7 @@ test("TRIP-030-R2 R9 the request carries the tools, the agent rules after the sy
   const params = create.mock.calls[0][0] as unknown as { cache_control: unknown; tools: { name: string }[]; system: { text: string }[]; messages: { content: { text: string }[] }[] };
   expect(params.cache_control).toEqual({ type: "ephemeral" });
   expect(params.tools.map((t) => t.name)).toEqual([
-    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "set_extras", "set_payment", "summarise",
+    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "show_payment", "set_extras", "set_payment", "summarise",
   ]);
   expect(params.system).toHaveLength(2);
   expect(params.system[0].text).toBe(await buildSystemPrompt());
@@ -215,18 +215,18 @@ test("TRIP-030-R6 extras and payment become actions in the order extras, payment
   ]);
 });
 
-test("TRIP-030-R8 the booking button is offered only with a valid form, a payment method, both trips and the page Resenärer or payment", async () => {
+test("TRIP-030-R8 TRIP-038-R2 the booking button is offered only with a valid form, a payment method, both trips and the payment page", async () => {
   const marked = textTurn("Sammanfattning.\n[[BOOK]]");
   const offered = (ctx: object) => askAgent(question, context(ctx), scripted(marked).client);
-  const ready = { url: tripUrl("boka", planned()), payment: "cash", valid: true };
+  const ready = { url: tripUrl("boka/betala", planned()), payment: "cash", valid: true };
   expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true });
-  expect((await offered({ ...ready, url: tripUrl("boka/betala", planned()) }))!.book).toBe(true);
+  expect((await offered({ ...ready, url: tripUrl("boka", planned()) }))!.book).toBe(false); // Resenärer: no button (TRIP-038-R2)
   expect((await offered({ ...ready, valid: false }))!.book).toBe(false);
   expect((await offered({ ...ready, payment: null }))!.book).toBe(false);
   expect((await offered({ ...ready, url: tripUrl("resor", planned()) }))!.book).toBe(false);
   expect((await offered({ ...ready, url: tripUrl("plan", planned()) }))!.book).toBe(false);
-  expect((await offered({ ...ready, url: tripUrl("boka", CHOSEN) }))!.book).toBe(false); // no aircraft and classes (TRIP-040)
-  expect((await offered({ ...ready, url: tripUrl("boka") }))!.book).toBe(false);
+  expect((await offered({ ...ready, url: tripUrl("boka/betala", CHOSEN) }))!.book).toBe(false); // no aircraft and classes (TRIP-040)
+  expect((await offered({ ...ready, url: tripUrl("boka/betala") }))!.book).toBe(false);
   expect((await offered({ ...ready, url: "/charter" }))!.book).toBe(false);
   expect((await offered({ ...ready, url: tripUrl("boka", "&ut=nonsense&hem=nonsense") }))!.book).toBe(false);
   // The marker never stays in the text, and an answer with no marker offers nothing
@@ -234,6 +234,29 @@ test("TRIP-030-R8 the booking button is offered only with a valid form, a paymen
   // Moving the page in the same answer: the form there is not known to be valid
   const moves = scripted(toolTurn(use("show_results", trip)), marked);
   expect((await askAgent(question, context(ready), moves.client))!.book).toBe(false);
+});
+
+test("TRIP-038-R1 show_payment opens the payment page with the same search and choice, and is refused until the form is valid", async () => {
+  const url = tripUrl("boka", planned());
+  const open = scripted(toolTurn(use("show_payment", {})), textTurn("Betala."));
+  expect((await askAgent(question, context({ url, valid: true }), open.client))?.actions).toEqual([{ type: "goto", url: tripUrl("boka/betala", planned()) }]);
+
+  const early = scripted(toolTurn(use("show_payment", {})), textTurn("Fyll i."));
+  expect((await askAgent(question, context({ url }), early.client))?.actions).toEqual([]);
+  expect(toolResults(early.create)[0]).toMatchObject({ is_error: true, content: expect.stringContaining("not valid") });
+
+  const unplanned = scripted(toolTurn(use("show_payment", {})), textTurn("Plan."));
+  await askAgent(question, context({ url: tripUrl("boka", CHOSEN), valid: true }), unplanned.client);
+  expect(toolResults(unplanned.create)[0].is_error).toBe(true);
+});
+
+test("TRIP-038-R1 R2 the rules send payment to the payment page and the check before the button", async () => {
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, context(), client);
+  const rules = (create.mock.calls[0][0] as unknown as { system: { text: string }[] }).system[1].text;
+  expect(rules).toContain("Do not ask about payment there");
+  expect(rules).toContain("ask them to check that everything is right");
+  expect(rules).toContain("never on Resenärer");
 });
 
 test("TRIP-030-R4 summarise tells the total from the database with the extras now, and whether the form is valid", async () => {

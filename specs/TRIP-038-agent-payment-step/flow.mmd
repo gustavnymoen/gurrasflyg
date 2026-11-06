@@ -1,0 +1,12 @@
+%% TRIP-038 The agent takes the visitor to the payment step
+flowchart TD
+    A[Resenärer: add-ons and extras asked, never payment] --> B{Traveller form valid?}
+    B -- no --> C[show_payment refused: visitor fills in the form]
+    C --> A
+    B -- yes --> D[show_payment: open the payment page R1]
+    D --> E[Ask how to pay, set_payment]
+    E --> F[summarise, ask the visitor to check R2]
+    F --> G{Payment page, valid form, payment set?}
+    G -- yes --> H[Button Boka och betala]
+    G -- no --> I[No button]
+    H -- pressed --> J[bookCharterAction, as Betala]

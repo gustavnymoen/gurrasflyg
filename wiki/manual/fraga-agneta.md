@@ -7,7 +7,7 @@ feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030
 tags: [resenär, charter, chatt, agneta]
 generated:
   by: claude
-  at: 2026-11-06T12:00:00+01:00
+  at: 2026-11-06T13:40:00+01:00
 ---
 
 # Fråga Agneta
@@ -42,7 +42,7 @@ I det här läget kan hon:
 - **Visa sidor åt dig.** Säger du "visa gruvor i Europa" öppnar hon listan med de filtren. Säger du resmål, datum och hur många ni är (till exempel "vi är tre, till Teufelsberg mellan dessa datum") och det finns resor både ut och hem, tar hon dig direkt till sidan **Plan och klass** med en utresa och en hemresa vald, och berättar vilka hon valde och varför. Du kan byta resor på sidan. Frågar hon efter flygplats (Arlanda eller Köpenhamn) svarar du en gång.
 - **Berätta om resorna.** Hon får samma resor och priser som resultatsidan visar, och nämner inga andra. Går ingen resa de dagarna säger hon det och föreslår andra datum.
 - **Hjälpa dig välja plan och klass.** På sidan Plan och klass går hon igenom vilka plan som har plats för er och vad en plats i varje klass kostar, och tycker något om dem. Vill du ha hennes förslag säger du det, och hon fyller i plan och antal per klass för båda resorna. Går det inte (planet är för litet eller antalen stämmer inte) säger hon vad som var fel och föreslår något annat. Hon nämner ingen flygtid för planen: en charterresa går när tidtabellen säger. Hon tar dig vidare till **Resenärer** först när plan och klasser är valda för båda resorna. Klassen går inte att byta på Resenärer: vill du ha en annan klass där skickar hon dig tillbaka till planen.
-- **Välja tillägg och betalsätt.** Hon frågar en gång om du ser något tillägg i klasserna du valt (till exempel måltid) och sätter det åt alla resenärer på båda resorna; vill du ha olika ändrar du på sidan. Öl väljer du alltid själv. Hon frågar också en gång om du ser något av charterns extra tillägg och hur du vill betala, och fyller i dem på sidan. Dryckespaketet väljs aldrig när någon resenär är under 18.
+- **Välja tillägg och betalsätt.** Hon frågar en gång om du ser något tillägg i klasserna du valt (till exempel måltid) och sätter det åt alla resenärer på båda resorna; vill du ha olika ändrar du på sidan. Öl väljer du alltid själv. Hon frågar också en gång om du ser något av charterns extra tillägg, och fyller i det på sidan. Hur du vill betala frågar hon först på betalningssidan, där du ser valet. Dryckespaketet väljs aldrig när någon resenär är under 18.
 
 Du styr själv hela tiden. Klickar du på sidan medan hon svarar, eller ändrar datum, filter, resa, tillägg eller betalsätt, utgår hon från det du gjorde, och ändrar sig inget över ditt huvud: har du hunnit ändra något innan hennes svar kommer säger hon det och frågar hur du vill ha det.
 
@@ -50,7 +50,7 @@ Du styr själv hela tiden. Klickar du på sidan medan hon svarar, eller ändrar 
 
 ### Boka med knappen
 
-När formuläret är rätt ifyllt, resorna är valda och ett betalsätt är valt, sammanfattar Agneta resan (resmål, datum, resor, resenärer, tillägg och totalpris), och under sammanfattningen kommer knappen **Boka och betala**. Bokningen görs först när du trycker på den, på samma sätt och med samma kontroller som med **Betala** på betalningssidan (ingen riktig betalning görs). Går det bra kommer du till sammanfattningen av bokningen, och Agneta säger bokningsnumret. Går det inte står orsaken under knappen. Trycker du två gånger blir det en bokning.
+När du fyllt i Resenärer och formuläret är rätt, tar Agneta dig till betalningssidan och frågar där hur du vill betala. När ett betalsätt är valt sammanfattar hon resan (resmål, datum, resor, resenärer, tillägg och totalpris), ber dig kontrollera att allt stämmer, och under sammanfattningen kommer knappen **Boka och betala**. Bokningen görs först när du trycker på den, på samma sätt och med samma kontroller som med **Betala** på betalningssidan (ingen riktig betalning görs). Går det bra kommer du till sammanfattningen av bokningen, och Agneta säger bokningsnumret. Går det inte står orsaken under knappen. Trycker du två gånger blir det en bokning.
 
 ## Minimera och stänga
 
@@ -62,7 +62,7 @@ Samtalet sparas i din webbläsare tills du stänger fliken, och inget av det ski
 ## När något går fel
 
 - **Agneta säger att det krånglar:** försök igen om en stund. Din fråga finns kvar i samtalet.
-- **Knappen Boka och betala kommer inte:** formuläret på Resenärer är inte rätt ifyllt, ett betalsätt saknas eller en resa är inte vald. Rätta det på sidan och be Agneta sammanfatta igen.
+- **Knappen Boka och betala kommer inte:** du är inte på betalningssidan, formuläret på Resenärer är inte rätt ifyllt, ett betalsätt saknas eller en resa är inte vald. Rätta det på sidan och be Agneta sammanfatta igen.
 - **Hon säger att du har frågat nog:** du kan ställa högst 10 frågor på 5 minuter. Vänta så länge som det står.
 
 [Användarmanual](index.md)
