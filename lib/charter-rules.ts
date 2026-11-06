@@ -26,7 +26,7 @@ import {
   passengerProblems,
   type Problems,
   QUESTIONS,
-  seatCost,
+  seatsTotal,
 } from "./booking-rules";
 import { arrival, type FleetAircraft, instant, type PlanFlight, seatingText } from "./fare-rules";
 import { DEPARTURE_AIRPORTS } from "./destinations";
@@ -282,8 +282,7 @@ export function departuresTotal(tripPrices: number[], extras: string[], travelle
 
 // Priset för hela resan: varje resenärs plats och tillägg på båda resorna, och tilläggen för hela bokningen (TRIP-039-R3, R4)
 export function charterTotal(legs: BookingLeg[], form: Pick<CharterForm, "passengers" | "extras">) {
-  const seats = form.passengers.reduce((sum, p) => sum + legs.reduce((s, leg, i) => s + seatCost(leg, p.legs[i]), 0), 0);
-  return seats + extraRows(form.extras, 1).reduce((s, e) => s + e.sum, 0) * form.passengers.length;
+  return seatsTotal(legs, form.passengers) + extraRows(form.extras, 1).reduce((s, e) => s + e.sum, 0) * form.passengers.length;
 }
 
 // ---------------------------------------------------------------- Formuläret

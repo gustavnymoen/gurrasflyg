@@ -11,7 +11,7 @@ let readPage: typeof import("./agent-page").readPage;
 let buildSystemPrompt: typeof import("./chat-prompt").buildSystemPrompt;
 
 // Testets plan med två klasser och ett tillägg i båda (satta i beforeAll). Priset: avgångens × 150 % × klassens.
-const ids = { aircraft: 0, economy: 0, business: 0, meal: 0 };
+const ids = { aircraft: 0, economy: 0, business: 0, meal: 0, beer: 0 };
 
 beforeAll(async () => {
   const db = openUnitDb();
@@ -27,6 +27,9 @@ beforeAll(async () => {
     for (const id of [ids.economy, ids.business]) {
       await db.execute({ sql: "INSERT INTO aircraft_class_addons (aircraft_id, class_id, addon_id) VALUES (?, ?, ?)", args: [ids.aircraft, id, ids.meal] });
     }
+    // Ölen heter bara Öl (isBeer) och går att köpa i Ekonomi
+    ids.beer = Number((await db.execute("INSERT INTO addons (name, description, price) VALUES ('Öl', 'Unit', 60)")).lastInsertRowid);
+    await db.execute({ sql: "INSERT INTO aircraft_class_addons (aircraft_id, class_id, addon_id) VALUES (?, ?, ?)", args: [ids.aircraft, ids.economy, ids.beer] });
   } finally {
     db.close();
   }
@@ -40,7 +43,7 @@ afterAll(async () => {
     await db.execute({ sql: "DELETE FROM aircraft_class_addons WHERE aircraft_id = ?", args: [ids.aircraft] });
     await db.execute({ sql: "DELETE FROM aircraft_capacity WHERE aircraft_id = ?", args: [ids.aircraft] });
     await db.execute({ sql: "DELETE FROM aircraft WHERE id = ?", args: [ids.aircraft] });
-    await db.execute("DELETE FROM addons WHERE name LIKE 'Unit %'");
+    await db.execute({ sql: "DELETE FROM addons WHERE name LIKE 'Unit %' OR id = ?", args: [ids.beer] });
   } finally {
     db.close();
   }
@@ -87,7 +90,7 @@ test("TRIP-030-R2 R9 the request carries the tools, the agent rules after the sy
   const params = create.mock.calls[0][0] as unknown as { cache_control: unknown; tools: { name: string }[]; system: { text: string }[]; messages: { content: { text: string }[] }[] };
   expect(params.cache_control).toEqual({ type: "ephemeral" });
   expect(params.tools.map((t) => t.name)).toEqual([
-    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "show_payment", "set_extras", "set_payment", "summarise",
+    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "find_airports", "find_flights", "show_flights", "show_flight_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "show_payment", "set_extras", "set_payment", "summarise",
   ]);
   expect(params.system).toHaveLength(2);
   expect(params.system[0].text).toBe(await buildSystemPrompt());
@@ -400,4 +403,218 @@ test("TRIP-040-R4 set_addons becomes an action with each traveller's class and a
     textTurn("Ändrat."),
   );
   expect((await askAgent(question, context({ url }), changed.client))!.actions.map((a) => a.type)).toEqual(["goto"]);
+});
+
+// ---------------------------------------------------------------- TRIP-036: flyg
+
+const search = { from: "ARN", to: "LHR", outbound: "2027-01-11", return: "2027-01-16", travellers: 2 };
+const flightUrl = (path: string, extra = "") => `${path}?fran=ARN&till=LHR&utresa=2027-01-11&hemresa=2027-01-16&resenarer=2${extra}`;
+const FLIGHTS = "&ut=08%3A20&hem=15%3A35";
+const flightPlanned = () => `&ut=08%3A20&ut-plan=${ids.aircraft}&ut-klasser=${encodeURIComponent(`${ids.economy}:1,${ids.business}:1`)}&hem=15%3A35&hem-plan=${ids.aircraft}&hem-klasser=${encodeURIComponent(`${ids.economy}:2`)}`;
+const goto = (url: string) => [{ type: "goto", url }];
+
+test("TRIP-036-R2 find_airports gives codes for a city, a country or a code, and tells when nothing matches", async () => {
+  const { client, create } = scripted(toolTurn(use("find_airports", { q: "london" }, "a"), use("find_airports", { q: "xyzzy" }, "b")), textTurn("Där."));
+  await askAgent(question, context(), client);
+  const [found, none] = toolResults(create);
+  expect(found.content).toContain("- LHR: London Heathrow, London,");
+  expect(none).toMatchObject({ is_error: false, content: expect.stringContaining("No airport matches") });
+});
+
+test("TRIP-036-R2 find_flights tells the departures and prices of the flights page, both ways, and opens nothing", async () => {
+  const { client, create } = scripted(toolTurn(use("find_flights", search)), textTurn("Där."));
+  expect((await askAgent(question, context(), client))?.actions).toEqual([]);
+  const [{ content }] = toolResults(create);
+  expect(content).toMatch(/Outbound flights ARN to LHR on 2027-01-11:\n- 08:20: GF \d+, 2027-01-11 08:20 ARN Stockholm to LHR London, from [\d\s]+kr per person/);
+  expect(content.match(/^- \d\d:\d\d: GF/gm)).toHaveLength(10); // five each way
+  expect(content).toContain("Return flights LHR to ARN on 2027-01-16:\n- 06:45:");
+
+  const oneWay = scripted(toolTurn(use("find_flights", { ...search, return: undefined })), textTurn("Där."));
+  await askAgent(question, context(), oneWay.client);
+  expect(toolResults(oneWay.create)[0].content).not.toContain("Return flights");
+});
+
+test("TRIP-036-R2 a search the flight form would refuse, or an airport that does not exist, is an error and nothing opens", async () => {
+  const wrong = [
+    { ...search, from: "XXX" },
+    { ...search, to: "ARN" },
+    { ...search, outbound: "2026-01-11", return: "2026-01-16" }, // in the past
+    { ...search, outbound: "2028-01-11", return: "2028-01-16" }, // too far ahead
+    { ...search, return: "2027-01-01" }, // before the outbound
+    { ...search, travellers: 11 },
+  ];
+  const { client, create } = scripted(toolTurn(...wrong.map((input, i) => use("show_flights", input, `w${i}`))), textTurn("Nej."));
+  expect((await askAgent(question, context(), client))?.actions).toEqual([]);
+  expect(toolResults(create).map((r) => r.is_error)).toEqual(Array(wrong.length).fill(true));
+});
+
+test("TRIP-036-R2 show_flights opens the results page with the search, and the departures only when both are given and run", async () => {
+  const plain = scripted(toolTurn(use("show_flights", search)), textTurn("Där."));
+  expect((await askAgent(question, context(), plain.client))?.actions).toEqual(goto(flightUrl("/flyg")));
+
+  const chosen = scripted(toolTurn(use("show_flights", { ...search, outbound_flight: "08:20", return_flight: "15:35" })), textTurn("Där."));
+  expect((await askAgent(question, context(), chosen.client))?.actions).toEqual(goto(flightUrl("/flyg", FLIGHTS)));
+  expect(toolResults(chosen.create)[0].content).toContain("with 08:20: GF");
+
+  const oneWay = scripted(toolTurn(use("show_flights", { ...search, return: undefined, outbound_flight: "08:20" })), textTurn("Där."));
+  expect((await askAgent(question, context(), oneWay.client))?.actions).toEqual(goto("/flyg?fran=ARN&till=LHR&utresa=2027-01-11&resenarer=2&ut=08%3A20"));
+
+  for (const input of [{ outbound_flight: "08:20" }, { outbound_flight: "03:03", return_flight: "15:35" }, { return_flight: "15:35" }]) {
+    const refused = scripted(toolTurn(use("show_flights", { ...search, ...input })), textTurn("Nej."));
+    expect((await askAgent(question, context(), refused.client))?.actions, JSON.stringify(input)).toEqual([]);
+    expect(toolResults(refused.create)[0].is_error).toBe(true);
+  }
+});
+
+test("TRIP-036-R2 the shortcut: show_flight_plan opens the plan step with the departures chosen, and needs them", async () => {
+  const ok = scripted(toolTurn(use("show_flight_plan", { ...search, outbound_flight: "08:20", return_flight: "15:35" })), textTurn("Valde."));
+  expect((await askAgent(question, context(), ok.client))?.actions).toEqual(goto(flightUrl("/flyg/plan", FLIGHTS)));
+
+  const none = scripted(toolTurn(use("show_flight_plan", search)), textTurn("Nej."));
+  expect((await askAgent(question, context(), none.client))?.actions).toEqual([]);
+  expect(toolResults(none.create)[0].is_error).toBe(true);
+});
+
+test("TRIP-036-R2 the page is read: the search, the chosen departures that run, and no choice for one that does not", async () => {
+  const now = new Date();
+  expect(await readPage(flightUrl("/flyg", FLIGHTS), now)).toMatchObject({ kind: "flight", step: "results", data: { flights: [{ time: "08:20" }, { time: "15:35" }] } });
+  expect(await readPage(flightUrl("/flyg/boka/betala", flightPlanned()), now)).toMatchObject({ kind: "flight", step: "payment", data: { legs: [{ key: expect.any(String) }, { key: expect.any(String) }] } });
+  expect(await readPage(flightUrl("/flyg/plan", "&ut=03:03&hem=15:35"), now)).toMatchObject({ kind: "flight", data: { flights: [undefined, { time: "15:35" }], legs: null } });
+  expect((await readPage("/flyg", now)).kind).toBe("unknown");
+  expect((await readPage("/flyg?fran=XXX&till=LHR&utresa=2027-01-11&resenarer=2", now)).kind).toBe("unknown");
+
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, context({ url: flightUrl("/flyg/plan", flightPlanned()) }), client);
+  const page = (create.mock.calls[0][0] as unknown as { messages: { content: { text: string }[] }[] }).messages[0].content[0].text;
+  expect(page).toContain("The visitor is on the plan step");
+  expect(page).toContain("Search: from ARN to LHR, outbound 2027-01-11, return 2027-01-16, 2 travellers");
+  expect(page).toContain("Chosen outbound flight: 08:20: GF");
+  expect(page).toContain("Chosen aircraft and travellers per class, return: Unit Agentplan");
+});
+
+test("TRIP-036-R3 list_aircraft tells flight time, arrival, price per class and the comparison for each flight; set_plan puts the choice in the address", async () => {
+  const url = flightUrl("/flyg/plan", FLIGHTS);
+  const { client, create } = scripted(toolTurn(use("list_aircraft", {})), textTurn("Där."));
+  await askAgent(question, context({ url }), client);
+  const [{ content }] = toolResults(create);
+  expect(content).toContain("Outbound flight 08:20:");
+  expect(content).toContain("Return flight 15:35:");
+  // 140 minutes × 200 % = 4 h 40 min; 08:20 in Stockholm is 12:00 in London; the price 3 890 × 150 % × the class
+  expect(content).toMatch(new RegExp(`- aircraft ${ids.aircraft} Unit Agentplan: flight time 4 h 40 min, lands 12:00 local time; class ${ids.economy} Ekonomi \\(room for 10\\) 5\\s835\\skr per person; class ${ids.business} Business \\(room for 1\\) 8\\s753\\skr per person \\(\\+2\\s918\\skr on the cheapest class\\)`));
+  expect(content).toMatch(/(cheapest|fastest)/);
+
+  const set = (trip: string, classes: unknown) => toolUse("set_plan", { trip, aircraft_id: ids.aircraft, classes }, trip);
+  const both = scripted(toolTurn(set("outbound", [{ class_id: ids.business, count: 1 }, { class_id: ids.economy, count: 1 }]), set("return", [{ class_id: ids.economy, count: 2 }])), textTurn("Klart."));
+  expect((await askAgent(question, context({ url }), both.client))?.actions).toEqual(goto(flightUrl("/flyg/plan", flightPlanned())));
+
+  // An aircraft that is too small, numbers that do not fit and a return on a one-way trip are refused, and nothing changes
+  const refused = scripted(
+    toolTurn(set("outbound", [{ class_id: ids.business, count: 2 }]), set("outbound", [{ class_id: ids.economy, count: 1 }]), use("set_plan", { trip: "outbound", aircraft_id: 999_999, classes: [] }, "x")),
+    textTurn("Nej."),
+  );
+  expect((await askAgent(question, context({ url }), refused.client))?.actions).toEqual([]);
+  expect(toolResults(refused.create).every((r) => r.is_error)).toBe(true);
+
+  const oneWay = scripted(toolTurn(set("return", [{ class_id: ids.economy, count: 1 }])), textTurn("Nej."));
+  await askAgent(question, context({ url: "/flyg/plan?fran=ARN&till=LHR&utresa=2027-01-11&resenarer=1&ut=08%3A20" }), oneWay.client);
+  expect(toolResults(oneWay.create)[0]).toMatchObject({ is_error: true, content: expect.stringContaining("one-way") });
+});
+
+test("TRIP-036-R3 the tools that need the flights chosen say so on the flight pages before they are", async () => {
+  for (const name of ["list_aircraft", "set_addons", "show_travellers", "summarise"]) {
+    const { client, create } = scripted(toolTurn(use(name, { addons: [] })), textTurn("Nej."));
+    await askAgent(question, context({ url: flightUrl("/flyg") }), client);
+    expect(toolResults(create)[0], name).toMatchObject({ is_error: true });
+  }
+  const { client, create } = scripted(toolTurn(use("list_aircraft", {})), textTurn("Nej."));
+  await askAgent(question, context({ url: flightUrl("/flyg") }), client);
+  expect(toolResults(create)[0].content).toContain("show_flight_plan");
+});
+
+test("TRIP-036-R4 list_addons gives the add-ons with prices; set_addons sets them for every traveller per flight in the class where they are sold", async () => {
+  const url = flightUrl("/flyg/boka", flightPlanned());
+  const list = scripted(toolTurn(use("list_addons", {})), textTurn("Där."));
+  await askAgent(question, context({ url }), list.client);
+  const listed = toolResults(list.create)[0].content;
+  expect(listed).toMatch(/utresan \(Unit Agentplan\):\n {2}Ekonomi: .*Unit Måltid 120\skr per piece/);
+  expect(listed).toMatch(/Öl 60\skr per piece \(from 18\)/);
+
+  const set = scripted(toolTurn(use("set_addons", { addons: [{ name: "Unit Måltid", count: 2 }] })), textTurn("Klart."));
+  const [action] = (await askAgent(question, context({ url }), set.client))!.actions;
+  const meal = (classId: number) => ({ classId, addons: { [ids.meal]: 2 } });
+  expect(action).toEqual({
+    type: "addons",
+    legKeys: [expect.stringContaining("ARN-LHR 2027-01-11 08:20"), expect.stringContaining("LHR-ARN 2027-01-16 15:35")],
+    passengers: [[meal(ids.business), meal(ids.economy)], [meal(ids.economy), meal(ids.economy)]],
+  });
+  expect(safeActions([action])).toEqual([action]);
+
+  // Only the add-ons of the traveller's class: beer is sold in Ekonomi only, so the Business traveller gets none
+  const beer = scripted(toolTurn(use("set_addons", { addons: [{ name: "öl", count: 1 }] })), textTurn("Öl."));
+  const [beerAction] = (await askAgent(question, context({ url }), beer.client))!.actions;
+  expect(beerAction).toMatchObject({ passengers: [[{ classId: ids.business, addons: {} }, { classId: ids.economy, addons: { [ids.beer]: 1 } }], [{ addons: { [ids.beer]: 1 } }, { addons: { [ids.beer]: 1 } }]] });
+  expect(toolResults(beer.create)[0].content).toContain("for adults only");
+
+  const bad = scripted(toolTurn(use("set_addons", { addons: [{ name: "Raketbränsle", count: 1 }] }, "a"), use("set_addons", { addons: [{ name: "Unit Måltid", count: 11 }] }, "b")), textTurn("Nej."));
+  expect((await askAgent(question, context({ url }), bad.client))?.actions).toEqual([]);
+  expect(toolResults(bad.create).every((r) => r.is_error)).toBe(true);
+});
+
+test("TRIP-036-R4 the extras are for charter only: set_extras is refused on the flight pages", async () => {
+  const { client, create } = scripted(toolTurn(use("set_extras", { extras: ["ultimate"] })), textTurn("Nej."));
+  expect((await askAgent(question, context({ url: flightUrl("/flyg/boka", flightPlanned()) }), client))?.actions).toEqual([]);
+  expect(toolResults(create)[0]).toMatchObject({ is_error: true, content: expect.stringContaining("set_addons") });
+});
+
+test("TRIP-036-R5 show_travellers opens Resenärer when the aircraft and classes are set; show_payment waits for a valid form", async () => {
+  const open = scripted(toolTurn(use("show_travellers", {})), textTurn("Fyll i."));
+  expect((await askAgent(question, context({ url: flightUrl("/flyg/plan", flightPlanned()) }), open.client))?.actions).toEqual(goto(flightUrl("/flyg/boka", flightPlanned())));
+
+  const url = flightUrl("/flyg/boka", flightPlanned());
+  const early = scripted(toolTurn(use("show_payment", {})), textTurn("Fyll i."));
+  expect((await askAgent(question, context({ url }), early.client))?.actions).toEqual([]);
+  expect(toolResults(early.create)[0]).toMatchObject({ is_error: true, content: expect.stringContaining("not valid") });
+
+  const valid = scripted(toolTurn(use("show_payment", {})), textTurn("Betala."));
+  expect((await askAgent(question, context({ url, valid: true }), valid.client))?.actions).toEqual(goto(flightUrl("/flyg/boka/betala", flightPlanned())));
+});
+
+test("TRIP-036-R6 summarise gives the flights, the aircraft, the add-ons just set and the total from the database", async () => {
+  const { client, create } = scripted(toolTurn(use("set_addons", { addons: [{ name: "Unit Måltid", count: 1 }] }, "a"), use("set_payment", { payment: "cash" }, "b"), use("summarise", {}, "c")), textTurn("Klar."));
+  await askAgent(question, context({ url: flightUrl("/flyg/boka/betala", flightPlanned()), valid: true }), client);
+  const summary = toolResults(create)[2].content;
+  expect(summary).toContain("Chosen outbound flight: 08:20: GF");
+  expect(summary).toContain("Payment method: Cash till piloten");
+  expect(summary).not.toContain("Extras:");
+  // out 3 890 × 150 %: Business 8 753 + Ekonomi 5 835; back 980 × 150 % × 2 = 2 940; the meal 120 × 4 = 480
+  expect(summary).toMatch(/Total price: 18\s008\skr/);
+  expect(summary).toContain("The traveller form is valid.");
+});
+
+test("TRIP-036-R6 the booking button is offered on the flight payment page only, with a valid form, a payment method and the flights planned", async () => {
+  const marked = textTurn("Sammanfattning.\n[[BOOK]]");
+  const offered = (ctx: object) => askAgent(question, context(ctx), scripted(marked).client);
+  const ready = { url: flightUrl("/flyg/boka/betala", flightPlanned()), payment: "cash", valid: true };
+  expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true });
+  for (const over of [
+    { url: flightUrl("/flyg/boka", flightPlanned()) },
+    { url: flightUrl("/flyg/plan", flightPlanned()) },
+    { url: flightUrl("/flyg/boka/betala", FLIGHTS) }, // no aircraft and classes
+    { url: flightUrl("/flyg/boka/betala") }, // no flights
+    { valid: false },
+    { payment: null },
+  ]) {
+    expect((await offered({ ...ready, ...over }))!.book, JSON.stringify(over)).toBe(false);
+  }
+});
+
+test("TRIP-036-R2 R6 the rules tell her to be Agneta on the flight pages, to ask about add-ons once, to warn about beer and never to ask for ages", async () => {
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, context({ url: flightUrl("/flyg") }), client);
+  const rules = (create.mock.calls[0][0] as unknown as { system: { text: string }[] }).system[1].text;
+  expect(rules).toContain("# Ordinary flights");
+  expect(rules).toContain("find_airports");
+  expect(rules).toContain("funny and negative");
+  expect(rules).toContain("ser du någon addon du gillar?");
+  expect(rules).toContain("never ask for ages");
 });

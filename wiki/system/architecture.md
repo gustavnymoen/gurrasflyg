@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-11-06T12:00:00+01:00
+  at: 2026-11-06T16:00:00+01:00
 ---
 
 # Architecture
@@ -35,7 +35,7 @@ flowchart LR
 | `app/min-bokning/` | `/min-bokning`: find a booking by number and last name and cancel parts of it, with the server actions `lookUpAction` and `cancelAction` ([my booking](my-booking.md)). |
 | `app/api/airports/` | `GET /api/airports?q=` for the airport autocomplete. |
 | `app/api/destinations/` | `GET /api/destinations`, see [the endpoint](api-destinations.md). |
-| `app/api/chat/` | `POST /api/chat`, the chat with Agneta ([Charter chatbot Agneta](charter-chatbot.md)); `lib/chat.ts`, `lib/chat-prompt.ts` and `lib/chat-rules.ts` hold the model call, the system prompt and the shared rules, `lib/chat-saved.ts` the saved conversation, `lib/chat-mock.ts` the fake client for the tests, `lib/agent*.ts` the agent mode (rules, page reading, tools, tool loop, and the plan and class checks in `lib/agent-plan.ts`; TRIP-030, TRIP-040), and `app/components/Chat.tsx` (button, panel, dialog), `ChatBody.tsx`, `Answer.tsx`, `AgnetaAvatar.tsx` and `useSavedChat.ts` and `chatAgent.ts` the chat. |
+| `app/api/chat/` | `POST /api/chat`, the chat with Agneta ([Charter chatbot Agneta](charter-chatbot.md)); `lib/chat.ts`, `lib/chat-prompt.ts` and `lib/chat-rules.ts` hold the model call, the system prompt and the shared rules, `lib/chat-saved.ts` the saved conversation, `lib/chat-mock.ts` the fake client for the tests, `lib/agent*.ts` the agent mode (rules, page reading, tools, tool loop, the plan and class checks in `lib/agent-plan.ts`, and the flight pages in `lib/agent-flight.ts`; TRIP-030, TRIP-040, TRIP-036), and `app/components/Chat.tsx` (button, panel, dialog), `ChatBody.tsx`, `Answer.tsx`, `AgnetaAvatar.tsx` and `useSavedChat.ts` and `chatAgent.ts` the chat; the chat is mounted by the start page and the layouts `app/charter/layout.tsx` and `app/flyg/layout.tsx`. |
 | `proxy.ts` | Runs before every `/admin` request and sends visitors without a valid sign-in to `/admin/login`. |
 | `lib/db.ts` | Database connection and helpers (`all`, `get`, `run`, `withTransaction`) and airport search. |
 | `lib/admin.ts` | Cabin classes, add-ons and aircraft, with their factors: validation and database changes. |

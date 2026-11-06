@@ -111,7 +111,7 @@ export function bookingLegs(
   return result.every((leg) => leg !== null) ? result : null;
 }
 
-const emptyPassenger = (): Passenger => ({ firstName: "", lastName: "", age: "", nerves: false, legs: [] });
+export const emptyPassenger = (): Passenger => ({ firstName: "", lastName: "", age: "", nerves: false, legs: [] });
 
 export const emptyForm = (requestId: string): BookingForm => ({
   requestId,
@@ -216,6 +216,10 @@ export function seatCost(leg: BookingLeg, passengerLeg: PassengerLeg) {
 // En passagerares pris på ett flyg: platsen, tilläggen och Dåliga nerver (R3, R4)
 export const passengerLegPrice = (leg: BookingLeg, passenger: Passenger, legIndex: number) =>
   seatCost(leg, passenger.legs[legIndex]) + (passenger.nerves ? NERVES_PRICE : 0);
+
+// Platserna och tilläggen i klasserna för alla passagerare på alla flyg, utan Dåliga nerver: flygets och charterns gemensamma del av priset
+export const seatsTotal = (legs: BookingLeg[], passengers: { legs: PassengerLeg[] }[]) =>
+  passengers.reduce((sum, p) => sum + legs.reduce((s, leg, i) => s + seatCost(leg, p.legs[i]), 0), 0);
 
 // Priset för hela resan, som räknas om direkt när något väljs (R1)
 export const bookingTotal = (form: BookingForm, legs: BookingLeg[]) =>

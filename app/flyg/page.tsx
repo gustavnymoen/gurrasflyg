@@ -44,7 +44,9 @@ async function Results({ searchParams }: Pick<PageProps<"/flyg">, "searchParams"
     findFlights(search.from, search.to, search.outbound, search.travellers, fleet),
     search.return ? findFlights(search.to, search.from, search.return, search.travellers, fleet) : null,
   ]);
-  // En ny sökning börjar om: formuläret och resultaten byggs om från början
+  // En ny sökning börjar om: formuläret och resultaten byggs om från början. Det valda ingår i nyckeln för
+  // resultaten, så att flygen Agneta väljer (TRIP-036) visas valda även när sökningen är densamma.
+  const chosen = parseLegs(params, search);
   const key = searchUrl(search);
   return (
     <>
@@ -58,12 +60,12 @@ async function Results({ searchParams }: Pick<PageProps<"/flyg">, "searchParams"
         }}
       />
       <FlightResults
-        key={key}
+        key={`${key} ${chosen?.map((leg) => leg.time).join(" ") ?? ""}`}
         search={search}
         cities={{ from: airports.from.city, to: airports.to.city }}
         outbound={outbound}
         inbound={inbound}
-        chosen={parseLegs(params, search)}
+        chosen={chosen}
       />
     </>
   );

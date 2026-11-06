@@ -1,0 +1,17 @@
+%% TRIP-036 Booking agent for flights
+flowchart TD
+    A[Visitor on /flyg or a step, agent mode on] --> B[find_airports, find_flights: R2]
+    B --> C{Flights on the dates?}
+    C -- no --> D[She says so, suggests another date, opens nothing]
+    C -- yes --> E[show_flights: results with the departures chosen]
+    B -. one sentence .-> F[show_flight_plan: the shortcut]
+    E --> G[Plan step: list_aircraft, set_plan, R3]
+    F --> G
+    G --> H[list_addons, ask once, set_addons: R4]
+    H --> I[show_travellers: the visitor fills in the form, R5]
+    I --> J{Form valid?}
+    J -- no --> K[No payment page, no button]
+    K --> I
+    J -- yes --> L[show_payment, set_payment, summarise]
+    L --> M[Button Boka och betala: R6]
+    M -- pressed --> N[bookAction, as Betala]
