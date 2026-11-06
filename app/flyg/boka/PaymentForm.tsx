@@ -19,7 +19,7 @@ export const BOOKED_PATH = "/flyg/bokad";
 // visar sammanfattningen (R9).
 export default function PaymentForm({ search, legs, flights, fleet, booking }: BookingProps) {
   const router = useRouter();
-  const form = useBookingForm({ search, booking });
+  const form = useBookingForm({ search, booking })?.form;
   // Försök att betala utan betalsätt; varje försök flyttar fokus igen
   const [attempts, setAttempts] = useState(0);
   const [error, setError] = useState<string | null>(null);

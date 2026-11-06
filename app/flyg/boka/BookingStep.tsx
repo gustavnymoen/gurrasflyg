@@ -1,4 +1,4 @@
-import { loadBookingTrip } from "@/lib/flights";
+import { loadBookingTrip, readAddonNames } from "@/lib/flights";
 import type { Params } from "@/lib/search";
 import { planUrl } from "@/lib/trip";
 import Problem, { TripProblem } from "../Problem";
@@ -27,5 +27,16 @@ export default async function BookingStep({
     );
   }
   const Form = step === "travellers" ? TravellersForm : PaymentForm;
-  return <Form search={trip.search} legs={trip.legs} flights={trip.flights} fleet={trip.fleet} booking={trip.booking} />;
+  // Namnen behövs bara för att berätta vilka tillägg som togs bort när planet ändrats (TRIP-041-R2)
+  const addonNames = step === "travellers" ? await readAddonNames() : {};
+  return (
+    <Form
+      search={trip.search}
+      legs={trip.legs}
+      flights={trip.flights}
+      fleet={trip.fleet}
+      booking={trip.booking}
+      addonNames={addonNames}
+    />
+  );
 }

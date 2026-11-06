@@ -104,6 +104,15 @@ test("TRIP-030-R2 R9 the request carries the tools, the agent rules after the sy
   expect(JSON.stringify(params.system)).not.toContain("Chosen outbound trip");
 });
 
+test("TRIP-041-R4 she knows the class is decided in the plan step, and the Resenärer page says it cannot be changed there", async () => {
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, context({ url: tripUrl("boka", planned()) }), client);
+  const params = create.mock.calls[0][0] as unknown as { system: { text: string }[]; messages: { content: { text: string }[] }[] };
+  expect(params.system[1].text).toContain("decided in the plan step only");
+  expect(params.system[1].text).toContain("never say you change it there");
+  expect(params.messages[0].content[0].text).toContain("the classes are shown but cannot be changed here");
+});
+
 test("TRIP-030-R2 the usage of every model call is logged", async () => {
   const log = vi.spyOn(console, "log").mockImplementation(() => {});
   const { client } = scripted(toolTurn(use("summarise", {})), textTurn("Klart."));
@@ -320,6 +329,16 @@ test("TRIP-040-R2 set_plan puts the aircraft and the numbers per class in the ad
   expect(results[0].content).toContain("has room for 1, not 2");
   expect(results[1].content).toContain("add up to exactly 2 travellers");
   expect(none?.actions).toEqual([]); // nothing was changed
+});
+
+test("TRIP-041-R4 on Resenärer a new class is a set_plan, which sends the visitor back to the plan step", async () => {
+  const again = scripted(
+    toolTurn(use("set_plan", { trip: "return", aircraft_id: ids.aircraft, classes: [{ class_id: ids.business, count: 1 }, { class_id: ids.economy, count: 1 }] }, "a")),
+    textTurn("Tillbaka till planen."),
+  );
+  const answer = await askAgent(question, context({ url: tripUrl("boka", planned()) }), again.client);
+  expect(answer?.actions).toEqual([{ type: "goto", url: expect.stringContaining("/plan?") }]);
+  expect(toolResults(again.create)[0].is_error).toBe(false);
 });
 
 test("TRIP-040-R3 show_plan opens the plan step; show_travellers is refused until both trips have aircraft and classes, then opens Resenärer", async () => {

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -19,12 +18,12 @@ import {
   withoutUnavailable,
 } from "@/lib/charter-rules";
 import { formatPrice, travellersText } from "@/lib/format";
-import { type BookingLeg, type Person, seatPrice, withoutBeerUnder18 } from "@/lib/booking-rules";
-import Button, { buttonClass } from "../components/Button";
+import { type Person, withoutBeerUnder18 } from "@/lib/booking-rules";
+import Button from "../components/Button";
 import Card from "../components/Card";
 import Checkbox from "../components/Checkbox";
 import Message from "../components/Message";
-import { AddonList, ContactCard, PersonFields, QuestionsCard } from "../flyg/boka/FormParts";
+import { ClassesNote, ContactCard, LegFields, PersonFields, QuestionsCard } from "../flyg/boka/FormParts";
 import Steps from "../flyg/Steps";
 import CharterOverview from "./CharterOverview";
 import { saveCharterForm, useCharterForm } from "./form";
@@ -122,25 +121,7 @@ export default function CharterTravellersForm({ id, title, search, choice, outbo
 
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex flex-col gap-8">
-          <div className="flex flex-col items-start gap-3">
-            <p className="text-small text-ink-muted">
-              Klasserna är valda i steget Plan och klass och går inte att ändra här.
-            </p>
-            {/* Alltid på sidan, så att skärmläsare läser texten när den kommer; tom tar den ingen plats */}
-            <div role="status" className={removed.length > 0 ? "flex flex-col gap-1 text-small font-medium" : "sr-only"}>
-              {removed.length > 0 && <p>Dessa tillägg togs bort eftersom klasserna ändrats:</p>}
-              {removed.length > 0 && (
-                <ul className="list-disc pl-5">
-                  {removed.map((text) => (
-                    <li key={text}>{text}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <Link href={planUrl(id, search, choice)} className={buttonClass("secondary")}>
-              Ändra plan och klasser
-            </Link>
-          </div>
+          <ClassesNote removed={removed} planHref={planUrl(id, search, choice)} />
 
           {form.passengers.map((passenger, p) => (
             <Card key={p} labelledBy={`p${p}`} className="flex flex-col gap-5">
@@ -152,8 +133,9 @@ export default function CharterTravellersForm({ id, title, search, choice, outbo
                 <LegFields
                   key={leg.key}
                   leg={leg}
-                  legIndex={i}
-                  passenger={passenger}
+                  title={TRIP_NAMES[i].title}
+                  passengerLeg={passenger.legs[i]}
+                  age={passenger.age}
                   onCount={(addonId, count) => setAddon(p, i, addonId, count)}
                 />
               ))}
@@ -216,30 +198,5 @@ export default function CharterTravellersForm({ id, title, search, choice, outbo
         </div>
       </div>
     </form>
-  );
-}
-
-// En resenärs klass på en resa som text, och tilläggen som går att köpa i den (TRIP-039-R4, R8)
-function LegFields({
-  leg,
-  legIndex,
-  passenger,
-  onCount,
-}: {
-  leg: BookingLeg;
-  legIndex: number;
-  passenger: CharterForm["passengers"][number];
-  onCount: (addonId: number, count: number) => void;
-}) {
-  const passengerLeg = passenger.legs[legIndex];
-  const cabinClass = leg.aircraft.classes.find((c) => c.id === passengerLeg.classId);
-  return (
-    <fieldset className="flex flex-col gap-3 border-t border-line pt-4">
-      <legend className="float-left mb-3 w-full font-bold">{TRIP_NAMES[legIndex].title}</legend>
-      <p>
-        Klass: <strong>{cabinClass?.name}</strong>, {formatPrice(seatPrice(leg, passengerLeg.classId))}
-      </p>
-      <AddonList leg={leg} passengerLeg={passengerLeg} age={passenger.age} onCount={onCount} />
-    </fieldset>
   );
 }

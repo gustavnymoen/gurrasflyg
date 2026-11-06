@@ -78,7 +78,7 @@ export function pageText(info: PageInfo, context: AgentContext) {
       const names = {
         results: "the results page (choose trips)",
         plan: "the plan step (choose the aircraft and the number of travellers per class, for each trip)",
-        travellers: "the Resenärer page (the visitor fills in travellers and contact details)",
+        travellers: "the Resenärer page (the visitor fills in travellers and contact details; the classes are shown but cannot be changed here, only in the plan step)",
         payment: "the payment page",
       };
       lines.push(`The visitor is on ${names[info.step]}.`, tripText(info.data));

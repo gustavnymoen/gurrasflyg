@@ -1,0 +1,12 @@
+%% TRIP-041 The class is chosen once, in the plan step
+flowchart TD
+    A[Plan step: numbers per class] --> B[Resenärer: the class is shown as text]
+    B --> C{Change the classes?}
+    C -- no --> D[Add-ons, details, Till betalning]
+    C -- yes --> E[Ändra plan och klasser]
+    E --> A
+    A -- changed numbers or plan --> F[Resenärer: removed add-ons are listed, the rest of the form stays]
+    F --> D
+    D --> G{Server: classes = the numbers per class, in order?}
+    G -- yes --> H[Booking saved]
+    G -- no --> I[Bokningen gick inte att spara]
