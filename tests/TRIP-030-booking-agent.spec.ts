@@ -200,14 +200,13 @@ test("TRIP-030-R4 what the visitor changed on the page is what the next answer i
   expect(bodies.at(-1)!.agent).toMatchObject({ url: "/charter/teufelsberg" });
 });
 
-test("TRIP-030-R6 extras and the payment method are written to the form and shown; the drinks package is not set with a traveller under 18", async ({ page, fleet }) => {
+test("TRIP-030-R6 extras are written to the form and shown; the drinks package is not set with a traveller under 18", async ({ page, fleet }) => {
   await agentOn(page);
   await openCharterBooking(page, fleet.large, { [fleet.base]: 2 });
   await ask(page, "TILLAGG tillagg=ultimate");
   await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked();
   await expect(page.getByRole("status").filter({ hasText: "Agneta hjälper dig nu." })).toBeAttached();
   const form = await page.evaluate(() => JSON.parse(sessionStorage.getItem("gurrasflyg-charter")!));
-  expect(form.payment).toBe("cash");
   expect(form.extras).toEqual(["ultimate"]);
 
   // A traveller of 12: the drinks package is refused
@@ -231,10 +230,14 @@ test("TRIP-030-R7 R8 nothing personal reaches the model; the button comes with a
     await expect(panel(page)).toContainText("Tryck på knappen, om du måste.");
     await expect(panel(page)).not.toContainText("[[BOOK]]");
     await expect(bookButton(page)).toHaveCount(0);
-    expect(bodies.at(-1)!.agent).toMatchObject({ valid: false, payment: "cash" });
+    expect(bodies.at(-1)!.agent).toMatchObject({ valid: false, payment: null });
 
-    // The visitor fills in the form themselves; then the button comes
+    // The visitor fills in the form themselves; the payment page and the payment method come first (TRIP-038), then the button
     await fillAll(page, 2, email);
+    await ask(page, "BETALSIDAN");
+    await expect(page).toHaveURL(/\/boka\/betala\?/);
+    await ask(page, "BETALSATT");
+    await expect(page.getByRole("radio", { name: /Cash till piloten/ })).toBeChecked();
     await ask(page, "BOKA");
     await expect(bookButton(page)).toBeVisible();
     expect(bodies.at(-1)!.agent).toEqual({ url: new URL(page.url()).pathname + new URL(page.url()).search, extras: ["ultimate"], payment: "cash", valid: true });
@@ -264,16 +267,20 @@ test("TRIP-030-R8 a booking that fails shows the action's message under the butt
     await ask(page, "TILLAGG tillagg=ultimate");
     await expect(page.getByRole("checkbox", { name: "Den ultimata upplevelsen" })).toBeChecked(); // answer done before the form is touched
     await fillAll(page, 2, email);
+    await ask(page, "BETALSIDAN");
+    await expect(page).toHaveURL(/\/boka\/betala\?/);
+    await ask(page, "BETALSATT");
+    await expect(page.getByRole("radio", { name: /Cash till piloten/ })).toBeChecked();
     await ask(page, "BOKA");
     await expect(bookButton(page)).toBeVisible();
     // The server action answers that the trip has changed
-    await page.route("**/charter/teufelsberg/boka**", async (route) => {
+    await page.route("**/charter/teufelsberg/boka/betala**", async (route) => {
       if (!route.request().headers()["next-action"]) return route.fallback();
       await route.fulfill({ status: 200, contentType: "text/x-component", body: '0:{"a":"$@1","f":"","b":"x"}\n1:{"ok":false,"error":"Resan har ändrats."}\n' });
     });
     await bookButton(page).click();
     await expect(panel(page).getByRole("alert")).toHaveText("Resan har ändrats.");
-    await expect(page).toHaveURL(/\/boka\?/);
+    await expect(page).toHaveURL(/\/boka\/betala\?/);
     await expect(bookButton(page)).toBeEnabled();
   } finally {
     await inTestDb((db) => db.execute({ sql: "DELETE FROM charter_bookings WHERE email = ?", args: [email] }));

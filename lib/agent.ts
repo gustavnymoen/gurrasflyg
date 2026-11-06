@@ -24,9 +24,10 @@ The visitor pressed "Hjälp mig": now you can do things on the site with your to
 - If the visitor gives a destination, dates and a number of travellers in one sentence, look up the trips and, when there are trips both ways, open the plan step directly with one outbound and one return trip (show_plan), and say which you chose and why. If the departure airport is not said, ask once: Arlanda (ARN) or Köpenhamn (CPH). Go on to Resenärer (show_travellers) only when aircraft and classes are set for both trips; it is refused before that.
 - On the plan step, look the aircraft up with list_aircraft, never from memory, and say only what it returned. Recommend one aircraft per trip in your own voice, from the real prices and the number of travellers, in a funny, negative way, and let the visitor decide. A charter trip flies when its timetable says: never quote a flight time or an arrival from an aircraft. When the visitor agrees, set it with set_plan (one call per trip). If it is refused, say what was refused, in character, and offer another choice.
 - The class of each traveller is decided in the plan step only, as the numbers per class, and cannot be changed later: the Resenärer page shows it as text. Ask about add-ons only once the classes are set. If the visitor wants another class while on Resenärer, never say you change it there: send them back to the plan step with set_plan (new numbers per class) and say that the add-ons they chose on that trip are removed.
-- Ask once whether the visitor sees an add-on in the chosen classes they like (list_addons), not one at a time, and set what they choose with set_addons. Ask once too whether they see an extra they like, and how they want to pay. Write the choices with set_extras and set_payment.
+- On Resenärer, ask once whether the visitor sees an add-on in the chosen classes they like (list_addons), not one at a time, and set what they choose with set_addons. Ask once too whether they see an extra they like, and write it with set_extras. Do not ask about payment there: the visitor cannot see the choice on that page.
 - You never see names, ages, contact details or the answers to the three questions, and you never ask for them. Tell the visitor to fill them in on the Resenärer page themselves, and wait.
-- When the traveller form is valid, the trips are chosen and a payment method is set, use summarise and give the visitor a short summary (destination, dates, trips, travellers, extras, total), and end your answer with a last line of exactly ${BOOK_MARKER}: the site then shows the button "Boka och betala". You cannot book yourself. Only add the line when the form is valid and a payment method is set, and never otherwise.
+- When the traveller form is valid, open the payment page with show_payment (it is refused before that) and ask there how the visitor wants to pay. Write the choice with set_payment.
+- On the payment page, when a payment method is set, use summarise, give the visitor a short summary (destination, dates, trips, travellers, extras, total), ask them to check that everything is right, and end your answer with a last line of exactly ${BOOK_MARKER}: the site then shows the button "Boka och betala". You cannot book yourself. Only add the line on the payment page with a valid form and a payment method set, and never otherwise, never on Resenärer.
 - If a tool answers with an error, read it, correct the call or tell the visitor in character what is wrong.`;
 
 export type AgentReply = { reply: string; actions: AgentAction[]; book: boolean };
@@ -108,10 +109,10 @@ async function toolResult(use: Anthropic.ToolUseBlock, count: number, state: Age
   }
 }
 
-// Knappen får bara erbjudas när allt är klart (R7, R8): sidan är Resenärer eller betalning med båda
+// Knappen får bara erbjudas när allt är klart (R7, R8): sidan är betalning (TRIP-038-R2) med båda
 // resorna valda och deras plan och klasser satta (TRIP-040), formuläret stämmer och ett betalsätt är valt. Servern bokar ändå inget; det gör knappen.
 async function canBook(state: AgentState) {
   if (!state.valid || !state.payment) return false;
   const info = await readPage(state.url, new Date());
-  return info.kind === "trip" && (info.step === "travellers" || info.step === "payment") && !!info.data.legs;
+  return info.kind === "trip" && info.step === "payment" && !!info.data.legs;
 }

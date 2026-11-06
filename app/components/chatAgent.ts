@@ -60,14 +60,14 @@ export function applyActions(actions: AgentAction[], router: Router) {
 }
 
 // Boka och betala-knappen (R8): bokar från sidans adress och formuläret med samma åtgärd som Betala.
-// Kräver att sidan är Resenärer eller betalning med båda resorna valda, ett giltigt formulär och ett betalsätt.
+// Kräver att sidan är betalning (TRIP-038-R2) med båda resorna valda, ett giltigt formulär och ett betalsätt.
 export async function bookNow(router: Router): Promise<{ error: string } | { bookingNumber: string }> {
-  const [, , id, step] = location.pathname.split("/");
+  const [, , id, step, last] = location.pathname.split("/");
   const search = searchOf();
   const choice = parseChoice(Object.fromEntries(new URLSearchParams(location.search)));
   const form = savedForm();
   const fitted = form && search ? fitTravellers(form, search.travellers) : null;
-  if (step !== "boka" || !id || !search || !choice.out || !choice.back || !fitted || !fitted.payment || Object.keys(charterProblems(fitted, [])).length > 0) {
+  if (step !== "boka" || last !== "betala" || !id || !search || !choice.out || !choice.back || !fitted || !fitted.payment || Object.keys(charterProblems(fitted, [])).length > 0) {
     return { error: NOT_READY_TEXT };
   }
   // Ett id för bokningen, så att två tryck blir en bokning
