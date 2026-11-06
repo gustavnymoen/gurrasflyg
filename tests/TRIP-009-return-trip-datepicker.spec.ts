@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { animationsDone, expectNoA11yViolations } from "./helpers";
+import { animationsDone, expectNoA11yViolations, hydrated } from "./helpers";
 
 // The browser's clock is fixed to Wednesday 21 October 2026, so the
 // bookable days are 21 October 2026 to 21 April 2027. The window is wide
@@ -20,6 +20,13 @@ async function chooseNovemberWeek(page: Page) {
   await day(page, "fredag 13 november 2026").click();
   await day(page, "fredag 20 november 2026").click();
   await expect(calendar(page)).toBeHidden();
+}
+
+// Arrow down in the field takes focus into the calendar. The key is lost before the page has
+// hydrated, so the test waits for that first (TECH-032) instead of pressing again and again.
+async function arrowDownIntoCalendar(page: Page) {
+  await hydrated(outboundField(page));
+  await outboundField(page).press("ArrowDown");
 }
 
 async function typeDate(page: Page, field: "Utresa" | "Hemresa", text: string) {
@@ -49,11 +56,8 @@ test.describe("in the browser", () => {
   });
 
   test("TRIP-009-R2 Arrow down moves focus to today in the calendar", async ({ page }) => {
-    // A key pressed before the page has hydrated is lost, so the press is repeated until the calendar has it
-    await expect(async () => {
-      await outboundField(page).press("ArrowDown");
-      await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused({ timeout: 500 });
-    }).toPass();
+    await arrowDownIntoCalendar(page);
+    await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused();
   });
 
   test("TRIP-009-R3 and R4 two months from this month, only today to the last bookable day can be chosen", async ({ page }) => {
@@ -197,7 +201,7 @@ test.describe("in the browser", () => {
   });
 
   test("TRIP-009-R11 Escape closes the calendar and gives focus to the active field", async ({ page }) => {
-    await outboundField(page).press("ArrowDown");
+    await arrowDownIntoCalendar(page);
     await page.keyboard.press("Escape");
     await expect(calendar(page)).toBeHidden();
     await expect(outboundField(page)).toBeFocused();
@@ -213,7 +217,7 @@ test.describe("in the browser", () => {
   });
 
   test("TRIP-009-R12 the keyboard moves between days and months and chooses a day", async ({ page }) => {
-    await outboundField(page).press("ArrowDown");
+    await arrowDownIntoCalendar(page);
     await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused(); // the calendar has taken focus before the next key
     await page.keyboard.press("PageDown");
     await expect(day(page, "lördag 21 november 2026")).toBeFocused();
@@ -238,7 +242,7 @@ test.describe("in the browser", () => {
   });
 
   test("TRIP-009-R12 the month buttons work with the keyboard, and focus stays in the calendar", async ({ page }) => {
-    await outboundField(page).press("ArrowDown");
+    await arrowDownIntoCalendar(page);
     await expect(day(page, "onsdag 21 oktober 2026")).toBeFocused(); // the calendar has taken focus before the next key
     // From the day back past the switch to Nästa månad (Föregående is disabled)
     await page.keyboard.press("Shift+Tab");

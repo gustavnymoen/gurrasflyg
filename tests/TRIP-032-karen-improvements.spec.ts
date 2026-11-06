@@ -72,11 +72,12 @@ test("TRIP-032-R7 R6 the connecting view has no axe violations, and its spinner 
   const spinner = () => connecting(page).locator("span");
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await openButton(page).click();
-  // axe needs the page's timers, so the clock runs; it is done well within the 2 seconds
+  // The view is there for 2 seconds. The quick checks come first, and axe last: it waits for the
+  // page's other motion to end (TECH-032), which with reduced motion is none
   await expect(spinner()).toHaveCSS("animation-name", "spin");
-  await expectNoA11yViolations(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(spinner()).toHaveCSS("animation-name", "none");
+  await expectNoA11yViolations(page);
 });
 
 test("TRIP-032-R3 R2 bubbles: questions right, answers left, a header with avatar, name and two buttons; lists, bold and site links in answers", async ({
