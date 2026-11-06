@@ -27,6 +27,10 @@ const nextConfig = (phase: string): NextConfig => ({
     agentFeedback: true,
   },
   cacheComponents: true,
+  // TECH-031: libsqls inbyggda binärer behövs bara för lokala databasfiler, inte på Vercel
+  outputFileTracingExcludes: {
+    "/**": ["node_modules/@libsql/darwin-*/**", "node_modules/@libsql/linux-*/**", "node_modules/@libsql/win32-*/**"],
+  },
   partialPrefetching: true,
   // TECH-013: sidan får inte visas i en ram på en annan sida (clickjacking),
   // filtyper gissas inte, och adressen skickas inte vidare till andra sajter.

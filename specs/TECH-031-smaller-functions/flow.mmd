@@ -1,0 +1,7 @@
+%% TECH-031 Smaller Vercel functions
+%% Which client lib/db.ts loads, and why the functions stay small (R1, R2).
+flowchart TD
+    A[lib/db.ts starts] --> B{URL starts with file:?}
+    B -- yes, local and tests --> C[Regular client with the native binary]
+    B -- no, Turso on Vercel --> D[Web client, no binary needed]
+    E[next build] --> F[outputFileTracingExcludes removes the native binaries from every function trace]

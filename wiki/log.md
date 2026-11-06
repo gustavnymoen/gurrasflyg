@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-06
+
+- TECH-031: **smaller Vercel functions**. `lib/db.ts` uses the web client of libsql for Turso and the regular client only for local `file:` databases, and `outputFileTracingExcludes` removes libsql's native binaries from the function traces (the trace follows every import, so the exclude is what removes them, and the web client is what makes that safe). Local trace: 19 of 24 functions had the binary; none has now, total 589 MB to 447 MB. Updated the architecture page.
+
 ## 2026-11-05
 
 - TRIP-040: **Agneta in the charter plan step**. She knows the steps results, plan, Resenärer, payment: new tools `show_plan`, `list_aircraft` (the aircraft that seat the party with the price per class, no flight time), `set_plan` (one trip's aircraft and numbers per class, checked as the step checks them), `list_addons` and `set_addons` (write the class add-ons into the traveller form as a new `addons` action); `show_travellers` is refused until both trips have aircraft and classes, her shortcut goes through the plan step, her summary total counts the seats, and the page text and `/charter/<id>/plan` are known to the page reader and the action checks. The plan and class checks and the price text are in `lib/agent-plan.ts` so that a flight agent can use them. Updated [Charter chatbot Agneta](system/charter-chatbot.md), [Fråga Agneta](manual/fraga-agneta.md) and the architecture page. Not yet tried with the real model.
