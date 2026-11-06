@@ -7,12 +7,12 @@ feature: TRIP-012
 tags: [resenär, bokning, tillägg, betalning, bokningsnummer]
 generated:
   by: claude
-  at: 2026-11-06T12:00:00+01:00
+  at: 2026-11-06T16:00:00+01:00
 ---
 
 # Boka resan
 
-När du valt plan och klasser och tryckt **Klar** på varje flyg trycker du **Fortsätt** under **Totalt för resan**. Då kommer du till de två sista stegen: **Resenärer** och **Betala**.
+När du valt plan och klasser trycker du **Fortsätt** på det sista flyget. Då kommer du till de två sista stegen: **Resenärer** och **Betala**.
 
 ## Resenärer
 

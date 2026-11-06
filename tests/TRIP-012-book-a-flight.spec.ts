@@ -4,7 +4,6 @@ import {
   alert,
   amount,
   chooseAircraft,
-  chosenAircraft,
   classRow,
   count,
   countBookings,
@@ -45,21 +44,18 @@ test.describe("with the tests' own aircraft", () => {
     page,
     fleet,
   }) => {
-    // R1: Fortsätt comes when every card is folded
+    // R1: Fortsätt on the last flight opens the booking page
     await openPlan(page, 1, true);
     await chooseAircraft(page, "utresan", fleet.large);
     await place(page, "utresan", fleet.luxury, 1);
     await done(page, "utresan");
     await chooseAircraft(page, "hemresan", fleet.large);
     await place(page, "hemresan", fleet.base, 1);
-    // Everyone has a class, but the return card is still open
-    await expect(page.getByText("Tryck Klar på varje flyg för att gå vidare.")).toBeVisible();
+    // The box with the total has no button of its own
     await expect(page.getByRole("link", { name: "Fortsätt" })).toHaveCount(0);
-    await done(page, "hemresan");
-    await expect(folded(page, "hemresan")).toBeVisible();
     const tripTotal = await total(page);
 
-    await page.getByRole("link", { name: "Fortsätt" }).click();
+    await done(page, "hemresan");
     await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
     const steps = page.getByRole("list", { name: "Steg" }).getByRole("listitem");
     await expect(steps).toHaveText([/Flyg/, /Plan och klass/, /Resenärer/, /Betala/]);
@@ -87,6 +83,8 @@ test.describe("with the tests' own aircraft", () => {
     await expect(nerves).toBeChecked();
     expect(await total(page)).toBe(before + 2000);
     await nerves.blur();
+    // The pointer may already rest over the box (where Fortsätt was pressed): move it in from outside
+    await page.mouse.move(0, 0);
     await nerves.hover();
     await expect(tip).toBeVisible();
     await nerves.uncheck();
@@ -99,18 +97,22 @@ test.describe("with the tests' own aircraft", () => {
 
     // Back to Plan och klass and on without a change keeps everything
     await page.getByRole("link", { name: "Plan och klass", exact: true }).click();
-    await page.getByRole("link", { name: "Fortsätt" }).click();
+    // After a reload every done flight is folded: open the last one and go on
+    await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
+    await page.reload();
+    await folded(page, "hemresan").click();
+    await done(page, "hemresan");
     await expect(addonRow(card, "Utresa", fleet.meal).locator("[aria-live]")).toHaveText(`1 ${fleet.meal}`);
 
     // Another aircraft on the outbound flight
     await page.getByRole("link", { name: "Plan och klass", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
+    await page.reload();
     await folded(page, "utresan").click();
-    await chosenAircraft(page, "utresan").click();
     await chooseAircraft(page, "utresan", fleet.fast);
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`0 i ${fleet.base}`);
     await place(page, "utresan", fleet.base, 1);
     await done(page, "utresan");
-    await page.getByRole("link", { name: "Fortsätt" }).click();
 
     await expect(legGroup(card, "Utresa").getByText("Inga tillägg i den här klassen.")).toBeVisible();
     await expect(addonRow(card, "Hemresa", fleet.bag).locator("[aria-live]")).toHaveText(`1 ${fleet.bag}`);
@@ -268,10 +270,8 @@ test.describe("booking, which writes to the test database", () => {
 test("TRIP-012-R1 @smoke the booking page loads for a chosen trip", async ({ page }) => {
   await openPlan(page, 1);
   const list = page.getByRole("region", { name: "Plan för utresan" });
-  await list.getByRole("button", { expanded: false }).first().click();
-  await list.getByRole("button", { name: "Välj" }).click();
+  await list.getByRole("button", { name: /^Välj / }).first().click();
   await page.getByRole("region", { name: "Klasser på utresan" }).getByRole("button", { name: /^Fler i/ }).first().click();
-  await page.getByRole("button", { name: "Klar" }).click();
-  await page.getByRole("link", { name: "Fortsätt" }).click();
+  await page.getByRole("button", { name: "Fortsätt" }).click();
   await expect(page.getByRole("region", { name: "Passagerare 1" })).toBeVisible();
 });

@@ -18,10 +18,12 @@ import {
   stopsText,
   tripsAfter,
 } from "@/lib/charter-rules";
-import { formatDay } from "@/lib/dates";
+import { formatDay, formatLong } from "@/lib/dates";
 import { formatDuration, formatPrice } from "@/lib/format";
-import Button, { buttonClass } from "../components/Button";
+import { buttonClass } from "../components/Button";
 import Card from "../components/Card";
+import ChoiceCard from "../components/ChoiceCard";
+import Detail from "../components/Detail";
 import { ArrivalTime } from "../flyg/plan/FlightTime";
 import SortChoice from "../flyg/SortChoice";
 import Steps from "../flyg/Steps";
@@ -196,7 +198,7 @@ function TripList({
       ) : (
         <ul className="flex flex-col gap-3">
           {sortTrips(trips, sortBy).map((trip) => (
-            <TripCard key={trip.id} trip={trip} chosen={chosen?.id === trip.id} onChoose={() => onChoose(trip)} />
+            <TripCard key={trip.id} trip={trip} date={date} chosen={chosen?.id === trip.id} onChoose={() => onChoose(trip)} />
           ))}
         </ul>
       )}
@@ -204,50 +206,46 @@ function TripList({
   );
 }
 
-// En resa i listan med allt som behövs för att välja (R3)
-function TripCard({ trip, chosen, onChoose }: { trip: CharterTrip; chosen: boolean; onChoose: () => void }) {
+// En resa i listan: tider, restid och pris på raden och Välj, resten i en utfällning (R3, TRIP-043-R1, R2)
+function TripCard({
+  trip,
+  date,
+  chosen,
+  onChoose,
+}: {
+  trip: CharterTrip;
+  date: string;
+  chosen: boolean;
+  onChoose: () => void;
+}) {
   return (
     <li>
-      <Card
-        size="compact"
-        className={`grid items-center gap-x-6 gap-y-3 sm:grid-cols-[1fr_auto] ${chosen ? "border-accent-strong ring-2 ring-accent-strong" : ""}`}
-      >
-        <div className="flex flex-col gap-1">
-          <p className="text-2xl font-bold">
-            <span className="tabular-nums">{trip.time}</span>
-            <span aria-hidden="true"> – </span>
-            <span className="sr-only"> landar </span>
-            <ArrivalTime {...trip.arrival} />
-          </p>
-          <p className="text-small text-ink-muted">
-            {trip.airline} · {trip.flights.join(", ")}
-          </p>
-          <p className="text-small">
-            {formatDuration(trip.minutes)} · {stopsText(trip.stops)}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-2 sm:flex-col sm:items-end">
-          <p>
-            <span className="font-bold">{formatPrice(trip.price)}</span> / person
-          </p>
-          {/* Valet läses upp av aria-pressed; "Vald" är bara för ögat */}
-          <div className="flex items-center gap-3">
-            {chosen && (
-              <span aria-hidden="true" className="text-small font-bold">
-                ✓ Vald
+      <Card size="flush" className={chosen ? "border-accent-strong ring-2 ring-accent-strong" : ""}>
+        <ChoiceCard
+          label={`${trip.flights.join(", ")} kl ${trip.time}`}
+          chosen={chosen}
+          onChoose={onChoose}
+          summary={
+            <span className="flex flex-col gap-1">
+              <span className="text-2xl font-bold">
+                <span className="tabular-nums">{trip.time}</span>
+                <span aria-hidden="true"> – </span>
+                <span className="sr-only"> landar </span>
+                <ArrivalTime {...trip.arrival} />
               </span>
-            )}
-            <Button
-              variant={chosen ? "primary" : "secondary"}
-              size="compact"
-              aria-pressed={chosen}
-              aria-label={`Välj ${trip.flights.join(", ")} kl ${trip.time}`}
-              onClick={onChoose}
-            >
-              Välj
-            </Button>
-          </div>
-        </div>
+              <span className="text-small">
+                {formatDuration(trip.minutes)} · <span className="font-bold">{formatPrice(trip.price)}</span> / person
+              </span>
+            </span>
+          }
+        >
+          <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
+            <Detail term="Flygbolag">{trip.airline}</Detail>
+            <Detail term="Flygnummer">{trip.flights.join(", ")}</Detail>
+            <Detail term="Byten">{stopsText(trip.stops)}</Detail>
+            <Detail term="Datum">{formatLong(date)}</Detail>
+          </dl>
+        </ChoiceCard>
       </Card>
     </li>
   );

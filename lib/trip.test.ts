@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import {
   checkChoice,
-  chooseAircraft,
   firstViews,
   keepChoice,
   type LegChoice,
   legDone,
   parseLegs,
+  placeTraveller,
   planUrl,
   resultsUrl,
 } from "./trip";
@@ -51,9 +51,33 @@ test("TRIP-011-R10 going back to the flights keeps everything chosen after them"
   expect(parseLegs(params(url), search)).toEqual(chosen);
 });
 
-test("TRIP-011-R10 another aircraft clears the classes, the same one keeps them", () => {
-  expect(chooseAircraft(chosen[0], 4)).toEqual({ time: "07:20", aircraftId: 4, seating: null });
-  expect(chooseAircraft(chosen[0], 3)).toBe(chosen[0]);
+const aircraft = (id: number) => ({
+  id,
+  name: `Plan ${id}`,
+  pricePercent: 100,
+  timePercent: 100,
+  classes: [
+    { id: 1, name: "Ekonomi", capacity: 5, pricePercent: 100 },
+    { id: 2, name: "Business", capacity: 5, pricePercent: 200 },
+  ],
+});
+
+test("TRIP-043-R6 a traveller in another aircraft moves everyone there, the same one keeps the others", () => {
+  // Same aircraft: the number in the class changes, the rest stays
+  expect(placeTraveller(chosen[0], aircraft(3), 1, 1)).toEqual({ time: "07:20", aircraftId: 3, seating: { 1: 3, 2: 1 } });
+  expect(placeTraveller(chosen[0], aircraft(3), 2, -1).seating).toEqual({ 1: 2, 2: 0 });
+  // Another aircraft: the first one is left without travellers
+  expect(placeTraveller(chosen[0], aircraft(4), 2, 1)).toEqual({
+    time: "07:20",
+    aircraftId: 4,
+    seating: { 1: 0, 2: 1 },
+  });
+  // The first placement on a flight with no seating yet
+  expect(placeTraveller(chosen[1], aircraft(4), 1, 1)).toEqual({
+    time: "18:45",
+    aircraftId: 4,
+    seating: { 1: 1, 2: 0 },
+  });
 });
 
 test("TRIP-011-R10 another flight clears its aircraft and classes, the same one keeps them", () => {
@@ -92,16 +116,16 @@ test("TRIP-024-R4 the traveller goes on only when everyone has a class on every 
   expect(done([{ 1: 2 }, { 2: 2 }])).toBe(true);
 });
 
-test("TRIP-026-R5 after a reload the done cards are folded and the first one not done is open", () => {
+test("TRIP-026-R5, TRIP-043-R8 after a reload the done cards are folded and the first one not done is open", () => {
   const none = { time: "07:20", aircraftId: null, seating: null };
   const aircraft = { ...none, aircraftId: 3 };
   const done = chosen[0];
-  // Nothing chosen: the outbound aircraft, the return card not yet
-  expect(firstViews([none, { ...none, time: "18:45" }], 3)).toEqual(["aircraft", "hidden"]);
-  // An aircraft without everyone placed: its classes
-  expect(firstViews([{ ...aircraft, seating: { 1: 1 } }, none], 3)).toEqual(["classes", "hidden"]);
-  expect(firstViews([done, aircraft], 3)).toEqual(["folded", "classes"]);
+  // Nothing chosen: the outbound flight open, the return card not yet
+  expect(firstViews([none, { ...none, time: "18:45" }], 3)).toEqual(["open", "hidden"]);
+  // An aircraft without everyone placed: still open
+  expect(firstViews([{ ...aircraft, seating: { 1: 1 } }, none], 3)).toEqual(["open", "hidden"]);
+  expect(firstViews([done, aircraft], 3)).toEqual(["folded", "open"]);
   expect(firstViews([done, done], 3)).toEqual(["folded", "folded"]);
   // The outbound flight changed after both were done
-  expect(firstViews([aircraft, done], 3)).toEqual(["classes", "folded"]);
+  expect(firstViews([aircraft, done], 3)).toEqual(["open", "folded"]);
 });

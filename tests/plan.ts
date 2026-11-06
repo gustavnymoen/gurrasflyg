@@ -90,16 +90,21 @@ export const IN_A_WEEK = daysFromToday(7);
 export const searchUrl = (travellers: number, roundTrip: boolean) =>
   `/flyg?fran=ARN&till=LHR&utresa=${TOMORROW}${roundTrip ? `&hemresa=${IN_A_WEEK}` : ""}&resenarer=${travellers}`;
 
-export const flightButtons = (page: Page) => page.getByRole("button", { name: /^\d\d:\d\d / });
+// The Välj button of every flight in the list, named "Välj SK1122 kl 07:20" (TRIP-043-R1)
+export const flightButtons = (page: Page) => page.getByRole("button", { name: /^Välj .* kl \d\d:\d\d$/ });
+// The row of the nth flight in the list (its time, route and price)
+export const flightRow = (page: Page, n: number) =>
+  page.getByRole("listitem").filter({ has: flightButtons(page) }).nth(n);
+// The departure time of a flight's Välj button
+export const departureTime = async (button: Locator) => ((await button.getAttribute("aria-label")) ?? "").slice(-5);
 
 // Chooses the first flight (or the first of each) in the results, and returns their departure times
 export async function chooseFlights(page: Page, roundTrip: boolean, which = [0, 0]) {
   const times: string[] = [];
   for (const i of roundTrip ? which : which.slice(0, 1)) {
-    const card = flightButtons(page).nth(i);
-    times.push(((await card.textContent()) ?? "").slice(0, 5));
-    await card.click();
-    await page.getByRole("button", { name: "Välj" }).click();
+    const button = flightButtons(page).nth(i);
+    times.push(await departureTime(button));
+    await button.click();
   }
   return times;
 }
@@ -121,20 +126,22 @@ export const legCard = (page: Page, leg: LegName) =>
     .locator("section")
     .filter({ has: page.getByRole("heading", { name: leg === "utresan" ? "Utresa" : "Hemresa", exact: true, level: 2 }) });
 export const aircraftList = (page: Page, leg: LegName) => page.getByRole("region", { name: `Plan för ${leg}` });
-// The aircraft cards in the list (each has a button that opens it)
+// The aircraft rows in the list (each has a Välj button)
 export const aircraftCards = (page: Page, leg: LegName) =>
-  aircraftList(page, leg).getByRole("listitem").filter({ has: page.locator("button[aria-expanded]") });
+  aircraftList(page, leg).getByRole("listitem").filter({ has: page.getByRole("button", { name: /^Välj / }) });
 export const aircraftCard = (page: Page, leg: LegName, name: string) =>
   aircraftCards(page, leg).filter({ hasText: name });
+// The classes of the open aircraft row
 export const classList = (page: Page, leg: LegName) => page.getByRole("region", { name: `Klasser på ${leg}` });
 export const classRow = (page: Page, leg: LegName, name: string) =>
   classList(page, leg).getByRole("listitem").filter({ hasText: name });
 export const count = (row: Locator) => row.locator("[aria-live]");
-// "Placera ut 3 resenärer" or "Alla resenärer har en klass"
-export const counter = (page: Page, leg: LegName) => classList(page, leg).getByText(/^Placera ut|^Alla resenärer/);
-// The chosen aircraft at the top of an open card, and a folded card's summary
-export const chosenAircraft = (page: Page, leg: LegName) => legCard(page, leg).getByRole("button", { name: /^Valt plan/ });
+// "1 av 2 placerade"
+export const counter = (page: Page, leg: LegName) => classList(page, leg).getByText(/ av \d+ placerade$/);
+// A folded flight's summary
 export const folded = (page: Page, leg: LegName) => legCard(page, leg).getByRole("button", { name: /^Klart för/ });
+// Fortsätt in the open row: disabled until everyone has a class, then it folds the flight (the last one goes on)
+export const continueButton = (page: Page, leg: LegName) => classList(page, leg).getByRole("button", { name: "Fortsätt" });
 
 // A message on the page (Next.js has an alert of its own, outside main, that announces new pages)
 export const alert = (page: Page) => page.getByRole("main").getByRole("alert");
@@ -155,16 +162,14 @@ export async function cardMinutes(card: Locator) {
   return minutes((await card.getByText(/landar/).textContent()) ?? "");
 }
 
-// Opens an aircraft and presses Välj: its classes appear with focus on their heading
+// Presses Välj on an aircraft: its row opens and shows its classes
 export async function chooseAircraft(page: Page, leg: LegName, name: string) {
-  const card = aircraftCard(page, leg, name);
-  await card.getByRole("button", { name: new RegExp(name) }).click();
-  await card.getByRole("button", { name: "Välj" }).click();
-  await expect(page.getByRole("heading", { name: `Klasser på ${leg}` })).toBeFocused();
+  await aircraftCard(page, leg, name).getByRole("button", { name: `Välj ${name}` }).click();
+  await expect(classList(page, leg)).toBeVisible();
 }
 
-// Klar on a flight
-export const done = (page: Page, leg: LegName) => classList(page, leg).getByRole("button", { name: "Klar" }).click();
+// Fortsätt on a flight
+export const done = (page: Page, leg: LegName) => continueButton(page, leg).click();
 
 // Puts n more travellers in a class with Fler, one at a time: each click
 // waits until the page shows the new number, which it reads back from the address
@@ -178,7 +183,7 @@ export async function place(page: Page, leg: LegName, name: string, n: number) {
 }
 
 // Every flight done the same way: the aircraft, the travellers per class
-// ({ class: number }) and Klar. Then Fortsätt to the booking page (TRIP-012).
+// ({ class: number }) and Fortsätt, which on the last flight goes to the booking page (TRIP-012).
 export async function openBooking(page: Page, aircraft: string, seating: Record<string, number>, roundTrip = false) {
   const travellers = Object.values(seating).reduce((sum, n) => sum + n, 0);
   await openPlan(page, travellers, roundTrip);
@@ -187,7 +192,6 @@ export async function openBooking(page: Page, aircraft: string, seating: Record<
     for (const [name, n] of Object.entries(seating)) await place(page, leg, name, n);
     await done(page, leg);
   }
-  await page.getByRole("link", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
 }
 
@@ -213,8 +217,8 @@ export async function openCharterPlan(page: Page, travellers = 2) {
   await expect(page.getByRole("heading", { name: "Plan för utresan" })).toBeVisible();
 }
 
-// The plan step done the same way for both trips (the aircraft, the travellers per class and Klar),
-// and Fortsätt to Resenärer. Charter has no travellers per class on that page: they are placed in order.
+// The plan step done the same way for both trips (the aircraft, the travellers per class and Fortsätt),
+// which on the last trip goes to Resenärer. Charter has no travellers per class on that page: they are placed in order.
 export async function openCharterBooking(page: Page, aircraft: string, seating: Record<string, number>) {
   await openCharterPlan(page, Object.values(seating).reduce((sum, n) => sum + n, 0));
   for (const leg of ["utresan", "hemresan"] as const) {
@@ -222,7 +226,6 @@ export async function openCharterBooking(page: Page, aircraft: string, seating: 
     for (const [name, n] of Object.entries(seating)) await place(page, leg, name, n);
     await done(page, leg);
   }
-  await page.getByRole("link", { name: "Fortsätt" }).click();
   await expect(page.getByRole("heading", { name: "Resenärer", level: 1 })).toBeVisible();
 }
 

@@ -4,7 +4,7 @@
 // flygen utan att något försvinner, t.ex.
 // /flyg/plan?fran=ARN&till=LHR&utresa=2026-11-13&resenarer=2&ut=07:20&ut-plan=3&ut-klasser=1:2
 
-import { canSeat, type FleetAircraft, placed, type Seating, validSeating } from "./fare-rules";
+import { canSeat, type FleetAircraft, firstSeating, placed, type Seating, validSeating } from "./fare-rules";
 import { type Params, RESULTS_PATH, type Search, searchParams } from "./search";
 
 export const PLAN_PATH = "/flyg/plan";
@@ -17,10 +17,9 @@ export const PAYMENT_PATH = "/flyg/boka/betala";
 export type PlanChoice = { aircraftId: number | null; seating: Seating | null };
 export type LegChoice = PlanChoice & { time: string };
 
-// Hur ett flygs kort på /flyg/plan visas (TRIP-026): inte än (ett tidigare
-// flyg är inte klart), öppet med planen, öppet med det valda planet och
-// klasserna, eller hopfällt till en sammanfattning
-export type LegView = "hidden" | "aircraft" | "classes" | "folded";
+// Hur ett flygs kort på /flyg/plan visas (TRIP-026, TRIP-043): inte än (ett
+// tidigare flyg är inte klart), öppet med planen, eller hopfällt till en sammanfattning
+export type LegView = "hidden" | "open" | "folded";
 
 // Utresan först, sedan hemresan
 const LEGS = ["ut", "hem"] as const;
@@ -102,8 +101,16 @@ export function checkChoice<T extends PlanChoice>(leg: T, fleet: FleetAircraft[]
 }
 
 // Ett annat plan tar bort antalen per klass; samma plan igen ändrar inget (R10)
-export function chooseAircraft<T extends PlanChoice>(leg: T, aircraftId: number): T {
+function chooseAircraft<T extends PlanChoice>(leg: T, aircraftId: number): T {
   return leg.aircraftId === aircraftId ? leg : { ...leg, aircraftId, seating: null };
+}
+
+// En resenär till eller från en klass på ett plan (by är 1 eller -1). Bara ett plan
+// har resenärer: läggs någon på ett annat plan flyttar alla dit (TRIP-043-R6).
+export function placeTraveller<T extends PlanChoice>(leg: T, aircraft: FleetAircraft, classId: number, by: number): T {
+  const moved = chooseAircraft(leg, aircraft.id);
+  const seating = moved.seating ?? firstSeating(aircraft);
+  return { ...moved, seating: { ...seating, [classId]: (seating[classId] ?? 0) + by } };
 }
 
 // Det som valts för ett flyg finns kvar om samma flyg väljs igen; ett annat
@@ -117,15 +124,10 @@ export const legDone = <T extends PlanChoice>(leg: T, travellers: number) =>
   leg.aircraftId !== null && leg.seating !== null && placed(leg.seating) === travellers;
 
 // Korten när sidan öppnas (TRIP-026-R5): de klara är hopfällda, det första
-// som inte är klart är öppet, med planen eller, om ett plan är valt, med
-// klasserna, och korten efter det visas inte än
+// som inte är klart är öppet och korten efter det visas inte än (TRIP-043-R8)
 export function firstViews<T extends PlanChoice>(legs: T[], travellers: number): LegView[] {
   const open = legs.findIndex((leg) => !legDone(leg, travellers));
-  return legs.map((leg, i) => {
-    if (legDone(leg, travellers)) return "folded";
-    if (i > open) return "hidden";
-    return leg.aircraftId === null ? "aircraft" : "classes";
-  });
+  return legs.map((leg, i) => (legDone(leg, travellers) ? "folded" : i > open ? "hidden" : "open"));
 }
 
 // { 1: 2, 2: 1 } <-> "1:2,2:1". Klasser utan resenärer skrivs inte ut.

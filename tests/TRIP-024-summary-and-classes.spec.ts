@@ -6,12 +6,11 @@ import {
   amount,
   cardPrice,
   chooseAircraft,
-  chosenAircraft,
   classList,
   classRow,
+  continueButton,
   count,
   done,
-  folded,
   openPlan,
   place,
   test,
@@ -30,8 +29,6 @@ const overviewItem = (page: Page, leg: "Utresa" | "Hemresa") =>
 // "2 h 20 min · landar 09:40" on an aircraft card
 const timeAndArrival = async (page: Page, name: string) =>
   (await aircraftCard(page, "utresan", name).getByText(/landar/).textContent()) ?? "";
-const message = (page: Page, leg: "utresan" | "hemresan") => classList(page, leg).getByRole("alert");
-const tripNote = (page: Page) => page.getByText(/för att gå vidare/);
 
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
@@ -45,15 +42,18 @@ test.describe("with the tests' own aircraft", () => {
     await expect(outbound).not.toContainText("landar");
 
     const large = `${fleet.large} · ${await timeAndArrival(page, fleet.large)}`;
+    // Din resa shows the aircraft once a traveller is placed in it (TRIP-043-R6)
     await chooseAircraft(page, "utresan", fleet.large);
+    await expect(outbound).not.toContainText("landar");
+    await place(page, "utresan", fleet.base, 1);
     await expect(outbound).toContainText(large);
     // Only the outbound flight has an aircraft
     await expect(overviewItem(page, "Hemresa")).not.toContainText("landar");
     await expectNoA11yViolations(page);
 
-    await chosenAircraft(page, "utresan").click();
     const fast = `${fleet.fast} · ${await timeAndArrival(page, fleet.fast)}`;
     await chooseAircraft(page, "utresan", fleet.fast);
+    await place(page, "utresan", fleet.base, 1);
     await expect(outbound).toContainText(fast);
     await expect(outbound).not.toContainText(fleet.large);
 
@@ -61,7 +61,6 @@ test.describe("with the tests' own aircraft", () => {
     await expect(outbound).toContainText(fast);
   });
 
-  // The message comes at Klar (TRIP-026-R3)
   test("TRIP-024-R2 R3 R5 every class starts at 0, the totals follow, focus stays on Fler and Färre, and the numbers are kept going back and on", async ({
     page,
     fleet,
@@ -103,9 +102,9 @@ test.describe("with the tests' own aircraft", () => {
     await page.keyboard.press("Tab");
     await expect(more).toBeFocused();
 
-    // R2: Klar says who is missing
-    await done(page, "utresan");
-    await expect(message(page, "utresan")).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
+    // R2: Fortsätt waits and says who is missing (TRIP-043-R7)
+    await expect(continueButton(page, "utresan")).toBeDisabled();
+    await expect(classList(page, "utresan")).toContainText("Placera ut 2 resenärer till");
 
     // R3: the totals are the sum so far
     const luxury = classRow(page, "utresan", fleet.luxury);
@@ -113,17 +112,14 @@ test.describe("with the tests' own aircraft", () => {
     const price = await cardPrice(luxury);
     await expect(legTotal).toHaveText(formatPrice(price));
     expect(amount(await tripTotal.textContent())).toBe(price);
-    await expect(message(page, "utresan")).toHaveText("1 resenär har ingen klass. Lägg till den i en klass.");
+    await expect(classList(page, "utresan")).toContainText("Placera ut 1 resenär till");
     await place(page, "utresan", fleet.base, 1);
-    await expect(message(page, "utresan")).toHaveCount(0);
-    await done(page, "utresan");
+    await expect(continueButton(page, "utresan")).toBeEnabled();
 
     // R2: back to the flights and on, without a change
     await page.getByRole("link", { name: "Flyg", exact: true }).click();
-    // The plan page has a Fortsätt of its own now (TRIP-012-R1): wait for the results
     await expect(page).toHaveURL(/\/flyg\?/);
     await page.getByRole("link", { name: "Fortsätt" }).click();
-    await folded(page, "utresan").click();
     await expect(count(classRow(page, "utresan", fleet.base))).toHaveText(`1 i ${fleet.base}`);
     await expect(count(classRow(page, "utresan", fleet.luxury))).toHaveText(`1 i ${fleet.luxury}`);
   });
@@ -132,28 +128,24 @@ test.describe("with the tests' own aircraft", () => {
     await openPlan(page, 2, true);
     const noWayOn = async () => {
       await expect(page.getByRole("main").getByRole("link", { name: /Fortsätt|Resenärer/ })).toHaveCount(0);
-      await expect(page.getByRole("main").getByRole("button", { name: /Fortsätt|Resenärer/ })).toHaveCount(0);
+      await expect(page.getByRole("main").getByRole("button", { name: /Fortsätt/, disabled: false })).toHaveCount(0);
     };
 
     await chooseAircraft(page, "utresan", fleet.large);
     await place(page, "utresan", fleet.base, 1);
-    await done(page, "utresan");
-    await expect(message(page, "utresan")).toBeVisible();
-    await expect(tripNote(page)).toHaveText("Lägg alla resenärer i en klass på varje flyg för att gå vidare.");
+    await expect(continueButton(page, "utresan")).toBeDisabled();
     await noWayOn();
 
-    // Everyone placed on the outbound flight only
+    // Everyone placed on the outbound flight only: the return flight comes, and its Fortsätt waits
     await place(page, "utresan", fleet.base, 1);
     await done(page, "utresan");
     await chooseAircraft(page, "hemresan", fleet.fast);
-    await done(page, "hemresan");
-    await expect(message(page, "hemresan")).toHaveText("2 resenärer har ingen klass. Lägg till dem i en klass.");
-    await expect(tripNote(page)).toHaveText("Lägg alla resenärer i en klass på varje flyg för att gå vidare.");
+    await expect(continueButton(page, "hemresan")).toBeDisabled();
+    await expect(classList(page, "hemresan")).toContainText("Placera ut 2 resenärer till");
     await noWayOn();
 
-    // Everyone placed: Klar on the open card leads on (TRIP-012-R1)
+    // Everyone placed: Fortsätt on the last flight leads on (TRIP-012-R1)
     await place(page, "hemresan", fleet.base, 2);
-    await expect(tripNote(page)).toHaveText("Tryck Klar på varje flyg för att gå vidare.");
-    await noWayOn();
+    await expect(continueButton(page, "hemresan")).toBeEnabled();
   });
 });
