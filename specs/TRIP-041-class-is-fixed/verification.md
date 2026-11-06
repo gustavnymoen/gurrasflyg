@@ -45,7 +45,7 @@ Each traveller's class on each flight is shown as text, with no choice to change
 
 ### TRIP-041-R2 Going back to change the classes
 
-After going back to the plan step and changing the numbers per class, the page tells which add-ons were removed, and the form keeps the rest (names, ages, contact details).
+After going back to the plan step and changing the plan or the numbers per class of a flight, that flight's classes start again and its add-ons are removed, as in charter (TRIP-039-R8). The page tells which add-ons were removed, and the form keeps the rest (names, ages, contact details) and the other flight.
 
 ### TRIP-041-R3 The booking checks it
 
@@ -61,5 +61,5 @@ Her rules, the page text and the fake agent say that classes are set only in the
 
 ## Notes
 
-- R2 as built removes all of a flight's add-ons when its plan or numbers change and lists them (the same as charter, TRIP-039-R8); see Decisions in `solution.md`.
+- The card's R2 was reworded with the owner (2026-11-06) to match: all of a flight's add-ons are removed and listed when its plan or numbers change, as in charter.
 - Flight booking has no agent yet, so R4 updated charter's Agneta only.

@@ -17,7 +17,7 @@ None.
 ## Should fix
 
 - `lib/agent.ts` (`AGENT_RULES`) The line said add-ons are removed "where the new class does not have them", but all of the flight's add-ons are removed. **Done:** reworded to "the add-ons they chose on that trip are removed".
-- Card #136 R2 says add-ons are removed "because they are not in the traveller's new class"; the built behaviour removes all of the flight's add-ons and lists them (as charter). **Done:** recorded in `solution.md` and `verification.md`; the card's wording is left for the owner to update.
+- Card #136 R2 says add-ons are removed "because they are not in the traveller's new class"; the built behaviour removes all of the flight's add-ons and lists them (as charter). **Done:** the owner chose this behaviour; card R2 reworded to match, and recorded in `solution.md` and `verification.md`.
 
 ## Suggestions
 
