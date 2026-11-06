@@ -212,16 +212,25 @@ export async function animationsDone(locator: Locator) {
   await locator.evaluate((el) => Promise.allSettled(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 
+// Waits until React has taken over an element, so a key pressed on it is not lost (TECH-032).
+// The page is shown before it is hydrated, and a handler is attached only after.
+export async function hydrated(locator: Locator) {
+  await expect
+    .poll(() => locator.evaluate((el) => Object.keys(el).some((k) => k.startsWith("__reactProps$"))), { intervals: [25] })
+    .toBe(true);
+}
+
 // Runs axe on the page as it looks right now and requires that it breaks no
 // WCAG 2.x level A or AA rule (TRIP-008-R12). axe finds only some of the
 // problems; the rest is checked by hand (TRIP-021).
 export async function expectNoA11yViolations(page: Page) {
-  // Cards that fill in (TRIP-025) are partly see-through while they move, which axe reads as low contrast
+  // Anything fading or changing colour is between two values, which axe reads as low contrast (TECH-032).
+  // Transitions run even with reduced motion, so wait for all of them. An endless animation is left out.
   await page.evaluate(() =>
-    Promise.all(
+    Promise.allSettled(
       document
         .getAnimations()
-        .filter((a) => (a as CSSAnimation).animationName === "fill-in")
+        .filter((a) => a.effect?.getComputedTiming().endTime !== Infinity)
         .map((a) => a.finished),
     ),
   );
