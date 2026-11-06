@@ -7,7 +7,7 @@ feature: TRIP-014, TRIP-039
 tags: [charter, booking, search, timetables, aircraft, classes, extras, payment, personal-data, accessibility, security]
 generated:
   by: claude
-  at: 2026-11-05T18:00:00+01:00
+  at: 2026-11-06T12:00:00+01:00
 ---
 
 # Charter booking
@@ -57,9 +57,9 @@ Focus stays on the button that was pressed, and the page announces what happened
 
 `/charter/<id>/boka` (`CharterTravellersForm`): **Din resa** with the aircraft and classes, the extras and the total beside the form (under it on a phone), a card per traveller (`PersonFields`: first name, last name, age 1–120, and for each trip the class and the add-ons), **Kontaktperson** (`ContactCard`), **Tre viktiga frågor** (`QuestionsCard`) and **Tillägg för hela resan**. The fields, checks and messages are the flight booking's (`passengerProblems()` and `contactProblems()` in `lib/booking-rules.ts`); there is no Dåliga nerver. **Till betalning** marks what is missing (`aria-invalid`, red, the message read out) and moves focus to the first.
 
-- **The class is only shown.** The travellers get their classes in order from the numbers in the plan step, the dearest class first (`firstClasses()`): "Klass: Business, 4 560 kr" in a fieldset per trip. There is no choice; **Ändra plan och klasser** goes back to the plan step.
+- **The class is only shown.** The travellers get their classes in order from the numbers in the plan step, the dearest class first (`firstClasses()`): "Klass: Business, 4 560 kr" in a fieldset per trip (`LegFields`, shared with the flight form). There is no choice; **Ändra plan och klasser** goes back to the plan step (`ClassesNote`, shared with the flight form, TRIP-041).
 - **Add-ons of the class.** Under the class are the add-ons that can be bought in it (`AddonList`, shared with the flight form), with − and + (0–10 each), per traveller and trip. They come in addition to the extras for the whole booking, and both are in the total. Beer is only for travellers from 18 years (TRIP-029): the add-on is removed, with a message, when the age goes below 18.
-- **Going back to change the classes.** The form remembers for which trips, aircraft and numbers its classes were set (`legKeys`). When they have changed, that trip's classes start again and its add-ons are removed, and a status lists them ("Dessa tillägg togs bort eftersom klasserna ändrats: Passagerare 1, utresan: Måltid (2 st)"); the names, ages, contact details and the extras stay.
+- **Going back to change the classes.** The form remembers for which trips, aircraft and numbers its classes were set (`legKeys`). When they have changed, that trip's classes start again and its add-ons are removed, and a status lists them (`removedAddons()` in `lib/booking-rules.ts`, shared with flights, "Dessa tillägg togs bort eftersom klasserna ändrats: Passagerare 1, utresan: Måltid (2 st)"); the names, ages, contact details and the extras stay.
 
 The form is personal data, so it is kept in the tab's `sessionStorage` under `gurrasflyg-charter`, never in the address (`app/charter/form.ts`, the same store as the flight booking's, `app/flyg/boka/store.ts`). `fitCharterForm()` fits it to the trips every time it is read: a changed number of travellers adds or removes travellers and keeps the rest.
 

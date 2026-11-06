@@ -344,20 +344,6 @@ export function fitCharterForm(form: CharterForm, legs: BookingLeg[], travellers
   return { ...fitted, legKeys: legs.map((leg) => leg.key), passengers };
 }
 
-// Tilläggen i klasserna som tas bort när en resas plan eller antal ändrats: "Passagerare 2, utresan: Öl (2 st)" (TRIP-039-R8).
-// names är tilläggens namn efter id, eftersom det gamla planet inte längre finns bland resans.
-export function removedAddons(form: CharterForm, legs: BookingLeg[], travellers: number, names: Record<number, string>) {
-  return form.passengers.slice(0, travellers).flatMap((person, p) =>
-    legs.flatMap((leg, i) =>
-      form.legKeys[i] === leg.key
-        ? []
-        : Object.entries(person.legs?.[i]?.addons ?? {})
-            .filter(([, count]) => count > 0)
-            .map(([id, count]) => `Passagerare ${p + 1}, ${leg.of}: ${names[Number(id)] ?? "tillägg"}${count > 1 ? ` (${count} st)` : ""}`),
-    ),
-  );
-}
-
 // Tilläggen som går att ha när de här resenärerna reser: vuxentilläggen försvinner om någon är under 18
 export const withoutUnavailable = (extras: string[], passengers: Pick<Person, "age">[]) =>
   anyMinor(passengers) ? extras.filter((code) => !extraByCode(code)?.adultsOnly) : extras;

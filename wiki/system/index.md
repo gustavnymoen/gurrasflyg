@@ -66,5 +66,6 @@ Each feature's requirements and how they were verified are in `specs/<feature>/`
 | TRIP-013 Charter: Destination pages and search | Charter | `specs/TRIP-013-destination-pages/` |
 | TRIP-014 Search and book charter trips | Charter | `specs/TRIP-014-charter-booking/` |
 | TRIP-039 Choose aircraft and classes in charter | Charter | `specs/TRIP-039-charter-aircraft/` |
+| TRIP-041 The class is chosen once, in the plan step | Flight booking | `specs/TRIP-041-class-is-fixed/` |
 
 [Wiki](../index.md)

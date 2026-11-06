@@ -6,7 +6,6 @@ import {
   bookingLegs,
   bookingSummary,
   bookingTotal,
-  changeClass,
   emptyForm,
   firstClasses,
   fitForm,
@@ -18,6 +17,7 @@ import {
   NERVES_PRICE,
   paymentProblems,
   priceList,
+  removedAddons,
   travellerProblems,
   withoutBeerUnder18,
 } from "./booking-rules";
@@ -64,19 +64,11 @@ test("TRIP-012-R2 the passengers start in the chosen numbers, the most expensive
   expect(form.passengers.map((p) => p.legs[0].addons)).toEqual([{}, {}, {}]);
 });
 
-test("TRIP-012-R2 the numbers per class must match the chosen ones, also after a swap", () => {
+test("TRIP-041-R1 the travellers get their classes in order, and the form has no class to change", () => {
+  // Business, Business, Ekonomi: the same however many times the form is fitted
   const form = filled();
+  expect(fitForm(form, LEGS, 3).passengers.map((p) => p.legs[0].classId)).toEqual([2, 2, 1]);
   expect(travellerProblems(form, LEGS)).toEqual({});
-
-  // Passagerare 1 till Ekonomi: 1 i Business och 2 i Ekonomi
-  const one = { ...form, passengers: form.passengers.with(0, changeClass(form.passengers[0], 0, LEGS[0], 1)) };
-  expect(travellerProblems(one, LEGS)).toEqual({
-    "klasser-0": "På utresan ska 1 sitta i Ekonomi, men 2 gör det. Byt klass för någon passagerare.",
-  });
-
-  // Och Passagerare 3 till Business: bytt plats, och antalen stämmer igen
-  const swapped = { ...one, passengers: one.passengers.with(2, changeClass(one.passengers[2], 0, LEGS[0], 2)) };
-  expect(travellerProblems(swapped, LEGS)).toEqual({});
 });
 
 test("TRIP-012-R2 a passenger needs a first name, a last name and an age", () => {
@@ -136,11 +128,23 @@ test("TRIP-012-R3 R8 the total is the departure × the aircraft's × the class's
   expect(bookingTotal(withAddons, LEGS)).toBe(4800 + 2 * 120 + 300);
 });
 
-test("TRIP-012-R3 a new class keeps only the add-ons that can be bought in it", () => {
+test("TRIP-041-R2 a changed plan removes the add-ons and the page tells which, the rest of the form stays", () => {
   const form = filled();
-  const first = form.passengers[0];
-  const chosen = { ...first, legs: [{ classId: 2, addons: { 11: 1, 13: 2 } }] };
-  expect(changeClass(chosen, 0, LEGS[0], 1).legs[0]).toEqual({ classId: 1, addons: { 11: 1 } });
+  const withAddons = {
+    ...form,
+    passengers: form.passengers.with(0, { ...form.passengers[0], legs: [{ classId: 2, addons: { 11: 2, 13: 1 } }] }),
+  };
+  const names = { 11: "Måltid", 13: "Lounge" };
+  expect(removedAddons(withAddons, LEGS, 3, names)).toEqual([]);
+
+  const changed = [leg({ ...outbound, seating: { 1: 2, 2: 1 } })];
+  expect(removedAddons(withAddons, changed, 3, names)).toEqual([
+    "Passagerare 1, utresan: Måltid (2 st)",
+    "Passagerare 1, utresan: Lounge",
+  ]);
+  const fitted = fitForm(withAddons, changed, 3);
+  expect(fitted.passengers[0]).toMatchObject({ firstName: "Anna 0", age: "34", legs: [{ classId: 2, addons: {} }] });
+  expect(fitted.contact).toEqual(form.contact);
 });
 
 test("TRIP-012-R4 Dåliga nerver costs 1 000 kr per flight for the passenger", () => {
@@ -190,6 +194,16 @@ test("TRIP-012-R10 another aircraft or other numbers start that flight over; nam
   expect(cleared([leg({ ...outbound, time: "09:00" }), legs[1]])).toEqual({});
   expect(cleared([leg(outbound, "utresan", 1000, { ...SEARCH, outbound: "2026-11-14" }), legs[1]])).toEqual({});
   expect(cleared([leg(outbound, "utresan", 1000, { ...SEARCH, to: "CDG" }), legs[1]])).toEqual({});
+});
+
+test("TRIP-041-R3 the server refuses classes that do not match the numbers per class, in order", () => {
+  const form = filled();
+  // Passagerare 1 i Ekonomi: 1 i Business och 2 i Ekonomi, fel antal
+  const one = { ...form, passengers: form.passengers.with(0, { ...form.passengers[0], legs: [{ classId: 1, addons: {} }] }) };
+  expect(fitsTrip(one, LEGS, 3)).toBe(false);
+  // Och Passagerare 3 i Business: antalen stämmer, men inte i ordning
+  const swapped = { ...one, passengers: one.passengers.with(2, { ...one.passengers[2], legs: [{ classId: 2, addons: {} }] }) };
+  expect(fitsTrip(swapped, LEGS, 3)).toBe(false);
 });
 
 test("TRIP-012-R8 the server refuses an add-on not allowed in the class, too many, or the wrong passengers", () => {
