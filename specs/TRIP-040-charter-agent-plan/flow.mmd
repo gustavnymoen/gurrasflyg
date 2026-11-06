@@ -1,0 +1,14 @@
+%% TRIP-040 Booking agent: aircraft and classes in charter
+flowchart TD
+    A["Dates, destination, travellers"] --> B["find_trips"]
+    B --> C["show_plan: both trips chosen"]
+    C --> D["list_aircraft: aircraft that seat the party, price per class (R2)"]
+    D --> E["Agneta recommends one, the visitor agrees"]
+    E --> F{"set_plan checks as the step does"}
+    F -- refused --> G["She says what was refused (R2)"]
+    G --> D
+    F -- ok --> H{"Both trips have a plan?"}
+    H -- no --> D
+    H -- yes --> I["list_addons, ask once, set_addons (R4)"]
+    I --> J["show_travellers (R3): refused until both trips have a plan"]
+    J --> K["Resenärer: the visitor fills in; then payment and the button"]

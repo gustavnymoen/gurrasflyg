@@ -1,7 +1,7 @@
 import "server-only";
 import { type AgentContext, isAgentUrl } from "./agent-rules";
 import { type CharterData, readCharter } from "./charter";
-import { type CharterTrip, extraRows, parseCharterSearch, parseChoice, stopsText } from "./charter-rules";
+import { type CharterTrip, extraRows, parseCharterSearch, parseChoice, planText, stopsText } from "./charter-rules";
 import { type Filters, filtersToParams, parseFilters } from "./destinations";
 import { formatPrice } from "./format";
 import { PAYMENTS } from "./booking-rules";
@@ -13,7 +13,7 @@ export type PageInfo =
   | { kind: "unknown" | "start" }
   | { kind: "list"; filters: Filters }
   | { kind: "destination"; id: string; title: string }
-  | { kind: "trip"; step: "results" | "travellers" | "payment"; data: CharterData };
+  | { kind: "trip"; step: "results" | "plan" | "travellers" | "payment"; data: CharterData };
 
 const MAX_SHOWN_SEARCH = 80;
 const UNKNOWN: PageInfo = { kind: "unknown" };
@@ -33,7 +33,8 @@ export async function readPage(url: string, now: Date): Promise<PageInfo> {
   const destination = search ? await getDestinationAirport(id) : null;
   const data = search && destination ? await readCharter(destination, search, parseChoice(params), now) : null;
   if (!data) return UNKNOWN;
-  return { kind: "trip", step: step === "resor" ? "results" : last === "betala" ? "payment" : "travellers", data };
+  const steps: Record<string, "results" | "plan" | "travellers"> = { resor: "results", plan: "plan", boka: "travellers" };
+  return { kind: "trip", step: last === "betala" ? "payment" : steps[step], data };
 }
 
 // En resa på en rad, med det modellen behöver för att välja och berätta
@@ -42,13 +43,16 @@ export function tripLine(t: CharterTrip) {
   return `${t.id}: ${t.date} ${t.time} ${t.from.iata} to ${t.to.iata}, arrives ${t.arrival.time}${next} local time, ${t.airline} ${t.flights.join(" + ")}, ${stopsText(t.stops)}, ${formatPrice(t.price)} per person`;
 }
 
-// Det valda i en bokning som text: datum, resenärer och de valda resorna
-export function tripText({ destination, search, outbound, home }: CharterData) {
+// Det valda i en bokning som text: datum, resenärer, de valda resorna och deras plan och klasser
+export function tripText({ destination, search, outbound, home, choice, fleet }: CharterData) {
+  const [outPlan, backPlan] = choice.plans.map((plan) => planText(plan, fleet) ?? "none yet");
   return [
     `Destination: ${destination.title} (${destination.id}), airport ${destination.airport}`,
     `Search: from ${search.from}, outbound ${search.outbound}, return ${search.return}, ${search.travellers} travellers`,
     `Chosen outbound trip: ${outbound ? tripLine(outbound) : "none yet"}`,
     `Chosen return trip: ${home ? tripLine(home) : "none yet"}`,
+    `Chosen aircraft and travellers per class, outbound: ${outPlan}`,
+    `Chosen aircraft and travellers per class, return: ${backPlan}`,
   ].join("\n");
 }
 
@@ -71,7 +75,12 @@ export function pageText(info: PageInfo, context: AgentContext) {
       lines.push(`The visitor is on the page of ${info.title} (${info.id}).`);
       break;
     case "trip": {
-      const names = { results: "the results page (choose trips)", travellers: "the Resenärer page (the visitor fills in travellers and contact details)", payment: "the payment page" };
+      const names = {
+        results: "the results page (choose trips)",
+        plan: "the plan step (choose the aircraft and the number of travellers per class, for each trip)",
+        travellers: "the Resenärer page (the visitor fills in travellers and contact details)",
+        payment: "the payment page",
+      };
       lines.push(`The visitor is on ${names[info.step]}.`, tripText(info.data));
       break;
     }

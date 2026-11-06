@@ -13,8 +13,8 @@ test.skip(!runsLocally, "the fake agent is only in the local test server");
 
 const { monday, saturday } = charterTripDays();
 // Since TRIP-039 Resenärer comes after the plan step: the tests that need it plan the TRIP-014 trips
-// (ARN-BER-SK1122 06:50 and BER-ARN-SK1123 09:15) with the tests' own aircraft. Agneta does not know the plan
-// step until TRIP-040: a shortcut to Resenärer ends on the plan step (TRIP-039-R6).
+// (ARN-BER-SK1122 06:50 and BER-ARN-SK1123 09:15) with the tests' own aircraft. The shortcut through the plan
+// step is tested in TRIP-040-charter-agent-plan.spec.ts.
 const dates = `ut=${monday} hem=${saturday}`;
 
 // Each test has an address of its own, so that its questions do not count with the other tests' (10 in 5 minutes)
@@ -155,16 +155,9 @@ test("TRIP-030-R3 a page the tools cannot open is not opened: the model gets an 
   await expect(page).toHaveURL(/\/charter$/);
 });
 
-test("TRIP-030-R4 R5 destination, dates and travellers in one sentence go straight to Resenärer with both trips; dates that cannot be booked go nowhere", async ({ page }) => {
+test("TRIP-030-R4 R5 dates that cannot be booked go nowhere: Agneta says so and the page stays", async ({ page }) => {
   await agentOn(page);
-  await page.goto("/charter/teufelsberg");
-  await ask(page, `GENVAG id=teufelsberg fran=ARN ${dates} antal=2`);
-  await expect(page).toHaveURL(new RegExp(`/charter/teufelsberg/plan\\?fran=ARN&utresa=${monday}&hemresa=${saturday}&resenarer=2&ut=ARN-BER-[\\w]+&hem=BER-ARN-[\\w]+$`));
-  await expect(page.getByRole("heading", { name: "Välj plan och klass", level: 1 })).toBeVisible();
-  await expect(panel(page)).toContainText("Jag tog de första, de är minst dåliga. Fyll i dig själv.");
-  await expectNoA11yViolations(page);
-
-  // Dates far ahead (more than six months) cannot be booked: Agneta says so and nothing opens
+  // Dates far ahead (more than six months) cannot be booked
   await page.goto("/charter/teufelsberg");
   const late = daysFromToday(300);
   await ask(page, `GENVAG id=teufelsberg fran=ARN ut=${late} hem=${late} antal=2`);

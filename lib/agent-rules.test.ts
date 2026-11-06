@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 import { isAgentUrl, parseAgentContext, safeActions, takeMarkers } from "./agent-rules";
 
 test("TRIP-030-R3 only the charter pages of the known shapes may be opened", () => {
-  for (const url of ["/charter", "/charter?sok=berlin&land=DE", "/charter/teufelsberg", "/charter/teufelsberg/resor?fran=ARN", "/charter/teufelsberg/boka", "/charter/teufelsberg/boka/betala?x=1"]) {
+  for (const url of ["/charter", "/charter?sok=berlin&land=DE", "/charter/teufelsberg", "/charter/teufelsberg/resor?fran=ARN", "/charter/teufelsberg/plan?fran=ARN&ut-plan=3", "/charter/teufelsberg/boka", "/charter/teufelsberg/boka/betala?x=1"]) {
     expect(isAgentUrl(url), url).toBe(true);
   }
   for (const url of [
@@ -33,6 +33,11 @@ test("TRIP-030-R3 an action that is not of a known kind with checked values is d
     { type: "payment", payment: "bitcoin" },
     { type: "book" },
     { type: "extras", extras: "drinks" },
+    { type: "addons", legKeys: ["a", "b"], passengers: [[{ classId: 1, addons: { 5: 2 } }, { classId: 1, addons: {} }]] },
+    { type: "addons", legKeys: ["a"], passengers: [[{ classId: 1, addons: { 5: 99 } }]] },
+    { type: "addons", legKeys: ["a"], passengers: [[{ classId: 1, addons: {} }, { classId: 1, addons: {} }]] },
+    { type: "addons", legKeys: ["a"], passengers: Array(11).fill([{ classId: 1, addons: {} }]) },
+    { type: "addons", legKeys: [5], passengers: [] },
     null,
     "goto",
   ];
@@ -40,6 +45,7 @@ test("TRIP-030-R3 an action that is not of a known kind with checked values is d
     { type: "goto", url: "/charter/teufelsberg" },
     { type: "extras", extras: ["drinks"] },
     { type: "payment", payment: "collect" },
+    { type: "addons", legKeys: ["a", "b"], passengers: [[{ classId: 1, addons: { 5: 2 } }, { classId: 1, addons: {} }]] },
   ]);
   expect(safeActions("goto")).toEqual([]);
 });

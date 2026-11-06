@@ -1,15 +1,20 @@
 import "server-only";
 import type Anthropic from "@anthropic-ai/sdk";
-import { type AgentAction } from "./agent-rules";
+import type { AgentAction } from "./agent-rules";
+import { aircraftText, checkPlan } from "./agent-plan";
 import { readPage, tripLine, tripText } from "./agent-page";
 import { type CharterData, readCharter } from "./charter";
 import {
-  departuresTotal,
+  charterTotal,
+  emptyCharterForm,
   EXTRAS,
   extraByCode,
   extraRows,
+  fitCharterForm,
   NO_CHOICE,
   parseCharterSearch,
+  planText,
+  planUrl,
   resultsUrl,
   travellersUrl,
 } from "./charter-rules";
@@ -17,7 +22,7 @@ import { MAX_MONTHS_AHEAD, MAX_TRIP_MONTHS } from "./dates";
 import { ACCESS_NAMES, CATEGORY_NAMES, CONTINENT_NAMES } from "./destination-names";
 import { applyFilters, DEPARTURE_AIRPORTS, type Filters, filtersToParams, NO_FILTERS } from "./destinations";
 import { formatPrice } from "./format";
-import { PAYMENTS, type Payment } from "./booking-rules";
+import { isBeer, MAX_ADDONS, PAYMENTS, type Payment } from "./booking-rules";
 import { getDestinationAirport, getDestinationCards } from "./travel";
 
 // Agnetas verktyg (TRIP-030-R2, R3, R5, R6). Ett verktyg ändrar aldrig något själv: det läser ur
@@ -30,7 +35,7 @@ export type AgentState = {
   extras: string[];
   payment: Payment | null;
   valid: boolean;
-  actions: { goto?: string; extras?: string[]; payment?: Payment };
+  actions: { goto?: string; extras?: string[]; payment?: Payment; addons?: Omit<Extract<AgentAction, { type: "addons" }>, "type"> };
 };
 
 // Ett fel som modellen får läsa ("fel argument", R2). Ingenting har hänt.
@@ -83,14 +88,64 @@ export const TOOLS: Anthropic.Tool[] = [
     },
   },
   {
-    name: "show_travellers",
+    name: "show_plan",
     description:
-      "Open the Resenärer page in the visitor's browser, with the search and one outbound and one return trip already chosen, skipping the results page. Both trips are required (ids from find_trips). The visitor fills in names, ages and contact details there; you cannot and must not.",
+      "Open the plan step (choose the aircraft and the number of travellers per class, for each trip) in the visitor's browser, with the search and one outbound and one return trip already chosen, skipping the results page. Both trips are required (ids from find_trips). Aircraft and classes are chosen on it with list_aircraft and set_plan.",
     input_schema: {
       type: "object",
       properties: { ...tripProps, outbound_trip: { type: "string" }, return_trip: { type: "string" } },
       required: [...tripRequired, "outbound_trip", "return_trip"],
     },
+  },
+  {
+    name: "list_aircraft",
+    description:
+      "List the aircraft that seat all travellers on the page the visitor is on (both trips chosen), with each class's room and price per person for each trip, cheapest first: the same prices the plan step shows. Opens nothing. Use it before you name an aircraft or a price. A charter trip flies when its timetable says, so the aircraft has no flight time: never quote one.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "set_plan",
+    description:
+      "Choose the aircraft and the number of travellers per class for one trip, on the plan step in the visitor's browser (it opens the page with the choice in the address). The numbers must add up to the number of travellers, and no class may get more than it has room for. Do it only when the visitor has agreed. A wrong choice is refused and nothing changes.",
+    input_schema: {
+      type: "object",
+      properties: {
+        trip: { type: "string", enum: ["outbound", "return"] },
+        aircraft_id: { type: "integer", description: "An aircraft id from list_aircraft." },
+        classes: {
+          type: "array",
+          items: { type: "object", properties: { class_id: { type: "integer" }, count: { type: "integer" } }, required: ["class_id", "count"] },
+          description: "Travellers per class, e.g. [{ class_id: 1, count: 2 }].",
+        },
+      },
+      required: ["trip", "aircraft_id", "classes"],
+    },
+  },
+  {
+    name: "list_addons",
+    description:
+      "List the add-ons (with price per piece) that can be bought in the classes chosen for each trip on the page the visitor is on. Needs aircraft and classes set for both trips.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "set_addons",
+    description: `Put add-ons in the traveller form: the given number of each, per traveller on both trips, wherever the add-on can be bought in the traveller's class. Names from list_addons. Beer cannot be set by you (an age rule): the visitor chooses it in the form. Replaces earlier add-ons set this way. Needs aircraft and classes set for both trips. At most ${MAX_ADDONS} of each.`,
+    input_schema: {
+      type: "object",
+      properties: {
+        addons: {
+          type: "array",
+          items: { type: "object", properties: { name: { type: "string" }, count: { type: "integer" } }, required: ["name", "count"] },
+        },
+      },
+      required: ["addons"],
+    },
+  },
+  {
+    name: "show_travellers",
+    description:
+      "Open the Resenärer page for the page the visitor is on, with the chosen trips, aircraft and classes. Refused until aircraft and classes are set for both trips. The visitor fills in names, ages and contact details there; you cannot and must not.",
+    input_schema: { type: "object", properties: {} },
   },
   {
     name: "set_extras",
@@ -209,8 +264,8 @@ async function findTrips(input: Record<string, unknown>) {
   ].join("\n");
 }
 
-// Resultatsidan, eller Resenärer direkt (R3, R4). Valda resor måste finnas och passa ihop: det avgör sidans egen regel.
-async function showTrip(input: Record<string, unknown>, state: AgentState, step: "results" | "travellers") {
+// Resultatsidan, eller plan och klass direkt (R3). Valda resor måste finnas och passa ihop: det avgör sidans egen regel.
+async function showTrip(input: Record<string, unknown>, state: AgentState, step: "results" | "plan") {
   const choice = { ...NO_CHOICE, out: text(input.outbound_trip) ?? null, back: text(input.return_trip) ?? null };
   const data = await charterOf(input, choice);
   if (data.out.length === 0 || data.back.length === 0) {
@@ -219,10 +274,86 @@ async function showTrip(input: Record<string, unknown>, state: AgentState, step:
   if ((choice.out && data.choice.out !== choice.out) || (choice.back && data.choice.back !== choice.back)) {
     throw new ToolError("A trip you gave does not run on that date, or the return does not leave after the outbound has landed. Check with find_trips.");
   }
-  if (step === "travellers" && !(data.outbound && data.home)) throw new ToolError("Both trips are required.");
-  const open = step === "results" ? resultsUrl : travellersUrl;
+  if (step === "plan" && !(data.outbound && data.home)) throw new ToolError("Both trips are required.");
+  const open = step === "results" ? resultsUrl : planUrl;
   go(state, open(data.destination.id, data.search, data.choice));
-  return `Opened ${step === "results" ? "the results page" : "the Resenärer page"}.\n${tripText(data)}`;
+  return `Opened ${step === "results" ? "the results page" : "the plan step"}.\n${tripText(data)}`;
+}
+
+// Bokningen på sidan besökaren är på, när båda resorna är valda: plan, klasser och tillägg gäller den (TRIP-040-R1)
+async function chosenPage(state: AgentState) {
+  const info = await readPage(state.url, new Date());
+  if (info.kind !== "trip" || !info.data.outbound || !info.data.home) {
+    throw new ToolError("The visitor has not chosen both trips on this page. Open the plan step with show_plan first.");
+  }
+  return info.data;
+}
+
+// Planen och klasserna ska vara klara för båda resorna innan tillägg eller Resenärer (TRIP-039-R6)
+async function readyPage(state: AgentState) {
+  const data = await chosenPage(state);
+  if (!data.legs) throw new ToolError("Aircraft and classes are not set for both trips. Use list_aircraft and set_plan first.");
+  return { data, legs: data.legs };
+}
+
+async function listAircraft(state: AgentState) {
+  const data = await chosenPage(state);
+  const trips = [data.outbound!, data.home!];
+  return [
+    ...trips.map((trip, i) => `${["Outbound", "Return"][i]} trip ${trip.id}:\n${aircraftText(data.fleet, trip.price, data.search.travellers)}`),
+    `Give the numbers per class so that they add up to ${data.search.travellers} travellers. The prices are per person for the trip.`,
+  ].join("\n");
+}
+
+async function setPlan(input: Record<string, unknown>, state: AgentState) {
+  const index = ["outbound", "return"].indexOf(String(input.trip));
+  if (index < 0) throw new ToolError("trip must be outbound or return.");
+  const data = await chosenPage(state);
+  const checked = checkPlan(data.fleet, data.search.travellers, input.aircraft_id, input.classes);
+  if ("problem" in checked) throw new ToolError(checked.problem);
+  const plans = data.choice.plans.with(index, checked.plan);
+  delete state.actions.addons; // klasserna ändras: tilläggen som valts hör till de gamla
+  go(state, planUrl(data.destination.id, data.search, { ...data.choice, plans }));
+  return `Set the plan for the ${input.trip} trip: ${planText(checked.plan, data.fleet)}. ${plans.some((p) => p.aircraftId === null || p.seating === null) ? "The other trip still needs its plan." : "Both trips have a plan."}`;
+}
+
+async function listAddons(state: AgentState) {
+  const { legs } = await readyPage(state);
+  return legs
+    .map((leg) => {
+      const rows = leg.aircraft.classes
+        .filter((c) => (leg.seating[c.id] ?? 0) > 0)
+        .map((c) => `  ${c.name}: ${(leg.addons[c.id] ?? []).map((a) => `${a.name} ${formatPrice(a.price)} per piece${isBeer(a) ? " (from 18, the visitor chooses it)" : ""}`).join(", ") || "none"}`);
+      return `${leg.of} (${leg.aircraft.name}):\n${rows.join("\n")}`;
+    })
+    .join("\n");
+}
+
+// Tilläggen skrivs till formuläret som resenärernas klasser och tillägg per resa; sidan behåller dem så länge resorna, planen och antalen är desamma
+async function setAddons(input: Record<string, unknown>, state: AgentState) {
+  const { data, legs } = await readyPage(state);
+  const wanted = (Array.isArray(input.addons) ? input.addons : []).map((a) => ({ name: fold(String(a?.name ?? "")), count: Number(a?.count) }));
+  if (wanted.some((a) => !Number.isInteger(a.count) || a.count < 0 || a.count > MAX_ADDONS)) throw new ToolError(`Give each add-on a count from 0 to ${MAX_ADDONS}.`);
+  const unknown = wanted.filter((w) => !legs.some((leg) => Object.values(leg.addons).some((list) => list.some((a) => fold(a.name) === w.name))));
+  if (unknown.length > 0) throw new ToolError(`No such add-on in the chosen classes: ${unknown.map((u) => u.name).join(", ")}. Check with list_addons.`);
+  if (wanted.some((w) => w.count > 0 && legs.some((leg) => Object.values(leg.addons).some((list) => list.some((x) => isBeer(x) && fold(x.name) === w.name))))) throw new ToolError("Beer has an age rule: the visitor chooses it in the form. Leave it out.");
+  const base = fitCharterForm(emptyCharterForm(""), legs, data.search.travellers);
+  const passengers = base.passengers.map((person) =>
+    person.legs.map((passengerLeg, i) => ({
+      ...passengerLeg,
+      addons: Object.fromEntries(
+        wanted.flatMap((w) => (legs[i].addons[passengerLeg.classId] ?? []).filter((a) => fold(a.name) === w.name && w.count > 0).map((a) => [a.id, w.count])),
+      ),
+    })),
+  );
+  state.actions.addons = { legKeys: legs.map((leg) => leg.key), passengers };
+  return `Add-ons put in the form for every traveller: ${wanted.filter((w) => w.count > 0).map((w) => `${w.count} ${w.name}`).join(", ") || "none"}. An add-on that does not exist in a traveller's class on a trip is left out there.`;
+}
+
+async function showTravellers(state: AgentState) {
+  const { data } = await readyPage(state);
+  go(state, travellersUrl(data.destination.id, data.search, data.choice));
+  return `Opened the Resenärer page.\n${tripText(data)}`;
 }
 
 function setExtras(input: Record<string, unknown>, state: AgentState) {
@@ -242,20 +373,24 @@ function setPayment(input: Record<string, unknown>, state: AgentState) {
   return `Payment method set: ${payment.label}.`;
 }
 
-// Bokningen som den ser ut på sidan besökaren är på, med priset från databasen (R8)
+// Bokningen som den ser ut på sidan besökaren är på, med priset från databasen (R8). Tilläggen i klasserna
+// räknas med bara om de valdes nu: de som valts i formuläret tidigare känner servern inte till.
 async function summary(state: AgentState) {
   const info = await readPage(state.url, new Date());
   if (info.kind !== "trip" || !info.data.outbound || !info.data.home) {
     throw new ToolError("Nothing to summarise yet: the visitor has not chosen an outbound and a return trip.");
   }
   const { data } = info;
+  if (!data.legs) throw new ToolError("Aircraft and classes are not set for both trips yet. Use list_aircraft and set_plan.");
   const rows = extraRows(state.extras, data.search.travellers);
-  const total = departuresTotal([data.outbound!.price, data.home!.price], state.extras, data.search.travellers);
+  const base = fitCharterForm(emptyCharterForm(""), data.legs, data.search.travellers);
+  const passengers = base.passengers.map((p, i) => ({ ...p, legs: state.actions.addons?.passengers[i] ?? p.legs }));
+  const total = charterTotal(data.legs, { passengers, extras: state.extras });
   return [
     tripText(data),
     `Extras: ${rows.map((e) => `${e.name} (${formatPrice(e.sum)})`).join(", ") || "none"}`,
     `Payment method: ${PAYMENTS.find((p) => p.value === state.payment)?.label ?? "not chosen"}`,
-    `Total price: ${formatPrice(total)}`,
+    `Total price: ${formatPrice(total)} (seats and extras${state.actions.addons ? " and the add-ons you set" : "; add-ons the visitor chose in the form are not in it, the page shows the total with them"})`,
     `The traveller form is ${state.valid ? "valid" : "not valid (not filled in or wrong)"}.`,
   ].join("\n");
 }
@@ -272,8 +407,18 @@ export async function runTool(name: string, input: unknown, state: AgentState): 
       return findTrips(args);
     case "show_results":
       return showTrip(args, state, "results");
+    case "show_plan":
+      return showTrip(args, state, "plan");
+    case "list_aircraft":
+      return listAircraft(state);
+    case "set_plan":
+      return setPlan(args, state);
+    case "list_addons":
+      return listAddons(state);
+    case "set_addons":
+      return setAddons(args, state);
     case "show_travellers":
-      return showTrip(args, state, "travellers");
+      return showTravellers(state);
     case "set_extras":
       return setExtras(args, state);
     case "set_payment":
@@ -290,6 +435,7 @@ export function actionsOf({ actions }: AgentState): AgentAction[] {
   return [
     ...(actions.extras ? [{ type: "extras" as const, extras: actions.extras }] : []),
     ...(actions.payment ? [{ type: "payment" as const, payment: actions.payment }] : []),
+    ...(actions.addons ? [{ type: "addons" as const, ...actions.addons }] : []),
     ...(actions.goto ? [{ type: "goto" as const, url: actions.goto }] : []),
   ];
 }

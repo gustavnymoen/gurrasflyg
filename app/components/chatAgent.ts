@@ -2,8 +2,10 @@
 
 import type { useRouter } from "next/navigation";
 import { type AgentAction, type AgentContext, MAX_URL_LENGTH, NOT_READY_TEXT, safeActions } from "@/lib/agent-rules";
+import type { PassengerLeg } from "@/lib/booking-rules";
 import {
   asCharterForm,
+  type CharterForm,
   charterProblems,
   emptyCharterForm,
   fitTravellers,
@@ -40,12 +42,19 @@ export function readContext(): AgentContext {
 // Har besökaren ändrat sidan eller valen sedan frågan skickades? Då släpps åtgärderna (R4).
 export const sameContext = (a: AgentContext, b: AgentContext) => JSON.stringify(a) === JSON.stringify(b);
 
+// Resenärernas klasser och tillägg från Agneta in i formuläret; resenärerna som finns behåller namn och ålder.
+function withAddons(form: CharterForm, { legKeys, passengers }: { legKeys: string[]; passengers: PassengerLeg[][] }): CharterForm {
+  const fitted = fitTravellers(form, passengers.length);
+  return { ...fitted, legKeys, passengers: fitted.passengers.map((person, i) => ({ ...person, legs: passengers[i] })) };
+}
+
 // Utför åtgärderna: formuläret först, sidan sist. Varje åtgärd kontrolleras en gång till (R3).
 export function applyActions(actions: AgentAction[], router: Router) {
   for (const action of safeActions(actions)) {
     const form = savedForm() ?? emptyCharterForm("");
     if (action.type === "extras") saveCharterForm({ ...form, extras: withoutUnavailable(action.extras, form.passengers) }); // dryckespaketet aldrig med någon under 18 (R6)
     if (action.type === "payment") saveCharterForm({ ...form, payment: action.payment });
+    if (action.type === "addons") saveCharterForm(withAddons(form, action)); // TRIP-040-R4
     if (action.type === "goto") router.push(action.url);
   }
 }

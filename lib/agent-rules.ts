@@ -1,5 +1,6 @@
-import { PAYMENTS, type Payment } from "./booking-rules";
+import { MAX_ADDONS, PAYMENTS, type Payment, type PassengerLeg } from "./booking-rules";
 import { extraByCode } from "./charter-rules";
+import { MAX_TRAVELLERS } from "./search";
 
 // Regler för agentläget (TRIP-030), gemensamma för webbläsaren och servern. Det som kommer från
 // modellen eller webbläsaren litar ingen på: servern kontrollerar det med de här reglerna och
@@ -16,16 +17,18 @@ export const BOOK_MARKER = "[[BOOK]]";
 // kontaktuppgifter eller svar på de tre frågorna: valid är bara om formuläret stämmer.
 export type AgentContext = { url: string; extras: string[]; payment: Payment | null; valid: boolean };
 
-// Det chatten gör åt Agneta: öppnar en sida eller skriver till formuläret (R3, R6)
+// Det chatten gör åt Agneta: öppnar en sida eller skriver till formuläret (R3, R6). "addons" är
+// resenärernas klasser och tillägg på varje resa, för resorna som legKeys säger (TRIP-040-R4).
 export type AgentAction =
   | { type: "goto"; url: string }
   | { type: "extras"; extras: string[] }
-  | { type: "payment"; payment: Payment };
+  | { type: "payment"; payment: Payment }
+  | { type: "addons"; legKeys: string[]; passengers: PassengerLeg[][] };
 
 export const MAX_URL_LENGTH = 1200;
 
-// Sidorna en åtgärd får öppna (R3): /charter, ett resmål, dess resultat, resenärer och betalning
-const PATH = /^\/charter(\/[a-z0-9-]+(\/(resor|boka(\/betala)?))?)?$/;
+// Sidorna en åtgärd får öppna (R3): /charter, ett resmål, dess resultat, plan och klass, resenärer och betalning
+const PATH = /^\/charter(\/[a-z0-9-]+(\/(resor|plan|boka(\/betala)?))?)?$/;
 
 export function isAgentUrl(url: unknown): url is string {
   if (typeof url !== "string" || url.length > MAX_URL_LENGTH || url.includes("#")) return false;
@@ -41,12 +44,29 @@ export function parseAgentContext(value: unknown): AgentContext | null {
   return { url, extras: extras.filter((code) => typeof code === "string" && extraByCode(code)), payment, valid };
 }
 
+// Resenärernas klasser och tillägg per resa, med rätt form och rimliga tal (TRIP-040-R1)
+const isCount = (n: unknown) => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= MAX_ADDONS;
+const isPassengerLeg = (leg: PassengerLeg) =>
+  Number.isInteger(leg?.classId) && typeof leg.addons === "object" && leg.addons !== null && Object.values(leg.addons).every(isCount);
+function isAddonsAction(a: { legKeys?: unknown; passengers?: unknown }) {
+  const { legKeys, passengers } = a;
+  return (
+    Array.isArray(legKeys) &&
+    legKeys.length <= 2 &&
+    legKeys.every((key) => typeof key === "string" && key.length <= 200) &&
+    Array.isArray(passengers) &&
+    passengers.length <= MAX_TRAVELLERS &&
+    passengers.every((legs) => Array.isArray(legs) && legs.length === legKeys.length && legs.every(isPassengerLeg))
+  );
+}
+
 // Åtgärderna webbläsaren tar emot, kontrollerade en gång till. Det som inte stämmer släpps (R3).
 export function safeActions(value: unknown): AgentAction[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((a): AgentAction[] => {
     if (a?.type === "goto" && isAgentUrl(a.url)) return [{ type: "goto", url: a.url }];
     if (a?.type === "payment" && PAYMENTS.some((p) => p.value === a.payment)) return [{ type: "payment", payment: a.payment }];
+    if (a?.type === "addons" && isAddonsAction(a)) return [{ type: "addons", legKeys: a.legKeys, passengers: a.passengers }];
     if (a?.type === "extras" && Array.isArray(a.extras) && a.extras.every((c: unknown) => typeof c === "string" && extraByCode(c))) {
       return [{ type: "extras", extras: a.extras }];
     }
