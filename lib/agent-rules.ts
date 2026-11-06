@@ -27,8 +27,12 @@ export type AgentAction =
 
 export const MAX_URL_LENGTH = 1200;
 
-// Sidorna en åtgärd får öppna (R3): /charter, ett resmål, dess resultat, plan och klass, resenärer och betalning
-const PATH = /^\/charter(\/[a-z0-9-]+(\/(resor|plan|boka(\/betala)?))?)?$/;
+// Sidorna en åtgärd får öppna (R3): /charter, ett resmål, dess resultat, plan och klass, resenärer och betalning,
+// och flygens sidor (TRIP-036-R1)
+const PATH = /^(\/charter(\/[a-z0-9-]+(\/(resor|plan|boka(\/betala)?))?)?|\/flyg(\/plan|\/boka(\/betala)?)?)$/;
+
+// Flyg eller charter: sidan avgör vilka regler, verktyg och vilket formulär som gäller
+export const isFlightUrl = (url: string) => url.split("?")[0].startsWith("/flyg");
 
 export function isAgentUrl(url: unknown): url is string {
   if (typeof url !== "string" || url.length > MAX_URL_LENGTH || url.includes("#")) return false;

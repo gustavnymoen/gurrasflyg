@@ -20,12 +20,12 @@ async function ask(page: Page, question: string) {
   await panel(page).getByRole("button", { name: "Skicka" }).click();
 }
 
-test("TRIP-017-R7 the button is on the start page and every charter page, and on no other page", async ({ page }) => {
-  for (const path of ["/", "/charter", "/charter/teufelsberg"]) {
+test("TRIP-017-R7 TRIP-036-R1 the button is on the start page, every charter page and every flight page, and on no other page", async ({ page }) => {
+  for (const path of ["/", "/charter", "/charter/teufelsberg", "/flyg"]) {
     await page.goto(path);
     await expect(openButton(page), path).toBeVisible();
   }
-  for (const path of ["/flyg", "/min-bokning", "/admin/login"]) {
+  for (const path of ["/min-bokning", "/admin/login"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(openButton(page), path).toHaveCount(0);

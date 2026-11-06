@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { isAgentUrl, parseAgentContext, safeActions, takeMarkers } from "./agent-rules";
 
-test("TRIP-030-R3 only the charter pages of the known shapes may be opened", () => {
-  for (const url of ["/charter", "/charter?sok=berlin&land=DE", "/charter/teufelsberg", "/charter/teufelsberg/resor?fran=ARN", "/charter/teufelsberg/plan?fran=ARN&ut-plan=3", "/charter/teufelsberg/boka", "/charter/teufelsberg/boka/betala?x=1"]) {
+test("TRIP-030-R3 TRIP-036-R1 only the charter and flight pages of the known shapes may be opened", () => {
+  for (const url of ["/charter", "/charter?sok=berlin&land=DE", "/charter/teufelsberg", "/charter/teufelsberg/resor?fran=ARN", "/charter/teufelsberg/plan?fran=ARN&ut-plan=3", "/charter/teufelsberg/boka", "/charter/teufelsberg/boka/betala?x=1", "/flyg", "/flyg?fran=ARN&till=LHR", "/flyg/plan?fran=ARN", "/flyg/boka", "/flyg/boka/betala?x=1"]) {
     expect(isAgentUrl(url), url).toBe(true);
   }
   for (const url of [
-    "/", "/admin", "/flyg", "/charter/bokad/x", "/charter//evil.com", "//evil.com", "https://evil.com/charter", "/charter/../admin",
+    "/", "/admin", "/flyg/bokad", "/flyg/", "/flyg/plan/x", "/flyg/boka/betala/x", "/flygx", "/flyg#x", "//flyg", "/charter/bokad/x", "/charter//evil.com", "//evil.com", "https://evil.com/charter", "/charter/../admin",
     "/charter/Teufelsberg", "/charter/a/b", "/charter/a/boka/betala/x", "/charter#x", "/charter?x=" + "a".repeat(1300), "javascript:alert(1)", 5, null, undefined,
   ]) {
     expect(isAgentUrl(url), String(url)).toBe(false);

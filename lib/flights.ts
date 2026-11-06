@@ -1,7 +1,7 @@
 import "server-only";
 import { connection } from "next/server";
 import { type AddonRow, type BookingLeg, bookingLegs } from "./booking-rules";
-import { type Airport, all, type Executor } from "./db";
+import { type Airport, all, type Executor, escapeLike } from "./db";
 import { cheapestFare, type FleetAircraft } from "./fare-rules";
 import { type Flight, flightNumber, hasLeft, localNow } from "./flight-rules";
 import { type Params, parseSearch, type Search } from "./search";
@@ -34,6 +34,17 @@ export async function getAirportPair(from: string, to: string) {
   const find = (iata: string) => airports.find((a) => a.iata === iata);
   const [fromAirport, toAirport] = [find(from), find(to)];
   return fromAirport && toAirport ? { from: fromAirport, to: toAirport } : null;
+}
+
+// Flygplatser vars stad, namn, land eller IATA-kod innehåller söktexten, för agentens val av flygplats (TRIP-036)
+export async function findAirports(query: string, limit = 10) {
+  await connection();
+  return all<{ iata: string; name: string; city: string; country: string }>(
+    `SELECT iata, name, city, country FROM airports
+     WHERE name LIKE :contains ESCAPE '\\' OR city LIKE :contains ESCAPE '\\' OR country LIKE :contains ESCAPE '\\' OR iata LIKE :contains ESCAPE '\\'
+     ORDER BY iata LIMIT :limit`,
+    { contains: `%${escapeLike(query)}%`, limit },
+  );
 }
 
 // Rutten mellan två flygplatser flygs vid samma tider varje dag (TRIP-010-R4).

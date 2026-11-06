@@ -7,12 +7,9 @@ import { bookingUrl, paymentUrl } from "@/lib/trip";
 import Problem from "../Problem";
 import Steps, { tripSteps } from "../Steps";
 import TripOverview from "../TripOverview";
-import { bookAction } from "./actions";
+import { bookFlight } from "./book";
 import { PayCard, PaymentMethodCard } from "./PaymentParts";
-import { BOOKED_KEY, FORM_KEY, store } from "./store";
 import { type BookingProps, saveForm, useBookingForm } from "./TravellersForm";
-
-export const BOOKED_PATH = "/flyg/bokad";
 
 // Betalsättet och Betala (R7, R8). Tillbaka till resenärerna finns allt kvar,
 // eftersom det är sparat i fliken. Betala sparar bokningen på servern och
@@ -53,16 +50,9 @@ export default function PaymentForm({ search, legs, flights, fleet, booking }: B
     }
     setError(null);
     startTransition(async () => {
-      const result = await bookAction(paymentUrl(search, legs).split("?")[1], form!);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      // Sammanfattningen visas bara i den här fliken, och formuläret töms
-      setBooked(true);
-      store(BOOKED_KEY, result.summary);
-      store(FORM_KEY, null);
-      router.replace(BOOKED_PATH);
+      const result = await bookFlight(router, paymentUrl(search, legs).split("?")[1], form!);
+      if ("error" in result) setError(result.error);
+      else setBooked(true);
     });
   }
 

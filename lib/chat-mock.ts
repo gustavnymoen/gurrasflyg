@@ -42,9 +42,10 @@ function progress(messages: Anthropic.MessageParam[]) {
 // set_plan för båda resorna ur svaret från list_aircraft: första planet i varje lista, med resenärerna
 // utdelade på klasserna i ordning efter vad de rymmer
 function planCalls(list: string, travellers: number) {
-  const section = list.split("\n").filter((line) => line.startsWith("- aircraft") || /^(Outbound|Return) trip/.test(line));
-  return ["Outbound", "Return"].map((title, i) => {
+  const section = list.split("\n").filter((line) => line.startsWith("- aircraft") || /^(Outbound|Return) (trip|flight)/.test(line));
+  return ["Outbound", "Return"].flatMap((title, i) => {
     const start = section.findIndex((line) => line.startsWith(title));
+    if (start < 0) return []; // en enkel flygresa har bara en utresa
     const row = section.slice(start + 1).find((line) => line.startsWith("- aircraft")) ?? "";
     let left = travellers;
     const classes = [...row.matchAll(/class (\d+) [^(]*\(room for (\d+)\)/g)].map(([, id, room]) => {
@@ -52,7 +53,7 @@ function planCalls(list: string, travellers: number) {
       left -= count;
       return { class_id: Number(id), count };
     });
-    return call("set_plan", { trip: i === 0 ? "outbound" : "return", aircraft_id: Number(row.match(/aircraft (\d+)/)?.[1]), classes }, `plan${i}`);
+    return [call("set_plan", { trip: i === 0 ? "outbound" : "return", aircraft_id: Number(row.match(/aircraft (\d+)/)?.[1]), classes }, `plan${i}`)];
   });
 }
 
@@ -64,12 +65,34 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
   const trip = { id: arg("id"), from: arg("fran") || "ARN", outbound: arg("ut"), return: arg("hem"), travellers: Number(arg("antal") || 1) };
   if (question.includes("FEL")) throw new Error("mock failed");
 
+  // Flygen (TRIP-036): flygplatser med "till=", datum med "ut=" och "hem=" (utan hem= en enkel resa), flyg med "utflyg=" och "hemflyg="
+  const flight = { from: trip.from, to: arg("till"), outbound: trip.outbound, return: trip.return || undefined, travellers: trip.travellers };
+  if (question.includes("FLYGPLATS") && steps === 0) return answer([call("find_airports", { q: arg("sok") })], "tool_use");
+  if (question.includes("FLYGSOK") && steps === 0) return answer([call("find_flights", flight)], "tool_use");
+  if (question.includes("FLYGUTVAL") && steps === 0) return answer([call("show_flights", { ...flight, outbound_flight: arg("utflyg") || undefined, return_flight: arg("hemflyg") || undefined })], "tool_use");
+  if (question.includes("FLYGVAG")) {
+    // Som GENVAG: sök, öppna planen med första flygen, första planet, Resenärer
+    const plans = flight.return ? 2 : 1;
+    if (steps === 0) return answer([call("find_flights", flight)], "tool_use");
+    if (steps === 1) {
+      const times = [...last.matchAll(/^- (\d\d:\d\d):/gm)].map((m) => m[1]);
+      const backAt = last.split("\nReturn flights")[1]?.match(/^- (\d\d:\d\d):/m)?.[1];
+      return answer([call("show_flight_plan", { ...flight, outbound_flight: times[0], return_flight: backAt })], "tool_use");
+    }
+    if (steps === 2) return answer([call("list_aircraft", {})], "tool_use");
+    if (steps === 3) return answer(planCalls(last, trip.travellers), "tool_use");
+    if (steps === 3 + plans) return answer([call("show_travellers", {})], "tool_use");
+    return say(last.startsWith("Opened the Resen") ? "Jag tog de första och billigaste planen, de är minst dåliga. Fyll i dig själv." : `Det gick inte: ${last}`);
+  }
+
   if (question.includes("SLINGA")) {
     // Ber om verktyg tills taket nås; då tvingas ett svar (tool_choice none)
     return params.tool_choice?.type === "none"
       ? say(`Nu räcker det. Jag fick göra ${steps} anrop.`)
       : answer([call("find_trips", { id: "finns-inte" }, `loop${steps}`)], "tool_use");
   }
+  // Före LISTA, som ordet också innehåller
+  if (question.includes("TILLAGGSLISTA") && steps === 0) return answer([call("list_addons", {})], "tool_use");
   if (question.includes("LISTA") && steps === 0) {
     const filters = { q: arg("sok"), category: arg("kategori") ? [arg("kategori")] : [], continent: arg("varldsdel") ? [arg("varldsdel")] : [] };
     return answer([call("show_destinations", filters)], "tool_use");
@@ -103,7 +126,6 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
     const [, aircraft, cls] = last.match(/aircraft (\d+) .*?class (\d+) /) ?? [];
     return answer([call("set_plan", { trip: "outbound", aircraft_id: Number(aircraft), classes: [{ class_id: Number(cls), count: 99 }] })], "tool_use");
   }
-  if (question.includes("TILLAGGSLISTA") && steps === 0) return answer([call("list_addons", {})], "tool_use");
   if (question.includes("KLASSTILLAGG") && steps === 0) return answer([call("set_addons", { addons: [{ name: question.match(/namn=(.+?)(?: antal=|$)/)?.[1] ?? "", count: Number(arg("antal") || 1) }] })], "tool_use");
   if (question.includes("RESULTAT") && steps === 0) return answer([call("show_results", { ...trip, outbound_trip: arg("utresa") || undefined })], "tool_use");
   if (question.includes("TILLAGG") && steps === 0) {
