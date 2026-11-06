@@ -1,5 +1,5 @@
 import "server-only";
-import { createClient, type InArgs, type ResultSet, type Transaction } from "@libsql/client";
+import type { InArgs, ResultSet, Transaction } from "@libsql/client";
 import { connection } from "next/server";
 import { localDbFile } from "./local-db.mjs";
 
@@ -10,6 +10,9 @@ if (process.env.VERCEL && !process.env.TURSO_DATABASE_URL) {
   throw new Error("TURSO_DATABASE_URL saknas på Vercel (Settings -> Environment Variables)");
 }
 const url = process.env.TURSO_DATABASE_URL ?? `file:${localDbFile}`;
+// TECH-031: mot Turso räcker webbklienten. Den vanliga klienten drar med libsqls inbyggda
+// binär (133 MB), som annars hamnar i varje funktion på Vercel.
+const { createClient } = url.startsWith("file:") ? await import("@libsql/client") : await import("@libsql/client/web");
 export const db = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
 
 if (url.startsWith("file:")) {

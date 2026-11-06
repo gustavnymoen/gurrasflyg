@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-11-05T17:00:00+01:00
+  at: 2026-11-06T12:00:00+01:00
 ---
 
 # Architecture
@@ -62,7 +62,7 @@ This Next.js version has `cacheComponents` turned on: data that depends on the r
 
 ## Database
 
-SQLite, reached through `@libsql/client`, so the same SQL works locally and in production.
+SQLite, reached through `@libsql/client`, so the same SQL works locally and in production. `lib/db.ts` loads the regular client for a local `file:` database and the web client (`@libsql/client/web`) for Turso. The regular client brings libsql's native binary, which a Vercel function never needs; `outputFileTracingExcludes` in `next.config.ts` keeps the binaries out of the function bundles (TECH-031), so every deployment stores less.
 
 | Environment | Database |
 |---|---|
