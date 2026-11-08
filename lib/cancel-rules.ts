@@ -35,6 +35,10 @@ export const TOO_LATE_TEXT = "Det är för sent att avboka";
 // redan har avgått, går inte (R8).
 export const canCancel = (departsAt: number, now: Date) => departsAt - now.getTime() > CANCEL_HOURS * 3_600_000;
 
+// Lotteriet i sidans egna ord, på ett ställe: sidan visar det före knappen och Agneta följer samma text (TRIP-037-R3)
+export const LOTTERY_TEXT =
+  "Att avboka hos Gurras Flyg är ett lotteri. Vi singlar slant: 50/50 att du får pengarna tillbaka. Förlorar du betalar du fullt pris ändå.";
+
 // Lotteriet: random är ett tal från 0 till under 1, och hälften av dem vinner (R10)
 export const winsLottery = (random: number) => random < 0.5;
 
@@ -116,6 +120,14 @@ export const leftToPay = (booking: Pick<Booking, "total" | "cancellations">) =>
 
 // Platserna på ett flyg som går att kryssa: inte avbokade, och flyget inte för sent (R6, R8)
 export const tickableSeats = (flight: BookedFlight) => (flight.late ? [] : flight.seats.filter((s) => !s.cancelled));
+
+// Id:n på allt som går att kryssa i bokningen: platser på flyg som inte är för sena, eller resenärer på en resa som inte är det (TRIP-037-R5)
+export const tickableIds = (booking: MyBooking) =>
+  booking.kind === "flight"
+    ? booking.flights.flatMap((f) => tickableSeats(f).map((s) => s.id))
+    : booking.late
+      ? []
+      : booking.passengers.filter((p) => !p.cancelled).map((p) => p.id);
 
 // Alla platser eller resenärer i en grupp, t.ex. ett flyg, är kryssade, några, eller ingen
 export function groupState(selected: ReadonlySet<number>, ids: number[]): "all" | "some" | "none" {

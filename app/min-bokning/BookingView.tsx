@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { bookingExtract } from "@/lib/cancel-extract";
 import {
   bookingCancelled,
   charterSelection,
   flightSelection,
   type MyBooking,
+  tickableIds,
 } from "@/lib/cancel-rules";
+import { formatPrice } from "@/lib/format";
 import type { Cancelled, Credentials } from "@/lib/my-booking";
 import Button from "../components/Button";
 import Message from "../components/Message";
 import { CancellationHistory, ContactCard, TotalsCard } from "./BookingParts";
+import { registerBooking } from "./bookingBridge";
 import CancelPanel from "./CancelPanel";
 import CharterParts from "./CharterParts";
 import FlightParts from "./FlightParts";
@@ -28,6 +32,8 @@ export default function BookingView({
   const [booking, setBooking] = useState(initial);
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
   const [result, setResult] = useState<Pick<Cancelled, "won" | "amount"> | null>(null);
+  // Vad Agneta kryssade, för skärmläsaren (TRIP-037-R6)
+  const [note, setNote] = useState("");
   const resultRef = useRef<HTMLDivElement>(null);
   const cancelled = bookingCancelled(booking);
 
@@ -35,6 +41,22 @@ export default function BookingView({
   useEffect(() => resultRef.current?.focus(), [result]);
 
   const selection = booking.kind === "flight" ? flightSelection(booking, selected) : charterSelection(booking, selected);
+  const choose = (next: ReadonlySet<number>) => {
+    setNote("");
+    setSelected(next);
+  };
+
+  // Agneta får utdraget (utan personuppgifter) och kan kryssa det som går att avboka. Fokus flyttas inte (R6).
+  useEffect(() => {
+    const tick = (ids: number[]) => {
+      const allowed = new Set(tickableIds(booking).filter((id) => ids.includes(id)));
+      const { lines, amount } = booking.kind === "flight" ? flightSelection(booking, allowed) : charterSelection(booking, allowed);
+      setSelected(allowed);
+      setNote(lines.length > 0 ? `Agneta kryssade: ${lines.join(", ")}. Värde ${formatPrice(amount)}.` : "Agneta tog bort alla kryss.");
+    };
+    registerBooking({ extract: bookingExtract(booking, selected), tick });
+    return () => registerBooking(null);
+  }, [booking, selected]);
 
   return (
     <>
@@ -47,6 +69,10 @@ export default function BookingView({
         {booking.kind === "charter" && <p className="text-ink-muted">{booking.destination}</p>}
       </div>
 
+      <p role="status" className="sr-only">
+        {note}
+      </p>
+
       <div ref={resultRef} tabIndex={-1} className="outline-none empty:hidden">
         {result && (
           <Message kind={result.won ? "success" : "error"}>
@@ -58,9 +84,9 @@ export default function BookingView({
       </div>
 
       {booking.kind === "flight" ? (
-        <FlightParts booking={booking} selected={selected} onChange={setSelected} />
+        <FlightParts booking={booking} selected={selected} onChange={choose} />
       ) : (
-        <CharterParts booking={booking} selected={selected} onChange={setSelected} />
+        <CharterParts booking={booking} selected={selected} onChange={choose} />
       )}
       <ContactCard contact={booking.contact} />
       <TotalsCard booking={booking} />

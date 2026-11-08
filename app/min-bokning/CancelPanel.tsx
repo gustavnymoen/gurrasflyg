@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import type { Selection } from "@/lib/cancel-rules";
+import { LOTTERY_TEXT, type Selection } from "@/lib/cancel-rules";
 import { formatPrice } from "@/lib/format";
 import type { Cancelled, Credentials } from "@/lib/my-booking";
 import Button from "../components/Button";
@@ -51,10 +51,7 @@ export default function CancelPanel({
       <h2 id="avboka" className="text-section font-bold">
         Avboka
       </h2>
-      <p>
-        Att avboka hos Gurras Flyg är ett lotteri. Vi singlar slant: 50/50 att du får pengarna tillbaka. Förlorar du
-        betalar du fullt pris ändå.
-      </p>
+      <p>{LOTTERY_TEXT}</p>
       {lines.length === 0 ? (
         <p className="text-ink-muted">Kryssa det du vill avboka.</p>
       ) : (

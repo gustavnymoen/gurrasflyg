@@ -3,11 +3,11 @@ type: Guide
 title: Min bokning
 description: Så hittar du din flyg- eller charterbokning med bokningsnummer och efternamn och avbokar delar av den, och hur lotteriet om pengarna fungerar.
 resource: app/min-bokning/
-feature: TRIP-023
+feature: TRIP-023, TRIP-037
 tags: [resenär, bokning, avboka, lotteri, bokningsnummer, meny]
 generated:
   by: claude
-  at: 2026-10-26T17:53:48+01:00
+  at: 2026-11-08T12:00:00+01:00
 ---
 
 # Min bokning
@@ -56,6 +56,10 @@ Du kan avboka mer senare, så länge något är kvar. När allt är avbokat stå
 ## Det är för sent
 
 Ett flyg som avgår om 24 timmar eller mindre, eller som redan har gått, går inte att avboka. Rutan är grå med texten "Det är för sent att avboka". För en charterbokning gäller det utresans avgång: är den för nära går ingen resenär att avboka. Tiden räknas i avgångsflygplatsens lokala tid.
+
+## Få hjälp av Agneta
+
+Knappen **Fråga Agneta** finns också på den här sidan. Trycker du **Hjälp mig** kan hon förklara reglerna och kryssa det du vill avboka ("avboka utresan", "avboka resenär 2"). Hon kan inte hitta din bokning åt dig: numret och efternamnet skriver du själv i fälten, och hon ser aldrig namn eller kontaktuppgifter. Hon avbokar inget: det gör bara du, med **Avboka** och **Ja, avboka**. Mer om det i [Fråga Agneta](fraga-agneta.md).
 
 ## Bra att veta
 

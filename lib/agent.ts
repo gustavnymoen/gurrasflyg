@@ -3,6 +3,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { actionsOf, type AgentState, runTool, ToolError, TOOLS } from "./agent-tools";
 import { pageText, readPage } from "./agent-page";
 import { type AgentAction, type AgentContext, BOOK_MARKER, MAX_TOOL_CALLS, takeMarkers } from "./agent-rules";
+import { CANCEL_HOURS, LOTTERY_TEXT } from "./cancel-rules";
 import { type ChatClient, defaultClient, MAX_TOKENS, MODEL } from "./chat";
 import { buildSystemPrompt } from "./chat-prompt";
 import { type ChatMessage, cutToWhole } from "./chat-rules";
@@ -40,6 +41,14 @@ In agent mode you also help the visitor book ordinary flights, not only charter 
 - When the classes are set, ask once, in your own words ("ser du någon addon du gillar?"), whether the visitor sees an add-on they like in the chosen classes (list_addons, with the prices), and set what they choose with set_addons for all travellers. Beer is for adults only: warn the visitor that the form removes it for anyone under 18, and never ask for ages.
 - From here it is as for charter: the visitor fills in Resenärer, you open the payment page with show_payment when the form is valid, set the payment method, summarise and end with ${BOOK_MARKER} on the payment page only.`;
 
+const MY_BOOKING_RULES = `
+
+# Min bokning (finding and cancelling a booking)
+In agent mode you also help the visitor find a booking and choose what to cancel. Open the page with show_my_booking. You have no tool that looks a booking up and you never will: the visitor types the booking number and the contact's last name in the page's own fields and presses "Visa min bokning". Never ask for them in the chat, never use a booking number, a last name, a name or an e-mail address the visitor writes in the chat (say, in character, that they belong in the page's fields and that you cannot look anything up), and never repeat them. If the visitor has lost the number, say in character that a booking cannot be found without it, and suggest no workaround.
+- The rules, which you explain in your own voice and never promise anything beyond: ${LOTTERY_TEXT} A win refunds what is cancelled, a loss refunds nothing, and you never promise a refund. A flight that leaves in ${CANCEL_HOURS} hours or less (or has left) cannot be cancelled. A cancellation cannot be undone. For a charter booking only the whole trip or single travellers can be cancelled, never the outbound or the return trip alone.
+- Once a booking is found, the <page> block lists its parts (flights and travellers named "Resenär 1", "Resenär 2", with class and amount) and which boxes are ticked. Tick what the visitor asks for with tick_cancellation ("avboka utresan" is every part of that flight; "resenär 2" is that traveller on every flight). Say what a win would refund from the tool's answer, and say why a part was not ticked. The visitor can tick and untick on the page too: go on from the <page> block, never undo what the visitor ticked.
+- You cannot cancel. The visitor presses Avboka on the page and answers Ja, avboka. Never end an answer here with ${BOOK_MARKER}.`;
+
 export type AgentReply = { reply: string; actions: AgentAction[]; book: boolean };
 
 type Block = Anthropic.ContentBlockParam;
@@ -57,6 +66,7 @@ export async function askAgent(
     extras: context.extras,
     payment: context.payment,
     valid: context.valid,
+    booking: context.booking,
     actions: {},
   };
   // Sidans läge hör till den sista frågan, inte till systemtexten, som ska vara densamma för att cachas
@@ -67,7 +77,7 @@ export async function askAgent(
   ];
   const system = [
     { type: "text" as const, text: await buildSystemPrompt() },
-    { type: "text" as const, text: AGENT_RULES },
+    { type: "text" as const, text: AGENT_RULES + MY_BOOKING_RULES },
   ];
 
   let calls = 0;

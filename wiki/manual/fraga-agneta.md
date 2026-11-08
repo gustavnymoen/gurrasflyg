@@ -1,13 +1,13 @@
 ---
 type: Guide
 title: Fråga Agneta
-description: Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten (en panel vid sidan av sidan, eller en ruta på mobilen), och hur du låter henne hjälpa dig att hitta och boka en charterresa eller ett vanligt flyg med knappen Hjälp mig.
+description: Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten (en panel vid sidan av sidan, eller en ruta på mobilen), och hur du låter henne hjälpa dig att hitta och boka en charterresa eller ett vanligt flyg, eller att avboka en bokning, med knappen Hjälp mig.
 resource: app/components/Chat.tsx
-feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-036
+feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-036, TRIP-037
 tags: [resenär, charter, chatt, agneta]
 generated:
   by: claude
-  at: 2026-11-06T16:00:00+01:00
+  at: 2026-11-08T12:00:00+01:00
 ---
 
 # Fråga Agneta
@@ -16,7 +16,7 @@ Agneta Spydenius jobbar hos oss som kundtjänstmedarbetare (det står under henn
 
 ## Öppna chatten
 
-Knappen **Fråga Agneta**, med hennes bild, finns nere till höger på startsidan, på alla sidor under **Charter** och på alla sidor under **Flyg** (sökresultaten, plan och klass, resenärerna och betalningen). Tryck på den (eller tryck Enter när den har fokus).
+Knappen **Fråga Agneta**, med hennes bild, finns nere till höger på startsidan, på alla sidor under **Charter**, på alla sidor under **Flyg** (sökresultaten, plan och klass, resenärerna och betalningen) och på **Min bokning**. Tryck på den (eller tryck Enter när den har fokus).
 
 - **På en bred skärm** öppnas chatten som en panel längs högerkanten. Sidan trycks ihop vid sidan av den, så du kan fortsätta bläddra medan du chattar.
 - **På en smal skärm**, till exempel mobilen, öppnas chatten som en ruta som fyller skärmen.
@@ -47,7 +47,9 @@ I det här läget kan hon:
 
 Du styr själv hela tiden. Klickar du på sidan medan hon svarar, eller ändrar datum, filter, resa, tillägg eller betalsätt, utgår hon från det du gjorde, och ändrar sig inget över ditt huvud: har du hunnit ändra något innan hennes svar kommer säger hon det och frågar hur du vill ha det.
 
-**Du fyller i uppgifterna själv.** Namn, åldrar, kontaktuppgifter och de tre frågorna skriver du på sidan Resenärer, aldrig i chatten, och inget av det skickas till Agneta. Hon vet bara om formuläret är rätt ifyllt eller inte.
+- **Hjälpa dig med en bokning.** Ber du om hjälp med att hitta eller avboka en bokning tar hon dig till **Min bokning** och förklarar hur det går till. Bokningsnumret och efternamnet skriver du själv i fälten på sidan och trycker **Visa min bokning**: hon kan inte leta upp din bokning, frågar aldrig efter numret och använder inte ett nummer eller ett namn du skriver i chatten. Har du tappat bort numret går bokningen inte att hitta utan det. Hon förklarar lotteriet (50/50 att du får tillbaka det du avbokar, annars inget), att ett flyg som avgår om 24 timmar eller mindre inte går att avboka och att en avbokning inte går att ångra, och lovar aldrig att du får pengarna tillbaka. När bokningen visas ser hon bara vilka flyg eller resenärer den har ("Resenär 1", "Resenär 2"), med klass och belopp, aldrig namn eller kontaktuppgifter. Säger du "avboka utresan" eller "avboka resenär 2" kryssar hon rutorna åt dig och säger vad en vinst skulle ge tillbaka. En ruta som inte går att kryssa, för att den redan är avbokad eller flyget är för nära, kryssar hon inte och säger varför. Du kan kryssa och ta bort kryss själv, och då utgår hon från det. **Hon avbokar aldrig själv**: du trycker **Avboka** på sidan och svarar **Ja, avboka**, och först då avbokas något. Skärmläsaren får veta vad hon kryssat.
+
+**Du fyller i uppgifterna själv.** Namn, åldrar, kontaktuppgifter och de tre frågorna skriver du på sidan Resenärer, och bokningsnummer och efternamn på Min bokning, aldrig i chatten, och inget av det skickas till Agneta. Hon vet bara om formuläret är rätt ifyllt eller inte.
 
 ### Boka med knappen
 

@@ -1,6 +1,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { openUnitDb } from "../db/test-db";
 import { safeActions } from "./agent-rules";
+import { bookingExtract } from "./cancel-extract";
+import { LOTTERY_TEXT } from "./cancel-rules";
 import { unitTestDbFile } from "./local-db.mjs";
 
 // Agentläget mot enhetstesternas databas (vitest.global-setup.mjs) och en manusstyrd klient: ingen modell anropas.
@@ -90,7 +92,7 @@ test("TRIP-030-R2 R9 the request carries the tools, the agent rules after the sy
   const params = create.mock.calls[0][0] as unknown as { cache_control: unknown; tools: { name: string }[]; system: { text: string }[]; messages: { content: { text: string }[] }[] };
   expect(params.cache_control).toEqual({ type: "ephemeral" });
   expect(params.tools.map((t) => t.name)).toEqual([
-    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "find_airports", "find_flights", "show_flights", "show_flight_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "show_payment", "set_extras", "set_payment", "summarise",
+    "show_destinations", "show_destination", "find_trips", "show_results", "show_plan", "find_airports", "find_flights", "show_flights", "show_flight_plan", "list_aircraft", "set_plan", "list_addons", "set_addons", "show_travellers", "show_payment", "set_extras", "set_payment", "show_my_booking", "tick_cancellation", "summarise",
   ]);
   expect(params.system).toHaveLength(2);
   expect(params.system[0].text).toBe(await buildSystemPrompt());
@@ -617,4 +619,129 @@ test("TRIP-036-R2 R6 the rules tell her to be Agneta on the flight pages, to ask
   expect(rules).toContain("funny and negative");
   expect(rules).toContain("ser du någon addon du gillar?");
   expect(rules).toContain("never ask for ages");
+});
+
+// Min bokning (TRIP-037): utdraget av en hittad bokning, med namn och kontaktuppgifter som aldrig får nå modellen
+const MY = "/min-bokning";
+const hidden = ["Hemlig Hemligsson", "Efternamnsson", "hemlig@exempel.se", "070-999 88 77", "Gömdgatan 9", "K7M2QX"];
+const seatOf = (id: number, passengerId: number, over = {}) => ({ id, passengerId, className: "Ekonomi", price: 1000, addons: [], cancelled: false, ...over });
+const found = (late = false) =>
+  bookingExtract(
+    {
+      kind: "flight",
+      bookingNumber: "K7M2QX",
+      contact: { firstName: "Cecilia", lastName: "Efternamnsson", email: "hemlig@exempel.se", phone: "070-999 88 77", address: "Gömdgatan 9" },
+      payment: "cash",
+      total: 4000,
+      cancellations: [],
+      passengers: [{ id: 11, name: "Hemlig Hemligsson", age: 40 }, { id: 12, name: "Bo Efternamnsson", age: 8 }],
+      flights: [
+        { id: 1, title: "Utresa", of: "utresan", date: "2030-01-10", time: "07:00", from: { iata: "ARN", city: "Stockholm", timezone: "Europe/Stockholm" }, to: { iata: "LHR", city: "London", timezone: "Europe/London" }, aircraft: "Hemligt plan", minutes: 120, arrival: { time: "08:00", days: 0 }, late, seats: [seatOf(1, 11), seatOf(2, 12)] },
+        { id: 2, title: "Hemresa", of: "hemresan", date: "2030-01-17", time: "18:00", from: { iata: "LHR", city: "London", timezone: "Europe/London" }, to: { iata: "ARN", city: "Stockholm", timezone: "Europe/Stockholm" }, aircraft: "Hemligt plan", minutes: 120, arrival: { time: "21:00", days: 0 }, late: false, seats: [seatOf(3, 11, { cancelled: true }), seatOf(4, 12)] },
+      ],
+    } as never,
+    new Set([2]),
+  );
+const myContext = (over = {}) => context({ url: MY, booking: found(), ...over });
+const tick = (...ids: number[]) => toolTurn(toolUse("tick_cancellation", { ids }));
+
+test("TRIP-037-R2 the model has no tool that looks a booking up or cancels one, and none takes a booking number or a name", async () => {
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, myContext(), client);
+  const tools = (create.mock.calls[0][0] as unknown as { tools: { name: string; input_schema: { properties?: object } }[] }).tools;
+  expect(tools.map((t) => t.name).filter((name) => /look|find_book|cancel_|book_|^cancel/i.test(name))).toEqual([]);
+  for (const tool of tools) expect(Object.keys(tool.input_schema.properties ?? {}), tool.name).not.toContain("booking_number");
+  expect(JSON.stringify(tools)).not.toMatch(/last_?name|booking_?number|e-?mail/i);
+});
+
+test("TRIP-037-R2 R3 the rules say to send the number and the name to the page's fields, and give the page's own lottery text", async () => {
+  const { client, create } = scripted(textTurn("Nej."));
+  await askAgent(question, myContext(), client);
+  const rules = (create.mock.calls[0][0] as unknown as { system: { text: string }[] }).system[1].text;
+  expect(rules).toContain("# Min bokning");
+  expect(rules).toContain("Never ask for them in the chat");
+  expect(rules).toContain("cannot be found without it");
+  expect(rules).toContain(LOTTERY_TEXT);
+  expect(rules).toContain("24 hours or less");
+  expect(rules).toContain("cannot be undone");
+  expect(rules).toContain("you never promise a refund");
+});
+
+test("TRIP-037-R4 the request has the extract with the ticked boxes and nothing personal, and none before a booking is found", async () => {
+  const withBooking = scripted(textTurn("Nej."));
+  await askAgent(question, myContext(), withBooking.client);
+  const sent = JSON.stringify(withBooking.create.mock.calls[0][0]).replaceAll("\u00a0", " "); // formatPrice skriver ett hårt mellanrum
+  expect(sent).toContain("The visitor is on Min bokning");
+  expect(sent).toContain("- id 2: Resenär 2, Ekonomi, 1 000");
+  expect(sent).toContain("ticked now");
+  expect(sent).toContain("already cancelled");
+  for (const secret of hidden) expect(sent, secret).not.toContain(secret);
+
+  const without = scripted(textTurn("Nej."));
+  await askAgent(question, myContext({ booking: undefined }), without.client);
+  const none = JSON.stringify(without.create.mock.calls[0][0]);
+  expect(none).toContain("No booking is found on the page yet");
+  expect(none).not.toContain("- id ");
+});
+
+test("TRIP-037-R4 nothing of the extract or the booking is written to the log", async () => {
+  const log = vi.mocked(console.log);
+  const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  await askAgent(question, myContext(), scripted(tick(1), textTurn("Klart.")).client);
+  const written = JSON.stringify([...log.mock.calls, ...error.mock.calls]);
+  for (const secret of [...hidden, "Resenär", "utresan", "ARN-LHR"]) expect(written, secret).not.toContain(secret);
+});
+
+test("TRIP-037-R5 tick_cancellation ticks exactly the parts asked for, says what a win would refund, and nothing is cancelled", async () => {
+  const { client, create } = scripted(tick(1, 2), textTurn("Så."));
+  const reply = await askAgent(question, myContext(), client);
+  expect(reply!.actions).toEqual([{ type: "tick", ids: [1, 2] }]);
+  expect(reply!.book).toBe(false);
+  const [result] = toolResults(create);
+  expect(result.content).toContain("Ticked on the page: Resenär 1, Ekonomi (utresan ARN-LHR 2030-01-10 07:00); Resenär 2, Ekonomi");
+  expect(result.content).toMatch(/A win would refund 2\s000\skr, a loss nothing/);
+  expect(result.content).toContain("Nothing is cancelled until the visitor presses Avboka and answers Ja, avboka");
+});
+
+test("TRIP-037-R5 a part that is already cancelled, too late or does not exist is not ticked, and the answer says why", async () => {
+  const { client, create } = scripted(tick(1, 3, 77), textTurn("Så."));
+  const reply = await askAgent(question, myContext(), client);
+  expect(reply!.actions).toEqual([{ type: "tick", ids: [1] }]);
+  const [result] = toolResults(create);
+  expect(result.content).toContain("Resenär 1, Ekonomi is not ticked (already cancelled)");
+  expect(result.content).toContain("No part has the id 77");
+
+  const late = scripted(tick(1, 2), textTurn("Så."));
+  const none = await askAgent(question, myContext({ booking: found(true) }), late.client);
+  expect(none!.actions).toEqual([]); // inget kryssades: besökarens kryss rörs inte
+  expect(toolResults(late.create)[0].content).toContain("is not ticked (Det är för sent att avboka)");
+  expect(toolResults(late.create)[0].content).toContain("Nothing was ticked and the boxes the visitor had ticked are unchanged.");
+});
+
+test("TRIP-037-R5 an empty list clears the boxes, and without a booking on the page the tool says so and ticks nothing", async () => {
+  const clear = await askAgent(question, myContext(), scripted(tick(), textTurn("Så.")).client);
+  expect(clear!.actions).toEqual([{ type: "tick", ids: [] }]);
+
+  const { client, create } = scripted(tick(1), textTurn("Så."));
+  const reply = await askAgent(question, myContext({ booking: undefined }), client);
+  expect(reply!.actions).toEqual([]);
+  expect(toolResults(create)[0]).toMatchObject({ is_error: true });
+  expect(toolResults(create)[0].content).toContain("You cannot look it up");
+
+  // Bokningen hör till Min bokning: på en annan sida finns den inte, även om modellen ber om det
+  const elsewhere = scripted(tick(1), textTurn("Så."));
+  expect((await askAgent(question, context({ url: "/charter" }), elsewhere.client))!.actions).toEqual([]);
+});
+
+test("TRIP-037-R1 show_my_booking opens Min bokning, and does nothing when the visitor is already there", async () => {
+  const open = await askAgent(question, context({ url: "/charter" }), scripted(toolTurn(toolUse("show_my_booking", {})), textTurn("Där.")).client);
+  expect(open!.actions).toEqual([{ type: "goto", url: MY }]);
+  const { client, create } = scripted(toolTurn(toolUse("show_my_booking", {})), textTurn("Där."));
+  expect((await askAgent(question, myContext({ booking: undefined }), client))!.actions).toEqual([]);
+  expect(toolResults(create)[0].content).toContain("already on Min bokning");
+});
+
+test("TRIP-037-R5 the booking button is never offered on Min bokning, whatever the model writes", async () => {
+  const reply = await askAgent(question, myContext({ payment: "cash", valid: true }), scripted(textTurn("Klart.\n[[BOOK]]")).client);
+  expect(reply).toEqual({ reply: "Klart.", actions: [], book: false });
 });

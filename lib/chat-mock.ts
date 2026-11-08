@@ -36,7 +36,8 @@ function progress(messages: Anthropic.MessageParam[]) {
   const question = blocks.findLast((b): b is Anthropic.TextBlockParam => b.type === "text")!.text;
   const results = messages.slice(at + 1).flatMap((m) => (Array.isArray(m.content) ? m.content : []));
   const resultTexts = results.flatMap((b) => (b.type === "tool_result" && typeof b.content === "string" ? [b.content] : []));
-  return { question, steps: resultTexts.length, last: resultTexts.at(-1) ?? "" };
+  const page = blocks.find((b): b is Anthropic.TextBlockParam => b.type === "text")?.text ?? "";
+  return { question, page, steps: resultTexts.length, last: resultTexts.at(-1) ?? "" };
 }
 
 // set_plan för båda resorna ur svaret från list_aircraft: första planet i varje lista, med resenärerna
@@ -57,10 +58,26 @@ function planCalls(list: string, travellers: number) {
   });
 }
 
+// Id:n i utdraget (<page>-blocket) som "del=" pekar ut: en grupp som börjar med ordet, t.ex. utresan, eller en resenär med nummer, t.ex. 2.
+// Flera sätts ihop med komma. Ett id som inte finns kan skrivas "id:99".
+function tickIds(page: string, want: string) {
+  const ids: number[] = [];
+  let group = "";
+  for (const line of page.split("\n")) {
+    if (line.startsWith("## ")) group = line.slice(3).toLowerCase();
+    const part = line.match(/^- id (\d+): (.*)$/);
+    if (!part) continue;
+    for (const w of want.split(",")) {
+      if (group.startsWith(w) || part[2].startsWith(`Resenär ${w},`)) ids.push(Number(part[1]));
+    }
+  }
+  return [...new Set([...ids, ...want.split(",").flatMap((w) => (w.startsWith("id:") ? [Number(w.slice(3))] : []))])];
+}
+
 // Den manusstyrda agenten: fasta verktygsanrop efter nyckelord i frågan, med värden som "id=teufelsberg"
 // i frågan. Den skriver samma in-character-svar som modellen ska.
 function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
-  const { question, steps, last } = progress(params.messages);
+  const { question, page, steps, last } = progress(params.messages);
   const arg = (name: string) => question.match(new RegExp(`\\b${name}=(\\S+)`))?.[1] ?? "";
   const trip = { id: arg("id"), from: arg("fran") || "ARN", outbound: arg("ut"), return: arg("hem"), travellers: Number(arg("antal") || 1) };
   if (question.includes("FEL")) throw new Error("mock failed");
@@ -84,6 +101,11 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
     if (steps === 3 + plans) return answer([call("show_travellers", {})], "tool_use");
     return say(last.startsWith("Opened the Resen") ? "Jag tog de första och billigaste planen, de är minst dåliga. Fyll i dig själv." : `Det gick inte: ${last}`);
   }
+
+  // Min bokning (TRIP-037): öppna sidan, kryssa delar ur utdraget, eller (UPPGIFTER) vägra använda det som skrivits i chatten
+  if (question.includes("MINBOKNING") && steps === 0) return answer([call("show_my_booking", {})], "tool_use");
+  if (question.includes("KRYSSA") && steps === 0) return answer([call("tick_cancellation", { ids: tickIds(page, question.match(/\bdel=(\S+)/)?.[1] ?? "") })], "tool_use");
+  if (question.includes("UPPGIFTER")) return say("Numret och efternamnet skriver du i fälten på sidan. Jag kan inte leta upp något åt dig.");
 
   if (question.includes("SLINGA")) {
     // Ber om verktyg tills taket nås; då tvingas ett svar (tool_choice none)

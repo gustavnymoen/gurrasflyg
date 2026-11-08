@@ -181,7 +181,7 @@ export default function ChatBody({
     <div ref={root} className={`flex flex-col text-left ${tall ? "min-h-0 flex-1" : ""}`}>
       <p className="mt-3 text-small text-ink-muted">
         Agneta svarar bara om våra charterresmål och hur du bokar. Skriv inga personuppgifter: frågorna skickas till
-        Anthropic.{agent && " Namn och kontaktuppgifter fyller du i på sidan, aldrig här."}
+        Anthropic.{agent && " Namn, bokningsnummer och kontaktuppgifter fyller du i på sidan, aldrig här."}
       </p>
       <p role="status" className="sr-only">
         {agent ? "Agneta hjälper dig nu." : ""}
