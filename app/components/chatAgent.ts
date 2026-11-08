@@ -45,12 +45,29 @@ function formState() {
     const form = savedFlight();
     const travellers = parseSearch(params())?.travellers;
     const fitted = form && travellers ? { ...form, passengers: Array.from({ length: travellers }, (_, p) => form.passengers[p] ?? emptyPassenger()) } : null;
-    return { extras: [], payment: form?.payment ?? null, valid: !!fitted && Object.keys(travellerProblems(fitted, [])).length === 0 };
+    const people = fitted?.passengers ?? [];
+    return {
+      extras: [],
+      payment: form?.payment ?? null,
+      valid: !!fitted && Object.keys(travellerProblems(fitted, [])).length === 0,
+      ...choiceOf(form?.legKeys, people),
+      nerves: people.filter((p) => p.nerves).length,
+    };
   }
   const form = savedCharter();
   const travellers = parseCharterSearch(params())?.travellers;
   const fitted = form && travellers ? fitTravellers(form, travellers) : null;
-  return { extras: form?.extras ?? [], payment: form?.payment ?? null, valid: !!fitted && Object.keys(charterProblems(fitted, [])).length === 0 };
+  return {
+    extras: form?.extras ?? [],
+    payment: form?.payment ?? null,
+    valid: !!fitted && Object.keys(charterProblems(fitted, [])).length === 0,
+    ...choiceOf(form?.legKeys, fitted?.passengers ?? []),
+  };
+}
+
+// Klasserna och tilläggen per resenär och resa, utan namn, åldrar eller annat personligt (TRIP-044-R2)
+function choiceOf(legKeys: string[] | undefined, people: { legs: PassengerLeg[] }[]) {
+  return legKeys?.length && people.length > 0 ? { choice: { legKeys, passengers: people.map((p) => p.legs) } } : {};
 }
 
 // Sidan och det icke-personliga besökaren valt (R4). Formuläret går inte med, bara om det stämmer.

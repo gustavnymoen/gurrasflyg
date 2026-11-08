@@ -73,3 +73,15 @@ test("TRIP-037-R4 the extract of a booking is accepted only on Min bokning and o
 test("TRIP-037-R5 the tick action keeps whole numbers only", () => {
   expect(safeActions([{ type: "tick", ids: [1, 2] }, { type: "tick", ids: ["1"] }, { type: "tick", ids: 5 }, { type: "tick", ids: Array(41).fill(1) }])).toEqual([{ type: "tick", ids: [1, 2] }]);
 });
+
+test("TRIP-044-R2 the form's classes and add-ons and the number with Dåliga nerver are checked; nothing else gets through", () => {
+  const choice = { legKeys: ["a", "b"], passengers: [[{ classId: 1, addons: { 5: 2 } }, { classId: 1, addons: {} }]] };
+  const ok = { url: "/flyg/boka/betala", extras: [], payment: null, valid: true };
+  expect(parseAgentContext({ ...ok, choice, nerves: 1 })).toEqual({ ...ok, choice, nerves: 1 });
+  // a name, an age or anything else on the passenger is dropped, and a wrong shape is refused
+  const withName = { ...choice, passengers: [[{ classId: 1, addons: {}, firstName: "Hemlig" }, { classId: 1, addons: {} }]] };
+  expect(JSON.stringify(parseAgentContext({ ...ok, choice: withName }))).not.toContain("Hemlig");
+  for (const bad of [{ ...ok, choice: "x" }, { ...ok, choice: { ...choice, legKeys: [5] } }, { ...ok, choice: { ...choice, passengers: [[{ classId: 1, addons: { 5: 99 } }]] } }, { ...ok, nerves: -1 }, { ...ok, nerves: 11 }, { ...ok, nerves: "1" }, { ...ok, choice: null }]) {
+    expect(parseAgentContext(bad), JSON.stringify(bad)).toBeNull();
+  }
+});

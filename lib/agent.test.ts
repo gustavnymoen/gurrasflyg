@@ -277,6 +277,42 @@ test("TRIP-030-R4 summarise tells the total from the database with the extras no
   expect(toolResults(early.create)[0].is_error).toBe(true);
 });
 
+// Valet i formuläret som webbläsaren skickar med (choice): samma form som åtgärden addons, tagen ur en sådan
+async function choiceFor(url: string, count: number) {
+  const set = scripted(toolTurn(toolUse("set_addons", { addons: [{ name: "Unit Måltid", count }] })), textTurn("Klart."));
+  const [action] = (await askAgent(question, context({ url }), set.client))!.actions;
+  if (action.type !== "addons") throw new Error("no addons action");
+  return { legKeys: action.legKeys, passengers: action.passengers };
+}
+const summaryOf = async (ctx: ReturnType<typeof context>) => {
+  const { client, create } = scripted(toolTurn(toolUse("summarise", {})), textTurn("Klar."));
+  await askAgent(question, ctx, client);
+  return toolResults(create)[0].content as string;
+};
+
+test("TRIP-044-R2 the charter total has the add-ons chosen in the form and the extras, as the page's", async () => {
+  const url = tripUrl("boka/betala", planned());
+  const choice = await choiceFor(url, 2);
+  // seats 7 733 (see above) + the meal 120 × 2 × 2 travellers × 2 trips + extras 2 000
+  expect(await summaryOf(context({ url, extras: ["ultimate"], valid: true, choice }))).toMatch(/Total price: 10\s693\skr/);
+  // a choice for another plan is not counted, only the classes
+  expect(await summaryOf(context({ url, extras: ["ultimate"], choice: { ...choice, legKeys: ["x", "y"] } }))).toMatch(/Total price: 9\s733\skr/);
+});
+
+test("TRIP-044-R2 the flight total has the add-ons chosen in the form and Dåliga nerver, as the page's, and nerves are capped by the travellers", async () => {
+  const url = flightUrl("/flyg/boka/betala", flightPlanned());
+  const choice = await choiceFor(url, 1);
+  expect(await summaryOf(context({ url, choice }))).toMatch(/Total price: 18\s008\skr/);
+  // one passenger with Dåliga nerver: 1 000 kr on each of the two flights
+  expect(await summaryOf(context({ url, choice, nerves: 1 }))).toMatch(/Total price: 20\s008\skr/);
+  expect(await summaryOf(context({ url, choice, nerves: 2 }))).toMatch(/Total price: 22\s008\skr/);
+  expect(await summaryOf(context({ url, choice, nerves: 10 }))).toMatch(/Total price: 22\s008\skr/);
+  // the add-ons she sets herself replace the ones in the context
+  const set = scripted(toolTurn(toolUse("set_addons", { addons: [{ name: "Unit Måltid", count: 2 }] }, "a"), toolUse("summarise", {}, "b")), textTurn("Klar."));
+  await askAgent(question, context({ url, choice }), set.client);
+  expect(toolResults(set.create)[1].content).toMatch(/Total price: 18\s488\skr/);
+});
+
 test("TRIP-030-R4 the page is read with the pages' own parsers: an address that does not parse is an unknown page", async () => {
   const now = new Date();
   expect((await readPage("/charter/teufelsberg/resor?fran=ARN", now)).kind).toBe("unknown");

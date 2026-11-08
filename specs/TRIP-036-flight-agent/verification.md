@@ -119,4 +119,4 @@ Every state the card adds is checked with axe; keyboard, focus and announcements
 ## Notes
 
 - Beer is set by the agent for flights (the card's R4), unlike charter where it is left to the visitor. If ages are already filled in, the form shows its own error until the visitor fixes it.
-- The total in her summary does not include add-ons the visitor chose by hand or Dåliga nerver.
+- The total in her summary does not include add-ons the visitor chose by hand or Dåliga nerver. (Solved by TRIP-044.)

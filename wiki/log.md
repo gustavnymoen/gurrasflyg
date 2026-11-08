@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+- TRIP-044: **Agneta and ordinary flights, and the total in her summary**. The plain chat no longer declines ordinary flights: `lib/chat-prompt.ts` lets her say that she cannot give departures, times and prices off the top of her head but can search and book, and end with `[[HELP]]`. The total in `summarise` is now the payment page's: the agent context carries `choice` (every traveller's class and add-on counts per trip) and, on flights, `nerves`, checked by `parseAgentContext`, and `summary()` prices them with `seatsTotal()`, `NERVES_PRICE` and the extras. Updated [Charter chatbot Agneta](system/charter-chatbot.md) and [Fråga Agneta](manual/fraga-agneta.md). R1 not yet tried with the real model.
+
 - TRIP-037: **Agneta helps with finding and cancelling a booking**. The chat is now on Min bokning (`app/min-bokning/layout.tsx`) and the agent mode works there: new tools `show_my_booking` and `tick_cancellation` and a `tick` action. She never looks a booking up (there is no such tool): the visitor types the number and last name in the page's fields. When a booking is found the page registers a nameless extract (`lib/cancel-extract.ts`, `app/min-bokning/bookingBridge.ts`) that goes with each question (parts as "Resenär 1", class, amount, what is cancelled or too late, what is ticked), and she ticks the boxes the visitor asks for; the visitor presses **Avboka** and **Ja, avboka** as before. The lottery paragraph is `LOTTERY_TEXT` in `lib/cancel-rules.ts`, shared with her rules. Updated [Charter chatbot Agneta](system/charter-chatbot.md), [My booking](system/my-booking.md), [Fråga Agneta](manual/fraga-agneta.md), [Min bokning](manual/min-bokning.md) and the architecture page. Not yet tried with the real model.
 
 ## 2026-11-06

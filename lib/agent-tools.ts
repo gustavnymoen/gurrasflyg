@@ -1,6 +1,6 @@
 import "server-only";
 import type Anthropic from "@anthropic-ai/sdk";
-import { type AgentAction, isFlightUrl, isMyBookingUrl } from "./agent-rules";
+import { type AddonChoice, type AgentAction, isFlightUrl, isMyBookingUrl } from "./agent-rules";
 import { allParts, type BookingExtract, whyNot } from "./cancel-extract";
 import { MY_BOOKING_PATH } from "./cancel-rules";
 import { chosenLegs, type FlightData, flightAircraftText, flightDatesProblem, flightLine } from "./agent-flight";
@@ -23,7 +23,7 @@ import { MAX_MONTHS_AHEAD, MAX_TRIP_MONTHS } from "./dates";
 import { ACCESS_NAMES, CATEGORY_NAMES, CONTINENT_NAMES } from "./destination-names";
 import { applyFilters, DEPARTURE_AIRPORTS, type Filters, filtersToParams, NO_FILTERS } from "./destinations";
 import { formatPrice } from "./format";
-import { type AddonOption, type BookingLeg, fitPassengerLegs, isBeer, MAX_ADDONS, PAYMENTS, type Payment, seatsTotal } from "./booking-rules";
+import { type AddonOption, type BookingLeg, fitPassengerLegs, isBeer, MAX_ADDONS, NERVES_PRICE, PAYMENTS, type Payment, seatsTotal } from "./booking-rules";
 import type { FleetAircraft } from "./fare-rules";
 import { findAirports, findFlights, getAirportPair, listFleet } from "./flights";
 import { parseSearch } from "./search";
@@ -42,6 +42,9 @@ export type AgentState = {
   valid: boolean;
   // Utdraget av bokningen på Min bokning, om en är hittad (TRIP-037)
   booking?: BookingExtract;
+  // Klasser och tillägg som besökaren valt i formuläret, och hur många som kryssat Dåliga nerver (TRIP-044)
+  choice?: AddonChoice;
+  nerves?: number;
   actions: { tick?: number[]; goto?: string; extras?: string[]; payment?: Payment; addons?: Omit<Extract<AgentAction, { type: "addons" }>, "type"> };
 };
 
@@ -540,21 +543,25 @@ function setPayment(input: Record<string, unknown>, state: AgentState) {
   return `Payment method set: ${payment.label}.`;
 }
 
-// Bokningen som den ser ut på sidan besökaren är på, med priset från databasen (R8). Tilläggen i klasserna
-// räknas med bara om de valdes nu: de som valts i formuläret tidigare, och Dåliga nerver, känner servern inte till.
+// Bokningen som den ser ut på sidan besökaren är på, med priset från databasen (R8). Totalen räknas som sidans:
+// platserna och tilläggen med seatsTotal, Dåliga nerver och för charter extrasen. Tilläggen är de Agneta satte nu,
+// annars de som följde med frågan (TRIP-044-R2); gäller de en annan plan räknas bara klasserna.
 async function summary(state: AgentState) {
   const booking = bookingOf(await readPage(state.url, new Date()));
   if (!booking) throw new ToolError("Nothing to summarise yet: the visitor has not chosen an outbound and a return trip.");
   if (!booking.legs) throw new ToolError("Aircraft and classes are not set for both trips yet. Use list_aircraft and set_plan.");
   const flight = isFlightUrl(state.url);
   const rows = flight ? [] : extraRows(state.extras, booking.travellers);
-  const passengers = Array.from({ length: booking.travellers }, (_, p) => ({ legs: state.actions.addons?.passengers[p] ?? fitPassengerLegs(undefined, [], booking.legs!, p) }));
-  const total = seatsTotal(booking.legs, passengers) + rows.reduce((sum, e) => sum + e.sum, 0);
+  const chosen = state.actions.addons ?? state.choice;
+  const passengers = Array.from({ length: booking.travellers }, (_, p) => ({ legs: fitPassengerLegs(chosen?.passengers[p], chosen?.legKeys ?? [], booking.legs!, p) }));
+  // Dåliga nerver är inget tillägg: de kommer alltid ur kontexten, också när Agneta satte tilläggen nu
+  const nerves = flight ? Math.min(state.nerves ?? 0, booking.travellers) * booking.legs.length * NERVES_PRICE : 0;
+  const total = seatsTotal(booking.legs, passengers) + nerves + rows.reduce((sum, e) => sum + e.sum, 0);
   return [
     booking.text(),
     ...(flight ? [] : [`Extras: ${rows.map((e) => `${e.name} (${formatPrice(e.sum)})`).join(", ") || "none"}`]),
     `Payment method: ${PAYMENTS.find((p) => p.value === state.payment)?.label ?? "not chosen"}`,
-    `Total price: ${formatPrice(total)} (seats${flight ? "" : " and extras"}${state.actions.addons ? " and the add-ons you set" : "; add-ons the visitor chose in the form are not in it, the page shows the total with them"}${flight ? "; Dåliga nerver, if the visitor chose it, is not in it either" : ""})`,
+    `Total price: ${formatPrice(total)} (seats, add-ons${flight ? ", Dåliga nerver" : " and extras"}: the same total as the page)`,
     `The traveller form is ${state.valid ? "valid" : "not valid (not filled in or wrong)"}.`,
   ].join("\n");
 }
