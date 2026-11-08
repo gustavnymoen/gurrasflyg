@@ -1,6 +1,7 @@
 import "server-only";
 import { type FlightData, flightLine, readFlight } from "./agent-flight";
-import { type AgentContext, isAgentUrl, isFlightUrl } from "./agent-rules";
+import { extractText } from "./cancel-extract";
+import { type AgentContext, isAgentUrl, isFlightUrl, isMyBookingUrl } from "./agent-rules";
 import { type CharterData, readCharter } from "./charter";
 import { type CharterTrip, extraRows, parseCharterSearch, parseChoice, planText, stopsText } from "./charter-rules";
 import { type Filters, filtersToParams, parseFilters } from "./destinations";
@@ -12,7 +13,7 @@ import { getDestinationAirport, getDestinationCards } from "./travel";
 // Sidan besökaren är på, läst med sidornas egna regler (TRIP-030-R4). Adressen litar ingen på:
 // det som inte går att läsa är "en okänd sida", och resorna kontrolleras mot databasen.
 export type PageInfo =
-  | { kind: "unknown" | "start" }
+  | { kind: "unknown" | "start" | "booking" }
   | { kind: "list"; filters: Filters }
   | { kind: "destination"; id: string; title: string }
   | { kind: "trip"; step: "results" | "plan" | "travellers" | "payment"; data: CharterData }
@@ -24,6 +25,7 @@ const UNKNOWN: PageInfo = { kind: "unknown" };
 export async function readPage(url: string, now: Date): Promise<PageInfo> {
   if (url === "/") return { kind: "start" };
   if (!isAgentUrl(url)) return UNKNOWN;
+  if (isMyBookingUrl(url)) return { kind: "booking" };
   const [path, query = ""] = url.split("?");
   if (isFlightUrl(url)) return readFlightPage(path, Object.fromEntries(new URLSearchParams(query)), now);
   const [id, step, last] = path.split("/").slice(2); // efter "" och "charter"
@@ -90,6 +92,11 @@ export function pageText(info: PageInfo, context: AgentContext) {
     case "start":
       lines.push("The visitor is on the start page.");
       break;
+    case "booking": {
+      // Ingen formulärstatus här: Min bokning har varken tillägg, betalsätt eller resenärsformulär (TRIP-037-R4)
+      const found = context.booking ? extractText(context.booking) : "No booking is found on the page yet. The visitor types the booking number and the last name in the page's fields and presses Visa min bokning; you cannot look it up.";
+      return `<page>\nThe visitor is on Min bokning (find a booking and cancel parts of it).\n${found}\n</page>`;
+    }
     case "list": {
       const params = filtersToParams({ ...info.filters, q: info.filters.q.slice(0, MAX_SHOWN_SEARCH) }); // en länk kan bära en lång text som inte ska till modellen
       lines.push(`The visitor is on the list of destinations${params.size > 0 ? ` with these filters (as in the address): ${params}` : " with no filters"}.`);

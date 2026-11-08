@@ -55,3 +55,21 @@ test("TRIP-030-R1 R8 the markers are taken out of the text and reported", () => 
   expect(takeMarkers("Tryck.\n[[BOOK]]\n")).toEqual({ text: "Tryck.", help: false, book: true });
   expect(takeMarkers("Bara text")).toEqual({ text: "Bara text", help: false, book: false });
 });
+
+test("TRIP-037-R1 Min bokning may be opened, with a query but not with anything after it", () => {
+  for (const url of ["/min-bokning", "/min-bokning?x=1"]) expect(isAgentUrl(url), url).toBe(true);
+  for (const url of ["/min-bokning/", "/min-bokning/x", "/min-bokningx", "/min-bokning#x"]) expect(isAgentUrl(url), url).toBe(false);
+});
+
+test("TRIP-037-R4 the extract of a booking is accepted only on Min bokning and only if it has the right form", () => {
+  const booking = { kind: "charter", groups: [{ label: "resan", late: false, parts: [{ id: 5, label: "Resenär 1", amount: 100, cancelled: false }] }], ticked: [5] };
+  const context = { url: "/min-bokning", extras: [], payment: null, valid: false };
+  expect(parseAgentContext({ ...context, booking })?.booking).toEqual(booking);
+  expect(parseAgentContext(context)?.booking).toBeUndefined(); // ingen bokning hittad: inget utdrag
+  expect(parseAgentContext({ ...context, booking: { ...booking, kind: "x" } })).toBeNull();
+  expect(parseAgentContext({ ...context, url: "/charter", booking })).toBeNull();
+});
+
+test("TRIP-037-R5 the tick action keeps whole numbers only", () => {
+  expect(safeActions([{ type: "tick", ids: [1, 2] }, { type: "tick", ids: ["1"] }, { type: "tick", ids: 5 }, { type: "tick", ids: Array(41).fill(1) }])).toEqual([{ type: "tick", ids: [1, 2] }]);
+});

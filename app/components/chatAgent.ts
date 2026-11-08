@@ -1,7 +1,7 @@
 "use client";
 
 import type { useRouter } from "next/navigation";
-import { type AgentAction, type AgentContext, isFlightUrl, MAX_URL_LENGTH, NOT_READY_TEXT, safeActions } from "@/lib/agent-rules";
+import { type AgentAction, type AgentContext, isFlightUrl, isMyBookingUrl, MAX_URL_LENGTH, NOT_READY_TEXT, safeActions } from "@/lib/agent-rules";
 import {
   asForm,
   type BookingForm,
@@ -22,6 +22,7 @@ import {
 } from "@/lib/charter-rules";
 import { parseSearch } from "@/lib/search";
 import { bookCharter } from "../charter/book";
+import { currentBooking } from "../min-bokning/bookingBridge";
 import { saveCharterForm } from "../charter/form";
 import { bookFlight } from "../flyg/boka/book";
 import { CHARTER_FORM_KEY, FORM_KEY, getStored, store } from "../flyg/boka/store";
@@ -54,8 +55,14 @@ function formState() {
 
 // Sidan och det icke-personliga besökaren valt (R4). Formuläret går inte med, bara om det stämmer.
 export function readContext(): AgentContext {
-  const url = location.pathname + location.search;
-  return { url: url.length > MAX_URL_LENGTH ? "/okand" : url, ...formState() };
+  const full = location.pathname + location.search;
+  const url = full.length > MAX_URL_LENGTH ? "/okand" : full;
+  // Min bokning har inget formulär: bara utdraget av bokningen som hittats, om en är det (TRIP-037-R4)
+  if (isMyBookingUrl(url)) {
+    const booking = currentBooking()?.extract;
+    return { url, extras: [], payment: null, valid: false, ...(booking && { booking }) };
+  }
+  return { url, ...formState() };
 }
 
 // Har besökaren ändrat sidan eller valen sedan frågan skickades? Då släpps åtgärderna (R4).
@@ -76,6 +83,7 @@ export function applyActions(actions: AgentAction[], router: Router) {
   const flight = onFlight();
   for (const action of safeActions(actions)) {
     if (action.type === "goto") router.push(action.url);
+    else if (action.type === "tick") currentBooking()?.tick(action.ids); // sidan kryssar bara det som går att avboka (TRIP-037-R5)
     else if (flight) {
       const form = savedFlight() ?? emptyForm("");
       if (action.type === "payment") saveFlight({ ...form, payment: action.payment });

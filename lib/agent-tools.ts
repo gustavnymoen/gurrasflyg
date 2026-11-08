@@ -1,6 +1,8 @@
 import "server-only";
 import type Anthropic from "@anthropic-ai/sdk";
-import { type AgentAction, isFlightUrl } from "./agent-rules";
+import { type AgentAction, isFlightUrl, isMyBookingUrl } from "./agent-rules";
+import { allParts, type BookingExtract, whyNot } from "./cancel-extract";
+import { MY_BOOKING_PATH } from "./cancel-rules";
 import { chosenLegs, type FlightData, flightAircraftText, flightDatesProblem, flightLine } from "./agent-flight";
 import { aircraftText, checkPlan } from "./agent-plan";
 import { flightText, type PageInfo, readPage, tripLine, tripText } from "./agent-page";
@@ -38,7 +40,9 @@ export type AgentState = {
   extras: string[];
   payment: Payment | null;
   valid: boolean;
-  actions: { goto?: string; extras?: string[]; payment?: Payment; addons?: Omit<Extract<AgentAction, { type: "addons" }>, "type"> };
+  // Utdraget av bokningen på Min bokning, om en är hittad (TRIP-037)
+  booking?: BookingExtract;
+  actions: { tick?: number[]; goto?: string; extras?: string[]; payment?: Payment; addons?: Omit<Extract<AgentAction, { type: "addons" }>, "type"> };
 };
 
 // Ett fel som modellen får läsa ("fel argument", R2). Ingenting har hänt.
@@ -205,6 +209,18 @@ export const TOOLS: Anthropic.Tool[] = [
       properties: { payment: { type: "string", enum: PAYMENTS.map((p) => p.value) } },
       required: ["payment"],
     },
+  },
+  {
+    name: "show_my_booking",
+    description:
+      "Open Min bokning in the visitor's browser, where the visitor finds a booking by typing the booking number and the contact's last name in the page's fields. You cannot look a booking up and never ask for the number or the name.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
+    name: "tick_cancellation",
+    description:
+      "On Min bokning, tick the boxes of the parts the visitor wants to cancel, replacing the boxes ticked now (include the ones the visitor ticked and still wants; an empty list clears them). Ids are the 'id' numbers in the <page> block. Parts that cannot be cancelled are not ticked and the answer says why. It does not cancel anything: the visitor presses Avboka on the page and answers Ja, avboka.",
+    input_schema: { type: "object", properties: { ids: { type: "array", items: { type: "integer" } } }, required: ["ids"] },
   },
   {
     name: "summarise",
@@ -543,6 +559,33 @@ async function summary(state: AgentState) {
   ].join("\n");
 }
 
+// Öppnar Min bokning (TRIP-037-R1). Bokningen slås aldrig upp här: besökaren skriver numret och namnet på sidan.
+function showMyBooking(state: AgentState) {
+  if (isMyBookingUrl(state.url)) return "The visitor is already on Min bokning.";
+  go(state, MY_BOOKING_PATH);
+  return "Opened Min bokning. The visitor types the booking number and the contact's last name in the page's fields and presses Visa min bokning. A lost number cannot be found without it.";
+}
+
+// Kryssar det besökaren vill avboka, bland delarna i utdraget som skickades med frågan (TRIP-037-R5). Det som inte går att
+// avboka kryssas inte, och inget avbokas här: det gör sidans knapp. Chatten kontrollerar kryssen en gång till mot bokningen.
+function tickCancellation(input: Record<string, unknown>, state: AgentState) {
+  const extract = isMyBookingUrl(state.url) ? state.booking : undefined;
+  if (!extract) throw new ToolError("No booking is found on the page. Tell the visitor to type the booking number and the last name in the page's fields and press Visa min bokning. You cannot look it up.");
+  const wanted = Array.isArray(input.ids) ? input.ids.filter(Number.isInteger) : [];
+  const parts = allParts(extract);
+  const ticked = parts.filter((p) => wanted.includes(p.id) && !whyNot(p, p.group));
+  const refused = parts.filter((p) => wanted.includes(p.id) && whyNot(p, p.group)).map((p) => `${p.group.label}: ${p.label} is not ticked (${whyNot(p, p.group)})`);
+  const unknown = wanted.filter((id) => !parts.some((p) => p.id === id));
+  if (ticked.length > 0 || wanted.length === 0) state.actions.tick = ticked.map((p) => p.id);
+  const sum = ticked.reduce((total, p) => total + p.amount, 0);
+  return [
+    ticked.length > 0 ? `Ticked on the page: ${ticked.map((p) => `${p.label} (${p.group.label})`).join("; ")}.` : "Nothing was ticked and the boxes the visitor had ticked are unchanged.",
+    ...(ticked.length > 0 ? [`A win would refund ${formatPrice(sum)}, a loss nothing. Nothing is cancelled until the visitor presses Avboka and answers Ja, avboka.`] : []),
+    ...refused,
+    ...(unknown.length > 0 ? [`No part has the id ${unknown.join(", ")}: use ids from the <page> block.`] : []),
+  ].join("\n");
+}
+
 // Kör ett verktyg. Okänt verktyg eller fel argument ger ToolError, som modellen får läsa.
 export async function runTool(name: string, input: unknown, state: AgentState): Promise<string> {
   const args = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
@@ -581,6 +624,10 @@ export async function runTool(name: string, input: unknown, state: AgentState): 
       return setExtras(args, state);
     case "set_payment":
       return setPayment(args, state);
+    case "show_my_booking":
+      return showMyBooking(state);
+    case "tick_cancellation":
+      return tickCancellation(args, state);
     case "summarise":
       return summary(state);
     default:
@@ -594,6 +641,7 @@ export function actionsOf({ actions }: AgentState): AgentAction[] {
     ...(actions.extras ? [{ type: "extras" as const, extras: actions.extras }] : []),
     ...(actions.payment ? [{ type: "payment" as const, payment: actions.payment }] : []),
     ...(actions.addons ? [{ type: "addons" as const, ...actions.addons }] : []),
+    ...(actions.tick ? [{ type: "tick" as const, ids: actions.tick }] : []),
     ...(actions.goto ? [{ type: "goto" as const, url: actions.goto }] : []),
   ];
 }

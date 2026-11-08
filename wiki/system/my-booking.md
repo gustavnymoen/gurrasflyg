@@ -3,11 +3,11 @@ type: Feature
 title: My booking
 description: The menu, the page Min bokning where a traveller finds a flight or charter booking by its number and the contact's last name and cancels parts of it in a 50/50 lottery, the guess limit, the 24 hour rule and the cancellation tables.
 resource: app/min-bokning/
-feature: TRIP-023, TECH-026
+feature: TRIP-023, TECH-026, TRIP-037
 tags: [booking, cancel, lottery, menu, personal-data, security, server-actions, accessibility]
 generated:
   by: claude
-  at: 2026-11-05T18:00:00+01:00
+  at: 2026-11-08T12:00:00+01:00
 ---
 
 # My booking
@@ -66,6 +66,10 @@ Under the cards, **Avboka** (`CancelPanel`) tells the rules before any click: th
 5. Inserts the cancellation (time, outcome, amount, refunded) and marks the parts.
 
 The page then shows "Grattis! Vi får se om du får några pengar tillbaka – du får det!" or "Du måste betala fullt pris ändå, ledsen för det. Hör av dig till våra advokater om du är missnöjd." The same confirmation sent twice (a double click) has the same request id and gives the cancellation that exists, with no second draw.
+
+## Agneta on this page
+
+The chat "Fråga Agneta" is on this page too (`app/min-bokning/layout.tsx`, TRIP-037). In the agent mode she can open the page, explain the rules and tick the boxes of what the visitor wants to cancel, but the visitor types the number and the last name and presses **Avboka** and **Ja, avboka** themself. `BookingView` registers a nameless extract of the found booking and a function that ticks (`bookingBridge.ts`), keeps the ticks to `tickableIds()`, and announces a tick made by her. See [Charter chatbot Agneta](charter-chatbot.md#min-bokning-trip-037). The paragraph above the button is `LOTTERY_TEXT` in `lib/cancel-rules.ts`, which she follows too.
 
 ## Tables
 

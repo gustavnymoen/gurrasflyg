@@ -1,4 +1,6 @@
 import { MAX_ADDONS, PAYMENTS, type Payment, type PassengerLeg } from "./booking-rules";
+import { type BookingExtract, MAX_TICKS, parseExtract } from "./cancel-extract";
+import { MY_BOOKING_PATH } from "./cancel-rules";
 import { extraByCode } from "./charter-rules";
 import { MAX_TRAVELLERS } from "./search";
 
@@ -15,7 +17,8 @@ export const BOOK_MARKER = "[[BOOK]]";
 
 // Sidan besökaren är på och det som inte är personligt av det hen valt (R4). Aldrig namn, åldrar,
 // kontaktuppgifter eller svar på de tre frågorna: valid är bara om formuläret stämmer.
-export type AgentContext = { url: string; extras: string[]; payment: Payment | null; valid: boolean };
+// På Min bokning följer också ett utdrag av bokningen som hittats, utan något personligt (TRIP-037-R4).
+export type AgentContext = { url: string; extras: string[]; payment: Payment | null; valid: boolean; booking?: BookingExtract };
 
 // Det chatten gör åt Agneta: öppnar en sida eller skriver till formuläret (R3, R6). "addons" är
 // resenärernas klasser och tillägg på varje resa, för resorna som legKeys säger (TRIP-040-R4).
@@ -23,16 +26,19 @@ export type AgentAction =
   | { type: "goto"; url: string }
   | { type: "extras"; extras: string[] }
   | { type: "payment"; payment: Payment }
-  | { type: "addons"; legKeys: string[]; passengers: PassengerLeg[][] };
+  | { type: "addons"; legKeys: string[]; passengers: PassengerLeg[][] }
+  | { type: "tick"; ids: number[] };
 
 export const MAX_URL_LENGTH = 1200;
 
 // Sidorna en åtgärd får öppna (R3): /charter, ett resmål, dess resultat, plan och klass, resenärer och betalning,
-// och flygens sidor (TRIP-036-R1)
-const PATH = /^(\/charter(\/[a-z0-9-]+(\/(resor|plan|boka(\/betala)?))?)?|\/flyg(\/plan|\/boka(\/betala)?)?)$/;
+// flygens sidor (TRIP-036-R1) och Min bokning (TRIP-037-R1)
+const PATH = /^(\/min-bokning|\/charter(\/[a-z0-9-]+(\/(resor|plan|boka(\/betala)?))?)?|\/flyg(\/plan|\/boka(\/betala)?)?)$/;
 
 // Flyg eller charter: sidan avgör vilka regler, verktyg och vilket formulär som gäller
 export const isFlightUrl = (url: string) => url.split("?")[0].startsWith("/flyg");
+
+export const isMyBookingUrl = (url: string) => url.split("?")[0] === MY_BOOKING_PATH;
 
 export function isAgentUrl(url: unknown): url is string {
   if (typeof url !== "string" || url.length > MAX_URL_LENGTH || url.includes("#")) return false;
@@ -41,11 +47,14 @@ export function isAgentUrl(url: unknown): url is string {
 
 // Det webbläsaren skickar som sidans läge, eller null om det har fel form. Okända tillägg tas bort.
 export function parseAgentContext(value: unknown): AgentContext | null {
-  const { url, extras, valid, payment = null } = (value ?? {}) as Partial<AgentContext>;
+  const { url, extras, valid, payment = null, booking } = (value ?? {}) as Partial<AgentContext>;
   if (typeof url !== "string" || url.length > MAX_URL_LENGTH || !url.startsWith("/")) return null;
   if (!Array.isArray(extras) || extras.length > 10 || typeof valid !== "boolean") return null;
   if (payment !== null && !PAYMENTS.some((p) => p.value === payment)) return null;
-  return { url, extras: extras.filter((code) => typeof code === "string" && extraByCode(code)), payment, valid };
+  // Ett utdrag hör bara till Min bokning
+  const extract = booking === undefined ? undefined : isMyBookingUrl(url) ? parseExtract(booking) : null;
+  if (extract === null) return null;
+  return { url, extras: extras.filter((code) => typeof code === "string" && extraByCode(code)), payment, valid, ...(extract && { booking: extract }) };
 }
 
 // Resenärernas klasser och tillägg per resa, med rätt form och rimliga tal (TRIP-040-R1)
@@ -71,6 +80,7 @@ export function safeActions(value: unknown): AgentAction[] {
     if (a?.type === "goto" && isAgentUrl(a.url)) return [{ type: "goto", url: a.url }];
     if (a?.type === "payment" && PAYMENTS.some((p) => p.value === a.payment)) return [{ type: "payment", payment: a.payment }];
     if (a?.type === "addons" && isAddonsAction(a)) return [{ type: "addons", legKeys: a.legKeys, passengers: a.passengers }];
+    if (a?.type === "tick" && Array.isArray(a.ids) && a.ids.length <= MAX_TICKS && a.ids.every((id: unknown) => Number.isInteger(id))) return [{ type: "tick", ids: a.ids }];
     if (a?.type === "extras" && Array.isArray(a.extras) && a.extras.every((c: unknown) => typeof c === "string" && extraByCode(c))) {
       return [{ type: "extras", extras: a.extras }];
     }

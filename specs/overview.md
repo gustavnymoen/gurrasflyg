@@ -166,6 +166,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-041 | Fix: the class is chosen once, in the plan step; the passengers page shows it, offers no choice and a way back to the plan step, and says which add-ons a changed plan removed | Flight booking | Review |
 | TRIP-038 | Fix: the agent takes the visitor to the payment step, asks how to pay there and asks for a check before the button, which is offered on the payment page only | Charter | Review |
 | TRIP-043 | Leaner departure and aircraft pickers: a visible Välj on every departure (flights and charter) with an optional unfold; the aircraft step is one compact row per aircraft with its classes in the open row, a counter, one aircraft holding the travellers and Fortsätt instead of Klar | Flight booking, Charter | Review |
+| TRIP-037 | Booking agent: finding and cancelling a booking: the chat on Min bokning, Agneta opens the page, explains the rules and ticks what the visitor wants to cancel from a nameless extract of the found booking; she never looks a booking up or cancels, the visitor types the number and name and presses Avboka | Shared | Review |
 
 ## Decisions for charter
 

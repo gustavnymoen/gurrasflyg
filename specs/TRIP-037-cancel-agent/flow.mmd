@@ -1,0 +1,16 @@
+%% TRIP-037 Booking agent for finding and cancelling a booking
+flowchart TD
+    A[Visitor asks for help with a booking] --> B[Hjälp mig: R1]
+    B --> C[show_my_booking opens /min-bokning]
+    C --> D[Visitor types number and last name in the page and presses Visa min bokning: R2]
+    D --> E{Found?}
+    E -- no --> F[Same answer, 5 wrong in 15 minutes lock it: TECH-026]
+    F --> D
+    E -- yes --> G[Each question carries the extract, no names: R4]
+    G --> H[She explains the rules: R3]
+    H --> I[tick_cancellation: R5]
+    I --> J{Can the part be cancelled?}
+    J -- no --> K[Not ticked, she says why]
+    J -- yes --> L[Chat asks the page to tick, announced: R6]
+    L --> M[Visitor presses Avboka and Ja, avboka]
+    M --> N[cancelAction: checks, draw, saved, as today]
