@@ -106,7 +106,7 @@ test("TRIP-030-R10 R1 in the dialog on a small screen the button and the mode wo
   await page.setViewportSize({ width: 390, height: 800 });
   await agnetaGreeted(page, true);
   await page.goto("/charter");
-  const dialog = page.getByRole("dialog", { name: "Agneta Spydenius" });
+  const dialog = page.getByRole("dialog", { name: /^Agneta/ });
   await dialog.getByLabel("Din fråga").fill("Hjälp mig att hitta en resa");
   await dialog.getByLabel("Din fråga").press("Enter");
   await dialog.getByRole("button", { name: "Hjälp mig" }).click();

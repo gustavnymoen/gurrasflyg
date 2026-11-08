@@ -53,3 +53,13 @@ export function parseAnswer(markdown: string): AnswerBlock[] {
   }
   return blocks;
 }
+
+// Så många punkter i en lista syns innan resten viks bakom "Visa mer" (TRIP-035-R6)
+export const SHOWN_ITEMS = 3;
+
+// Listan delad i det som syns och hur många punkter som är vikta. En punkt följer med sina underpunkter.
+// Vikt är bara en lista med fler än SHOWN_ITEMS punkter; unfolded visar allt.
+export function foldList<T>(items: T[], unfolded: boolean) {
+  if (unfolded || items.length <= SHOWN_ITEMS) return { shown: items, folded: 0 };
+  return { shown: items.slice(0, SHOWN_ITEMS), folded: items.length - SHOWN_ITEMS };
+}

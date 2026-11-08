@@ -1,0 +1,15 @@
+%% TRIP-035 UX upgrades for Agneta
+%% The answer path (R6) and the enlarged picture (R3).
+flowchart TD
+    A[Visitor asks] --> B[Model writes the whole list, best match first]
+    B --> C{Asked for the rest?}
+    C -- yes --> D[Whole list again, last line ALL]
+    C -- no --> E[Answer without the marker]
+    D --> F[takeMarkers removes ALL and reports all]
+    E --> F
+    F --> G{List over 3 items and not all?}
+    G -- yes --> H[Show 3 and the button Visa mer]
+    G -- no --> I[Show the whole list]
+    H -- click --> I
+    P[Click, Enter or Space on the picture] --> Q[128 px, the chat is pushed down]
+    Q -- second click, Escape or click outside --> R[64 px]

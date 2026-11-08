@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { parseAnswer, parseBlocks, parseInline } from "./markdown";
+import { foldList, parseAnswer, parseBlocks, parseInline } from "./markdown";
 
 test("TRIP-013-R7 a text is split into paragraphs and lists", () => {
   expect(parseBlocks("First.\n- one\n- two\n\nLast.")).toEqual([
@@ -45,4 +45,19 @@ test("TRIP-033-R4 a half link is never shown as text", () => {
   for (const half of ["[Beelitz-", "[Beelitz-Heilstätten]", "[Beelitz-Heilstätten] (/charter/beelitz", "[Beelitz-Heilstätten](/charter/beel"]) {
     expect(parseInline(`Se ${half}`), half).toEqual([{ text: "Se", bold: false }]);
   }
+});
+
+test("TRIP-035-R6 a list of 3 or fewer is never folded, a longer one shows the first 3 and counts the rest", () => {
+  expect(foldList([1, 2, 3], false)).toEqual({ shown: [1, 2, 3], folded: 0 });
+  expect(foldList([1, 2, 3, 4, 5], false)).toEqual({ shown: [1, 2, 3], folded: 2 });
+  expect(foldList([1, 2, 3, 4, 5], true)).toEqual({ shown: [1, 2, 3, 4, 5], folded: 0 });
+});
+
+test("TRIP-035-R6 a sub-bullet stays with its item when the list is folded", () => {
+  const text = "- a\n  - a1\n- b\n  - b1\n- c\n- d\n  - d1";
+  const [list] = parseAnswer(text);
+  if (list.type !== "list") throw new Error("expected a list");
+  const { shown, folded } = foldList(list.items, false);
+  expect(shown.map((i) => [i.text, i.sub])).toEqual([["a", ["a1"]], ["b", ["b1"]], ["c", []]]);
+  expect(folded).toBe(1);
 });

@@ -36,13 +36,45 @@ export function ChatHeader({
   onMinimise: () => void;
   onClose: () => void;
 }) {
+  const [big, setBig] = useState(false);
+  const picture = useRef<HTMLButtonElement>(null);
+
+  // Den förstorade bilden stängs först av Escape (innan chatten minimeras) och av ett klick utanför (TRIP-035-R3)
+  useEffect(() => {
+    if (!big) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      e.stopPropagation();
+      setBig(false);
+    };
+    const onPointer = (e: PointerEvent) => !picture.current?.contains(e.target as Node) && setBig(false);
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [big]);
+
   return (
     <div className="flex items-center gap-3">
-      {connected && <AgnetaAvatar size={40} className="size-10" />}
+      {connected && (
+        <button
+          ref={picture}
+          type="button"
+          aria-label="Förstora bilden på Agneta"
+          aria-expanded={big}
+          onClick={() => setBig((b) => !b)}
+          className="shrink-0 rounded-full"
+        >
+          <AgnetaAvatar size={128} className={`${big ? "size-32" : "size-16 [@media(hover:hover)]:hover:size-32"} transition-[width,height] motion-reduce:transition-none`} />
+        </button>
+      )}
       {connected ? (
         <div className="flex-1">
           <h2 id={id} className="text-lg leading-tight font-semibold">
-            Agneta Spydenius
+            Agneta Karenelius
           </h2>
           <p className="text-small text-ink-muted">Kundtjänstmedarbetare</p>
           <p className="flex items-center gap-1.5 text-small text-ink-muted">
@@ -140,13 +172,13 @@ export default function ChatBody({
       if (response.status === 429) {
         notice(waitText(Number(response.headers.get("Retry-After")) || 60));
       } else if (response.ok) {
-        const { reply, help, book, actions } = await response.json();
+        const { reply, help, book, actions, all } = await response.json();
         current(() => {
           // Har besökaren ändrat något medan Agneta svarade släpps åtgärderna och knappen, och hon säger det (R4)
           const changed = !!context && !sameContext(context, readContext());
           setEntries((list) => [
             ...list,
-            { role: "assistant", content: reply, ...(help === true && !changed && { help: true }), ...(book === true && !changed && { book: true }) },
+            { role: "assistant", content: reply, ...(help === true && !changed && { help: true }), ...(all === true && { all: true }), ...(book === true && !changed && { book: true }) },
             ...(changed ? [{ role: "assistant" as const, content: CHANGED_TEXT, notice: true }] : []),
           ]);
           if (context && !changed && Array.isArray(actions)) applyActions(actions, router);
@@ -214,7 +246,7 @@ export default function ChatBody({
             {entries.map((e, i) => (
               <Bubble key={i} mine={e.role === "user"}>
                 <span className="sr-only">{e.role === "user" ? "Du: " : "Agneta: "}</span>
-                {e.role === "user" ? e.content : <Answer text={e.content} />}
+                {e.role === "user" ? e.content : <Answer text={e.content} whole={e.all} />}
                 {i === entries.length - 1 && !waiting && (
                   <>
                     {e.help && !agent && (
@@ -271,10 +303,10 @@ export default function ChatBody({
   );
 }
 
-// En pratbubbla (R3): besökarens till höger, Agnetas till vänster, med ett kantigt hörn mot avsändaren
+// En pratbubbla (TRIP-032-R3, TRIP-035-R2): besökarens till höger (högst 85 % bred), Agnetas till vänster över hela bredden, med ett kantigt hörn mot avsändaren
 function Bubble({ mine, children }: { mine: boolean; children: React.ReactNode }) {
-  const side = mine ? "self-end rounded-br-sm bg-accent text-on-accent" : "self-start rounded-bl-sm border border-line bg-surface-sunk";
-  return <div className={`max-w-[85%] rounded-2xl px-3 py-2 wrap-break-word ${side}`}>{children}</div>;
+  const side = mine ? "max-w-[85%] self-end rounded-br-sm bg-accent text-on-accent" : "w-full self-start rounded-bl-sm border border-line bg-surface-sunk";
+  return <div className={`rounded-2xl px-3 py-2 wrap-break-word ${side}`}>{children}</div>;
 }
 
 function HeaderButton({ label, onClick, path }: { label: string; onClick: () => void; path: string }) {

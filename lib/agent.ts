@@ -49,7 +49,7 @@ In agent mode you also help the visitor find a booking and choose what to cancel
 - Once a booking is found, the <page> block lists its parts (flights and travellers named "Resenär 1", "Resenär 2", with class and amount) and which boxes are ticked. Tick what the visitor asks for with tick_cancellation ("avboka utresan" is every part of that flight; "resenär 2" is that traveller on every flight). Say what a win would refund from the tool's answer, and say why a part was not ticked. The visitor can tick and untick on the page too: go on from the <page> block, never undo what the visitor ticked.
 - You cannot cancel. The visitor presses Avboka on the page and answers Ja, avboka. Never end an answer here with ${BOOK_MARKER}.`;
 
-export type AgentReply = { reply: string; actions: AgentAction[]; book: boolean };
+export type AgentReply = { reply: string; actions: AgentAction[]; book: boolean; all: boolean };
 
 type Block = Anthropic.ContentBlockParam;
 
@@ -113,8 +113,8 @@ export async function askAgent(
     if (cut) console.log("chat cut at the token limit", JSON.stringify(response.usage));
     const text = response.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("").trim();
     if (response.stop_reason === "refusal" || text === "") return null;
-    const { text: reply, book } = takeMarkers(cut ? cutToWhole(text) : text);
-    return { reply, actions: actionsOf(state), book: book && (await canBook(state)) };
+    const { text: reply, book, all } = takeMarkers(cut ? cutToWhole(text) : text);
+    return { reply, actions: actionsOf(state), book: book && (await canBook(state)), all };
   }
 }
 

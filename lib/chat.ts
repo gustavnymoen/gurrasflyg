@@ -29,7 +29,7 @@ export { mockClient };
 export async function askAgneta(
   messages: ChatMessage[],
   client: ChatClient = defaultClient(),
-): Promise<{ reply: string; help: boolean } | null> {
+): Promise<{ reply: string; help: boolean; all: boolean } | null> {
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
@@ -46,6 +46,6 @@ export async function askAgneta(
     .join("")
     .trim();
   if (response.stop_reason === "refusal" || text === "") return null;
-  const { text: reply, help } = takeMarkers(cut ? cutToWhole(text) : text);
-  return { reply, help };
+  const { text: reply, help, all } = takeMarkers(cut ? cutToWhole(text) : text);
+  return { reply, help, all };
 }

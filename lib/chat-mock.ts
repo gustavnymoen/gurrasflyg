@@ -24,6 +24,11 @@ function plainMock(params: Anthropic.MessageCreateParamsNonStreaming) {
   if (question.includes("KAPAD")) {
     return say("- [Teufelsberg](/charter/teufelsberg): Spökstation.\n  - Berlin, från 1 000 kr per person\n- [Beelitz-Heilstätten] (/charter/beelitz", "max_tokens");
   }
+  // "LISTA5" ger fem punkter, så att vikningen går att prova; "FLER" ger hela listan med markören (TRIP-035-R6)
+  if (question.includes("LISTA5") || question.includes("FLER")) {
+    const items = ["Teufelsberg", "Prag", "Rom", "Wien", "Oslo"].map((n) => `- [${n}](/charter/${n.toLowerCase()}): Dyrt.\n  - ${n} Airport, från 900 kr per person`);
+    return say(`Här är de.\n${items.join("\n")}\nDet var allt.${question.includes("FLER") ? "\n[[ALL]]" : ""}`);
+  }
   // En fråga om att få något gjort ger knappen Hjälp mig (TRIP-030-R1)
   const help = /hjälp mig|boka åt mig/i.test(question) ? "\n[[HELP]]" : "";
   return say(`Svar från Agneta på: ${question}${help}`);

@@ -3,16 +3,16 @@ type: Feature
 title: Charter chatbot Agneta
 description: The chat "Fråga Agneta" on the start page, the charter pages, the flight pages and Min bokning (a side panel on wide screens, a dialog on small ones, kept in the session), the agent mode "Hjälp mig" with tools that steer the page, a button that books a charter trip or a flight, and ticking what to cancel on Min bokning, the route POST /api/chat, how the system prompt is built from the database, the limits on questions, and how the model is called and tested.
 resource: lib/chat.ts
-feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-040, TRIP-038, TRIP-036, TRIP-037, TRIP-044
+feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-040, TRIP-038, TRIP-036, TRIP-037, TRIP-044, TRIP-035
 tags: [charter, chatbot, llm, api, rate-limit]
 generated:
   by: claude
-  at: 2026-11-08T11:45:00+01:00
+  at: 2026-11-08T12:30:00+01:00
 ---
 
 # Charter chatbot Agneta
 
-A visitor can ask **Agneta**, a grumpy travel agent, about the charter destinations and how to book a charter trip. She answers from our own data only (a course task: the whole knowledge base is sent with every question instead of a retriever). Requirements: [`specs/TRIP-017-charter-chatbot/`](../../specs/TRIP-017-charter-chatbot/solution.md); her voice, answer format, panel, bubbles and saved conversation are [`specs/TRIP-032-karen-improvements/`](../../specs/TRIP-032-karen-improvements/solution.md), polished by [`specs/TRIP-033-agneta-polish/`](../../specs/TRIP-033-agneta-polish/solution.md): header, greeting, whole answers and the list format (the card was written when the character had another working name, hence the folder name). Her full name in the chat header is Agneta Spydenius. In the **agent mode** she can also steer the page and take the visitor to a booking: [`specs/TRIP-030-booking-agent/`](../../specs/TRIP-030-booking-agent/solution.md), described in [The agent mode](#the-agent-mode) below.
+A visitor can ask **Agneta**, a grumpy travel agent, about the charter destinations and how to book a charter trip. She answers from our own data only (a course task: the whole knowledge base is sent with every question instead of a retriever). Requirements: [`specs/TRIP-017-charter-chatbot/`](../../specs/TRIP-017-charter-chatbot/solution.md); her voice, answer format, panel, bubbles and saved conversation are [`specs/TRIP-032-karen-improvements/`](../../specs/TRIP-032-karen-improvements/solution.md), polished by [`specs/TRIP-033-agneta-polish/`](../../specs/TRIP-033-agneta-polish/solution.md): header, greeting, whole answers and the list format (the card was written when the character had another working name, hence the folder name). Her full name in the chat header is Agneta Karenelius. In the **agent mode** she can also steer the page and take the visitor to a booking: [`specs/TRIP-030-booking-agent/`](../../specs/TRIP-030-booking-agent/solution.md), described in [The agent mode](#the-agent-mode) below.
 
 ```mermaid
 flowchart LR
@@ -30,15 +30,19 @@ The button "Fråga Agneta" (fixed at the bottom right, with her portrait) is on 
 
 - **Saved in the tab.** The conversation and whether the chat is open live in `sessionStorage` (`useSavedChat.ts`, read and checked by `parseSaved` in `lib/chat-saved.ts`; damaged or old data gives an empty chat). They follow the visitor between the start page, the charter pages and the flight pages and survive a reload, and are gone with the tab. Nothing is sent to the server. **Minimise** (and Escape) hides the chat and keeps the conversation. **Close** asks "Är du säker?" and then clears it, so the next opening is a new chat with a new connecting view and greeting; an answer to a question sent before is dropped (`chatEpoch` in `useSavedChat.ts`, so it cannot land in the new chat) and the waiting state is reset.
 - **Connecting and greeting.** The first time the chat opens in a session (no entries yet) it shows "Kopplar in Agneta …" with a spinner (`role="status"`, still for `prefers-reduced-motion`) for 2 to 3 seconds, then adds the greeting `GREETING` ("Vad vill du?!", `lib/chat-rules.ts`) as the first entry. It is not an API call, and `lastMessages` drops it (a conversation must start with a question), so it is never sent.
-- **Header.** Her portrait, "Agneta Spydenius", under it "Kundtjänstmedarbetare" and a green dot with the word "Live" (always shown; the dot is decorative), and the minimise and close buttons.
-- **Bubbles.** The visitor's questions are on the right in the accent colour, her answers on the left in a darker bubble, each with a squared corner towards the sender. Answers are read by `parseAnswer` and `parseInline` in `lib/markdown.ts` and shown by `Answer.tsx`: paragraphs, lists with sub-lists, bold, and links only to `/charter/<id>`; anything else (other links, HTML) is plain text. A link that is not whole at the end of a text (`[Name](/charter/ab`) is removed, never shown as text.
+- **Header.** Her portrait (a button, 64 px; 128 px when clicked, activated by Enter or Space, or hovered with a mouse; a second click, Escape or a click outside shrinks it, and Escape closes only the picture first), "Agneta Karenelius" (the only place the surname appears, TRIP-035), under it "Kundtjänstmedarbetare" and a green dot with the word "Live" (always shown; the dot is decorative), and the minimise and close buttons.
+- **Bubbles.** The visitor's questions are on the right in the accent colour (at most 85 % wide), her answers on the left in a darker bubble that can fill the message area, each with a squared corner towards the sender. Answers are read by `parseAnswer` and `parseInline` in `lib/markdown.ts` and shown by `Answer.tsx`: paragraphs, lists with sub-lists, bold, and links only to `/charter/<id>`; anything else (other links, HTML) is plain text. A link that is not whole at the end of a text (`[Name](/charter/ab`) is removed, never shown as text.
 - **Keyboard.** Opening by the button moves focus to the field; closing (after the question) or minimising returns it to the button; Escape minimises both the dialog and the panel; the panel has no focus trap.
 
 Each question sends the last 6 messages (never starting with an answer). A failed question is shown but not sent again. Answers and the text "Agneta tänker …" are in a `role="log"` region, so a screen reader announces them without moving focus.
 
+## Folded lists (TRIP-035)
+
+The model writes the whole list in order of fit. In the browser `foldList` (`lib/markdown.ts`) shows the first 3 items of a list with more than 3 (sub-bullets stay with their item) and `Answer.tsx` adds the button **Visa mer** (`aria-expanded`) in the same bubble; folded items are not rendered. When the visitor asks for the rest she writes the whole list again and ends with a last line `[[ALL]]`. `takeMarkers` removes it like `[[HELP]]` and reports `all`, which the route returns and the chat stores on the entry, and then the list is not folded. **Hjälp mig** is independent of the fold.
+
 ## The route
 
-`POST /api/chat` takes `{ messages }` and answers `{ reply }`.
+`POST /api/chat` takes `{ messages }` and answers `{ reply, help, all }`.
 
 | Status | When |
 |---|---|
