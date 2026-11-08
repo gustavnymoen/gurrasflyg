@@ -156,6 +156,8 @@ function agentMock(params: Anthropic.MessageCreateParamsNonStreaming) {
   // Från Resenärer till betalsidan (TRIP-038-R1), där betalsättet sätts
   if (question.includes("BETALSIDAN") && steps === 0) return answer([call("show_payment", {})], "tool_use");
   if (question.includes("BETALSATT") && steps === 0) return answer([call("set_payment", { payment: "cash" })], "tool_use");
+  // Sammanfattningen (TRIP-044): totalen ur verktyget, som den står
+  if (question.includes("SAMMANFATTA")) return steps === 0 ? answer([call("summarise", {})], "tool_use") : say(last.split("\n").find((line) => line.startsWith("Total price")) ?? "Ingen total");
   if (question.includes("BOKA")) return say("Du är klar. Det blir 12 000 kr. Tryck på knappen, om du måste.\n[[BOOK]]");
   return say(steps > 0 ? `Det blev så här: ${last.split("\n")[0]}` : `Svar från Agneta på: ${question}`);
 }

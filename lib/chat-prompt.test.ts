@@ -89,3 +89,12 @@ test("TRIP-033-R5 R7 the format rules say link on every page and one bullet with
   expect(prompt).toContain('the airport and the price "from" per person');
   expect(prompt).toContain("never a list that stops after the first");
 });
+
+test("TRIP-044-R1 ordinary flights are not declined: she can search and book them with the button, and never guesses a departure, a time or a price", () => {
+  expect(prompt).not.toContain("and nothing else");
+  expect(prompt).not.toContain("is pointed to the tab Flyg");
+  expect(prompt).toContain("Ordinary flights are not declined");
+  expect(prompt).toContain("never guess them, but that you can search and book it for them, and end with the [[HELP]] line");
+  expect(prompt).toContain("the knowledge has nothing about ordinary flights");
+  expect(prompt).toContain("you never invent what a search would give");
+});

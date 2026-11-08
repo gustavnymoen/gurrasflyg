@@ -67,6 +67,8 @@ export async function askAgent(
     payment: context.payment,
     valid: context.valid,
     booking: context.booking,
+    choice: context.choice,
+    nerves: context.nerves,
     actions: {},
   };
   // Sidans läge hör till den sista frågan, inte till systemtexten, som ska vara densamma för att cachas

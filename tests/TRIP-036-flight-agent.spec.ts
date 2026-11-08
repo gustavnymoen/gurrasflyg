@@ -237,7 +237,7 @@ test("TRIP-036-R5 R6 nothing personal reaches the model; no button until the for
     await expect(page.getByRole("radio", { name: /Cash till piloten/ })).toBeChecked();
     await ask(page, "BOKA");
     await expect(bookButton(page)).toBeVisible();
-    expect(bodies.at(-1)!.agent).toEqual({ url: new URL(page.url()).pathname + new URL(page.url()).search, extras: [], payment: "cash", valid: true });
+    expect(bodies.at(-1)!.agent).toEqual({ url: new URL(page.url()).pathname + new URL(page.url()).search, extras: [], payment: "cash", valid: true, choice: expect.anything(), nerves: 0 }); // TRIP-044: classes and add-ons, no names
     expect(JSON.stringify(bodies)).not.toMatch(/E2E Resenär|Anna|Storgatan|flygagent@exempel/);
     await expectNoA11yViolations(page);
 

@@ -18,7 +18,18 @@ export const BOOK_MARKER = "[[BOOK]]";
 // Sidan besökaren är på och det som inte är personligt av det hen valt (R4). Aldrig namn, åldrar,
 // kontaktuppgifter eller svar på de tre frågorna: valid är bara om formuläret stämmer.
 // På Min bokning följer också ett utdrag av bokningen som hittats, utan något personligt (TRIP-037-R4).
-export type AgentContext = { url: string; extras: string[]; payment: Payment | null; valid: boolean; booking?: BookingExtract };
+// Är klasserna och tilläggen valda följer de med (choice) och antalet som kryssat Dåliga nerver (nerves), så att
+// totalen i sammanfattningen blir sidans (TRIP-044-R2). Inga namn, åldrar eller kontaktuppgifter.
+export type AddonChoice = { legKeys: string[]; passengers: PassengerLeg[][] };
+export type AgentContext = {
+  url: string;
+  extras: string[];
+  payment: Payment | null;
+  valid: boolean;
+  booking?: BookingExtract;
+  choice?: AddonChoice;
+  nerves?: number;
+};
 
 // Det chatten gör åt Agneta: öppnar en sida eller skriver till formuläret (R3, R6). "addons" är
 // resenärernas klasser och tillägg på varje resa, för resorna som legKeys säger (TRIP-040-R4).
@@ -47,14 +58,25 @@ export function isAgentUrl(url: unknown): url is string {
 
 // Det webbläsaren skickar som sidans läge, eller null om det har fel form. Okända tillägg tas bort.
 export function parseAgentContext(value: unknown): AgentContext | null {
-  const { url, extras, valid, payment = null, booking } = (value ?? {}) as Partial<AgentContext>;
+  const { url, extras, valid, payment = null, booking, choice, nerves } = (value ?? {}) as Partial<AgentContext>;
   if (typeof url !== "string" || url.length > MAX_URL_LENGTH || !url.startsWith("/")) return null;
   if (!Array.isArray(extras) || extras.length > 10 || typeof valid !== "boolean") return null;
   if (payment !== null && !PAYMENTS.some((p) => p.value === payment)) return null;
   // Ett utdrag hör bara till Min bokning
   const extract = booking === undefined ? undefined : isMyBookingUrl(url) ? parseExtract(booking) : null;
   if (extract === null) return null;
-  return { url, extras: extras.filter((code) => typeof code === "string" && extraByCode(code)), payment, valid, ...(extract && { booking: extract }) };
+  if (choice !== undefined && (choice === null || !isAddonsAction(choice))) return null;
+  if (nerves !== undefined && !(Number.isInteger(nerves) && nerves >= 0 && nerves <= MAX_TRAVELLERS)) return null;
+  return {
+    url,
+    extras: extras.filter((code) => typeof code === "string" && extraByCode(code)),
+    payment,
+    valid,
+    ...(extract && { booking: extract }),
+    // Bara klass och tillägg: allt annat på en resenär släpps
+    ...(choice && { choice: { legKeys: choice.legKeys, passengers: choice.passengers.map((legs) => legs.map(({ classId, addons }) => ({ classId, addons }))) } }),
+    ...(nerves && { nerves }),
+  };
 }
 
 // Resenärernas klasser och tillägg per resa, med rätt form och rimliga tal (TRIP-040-R1)

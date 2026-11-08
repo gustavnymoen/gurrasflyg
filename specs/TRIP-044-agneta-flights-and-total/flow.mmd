@@ -1,0 +1,9 @@
+%% TRIP-044 Agneta and ordinary flights, and the total in her summary
+flowchart TD
+    A[Visitor asks the plain chat about an ordinary flight] --> B[In her voice: no times or prices from memory, can search and book, ends with HELP: R1]
+    B --> C[Hjälp mig]
+    C --> D[Visitor chooses add-ons and Dåliga nerver in the form]
+    D --> E[Each question carries choice and nerves, no names: R2]
+    E --> F[parseAgentContext checks the shape]
+    F --> G[summarise: seatsTotal + nerves + extras from the database]
+    G --> H[Her total equals the payment page's: R2]
