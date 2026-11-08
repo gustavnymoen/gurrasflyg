@@ -8,7 +8,7 @@ import { expectNoA11yViolations, agnetaGreeted } from "./helpers";
 
 const openButton = (page: Page) => page.getByRole("button", { name: "Fråga Agneta" });
 const panel = (page: Page) => page.getByRole("region", { name: "Agneta" });
-const dialog = (page: Page) => page.getByRole("dialog", { name: "Agneta Spydenius" });
+const dialog = (page: Page) => page.getByRole("dialog", { name: /^Agneta/ });
 const field = (page: Page) => page.getByLabel("Din fråga");
 const connecting = (page: Page) => page.getByRole("status").filter({ hasText: "Kopplar in Agneta …" });
 
@@ -42,7 +42,7 @@ test("TRIP-032-R7 a new session shows the connecting view for 2 to 3 seconds, th
   await expect(connecting(page)).toHaveCount(0);
 
   // R7: avatar and name in the header, and the greeting (TRIP-033-R2: only "Vad vill du?!")
-  await expect(panel(page).getByRole("heading", { name: "Agneta Spydenius" })).toBeVisible();
+  await expect(panel(page).getByRole("heading", { name: /^Agneta/ })).toBeVisible();
   await expect(panel(page).locator("img")).toBeVisible();
   const greeting = (await panel(page).getByRole("log").textContent())!.replace(/^Agneta: /, "");
   expect(greeting).toBe(GREETING);
@@ -98,8 +98,8 @@ test("TRIP-032-R3 R2 bubbles: questions right, answers left, a header with avata
   // R3: the header
   const header = panel(page).getByRole("heading").locator("../..");
   await expect(header.locator("img")).toHaveAttribute("alt", "");
-  await expect(panel(page).getByRole("heading")).toHaveText("Agneta Spydenius");
-  await expect(header.getByRole("button")).toHaveText(["", ""]);
+  await expect(panel(page).getByRole("heading")).toHaveText("Agneta Karenelius");
+  await expect(header.getByRole("button")).toHaveText(["", "", ""]); // the portrait (TRIP-035-R3) and the two
   await expect(header.getByRole("button", { name: "Minimera chatten" })).toBeVisible();
   await expect(header.getByRole("button", { name: "Stäng chatten" })).toBeVisible();
 
@@ -276,9 +276,11 @@ test.describe("on a phone", () => {
     expect(box.width).toBeGreaterThanOrEqual(390 - 32);
     await expectNoA11yViolations(page);
 
-    // Tab goes round inside the dialog: Skicka, the header buttons, the log, the field
+    // Tab goes round inside the dialog: Skicka, the portrait and the header buttons, the log, the field
     await page.keyboard.press("Tab");
     await expect(dialog(page).getByRole("button", { name: "Skicka" })).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(dialog(page).getByRole("button", { name: "Förstora bilden på Agneta" })).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(dialog(page).getByRole("button", { name: "Minimera chatten" })).toBeFocused();
     await page.keyboard.press("Tab");

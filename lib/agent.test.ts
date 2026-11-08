@@ -162,7 +162,7 @@ test("TRIP-030-R2 a tool call with wrong arguments is answered with an error tex
   expect(results.map((r) => r.is_error)).toEqual(Array(7).fill(true));
   expect(results[0].content).toContain("No such destination");
   expect(results[5].content).toContain("no tool called book");
-  expect(answer).toEqual({ reply: "Nej.", actions: [], book: false });
+  expect(answer).toEqual({ reply: "Nej.", actions: [], book: false, all: false });
 });
 
 test("TRIP-030-R3 a destination, a filtered list and a unknown filter value: the page opens at the checked address", async () => {
@@ -224,7 +224,7 @@ test("TRIP-030-R8 TRIP-038-R2 the booking button is offered only with a valid fo
   const marked = textTurn("Sammanfattning.\n[[BOOK]]");
   const offered = (ctx: object) => askAgent(question, context(ctx), scripted(marked).client);
   const ready = { url: tripUrl("boka/betala", planned()), payment: "cash", valid: true };
-  expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true });
+  expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true, all: false });
   expect((await offered({ ...ready, url: tripUrl("boka", planned()) }))!.book).toBe(false); // Resenärer: no button (TRIP-038-R2)
   expect((await offered({ ...ready, valid: false }))!.book).toBe(false);
   expect((await offered({ ...ready, payment: null }))!.book).toBe(false);
@@ -633,7 +633,7 @@ test("TRIP-036-R6 the booking button is offered on the flight payment page only,
   const marked = textTurn("Sammanfattning.\n[[BOOK]]");
   const offered = (ctx: object) => askAgent(question, context(ctx), scripted(marked).client);
   const ready = { url: flightUrl("/flyg/boka/betala", flightPlanned()), payment: "cash", valid: true };
-  expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true });
+  expect(await offered(ready)).toEqual({ reply: "Sammanfattning.", actions: [], book: true, all: false });
   for (const over of [
     { url: flightUrl("/flyg/boka", flightPlanned()) },
     { url: flightUrl("/flyg/plan", flightPlanned()) },
@@ -779,5 +779,5 @@ test("TRIP-037-R1 show_my_booking opens Min bokning, and does nothing when the v
 
 test("TRIP-037-R5 the booking button is never offered on Min bokning, whatever the model writes", async () => {
   const reply = await askAgent(question, myContext({ payment: "cash", valid: true }), scripted(textTurn("Klart.\n[[BOOK]]")).client);
-  expect(reply).toEqual({ reply: "Klart.", actions: [], book: false });
+  expect(reply).toEqual({ reply: "Klart.", actions: [], book: false, all: false });
 });

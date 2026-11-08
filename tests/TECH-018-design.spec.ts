@@ -587,6 +587,20 @@ test("TRIP-013-R7 and R8 and TRIP-014-R1 and TRIP-017-R7 the destination page: a
   expect(contrast(await css(mineBubble, "color"), ACCENT)).toBeGreaterThanOrEqual(4.5);
   const hers = panel.getByRole("log").locator("> div").first();
   expect(contrast(INK, await backgroundOf(hers))).toBeGreaterThanOrEqual(4.5);
+  await expect(panel.getByRole("log")).toContainText("Svar från Agneta på: Hej");
+  // TRIP-035-R2 R3: a long answer fills the message area while the visitor's bubble stops at 85 %; the portrait is 64 px
+  await page.route("**/api/chat", (route) => route.fulfill({ json: { reply: "Ett långt svar. ".repeat(40) } }));
+  await panel.getByLabel("Din fråga").fill("Berätta mer");
+  await panel.getByLabel("Din fråga").press("Enter");
+  await expect(panel.getByRole("log")).toContainText("Ett långt svar.");
+  const log = (await panel.getByRole("log").boundingBox())!;
+  const longAnswer = (await panel.getByRole("log").locator("> div").nth(4).boundingBox())!;
+  expect(longAnswer.width).toBeGreaterThan(log.width - 24); // the log has a little padding for its scrollbar
+  expect((await mineBubble.boundingBox())!.width).toBeLessThanOrEqual(log.width * 0.85 + 1);
+  // TRIP-035-R1: the page scrolls in body, so its scrollbar sits in the seam beside the panel and not at the window edge
+  await expect(page.locator("html")).toHaveCSS("overflow-y", "hidden");
+  await expect(page.locator("body")).toHaveCSS("overflow-y", "auto");
+  expect((await panel.getByRole("button", { name: "Förstora bilden på Agneta" }).boundingBox())!.width).toBeCloseTo(64, 0);
   await page.keyboard.press("Escape");
 
   await page.goto("/charter/chernobyl-pripyat");

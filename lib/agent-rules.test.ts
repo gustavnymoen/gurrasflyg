@@ -51,9 +51,14 @@ test("TRIP-030-R3 an action that is not of a known kind with checked values is d
 });
 
 test("TRIP-030-R1 R8 the markers are taken out of the text and reported", () => {
-  expect(takeMarkers("Nej.\n[[HELP]]")).toEqual({ text: "Nej.", help: true, book: false });
-  expect(takeMarkers("Tryck.\n[[BOOK]]\n")).toEqual({ text: "Tryck.", help: false, book: true });
-  expect(takeMarkers("Bara text")).toEqual({ text: "Bara text", help: false, book: false });
+  expect(takeMarkers("Nej.\n[[HELP]]")).toEqual({ text: "Nej.", help: true, book: false, all: false });
+  expect(takeMarkers("Tryck.\n[[BOOK]]\n")).toEqual({ text: "Tryck.", help: false, book: true, all: false });
+  expect(takeMarkers("Bara text")).toEqual({ text: "Bara text", help: false, book: false, all: false });
+});
+
+test("TRIP-035-R6 the marker [[ALL]] is taken out of the text and reported", () => {
+  expect(takeMarkers("- a\n- b\n[[ALL]]")).toEqual({ text: "- a\n- b", help: false, book: false, all: true });
+  expect(takeMarkers("Fler.\n[[HELP]]\n[[ALL]]")).toEqual({ text: "Fler.", help: true, book: false, all: true });
 });
 
 test("TRIP-037-R1 Min bokning may be opened, with a query but not with anything after it", () => {

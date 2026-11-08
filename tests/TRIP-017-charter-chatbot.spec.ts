@@ -10,7 +10,7 @@ import { expectNoA11yViolations, agnetaGreeted } from "./helpers";
 // så att ingen väntar på inkopplingen.
 const openButton = (page: Page) => page.getByRole("button", { name: "Fråga Agneta" });
 const panel = (page: Page) => page.getByRole("region", { name: "Agneta" });
-const dialog = (page: Page) => page.getByRole("dialog", { name: "Agneta Spydenius" });
+const dialog = (page: Page) => page.getByRole("dialog", { name: /^Agneta/ });
 const field = (page: Page) => panel(page).getByLabel("Din fråga");
 
 test.beforeEach(({ page }) => agnetaGreeted(page));

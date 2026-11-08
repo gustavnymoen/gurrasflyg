@@ -44,10 +44,18 @@ export default function Chat() {
   // Panelen trycker ihop sidan: globals.css ger sidan marginal så länge attributet finns
   useEffect(() => {
     if (!panel) return;
-    document.documentElement.setAttribute("data-agneta-panel", "");
+    // Sidan rullar i body medan panelen är öppen (globals.css): läget följer med åt båda hållen (TRIP-035-R1)
+    const html = document.documentElement;
+    const scrolled = window.scrollY;
+    html.setAttribute("data-agneta-panel", "");
+    document.body.scrollTop = scrolled;
     if (focusField.current) panelRef.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
     focusField.current = false;
-    return () => document.documentElement.removeAttribute("data-agneta-panel");
+    return () => {
+      const back = document.body.scrollTop;
+      html.removeAttribute("data-agneta-panel");
+      window.scrollTo(0, back);
+    };
   }, [panel]);
 
   // Knappen finns först när chatten har stängts: fokus går tillbaka dit (R6)

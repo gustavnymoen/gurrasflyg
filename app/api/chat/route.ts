@@ -9,7 +9,7 @@ import { apiLimitResponse, CHAT_LIMIT } from "@/lib/flow-limits";
 export const maxDuration = 60;
 
 // POST /api/chat  { messages: [{ role, content }, …], agent?: { url, extras, payment, valid } }
-//   ->  { reply, help? }  eller, i agentläget (agent finns),  { reply, actions, book }
+//   ->  { reply, help, all }  eller, i agentläget (agent finns),  { reply, actions, book, all }
 // Allt kontrolleras här (TRIP-017-R8, TRIP-030-R2, R4). Felen är korta och utan något från API:et eller nyckeln.
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);

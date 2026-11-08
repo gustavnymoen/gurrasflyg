@@ -167,6 +167,7 @@ What comes next, and the requirements of work not yet done, are on the board ["G
 | TRIP-038 | Fix: the agent takes the visitor to the payment step, asks how to pay there and asks for a check before the button, which is offered on the payment page only | Charter | Review |
 | TRIP-043 | Leaner departure and aircraft pickers: a visible Välj on every departure (flights and charter) with an optional unfold; the aircraft step is one compact row per aircraft with its classes in the open row, a counter, one aircraft holding the travellers and Fortsätt instead of Klar | Flight booking, Charter | Review |
 | TRIP-037 | Booking agent: finding and cancelling a booking: the chat on Min bokning, Agneta opens the page, explains the rules and ticks what the visitor wants to cancel from a nameless extract of the found booking; she never looks a booking up or cancels, the visitor types the number and name and presses Avboka | Shared | Review |
+| TRIP-035 | UX upgrades for Agneta: the page scrolls in its own box beside the panel, her bubble spans the panel, a bigger header portrait that grows when clicked, the surname only in the header, a ruder tone, and lists of more than 3 folded behind "Visa mer" (`[[ALL]]` for the whole list) | Shared | Review |
 
 ## Decisions for charter
 

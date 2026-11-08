@@ -14,6 +14,7 @@ export const MAX_TOOL_CALLS = 6;
 // Raderna modellen skriver sist i ett svar för att visa en knapp (TRIP-030, solution.md)
 const HELP_MARKER = "[[HELP]]";
 export const BOOK_MARKER = "[[BOOK]]";
+const ALL_MARKER = "[[ALL]]"; // hela listan är skriven: vikas inte (TRIP-035-R6)
 
 // Sidan besökaren är på och det som inte är personligt av det hen valt (R4). Aldrig namn, åldrar,
 // kontaktuppgifter eller svar på de tre frågorna: valid är bara om formuläret stämmer.
@@ -114,8 +115,9 @@ export function safeActions(value: unknown): AgentAction[] {
 export function takeMarkers(text: string) {
   const help = text.includes(HELP_MARKER);
   const book = text.includes(BOOK_MARKER);
-  const clean = text.replaceAll(HELP_MARKER, "").replaceAll(BOOK_MARKER, "").trim();
-  return { text: clean, help, book };
+  const all = text.includes(ALL_MARKER);
+  const clean = text.replaceAll(HELP_MARKER, "").replaceAll(BOOK_MARKER, "").replaceAll(ALL_MARKER, "").trim();
+  return { text: clean, help, book, all };
 }
 
 // Agnetas texter i agentläget som kommer från chatten och inte från modellen

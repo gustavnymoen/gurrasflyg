@@ -23,7 +23,7 @@ afterEach(() => {
 
 test("TRIP-017-R6 the request has the model, the system prompt, cache_control, max_tokens 3000 and the messages", async () => {
   const { client, create } = clientOf(reply([{ type: "text", text: "Dyrt." }]));
-  expect(await askAgneta(question, client)).toEqual({ reply: "Dyrt.", help: false });
+  expect(await askAgneta(question, client)).toEqual({ reply: "Dyrt.", help: false, all: false });
   expect(MODEL).toBe("claude-sonnet-5-5");
   expect(create).toHaveBeenCalledWith({
     model: "claude-sonnet-5-5",
@@ -87,7 +87,7 @@ test("TRIP-017-R8 the 10 first questions within 5 minutes are counted, the 11th 
 
 test("TRIP-030-R1 the marker [[HELP]] is taken out of the answer and reported, so the button can be shown", async () => {
   const answer = await askAgneta(question, clientOf(reply([{ type: "text", text: "Jaha, hjälp.\n[[HELP]]" }])).client);
-  expect(answer).toEqual({ reply: "Jaha, hjälp.", help: true });
+  expect(answer).toEqual({ reply: "Jaha, hjälp.", help: true, all: false });
   // Fake client: a question asking for help gets the marker, a plain question does not
   process.env.LLM_MOCK = "1";
   expect((await askAgneta([{ role: "user", content: "Kan du hjälpa mig att boka åt mig?" }]))?.help).toBe(true);

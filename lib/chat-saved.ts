@@ -1,8 +1,8 @@
 import type { ChatMessage } from "./chat-rules";
 
 // failed: frågan som inte fick något svar, med Agnetas felmeddelande (notice) efter sig; inget av det följer med nästa fråga.
-// help och book: svaret följs av knappen Hjälp mig eller Boka och betala (TRIP-030-R1, R8).
-export type Entry = ChatMessage & { failed?: boolean; notice?: boolean; help?: boolean; book?: boolean };
+// all: hela listan är skriven och ska inte vikas (TRIP-035-R6). help och book: svaret följs av knappen Hjälp mig eller Boka och betala (TRIP-030-R1, R8).
+export type Entry = ChatMessage & { failed?: boolean; notice?: boolean; help?: boolean; book?: boolean; all?: boolean };
 
 // Det som sparas i webbläsarens sessionslagring (TRIP-032-R5): om chatten är öppen, samtalet och om
 // agentläget är på (TRIP-030-R1)
@@ -30,6 +30,7 @@ export function parseSaved(raw: string | null): SavedChat {
         ...(e.notice === true && { notice: true }),
         ...(e.help === true && { help: true }),
         ...(e.book === true && { book: true }),
+        ...(e.all === true && { all: true }),
       })),
     };
   } catch {

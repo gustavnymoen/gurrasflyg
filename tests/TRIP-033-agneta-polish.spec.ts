@@ -25,7 +25,7 @@ test("TRIP-033-R1 R2 the header has the name, Kundtjänstmedarbetare and a green
   await page.goto("/");
   await openButton(page).click();
   const header = panel(page).getByRole("heading").locator("../..");
-  await expect(header).toContainText("Agneta Spydenius");
+  await expect(header).toContainText("Agneta Karenelius");
   await expect(header).toContainText("Kundtjänstmedarbetare");
   await expect(header.getByText("Live", { exact: true })).toBeVisible();
   await expect(header.getByTestId("agneta-live-dot")).toBeVisible();
@@ -33,7 +33,7 @@ test("TRIP-033-R1 R2 the header has the name, Kundtjänstmedarbetare and a green
   await expectNoA11yViolations(page);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  const dialog = page.getByRole("dialog", { name: "Agneta Spydenius" });
+  const dialog = page.getByRole("dialog", { name: /^Agneta/ });
   await expect(dialog).toContainText("Kundtjänstmedarbetare");
   await expect(dialog.getByText("Live", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("log")).toHaveText("Agneta: Vad vill du?!");

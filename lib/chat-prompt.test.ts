@@ -46,7 +46,7 @@ test("TRIP-017-R1 a destination with no flights says so", async () => {
 });
 
 test("TRIP-017-R1 R3 the instructions and the booking text are in it, and nothing that changes per request", () => {
-  expect(prompt).toContain("You are Agneta Spydenius");
+  expect(prompt).toContain("You are Agneta");
   expect(prompt).toContain("# How to book a charter trip");
   expect(prompt).toContain("CH-");
   expect(prompt).toContain("Min bokning");
@@ -97,4 +97,24 @@ test("TRIP-044-R1 ordinary flights are not declined: she can search and book the
   expect(prompt).toContain("never guess them, but that you can search and book it for them, and end with the [[HELP]] line");
   expect(prompt).toContain("the knowledge has nothing about ordinary flights");
   expect(prompt).toContain("you never invent what a search would give");
+});
+
+test("TRIP-035-R4 the surname is only in the header: not in the prompt", () => {
+  expect(prompt).not.toMatch(/Karenelius|Spydenius/);
+});
+
+test("TRIP-035-R5 the voice is ruder but keeps the rules: always help, no swearing, no insults, facts as in the knowledge", () => {
+  const voice = prompt.slice(prompt.indexOf("# Voice"), prompt.indexOf("# How to book"));
+  expect(voice).toContain("rude, grudging and dry");
+  expect(voice).toContain("never insult the visitor as a person and you never swear");
+  expect(voice).toContain("You always help");
+  expect(voice).toContain("prices, dates, refusals and facts are exactly as in the knowledge");
+  expect(voice).toContain("nothing is paid and no price, booking or fact changes");
+});
+
+test("TRIP-035-R6 she writes the whole list best match first, and ends the whole list with [[ALL]] only when asked for the rest", () => {
+  expect(prompt).toContain("write the whole list in your first answer, the best match first");
+  expect(prompt).toContain("never shorten the list yourself");
+  expect(prompt).toContain("a last line of exactly [[ALL]]");
+  expect(prompt).toContain("Never add that line to any other answer");
 });
