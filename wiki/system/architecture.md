@@ -6,7 +6,7 @@ resource: app/
 tags: [architecture, database, deploy, admin]
 generated:
   by: claude
-  at: 2026-11-06T16:00:00+01:00
+  at: 2026-11-09T12:00:00+01:00
 ---
 
 # Architecture
@@ -138,9 +138,9 @@ Playwright browser tests in `tests/`, one file per feature (the look is checked 
 | `npm run test:smoke` | <https://gurrasflyg.vercel.app>, or `BASE_URL` | Production (Turso), read only: the smoke tests write nothing. |
 | `npm test` | <https://gurrasflyg.vercel.app>, or `BASE_URL` | Production (Turso). Run by hand only; tests create and delete their own "E2E" data. |
 | `npm run test:unit` | None (no site) | `~/Ai Projekt/gurrasflyg-data/unit-test.db`, rebuilt from schema, seed and migrations by `vitest.global-setup.mjs` every run. |
-| `npm run test:local` | Production build on port 3100, built in `.next-test/` by `scripts/test-server.mjs` | `~/Ai Projekt/gurrasflyg-data/test.db`, rebuilt from schema, seed and migrations every run. |
+| `npm run test:local` | One production build in `.next-test/`, started once for each of four lanes (ports 3200–3203) by `scripts/test-server.mjs`; port 3100 answers when all four are ready | One database for each lane, `~/Ai Projekt/gurrasflyg-data/test-<lane>.db`, rebuilt from schema, seed and migrations every run. |
 
-`tests/global-teardown.ts` removes leftover "E2E" data after every run. `npm run test:time` (`scripts/test-time.mjs`) runs the unit tests with Vitest's JSON report and `npm run test:local` with Playwright's, and prints the number of each, their total time (the browser tests without the build) and the five slowest browser tests, against the time budgets in `wiki/system/testing.md`, which also has the rules.
+`tests/global-teardown.ts` removes leftover "E2E" data after every run. `npm run test:time` (`scripts/test-time.mjs`) runs the unit tests with Vitest's JSON report and `npm run test:local` with Playwright's, and prints the number of each, the time the run took (the browser tests without the build, from the first test's start to the last test's end) and, for the browser tests, the tests' own times added up and the five slowest browser tests, against the time budgets in `wiki/system/testing.md`, which also has the rules.
 
 ## Related
 

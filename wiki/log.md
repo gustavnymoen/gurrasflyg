@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-09
+
+- TECH-030: **browser tests in lanes**. `npm run test:local` runs the 261 browser tests at the same time in four lanes (`lib/test-lanes.mjs`, `playwright.config.ts`): each lane is a Playwright project with one worker, its own copy of the site (ports 3200–3203) and its own test database, started by `scripts/test-server.mjs`, and the spec files are divided between them by size. 257 s became 72 s (budget 180 s); `npm run test:time` now reports the time the run took. CI builds the site once (`--build-only`) and the tests no longer build again. First try, four workers on one database, failed: the tests that create aircraft change what every other test sees. Two timing races found under load were fixed in the tests (axe waits for the page title, TRIP-013 waits for the filtered count). New rules in [Testing](system/testing.md).
+
 ## 2026-11-08
 
 - TRIP-035: **UX upgrades for Agneta**. One scrollbar in the seam (the page scrolls in `body` with the panel open), her bubble spans the panel, the header picture is a 64 px button that grows to 128 px, the surname "Karenelius" is only in the header, her voice in `lib/chat-prompt.ts` is ruder, and lists with more than 3 items are folded behind **Visa mer** (the model ends a whole list with `[[ALL]]`, removed by `takeMarkers`). Updated `wiki/system/charter-chatbot.md` and `wiki/manual/fraga-agneta.md`.

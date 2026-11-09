@@ -3,8 +3,10 @@
 // tester, testernas sammanlagda tid och de fem långsammaste webbläsartesterna,
 // och markerar det som går över tidsbudgeten i wiki/system/testing.md.
 //
-// Tiden är testernas egen tid, utan bygget av testservern, så att den går
-// att jämföra mellan körningar.
+// Tiden är förfluten tid, från det första testets start till det sista testets
+// slut, utan bygget av testservern, så att den går att jämföra mellan körningar.
+// Testerna körs med flera workers (TECH-030), så testernas tider adderade är
+// längre än körningen; summan skrivs ut för att visa hur mycket som körs samtidigt.
 
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -60,18 +62,27 @@ function testsIn(suite) {
       file: spec.file,
       skipped: test.status === "skipped",
       ms: test.results.reduce((sum, result) => sum + result.duration, 0),
+      // Första försökets start och sista försökets slut, för förfluten tid
+      startMs: Math.min(...test.results.map((result) => Date.parse(result.startTime))),
+      endMs: Math.max(...test.results.map((result) => Date.parse(result.startTime) + result.duration)),
     })),
   );
   return [...own, ...(suite.suites ?? []).flatMap(testsIn)];
 }
 
 const ran = report.suites.flatMap(testsIn).filter((test) => !test.skipped);
-const totalMs = ran.reduce((sum, test) => sum + test.ms, 0);
+if (ran.length === 0) {
+  console.error("Inga webbläsartester kördes");
+  process.exit(1);
+}
+const sumMs = ran.reduce((sum, test) => sum + test.ms, 0);
+const elapsedMs = Math.max(...ran.map((test) => test.endMs)) - Math.min(...ran.map((test) => test.startMs));
 const slowest = [...ran].sort((a, b) => b.ms - a.ms).slice(0, 5);
 const overBudget = ran.filter((test) => test.ms > TEST_BUDGET_MS);
 
 console.log(`\nWebbläsartester: ${ran.length} körda, ${report.stats.skipped} överhoppade`);
-console.log(`Testernas tid: ${seconds(totalMs)} (budget ${seconds(SUITE_BUDGET_MS)})${mark(totalMs > SUITE_BUDGET_MS)}`);
+console.log(`Körningens tid: ${seconds(elapsedMs)} (budget ${seconds(SUITE_BUDGET_MS)})${mark(elapsedMs > SUITE_BUDGET_MS)}`);
+console.log(`Testernas tider adderade: ${seconds(sumMs)}`);
 console.log(`\nDe fem långsammaste (budget ${seconds(TEST_BUDGET_MS)} per test):`);
 for (const test of slowest) {
   console.log(`  ${seconds(test.ms).padStart(7)}  ${test.title} (${test.file})${mark(test.ms > TEST_BUDGET_MS)}`);

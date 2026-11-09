@@ -1,4 +1,6 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, type PlaywrightTestConfig } from "@playwright/test";
+import { readdirSync, statSync } from "node:fs";
+import { GATE_PORT, lanePort, testLanes } from "./lib/test-lanes.mjs";
 
 // The tests run against the live site by default, as the course prescribes.
 // BASE_URL points them elsewhere: npm run test:local starts a production build
@@ -15,6 +17,32 @@ try {
   process.loadEnvFile(".env.local");
 } catch {}
 
+// Lokalt delas testfilerna mellan banor som körs samtidigt (TECH-030). Varje
+// bana har en egen sajt och en egen databas (scripts/test-server.mjs), så
+// testerna ser aldrig varandras flygplan, bokningar och gränser. I en bana körs
+// testen en i taget. Filerna fördelas efter storlek (den största till den
+// minst fyllda banan), som mått på tiden, så en ny fil hamnar rätt utan att
+// någon lista behöver ändras.
+function lanes(): NonNullable<PlaywrightTestConfig["projects"]> {
+  const files = readdirSync("tests")
+    .filter((name) => name.endsWith(".spec.ts"))
+    .map((name) => ({ name, size: statSync(`tests/${name}`).size }))
+    .sort((a, b) => b.size - a.size || a.name.localeCompare(b.name));
+  const lanes = Array.from({ length: testLanes }, () => ({ names: [] as string[], size: 0 }));
+  for (const file of files) {
+    const lightest = lanes.reduce((a, b) => (b.size < a.size ? b : a));
+    lightest.names.push(file.name);
+    lightest.size += file.size;
+  }
+  return lanes.map((lane, i) => ({
+    name: `lane-${i}`,
+    testMatch: lane.names.map((name) => `**/${name}`),
+    // A lane's tests share its database, so only one at a time
+    workers: 1,
+    use: { baseURL: `http://localhost:${lanePort(i)}` },
+  }));
+}
+
 export default defineConfig({
   testDir: "./tests",
   // On GitHub, also an HTML report that is saved when tests fail (TECH-001)
@@ -23,8 +51,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   // Removes leftover "E2E …" test data after the run
   globalTeardown: "./tests/global-teardown.ts",
-  // One test at a time: the tests share one database, and some check totals
-  workers: 1,
+  // Against a deployed site one test at a time: the tests share its database,
+  // and some check totals. Locally one worker for each lane, which has its own
+  // database (above).
+  workers: local ? testLanes : 1,
+  projects: local ? lanes() : undefined,
   // The live site answers slower than a local server (network, Turso)
   expect: { timeout: local ? 5_000 : 10_000 },
   use: {
@@ -46,6 +77,6 @@ export default defineConfig({
     trace: local && process.env.TRACE === "1" ? "retain-on-failure" : "off",
   },
   webServer: local
-    ? { command: "node scripts/test-server.mjs", url: baseURL, reuseExistingServer: false, timeout: 300_000 }
+    ? { command: "node scripts/test-server.mjs", url: `http://localhost:${GATE_PORT}`, reuseExistingServer: false, timeout: 300_000 }
     : undefined,
 });

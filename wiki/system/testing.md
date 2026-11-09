@@ -6,7 +6,7 @@ feature: TECH-016
 tags: [workflow, testing, quality, sdd]
 generated:
   by: claude
-  at: 2026-11-06T16:00:00+01:00
+  at: 2026-11-09T12:00:00+01:00
 ---
 
 # Testing
@@ -41,11 +41,12 @@ The project follows specification-driven development (see "How we work" in `spec
 - **The look** (TRIP-008, TRIP-020, TRIP-022) is checked in `tests/TECH-018-design.spec.ts`: one test per page and state, each named after every requirement it checks, so the page is loaded once for many checks. A new design check goes into the test for its page and state (a new page or state gets a new test there), not into a new file or a test of its own per CSS value. A design check stays a browser test, since it reads what the browser draws (computed colours, sizes, contrast, focus rings); a rule that needs no browser, such as a calculation or a token value read from a file, is a unit test.
 - **Waiting and motion (TECH-023):** the tests run with reduced motion (`reducedMotion: "reduce"` in `playwright.config.ts`), so the site's animations are off and Playwright does not wait for a moving card before it clicks it (about 0,4 s each). A test of the motion itself asks for `test.use({ reducedMotion: "no-preference" })` (TRIP-025, the plane in `TECH-018-design.spec.ts`); otherwise it would pass without testing anything. Playwright also checks in steps (a click after 0, 20, 100, 100, 500 ms; an `expect` after 100, 250, 500, 1000 ms), so something that appears 300 ms after the page opens is found after 700–850 ms. For such an element wait with `appears(locator)` from `tests/helpers.ts` (every 25 ms), as `signIn` does for the admin page's cards. No trace is recorded unless `TRACE=1` is set (`TRACE=1 npm run test:local`), since recording one for every test costs about a tenth of the run.
 - **Waiting for focus and for motion (TECH-032):** a key pressed before the page has hydrated is lost, since the handler is attached only then. A test that presses a key on a component waits first for the page to take over with `hydrated(locator)` from `tests/helpers.ts`, presses once, and waits for the focus target with `toBeFocused`; it never presses again and again until it works. `expectNoA11yViolations` waits for every running animation and transition to finish before axe measures, because transitions of colour run even with reduced motion and axe reads a colour in transition as low contrast. A check of a colour or of contrast that does not go through axe waits with `animationsDone(locator)`.
+- **Lanes (TECH-030):** `npm run test:local` runs the test files in four lanes at the same time (`TEST_LANES` changes the number). Each lane is a Playwright project (`lane-0` … `lane-3`) with one worker, its own copy of the site (ports 3200–3203, `scripts/test-server.mjs`) and its own test database (`test-<lane>.db`), so a lane's tests run one at a time and never see another lane's aircraft, bookings or rate limits. `playwright.config.ts` divides the files by size, the largest first to the lightest lane, so a new file needs no list. This means a test may rely on the data of its own lane only: the seed data and what the test itself (or the `fleet` fixture of its lane) creates. Never count on what other test files leave or do, and never on the order of the files. A test that reads the database directly uses `inTestDb`, which opens the database of the lane the test runs in. Against a deployed site there is one lane and one worker, as before.
 - **Data:** data a test creates is named with `uniqueName()` ("E2E …") and deleted by the test itself. Tests that would change shared data irreversibly, or read the database directly, are skipped unless `runsLocally`.
 - **The language model (TRIP-017):** no test calls the real model, which costs money from the course's cap. `scripts/test-server.mjs` sets `LLM_MOCK=1`, so the chat answers from a fake client; the real model is tried by hand on the preview and the live site and recorded in `verification.md`.
-- **Runs:** `npm run test:local` against a local production build with its own test database, also in CI, where the whole suite runs once per pull request. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
+- **Runs:** `npm run test:local` against a local production build with its own test databases (one for each lane), also in CI, where the whole suite runs once per pull request. CI builds the site once (`node scripts/test-server.mjs --build-only`) and starts the tests with `TEST_SERVER_PREBUILT=1`, which skips the second build; locally every run builds the current code. `npm test` runs them against a deployed site (the live site, or `BASE_URL`) by hand, for example to check something on the live site; the pipeline only runs the smoke tests there.
 - **Combine by journey.** Tests that reach the same page or state are one test that goes on from where the last check left it (TECH-021), named after every requirement it checks (`TRIP-004-R1 R2 R7 R8 R9 …`), with a comment per requirement. A test of its own is for a page, viewport at load time or data the others must not see. A 320 px check resizes the window in the middle of a test (`page.setViewportSize`).
-- **One run at a time per computer.** Every checkout shares `~/Ai Projekt/gurrasflyg-data/test.db`, which each `npm run test:local` deletes and builds again, so two runs at once break each other. A second run uses another `HOME` (`HOME=<empty folder> PLAYWRIGHT_BROWSERS_PATH=~/Library/Caches/ms-playwright npm run test:time`), which gives it a database of its own.
+- **One run at a time per computer.** Every checkout shares `~/Ai Projekt/gurrasflyg-data/test-<lane>.db` and ports 3100 and 3200–3203, which each `npm run test:local` deletes and builds again or takes, so two runs at once break each other. A second run uses another `HOME` (`HOME=<empty folder> PLAYWRIGHT_BROWSERS_PATH=~/Library/Caches/ms-playwright npm run test:time`), which gives it a database of its own.
 - **A failing test** is either a bug in the site (report it to the user) or a wrong test (fix the test and, if needed, the requirement). Never weaken a test to make it pass.
 
 ## Smoke tests
@@ -106,16 +107,16 @@ The test suite is checked with every change, so that it doesn't grow slower and 
 
 ## Time budgets
 
-From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s; on 2026-10-26, 148 tests, 145 s, slowest 3.7 s; on 2026-10-30, after TECH-023, 178 tests, 140 s, slowest 3.0 s):
+From the baseline on 2026-10-22 (108 tests, 65 s of tests locally, slowest test 2.5 s; on 2026-10-26, 148 tests, 145 s, slowest 3.7 s; on 2026-10-30, after TECH-023, 178 tests, 140 s, slowest 3.0 s; on 2026-11-09, 261 tests in 257 s of tests, one after the other; since TECH-030, 261 tests in 72.5 s in four lanes, slowest 4.9 s):
 
 | What | Budget |
 |---|---|
 | One test, locally | at most 5 s |
 | All unit tests (`npm run test:unit`) | at most 30 s |
-| All tests in `npm run test:local` (without the build) | at most 3 min |
+| All tests in `npm run test:local` (without the build), the time the run takes | at most 3 min |
 | The smoke tests against a preview or the live site | at most 1 min |
-| A whole job on GitHub | CI at most 8 min, of which at most 2 min preparation; Preview tests and Live tests at most 2 min |
+| A whole job on GitHub | CI at most 6 min, of which at most 2 min preparation; Preview tests and Live tests at most 2 min |
 
-`npm run test:time` runs the unit tests and `npm run test:local`, and prints the number of each, their total time and the five slowest browser tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
+`npm run test:time` runs the unit tests and `npm run test:local`, and prints the number of each, the time the run took (since TECH-030 the tests run in lanes at the same time, so the tests' own times added up are longer and are printed on a line of their own) and the five slowest browser tests, marking anything over budget. Every feature records the numbers before and after in `verification.md`. When a budget is exceeded, or the total time grows by more than 25 % in one change, find the cause: fix the change if it caused it, otherwise put a technical task at the top of the backlog.
 
 [System documentation](index.md)
