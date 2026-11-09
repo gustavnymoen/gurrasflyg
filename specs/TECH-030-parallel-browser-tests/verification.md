@@ -10,7 +10,7 @@ title: Bring the browser tests back inside the time budget
 | TECH-030-R1 | The whole suite passes: 262 browser tests (261 before; `TRIP-012-R1 R4 R5 R6 R10` was split in two, `TRIP-012-R1 R4` and `TRIP-012-R5 R6 R10`, with the same checks) and 366 unit tests. No test removed or skipped, none retried. | local | Pass | 2026-11-09 |
 | TECH-030-R2 | `npm run test:time`: 81.7 s for the run (budget 180 s), slowest test 4.2 s; 72.5 s on a quiet computer, 94.2 s on a busy one. Before: 257.0 s, slowest 5.0 s. | local | Pass | 2026-11-09 |
 | TECH-030-R3 | Ten full runs in a row with four lanes passed (`npm run test:local`, 261 tests each, built the plain way: five before and five after the two timing fixes below). The 262-test code (after the TRIP-012 split) was run three times more (`test:time`, 81.7 s, and twice the CI way, 81.7 s and 80.3 s); the first of those CI-way runs had two failures (the two races below, fixed before the others), the other two passed. A first lane run failed (5 tests) because several workers took tests from one lane; fixed with `workers: 1` per lane. No file needs a serial step (each lane has its own database). | local | Pass | 2026-11-09 |
-| TECH-030-R4 | The CI way, run locally: `node scripts/test-server.mjs --build-only`, then `TEST_SERVER_PREBUILT=1 npm run test:time` ran 262 tests without building again: 80.3 s, all passed (no "Creating an optimized build" in the test run). The `check` job time on GitHub (at most 6 min) is **not checked**: it is read from the pull request's run. | local; CI not checked | Partly: CI time not checked | 2026-11-09 |
+| TECH-030-R4 | The CI way, run locally: `node scripts/test-server.mjs --build-only`, then `TEST_SERVER_PREBUILT=1 npm run test:time` ran 262 tests without building again: 80.3 s, all passed (no "Creating an optimized build" in the test run). The `check` job on GitHub (pull request 157, run 42584475688): 4 min 29 s (earlier run: 7 min 12 s), of which `test:local` 2 min 34 s, the build step 13 s. At most 6 min. | local, CI | Pass | 2026-11-09 |
 | TECH-030-R5 | `wiki/system/testing.md` (Lanes rule, runs, one run at a time, budgets), `architecture.md`, `pipeline.md`, `README.md`, `specs/overview.md` and `wiki/log.md` read against the code | local | Pass | 2026-11-09 |
 
 ## The test plan
@@ -34,7 +34,7 @@ title: Bring the browser tests back inside the time budget
 | After, quiet computer | 261 browser, 366 unit | 72.5 s (275.6 s added up) | 4.9 s |
 | After, final (busy computer: load average 8) | 262 browser, 366 unit | 80.3–81.7 s (284–296 s added up) | 4.2–5.0 s |
 
-Unit tests: 12–17 s (budget 30 s), unchanged. The time grew by more than 25 % nowhere; it fell by 68 %. CI (4 cores, about 55 % slower than this computer) is **not measured yet**.
+Unit tests: 12–17 s (budget 30 s), unchanged. The time grew by more than 25 % nowhere; it fell by 68 %. CI (4 cores, four lanes): `test:local` 2 min 34 s in the pull request's `check` run; the job took 4 min 29 s.
 
 ## Definition of Done
 
@@ -94,4 +94,4 @@ Acceptance criteria:
 - **Found while verifying:** (1) four workers on one database fail 3 of 261 tests (the tests that create aircraft change what the others see, and `SQLITE_BUSY`); (2) with lanes but without `workers: 1` per lane, 5 failed; (3) one run in the CI way failed on two races that a busy computer shows: `expectNoA11yViolations` ran before the streamed page title (`document-title`), and `TRIP-013` read the result count before the list was filtered. Both fixed in the tests.
 - **The per-test limit:** `TRIP-012-R1 R4 R5 R6 R10` took 4.9–6.2 s with four lanes busy (5.0 s alone), so it was split in two.
 - **The tests' own times added up grow** (257 s to 275–345 s) because four browsers and four sites share the computer; the run is shorter, each test a little slower. The per-test limit of 5 s is measured in that setting.
-- Not checked: the `check` job on GitHub (R4), Preview and Live tests. Four lanes on the CI runner's 4 cores may need `TEST_LANES` lowered; this is read from the pull request.
+- Four lanes on the CI runner's 4 cores were fine: the `check` job took 4 min 29 s. Not checked here: the Live tests after the merge.
