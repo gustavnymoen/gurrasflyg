@@ -43,8 +43,11 @@ jobs:
       - run: npm run typecheck
       # TECH-015: enhetstesterna före bygget, så att en trasig regel stoppar tidigt
       - run: npm run test:unit
-      - run: npm run build
+      # TECH-030: sajten byggs en gång, för testerna, och testservern bygger inte om
+      - run: node scripts/test-server.mjs --build-only
       - run: npm run test:local
+        env:
+          TEST_SERVER_PREBUILT: "1"
 
       - name: Spara testrapporten
         if: failure()

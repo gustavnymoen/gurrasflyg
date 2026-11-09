@@ -1,0 +1,14 @@
+%% TECH-030 Bring the browser tests back inside the time budget
+%% How npm run test:local runs the tests in lanes (TECH-030-R3, R4).
+flowchart TD
+    A[npm run test:local] --> B[test-server.mjs: one database per lane,<br/>one build, unless TEST_SERVER_PREBUILT=1]
+    B --> C1[Lane 0: site 3200, test-0.db]
+    B --> C2[Lane 1: site 3201, test-1.db]
+    B --> C3[Lane 2: site 3202, test-2.db]
+    B --> C4[Lane 3: site 3203, test-3.db]
+    C1 & C2 & C3 & C4 --> G[Port 3100 answers: every site is ready]
+    G --> T0[Lane 0 worker: its files, one test at a time]
+    G --> T1[Lane 1 worker]
+    G --> T2[Lane 2 worker]
+    G --> T3[Lane 3 worker]
+    T0 & T1 & T2 & T3 --> Z[Teardown removes leftover E2E data in every lane]

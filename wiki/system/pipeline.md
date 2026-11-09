@@ -7,7 +7,7 @@ feature: TECH-014
 tags: [workflow, pipeline, ci, deploy, testing]
 generated:
   by: claude
-  at: 2026-10-30T15:00:00+01:00
+  at: 2026-11-09T12:00:00+01:00
 ---
 
 # Pipeline
@@ -17,7 +17,7 @@ Every change reaches the live site through a pull request to `main`. The whole t
 ```mermaid
 flowchart TD
     A[Branch: code, tests, review] -->|push| B[Pull request to main]
-    B --> C["CI: check<br/>lint, type check, unit tests,<br/>build, every browser test"]
+    B --> C["CI: check<br/>lint, type check, unit tests,<br/>build, every browser test<br/>in four lanes"]
     B --> D["CI: security<br/>npm audit, Semgrep, Gitleaks"]
     B --> E[Vercel builds a preview<br/>with its own database]
     E -->|deployment_status| F["Preview tests<br/>smoke tests against the preview;<br/>fails if the deploy failed"]
@@ -27,13 +27,15 @@ flowchart TD
     J[Dependabot] -->|security updates,<br/>monthly action updates| B
 ```
 
+The job builds the site once, for the browser tests (with the test environment); the default `npm run build` runs on Vercel's build of every preview.
+
 The diagram can be exported as a picture, for example with the Mermaid Live Editor (<https://mermaid.live>), for a presentation.
 
 ## The workflows
 
 | Workflow | When | Against | What |
 |---|---|---|---|
-| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with its own fresh test database, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `npm run test:local` (every browser test) |
+| **CI** (`ci.yml`), job `check` | Every pull request to `main`; by hand | A local production build with a fresh test database for each lane, in Playwright's image | `npm run lint`, `npm run typecheck`, `npm run test:unit`, `node scripts/test-server.mjs --build-only` (the one build, for the browser tests), `npm run test:local` (every browser test, in four lanes, without building again) |
 | **CI**, job `security` | Every pull request to `main`; by hand | The code and its whole Git history | `npm audit`, Semgrep, Gitleaks ([Testing](testing.md#security)) |
 | **Preview tests** (`preview-tests.yml`) | When Vercel reports a preview as ready (`deployment_status`) | The pull request's preview on Vercel | `npm run test:smoke` |
 | **Live tests** (`live-tests.yml`) | When Vercel reports a production deploy as ready (`deployment_status`); by hand | <https://gurrasflyg.vercel.app> | `npm run test:smoke` |

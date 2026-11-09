@@ -16,6 +16,7 @@ const resultCount = async (page: Page) =>
 
 test("TRIP-013-R1 R9 suggestions find a destination by its other name, and Enter lists every match", async ({ page }) => {
   await page.goto("/charter");
+  const all = await resultCount(page);
   await search(page).fill("field station");
   const list = page.getByRole("listbox", { name: "Förslag" });
   await expect(list.getByRole("option", { name: /Teufelsberg listening station/ })).toBeVisible();
@@ -24,7 +25,9 @@ test("TRIP-013-R1 R9 suggestions find a destination by its other name, and Enter
   await search(page).press("Enter");
   await expect(page).toHaveURL(/\/charter\?sok=field\+station$/);
   await expect(card(page, "Teufelsberg listening station, Tyskland")).toBeVisible();
-  // Waits for the list to be filtered: the card was already there before the search
+  // Waits for the list to be filtered (the card was already there before the search, and the
+  // number can still be the old one on a slow computer), then the cards match the number
+  await expect.poll(() => resultCount(page)).toBeLessThan(all);
   await expect(page.getByRole("heading", { level: 3 })).toHaveCount(await resultCount(page));
 });
 

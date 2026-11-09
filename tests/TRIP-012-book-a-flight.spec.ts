@@ -40,7 +40,7 @@ const twoAndOne = (fleet: Fleet) => ({ [fleet.base]: 1, [fleet.luxury]: 2 });
 test.describe("with the tests' own aircraft", () => {
   test.skip(!process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD is not set");
 
-  test("TRIP-012-R1 R4 R5 R6 R10 Fortsätt opens the booking page, Dåliga nerver adds 1 000 kr per flight, a wrong e-mail and an unticked question keep the traveller there, and another aircraft clears that flight's add-ons", async ({
+  test("TRIP-012-R1 R4 Fortsätt opens the booking page, and Dåliga nerver adds 1 000 kr per flight", async ({
     page,
     fleet,
   }) => {
@@ -88,6 +88,14 @@ test.describe("with the tests' own aircraft", () => {
     await nerves.hover();
     await expect(tip).toBeVisible();
     await nerves.uncheck();
+  });
+
+  // Split from the test above to keep each test under 5 s (TECH-030); this one starts at the booking page
+  test("TRIP-012-R5 R6 R10 another aircraft clears that flight's add-ons, and a wrong e-mail and an unticked question keep the traveller there", async ({
+    page,
+    fleet,
+  }) => {
+    await openBooking(page, fleet.large, { [fleet.base]: 1 }, true);
 
     // R10: another aircraft clears that flight's add-ons, and keeps the names and the contact
     await fillAll(page, 1);

@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-import { testDbFile } from "../lib/local-db.mjs";
+import { testDbFileFor } from "../lib/test-lanes.mjs";
 import { test as base, expect, type Locator, type Page } from "@playwright/test";
 import { type CharterSearch, NO_CHOICE, resultsUrl } from "../lib/charter-rules";
 import {
@@ -253,10 +253,12 @@ export async function fillAll(page: Page, passengers: number, email = "anna@exem
   }
 }
 
-// The test database (npm run test:local): how many bookings a contact has,
-// and deleting them, so the tests clean up after themselves
+// The test database of the lane the test runs in (npm run test:local, project
+// "lane-<n>"): how many bookings a contact has, and deleting them, so the
+// tests clean up after themselves
 export async function inTestDb<T>(fn: (db: ReturnType<typeof createClient>) => Promise<T>) {
-  const db = createClient({ url: `file:${testDbFile}` });
+  const lane = Number(base.info().project.name.replace("lane-", ""));
+  const db = createClient({ url: `file:${testDbFileFor(lane)}` });
   try {
     await db.execute("PRAGMA foreign_keys = ON");
     return await fn(db);

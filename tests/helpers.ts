@@ -224,6 +224,9 @@ export async function hydrated(locator: Locator) {
 // WCAG 2.x level A or AA rule (TRIP-008-R12). axe finds only some of the
 // problems; the rest is checked by hand (TRIP-021).
 export async function expectNoA11yViolations(page: Page) {
+  // The title of a page can arrive a moment after the page (streamed metadata); a computer that is busy
+  // shows it later, and axe would report a page without a title (TECH-030)
+  await expect(page).toHaveTitle(/.+/);
   // Anything fading or changing colour is between two values, which axe reads as low contrast (TECH-032).
   // Transitions run even with reduced motion, so wait for all of them. An endless animation is left out.
   await page.evaluate(() =>
