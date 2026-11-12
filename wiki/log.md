@@ -1,5 +1,9 @@
 # Log
 
+## 2026-11-12
+
+- TRIP-045: **Agneta knows continents, aircraft, classes and add-ons**. Every destination in her system text has its continent, and a new section `# AIRCRAFT, CLASSES AND ADD-ONS` (`lib/chat-prompt.ts`) lists the aircraft with their price and time factors, the classes with seats and factors and the add-ons with prices and rules, read from the database as the booking reads it. One rule: only that data, and never a route's price or time from the factors. Unit tests in `lib/chat-prompt.test.ts`. System page: `charter-chatbot.md`; manual: `fraga-agneta.md`.
+
 ## 2026-11-09
 
 - TECH-030: **browser tests in lanes**. `npm run test:local` runs the 261 browser tests at the same time in four lanes (`lib/test-lanes.mjs`, `playwright.config.ts`): each lane is a Playwright project with one worker, its own copy of the site (ports 3200–3203) and its own test database, started by `scripts/test-server.mjs`, and the spec files are divided between them by size. 257 s became 72 s (budget 180 s); `npm run test:time` now reports the time the run took. CI builds the site once (`--build-only`) and the tests no longer build again. First try, four workers on one database, failed: the tests that create aircraft change what every other test sees. Two timing races found under load were fixed in the tests (axe waits for the page title, TRIP-013 waits for the filtered count). New rules in [Testing](system/testing.md).
