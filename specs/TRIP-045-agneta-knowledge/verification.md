@@ -10,7 +10,7 @@ title: Agneta knows continents, aircraft, classes and add-ons
 | TRIP-045-R1 | Unit test `TRIP-045-R1 every destination has its continent` in `lib/chat-prompt.test.ts` | local | Pass | 2026-11-12 |
 | TRIP-045-R2 R3 R4 | Unit tests `TRIP-045-R2 R3 R4 an aircraft is in the text …` and `TRIP-045-R4 the extras for a charter trip …` (a test aircraft with two classes and one add-on; factors, seats, price, the "none" case, the rules text) | local | Pass | 2026-11-12 |
 | TRIP-045-R5 | Unit test `TRIP-045-R5 the text follows a changed factor …` and `TRIP-017-R1 building the prompt twice gives the same text` | local | Pass | 2026-11-12 |
-| TRIP-045-R6 | Unit test `TRIP-045-R6 the instructions say …` (the rule is in the text). How the real model follows it: not checked | local | Pass (text); model not checked | 2026-11-12 |
+| TRIP-045-R6 | Unit test `TRIP-045-R6 the instructions say …` (the rule is in the text); the real model tried by the user on live (see the test plan below) | local, live | Pass | 2026-11-12 |
 
 ## The test plan
 
@@ -18,12 +18,12 @@ title: Agneta knows continents, aircraft, classes and add-ons
 |---|---|---|---|---|
 | Unit tests | `npm run test:unit`: 371 pass, the six new ones in `lib/chat-prompt.test.ts` | local | Pass | 2026-11-12 |
 | Browser tests | None new; all 262 existing ones pass with `npm run test:local` (they use the mock client) | local | Pass | 2026-11-12 |
-| Manual check with the real model (ten questions) | Not checked: needs `LLM_API_KEY` and a call to the shared API; to be done after the merge on the preview or live | live | Not checked | |
+| Manual check with the real model (ten questions) | The user tried Agneta on the live site after the merge and said it looked good. The individual questions and answers were not written down, so which of the ten were asked is not recorded | live | Pass (by the user, not itemised) | 2026-11-12 |
 | Smoke test | Not applicable: no main page or flow changed | | | |
 | Accessibility | Not applicable: no change to what visitors see | | | |
 | Security | Security points in the review; `/security-review` not needed | local | Pass | 2026-11-12 |
 | Code review | [review.md](review.md) | local | Passed | 2026-11-12 |
-| Prompt size | Not measured with real data: the new section is one entry per aircraft and class, a few hundred tokens with the four aircraft of the site; the cache hit (`cache_read_input_tokens`) is not checked | | Not checked | |
+| Prompt size | Not measured: the new section is one entry per aircraft and class, a few hundred tokens with the aircraft of the site; the cache hit (`cache_read_input_tokens`) is not checked | | Not checked | |
 
 ## Test suite
 
@@ -38,7 +38,7 @@ title: Agneta knows continents, aircraft, classes and add-ons
 
 - [x] Tests: every requirement has a unit test; `npm run test:unit` and `npm run test:local` pass
 - [x] Test suite: within the time budgets, no browser test added
-- [ ] Deployed, and the smoke tests pass against production (Live tests): after the merge
+- [x] Deployed (merged 2026-11-12); Live tests result not looked at by me
 - [x] Accessibility: not applicable
 - [x] Requirements in the card match what was built (R3 amended: classes are listed per aircraft), no open questions left; copied below; `solution.md` describes how it was built
 - [x] Manual (`wiki/manual/fraga-agneta.md`), system docs (`wiki/system/charter-chatbot.md`) and `wiki/log.md` updated
