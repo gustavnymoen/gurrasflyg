@@ -3,11 +3,11 @@ type: Feature
 title: Charter chatbot Agneta
 description: The chat "Fråga Agneta" on the start page, the charter pages, the flight pages and Min bokning (a side panel on wide screens, a dialog on small ones, kept in the session), the agent mode "Hjälp mig" with tools that steer the page, a button that books a charter trip or a flight, and ticking what to cancel on Min bokning, the route POST /api/chat, how the system prompt is built from the database, the limits on questions, and how the model is called and tested.
 resource: lib/chat.ts
-feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-040, TRIP-038, TRIP-036, TRIP-037, TRIP-044, TRIP-035
+feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-040, TRIP-038, TRIP-036, TRIP-037, TRIP-044, TRIP-035, TRIP-045
 tags: [charter, chatbot, llm, api, rate-limit]
 generated:
   by: claude
-  at: 2026-11-08T12:30:00+01:00
+  at: 2026-11-12T14:00:00+01:00
 ---
 
 # Charter chatbot Agneta
@@ -106,6 +106,10 @@ Agneta helps a visitor find a booking and choose what to cancel, with the same m
 ## The system prompt
 
 `buildSystemPrompt()` in `lib/chat-prompt.ts` is read from the database at every request and has: the instructions (including the answer format: short, bold, the destination's page as a link `[Title](/charter/id)` with its name in full on every page, and for several destinations one bullet each with the name as a link and a short summary plus exactly one sub-bullet with the airport and the price "from" per person) and the voice (grumpy but not tiring, the tone from the very first answer, never starting by repeating the question, now and then one short random remark, at most one trait per answer), the booking text, and one `<destination id="…">` block per destination, sorted by id, with title, its page path (`Page: /charter/<id>`), aliases, country, region, locality, category, access, airports, ways of getting there, tags, the airport and "round trip from" price the destination page shows (`tripTo`), the timetables between that airport and Arlanda or Köpenhamn (days, period, local departure and arrival time, airline and flight numbers, changes, price), and the three page texts. A destination with no flights has the page's notice instead. The text holds no date, time or photo credit, so it is the same on every call while the data is, which is what makes prompt caching work (about 125 000 tokens, measured in the live log). The booking text must match [Boka en charterresa](../manual/boka-charter.md); change both together.
+
+### Continents, aircraft, classes and add-ons (TRIP-045)
+
+Each destination block also has a `Continent:` line, from `destinations.continent`. Between the booking text and the knowledge comes the section `# AIRCRAFT, CLASSES AND ADD-ONS` (`equipmentSection()`), read with `readFleet()` and `readAddons()` as the booking reads them: what the factors mean (the price per person is the departure's price × the aircraft's price factor × the class's price factor, a flight takes the route's time × the time factor, and in charter the time factor is not used), the add-on rules (up to `MAX_ADDONS` of each, no beer under 18, Dåliga nerver at `NERVES_PRICE` on flights only, the charter extras are in the booking text), and then each aircraft with its factors and, under it, each class with seats, class factor and the add-ons offered there with price and description. The instructions tell her to use only that data, that what is not there does not exist for us, and never to price or time a route from the factors. It is read at every request, in a fixed order (aircraft by name, classes cheapest first, add-ons by name), so the text is the same as long as admin changes nothing. [Solution](../../specs/TRIP-045-agneta-knowledge/solution.md).
 
 ## The model call
 

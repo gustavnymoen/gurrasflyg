@@ -3,11 +3,11 @@ type: Guide
 title: Fråga Agneta
 description: Så ställer du frågor om våra charterresmål och om hur du bokar till Agneta i chatten (en panel vid sidan av sidan, eller en ruta på mobilen), och hur du låter henne hjälpa dig att hitta och boka en charterresa eller ett vanligt flyg, eller att avboka en bokning, med knappen Hjälp mig.
 resource: app/components/Chat.tsx
-feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-036, TRIP-037, TRIP-044, TRIP-035
+feature: TRIP-017, TRIP-032, TRIP-033, TRIP-030, TRIP-036, TRIP-037, TRIP-044, TRIP-035, TRIP-045
 tags: [resenär, charter, chatt, agneta]
 generated:
   by: claude
-  at: 2026-11-08T12:30:00+01:00
+  at: 2026-11-12T14:00:00+01:00
 ---
 
 # Fråga Agneta
@@ -28,6 +28,8 @@ Första gången du öppnar chatten i en flik står det "Kopplar in Agneta …" i
 1. Skriv din fråga, högst 500 tecken. Närmar du dig gränsen står det hur många tecken som är kvar.
 2. Tryck **Skicka** eller Enter. Din fråga syns som en pratbubbla till höger, och medan Agneta tänker står det "Agneta tänker …".
 3. Agnetas svar kommer som en bubbla till vänster. Svaren är korta. Frågar du om flera resmål får du en lista med en punkt per resmål: namnet är en länk till resmålets sida, med en kort sammanfattning, och under den en rad med flygplats och pris "från" per person. Resmål hon nämner är alltid länkar, också på startsidan. Hon svarar på det språk du frågar på, och minns de senaste frågorna, så du kan fråga vidare ("och hur tar jag mig dit?").
+
+Du kan också fråga henne **vilken världsdel** ett resmål ligger i och vilka resmål som finns i en världsdel, och om **plan, klasser och tillägg**: vilka plan som finns, hur mycket dyrare eller snabbare ett plan är än ett vanligt (till exempel "fyra gånger så lång tid"), vilka klasser planen har och vad de kostar jämfört med varandra, och vad tilläggen kostar och var de går att välja (öl till exempel inte om en resenär är under 18). Hon säger ingen flygtid eller något pris för en viss resa utifrån det: resans egna tider och priser ser du på resultatsidan. I charter flyger alla plan på samma tid.
 
 Är det fler än tre träffar i en lista visas de tre första, som hon tycker passar bäst, och resten är gömda bakom knappen **Visa mer** i samma bubbla (tryck igen på **Visa mindre** för att gömma dem). Frågar du henne efter fler ("finns det fler?") får du hela listan.
 

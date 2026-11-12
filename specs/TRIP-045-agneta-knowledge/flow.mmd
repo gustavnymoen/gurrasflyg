@@ -1,0 +1,10 @@
+%% TRIP-045 Agneta knows continents, aircraft, classes and add-ons
+flowchart TD
+    A[Question to Agneta] --> B[buildSystemPrompt reads the database]
+    B --> C[Destinations with Continent: R1]
+    B --> D[readFleet + readAddons: aircraft, factors, classes, seats, add-ons: R2 R3 R4]
+    B --> E[Rules: formulas, charter time exception, add-on rules: R2 R4 R6]
+    C --> F[One identical text per unchanged database: R5]
+    D --> F
+    E --> F
+    F --> G[Answer from the data only, a missing thing does not exist: R6]

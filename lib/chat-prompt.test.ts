@@ -1,5 +1,6 @@
 import { beforeAll, expect, test, vi } from "vitest";
-import { queryUnitDb } from "../db/test-db";
+import { openUnitDb, queryUnitDb } from "../db/test-db";
+import { formatPrice } from "./format";
 import { unitTestDbFile } from "./local-db.mjs";
 
 // Läser enhetstesternas databas (vitest.global-setup.mjs), aldrig din egen.
@@ -117,4 +118,67 @@ test("TRIP-035-R6 she writes the whole list best match first, and ends the whole
   expect(prompt).toContain("never shorten the list yourself");
   expect(prompt).toContain("a last line of exactly [[ALL]]");
   expect(prompt).toContain("Never add that line to any other answer");
+});
+
+// TRIP-045: plan, klasser och tillägg. Testet lägger till ett eget plan och tar bort det efteråt.
+const PLANE = "Prompt Plan";
+
+async function withPlane<T>(check: (prompt: string) => Promise<T> | T, priceFactor = 130) {
+  const db = openUnitDb();
+  let aircraftId = 0;
+  let addonId = 0;
+  try {
+    const business = Number((await db.execute("SELECT id FROM classes WHERE name = 'Business'")).rows[0].id);
+    aircraftId = Number((await db.execute({ sql: "INSERT INTO aircraft (name, price_percent, time_percent) VALUES (?, ?, 400)", args: [PLANE, priceFactor] })).lastInsertRowid);
+    addonId = Number((await db.execute("INSERT INTO addons (name, description, price) VALUES ('Prompt Öl', 'Kall', 77)")).lastInsertRowid);
+    await db.execute({ sql: "INSERT INTO aircraft_capacity (aircraft_id, class_id, capacity) VALUES (?, ?, 6)", args: [aircraftId, business] });
+    await db.execute({ sql: "INSERT INTO aircraft_capacity (aircraft_id, class_id, capacity) VALUES (?, (SELECT id FROM classes WHERE name = 'Ekonomi'), 12)", args: [aircraftId] });
+    await db.execute({ sql: "INSERT INTO aircraft_class_addons (aircraft_id, class_id, addon_id) VALUES (?, ?, ?)", args: [aircraftId, business, addonId] });
+    return await check(await build());
+  } finally {
+    await db.execute({ sql: "DELETE FROM aircraft_class_addons WHERE aircraft_id = ?", args: [aircraftId] });
+    await db.execute({ sql: "DELETE FROM aircraft_capacity WHERE aircraft_id = ?", args: [aircraftId] });
+    await db.execute({ sql: "DELETE FROM aircraft WHERE id = ?", args: [aircraftId] });
+    await db.execute({ sql: "DELETE FROM addons WHERE id = ?", args: [addonId] });
+    db.close();
+  }
+}
+
+test("TRIP-045-R1 every destination has its continent", async () => {
+  const rows = await queryUnitDb<{ id: string; continent: string }>("SELECT id, continent FROM destinations ORDER BY id");
+  for (const r of rows) {
+    const start = prompt.indexOf(`<destination id="${r.id}">`);
+    expect(prompt.slice(start, prompt.indexOf("</destination>", start))).toContain(`Continent: ${r.continent}\n`);
+  }
+});
+
+test("TRIP-045-R2 R3 R4 an aircraft is in the text with its factors, its classes with seats and the add-ons it offers", async () => {
+  await withPlane((text) => {
+    expect(text).toContain(`- ${PLANE}: price factor 1,30, time factor 4,00\n  - Ekonomi: 12 seats, class price factor 1,00; add-ons: none\n  - Business: 6 seats, class price factor 1,50; add-ons: Prompt Öl (${formatPrice(77)}, Kall)`);
+    expect(text).toContain("In a charter trip the time factor is not used");
+    expect(text).toContain("up to 10 of each")
+    expect(text).toContain("per traveller and per flight (in charter, per trip)");
+    expect(text).toContain("A beer cannot be chosen when the traveller is under 18");
+    expect(text).toContain(`Dåliga nerver costs ${formatPrice(1000)} per traveller and flight`);
+  });
+});
+
+test("TRIP-045-R4 the extras for a charter trip are in the booking text with their prices", () => {
+  expect(prompt).toContain(`Dryckespaket XXXL (${formatPrice(4000)})`);
+});
+
+test("TRIP-045-R5 the text follows a changed factor, and is the same again after it is changed back", async () => {
+  const before = await build();
+  const changed = await withPlane((text) => text, 130);
+  const other = await withPlane((text) => text, 170);
+  expect(changed).toContain("price factor 1,30");
+  expect(other).toContain("price factor 1,70");
+  expect(other).not.toContain("price factor 1,30");
+  expect(await build()).toBe(before);
+  expect(before).not.toContain(PLANE);
+});
+
+test("TRIP-045-R6 the instructions say to use only this data and never to price a route from the factors", () => {
+  expect(prompt).toContain("A continent, an aircraft, a class or an add-on that is not there does not exist for us");
+  expect(prompt).toContain("Never give the price or the flight time of a route from the factors");
 });
